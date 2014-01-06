@@ -1,0 +1,13 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
+        <item name="android:actionBarStyle">@style/ActTheme</item>
+    </style>
+
+    <style name="ActTheme" parent="@style/Widget.AppCompat.Light.ActionBar">
+        <item name="android:homeAsUpIndicator">@drawable/customup</item>
+        <item name="android:background">@color/SOSRed</item>
+        <item name="android:icon">@drawable/ic_action</item>
+    </style>
+</resources>

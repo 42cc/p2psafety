@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SOSMessage</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="items_array">
+        <item>Телефоны</item>
+        <item>Сообщение</item>
+        <item>Тест</item>
+    </string-array>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="action_websearch">Web search</string>
+    <string name="app_not_available">Sorry, there\'s no web browser available</string>
+
+    <string name="trusted_phones">Номера телефонов:</string>
+    <string name="test_message">ЭТО ТЕСТОВОЕ СООБЩЕНИЕ:</string>
+    <string name="btn_test">SOS</string>
+    <string name="btn_next">Далее</string>
+    <string name="enable_geo">Геолокация</string>
+    <string name="enter_message">Сообщение:</string>
+    <string name="geo_message">Мои координаты</string>
+    <string name="loc_will_send">Локацию будет отправлено через 20с</string>
+
+    <string name="sos_message">Помогите, у меня проблемы!</string>
+    <string name="sms_sent">Сообщение отправлено!</string>
+    <string name="sms_failed">Не удалось отправить сообщение!</string>
+    <string name="btn_save">Сохранить</string>
+    <string name="enter_phones">Пожалуйста, добавьте номера телефонов</string>
+    <string name="hold">Зажмите кнопку!</string>
+
+    <string name="add_phone">Телефоны</string>
+    <string name="edit_message">Сообщения</string>
+    <string name="save">Сохранено</string>
+
+</resources>

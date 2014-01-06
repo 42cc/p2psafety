@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *.py[cod]
 
 # C extensions
@@ -34,3 +35,34 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+=======
+.DS_Store
+
+.classpath
+.project
+lint.xml
+project.properties
+
+local.properties
+ant.properties
+build.xml
+proguard-project.txt
+
+# android
+gen
+bin
+test/bin
+test/gen
+
+#robolectric
+tmp
+
+# idea
+.idea
+out
+*.iml
+
+#gradle
+build
+.gradle
+>>>>>>> ticket_1Projectbootstrap
