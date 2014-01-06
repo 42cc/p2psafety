@@ -1,0 +1,25 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
+        <item name="actionBarStyle">@style/ActTheme</item>
+    </style>
+
+    <style name="ActTheme" parent="@style/Widget.AppCompat.Light.ActionBar">
+        <item name="homeAsUpIndicator">@drawable/customup</item>
+        <item name="background">@color/SOSRed</item>
+        <item name="icon">@drawable/ic_action</item>
+    </style>
+
+
+    <style name="TextButton">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textColor">@color/White</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextButtonSOS">
+        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+        <item name="android:textColor">@color/White</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

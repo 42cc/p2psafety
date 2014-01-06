@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/txt_phone"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:minEms="9"
+            android:layout_weight="1"
+            android:gravity="center_vertical"/>
+    <View
+            android:layout_height="match_parent"
+            android:layout_width="1dp"
+            android:background="@color/DimGray"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:layout_gravity="center"
+            android:padding="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"/>
+
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ibtn_del"
+            android:layout_gravity="center"
+            android:src="@drawable/del_sel"
+            android:adjustViewBounds="true"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:padding="@dimen/st_padding"
+            />
+
+</LinearLayout>

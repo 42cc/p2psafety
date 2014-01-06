@@ -1,0 +1,29 @@
+.DS_Store
+
+.classpath
+.project
+lint.xml
+project.properties
+
+local.properties
+ant.properties
+build.xml
+proguard-project.txt
+
+# android
+gen
+bin
+test/bin
+test/gen
+
+#robolectric
+tmp
+
+# idea
+.idea
+out
+*.iml
+
+#gradle
+build
+.gradle
