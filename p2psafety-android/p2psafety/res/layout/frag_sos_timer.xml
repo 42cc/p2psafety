@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+    android:background="@color/White">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/protect2"
+        android:focusable="true"
+        android:contentDescription="protect yourself"
+        android:adjustViewBounds="true" />
+
+    <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/arrowUpBtn"
+                android:layout_gravity="center"
+                android:src="@drawable/arrow_up"
+                android:background="@color/White"
+                android:layout_weight="1"
+                android:scaleType="fitXY" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="67:00"
+                android:id="@+id/timerText"
+                android:layout_gravity="center"
+                android:textSize="70sp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="0" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/arrowDownBtn"
+                android:layout_gravity="center"
+                android:src="@drawable/arrow_down"
+                android:background="@color/White"
+                android:layout_weight="1"
+                android:scaleType="fitXY" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <Button
+        style="@style/TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Старт"
+        android:id="@+id/timerBtn"
+        android:background="@drawable/btn_sel"
+        android:padding="@dimen/st_padding"
+        android:layout_marginRight="2dp"
+        android:singleLine="true"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="24dp"
+        android:minWidth="170dp" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout"
+        android:background="@color/SOSRed">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView2"
+            android:adjustViewBounds="true"
+            android:src="@drawable/entry"
+            android:layout_weight="4" />
+    </LinearLayout>
+
+
+</LinearLayout>

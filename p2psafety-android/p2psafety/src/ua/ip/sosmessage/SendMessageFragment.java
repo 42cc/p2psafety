@@ -19,6 +19,8 @@ import ua.ip.sosmessage.sms.MessageResolver;
  * Created by ihorpysmennyi on 12/14/13.
  */
 public class SendMessageFragment extends Fragment {
+    Button mDelayedSosBtn;
+
     private View.OnClickListener lsnr = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -42,6 +44,11 @@ public class SendMessageFragment extends Fragment {
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
                     break;
+                case R.id.delayedSosBtn:
+                    mfragment = new DelayedSosFragment();
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                    break;
             }
         }
     };
@@ -58,6 +65,10 @@ public class SendMessageFragment extends Fragment {
         Typeface font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/RobotoCondensed-Bold.ttf");
 
         View rootView = inflater.inflate(R.layout.frag_sendmessage, container, false);
+
+        mDelayedSosBtn = (Button) rootView.findViewById(R.id.delayedSosBtn);
+        mDelayedSosBtn.setOnClickListener(lsnr);
+
         View btn_send = rootView.findViewById(R.id.button);
         btn_send.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
