@@ -18,18 +18,28 @@ import ua.ip.sosmessage.setphones.SetPhoneFragment;
  * Created by ihorpysmennyi on 12/14/13.
  */
 public class SosActivity extends ActionBarActivity {
+    public static final String FRAGMENT_KEY = "fragmentKey";
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_sosmain);
         setSupportActionBar();
 
         Fragment fragment;
-        if (Prefs.isFirstRun(this))
-            fragment = new FirstRunFragment();
-        else if (new PhonesDatasourse(this).getAllPones().size() == 0)
-            fragment = new SetPhoneFragment();
-        else
-            fragment = new SendMessageFragment();
+
+        String fragmentClass = getIntent().getStringExtra(FRAGMENT_KEY);
+        if (fragmentClass != null)
+            // activity started by widget
+            fragment = Fragment.instantiate(this, fragmentClass);
+        else {
+            // normal start
+            if (Prefs.isFirstRun(this))
+                fragment = new FirstRunFragment();
+            else if (new PhonesDatasourse(this).getAllPones().size() == 0)
+                fragment = new SetPhoneFragment();
+            else
+                fragment = new SendMessageFragment();
+        }
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
     }

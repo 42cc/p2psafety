@@ -2,7 +2,11 @@ package ua.ip.sosmessage;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -28,11 +32,6 @@ public class DelayedSosFragment extends Fragment {
     TextView mTimerText;
     Button mTimerBtn;
     ImageButton mArrowUpBtn, mArrowDownBtn;
-
-    CountDownTimer mTimer;
-    Boolean mTimerOn = false;
-    long mSosDelay = 1*60*1000; // 2 min
-    long mTimeLeft;
 
     Activity mActivity;
 
@@ -63,10 +62,12 @@ public class DelayedSosFragment extends Fragment {
         mTimerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTimerOn) {
-                    stopTimer();
+                if (DelayedSosService.mTimerOn) {
+                    mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
+                    onTimerStop();
                 } else {
-                    startTimer();
+                    mActivity.startService(new Intent(mActivity, DelayedSosService.class));
+                    onTimerStart();
                 }
             }
         });
@@ -74,10 +75,11 @@ public class DelayedSosFragment extends Fragment {
         mArrowUpBtn.setOnTouchListener(new OnTouchContinuousListener() {
             @Override
             public void onTouchRepeat(View view) {
-                if (!mTimerOn) {
-                    mSosDelay += 1*60*1000; // +1 min
-                    mSosDelay = Math.min(mSosDelay, 120 * 60 * 1000);
-                    showSosDelay();
+                if (DelayedSosService.mTimerOn != true) {
+                    DelayedSosService.mSosDelay += 1*60*1000; // +1 min
+                    DelayedSosService.mSosDelay =
+                            Math.min(DelayedSosService.mSosDelay, 120 * 60 * 1000);
+                    showSosDelay(DelayedSosService.mSosDelay);
                 }
             }
         });
@@ -85,44 +87,42 @@ public class DelayedSosFragment extends Fragment {
         mArrowDownBtn.setOnTouchListener(new OnTouchContinuousListener() {
             @Override
             public void onTouchRepeat(View view) {
-                if (!mTimerOn) {
-                    mSosDelay -= 1*60*1000; // -1 min
-                    mSosDelay = Math.max(mSosDelay, 1*60*1000);
-                    showSosDelay();
+                if (DelayedSosService.mTimerOn != true) {
+                    DelayedSosService.mSosDelay -= 1*60*1000; // -1 min
+                    DelayedSosService.mSosDelay =
+                            Math.max(DelayedSosService.mSosDelay, 1*60*1000);
+                    showSosDelay(DelayedSosService.mSosDelay);
                 }
             }
         });
-
-        stopTimer();
     }
 
-    private void startTimer() {
-        mTimer = new CountDownTimer(mSosDelay, 1000) {
-            @Override
-            public void onFinish() {
-                stopTimer();
+    @Override
+    public void onResume() {
+        super.onResume();
 
-                new AlertDialog.Builder(mActivity)
-                        .setMessage("Here we send SOS message")
-                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .show();
-            }
+        // start listen to delayed sos timer
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(DelayedSosService.SOS_DELAY_TICK);
+        filter.addAction(DelayedSosService.SOS_DELAY_FINISH);
+        filter.addAction(DelayedSosService.SOS_DELAY_CANCEL);
+        mActivity.registerReceiver(mBroadcastReceiver, filter);
 
-            public void onTick(long millisUntilFinished) {
-                mTimeLeft = millisUntilFinished;
-                mTimerText.setText(String.format("%02d:%02d",
-                        TimeUnit.MILLISECONDS.toSeconds(mTimeLeft) / 60,
-                        TimeUnit.MILLISECONDS.toSeconds(mTimeLeft) % 60));
-            }
-        };
-        mTimer.start();
-        mTimerOn = true;
+        if (DelayedSosService.mTimerOn)
+            onTimerStart();
+        else
+            onTimerStop();
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        mActivity.unregisterReceiver(mBroadcastReceiver);
+    }
+
+    private void onTimerStart() {
+        showSosDelay(DelayedSosService.mTimeLeft);
         mArrowUpBtn.setImageDrawable(
                 getResources().getDrawable(R.drawable.arrow_up_inactive));
         mArrowDownBtn.setImageDrawable(
@@ -130,22 +130,40 @@ public class DelayedSosFragment extends Fragment {
         mTimerBtn.setText("Стоп");
     }
 
-    private void stopTimer() {
-        if (mTimer != null)
-            mTimer.cancel();
-        mTimerOn = false;
-
+    private void onTimerStop() {
         mArrowUpBtn.setImageDrawable(
                 getResources().getDrawable(R.drawable.arrow_up));
         mArrowDownBtn.setImageDrawable(
                 getResources().getDrawable(R.drawable.arrow_down));
-        showSosDelay();
+        showSosDelay(DelayedSosService.mSosDelay);
         mTimerBtn.setText("Старт");
     }
-      
-    private void showSosDelay() {
-        mTimerText.setText(String.format("%02d:%02d",
-                TimeUnit.MILLISECONDS.toSeconds(mSosDelay) / 60,
-                TimeUnit.MILLISECONDS.toSeconds(mSosDelay) % 60));
+
+    private void showSosDelay(long sosDelay) {
+        String timerText = String.format("%02d:%02d",
+                TimeUnit.MILLISECONDS.toSeconds(sosDelay) / 60,
+                TimeUnit.MILLISECONDS.toSeconds(sosDelay) % 60);
+        mTimerText.setText(timerText);
     }
+
+    // Broadcast from DelayedSosService timer
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (action.equals(DelayedSosService.SOS_DELAY_TICK)) {
+                // show time left
+                showSosDelay(DelayedSosService.mTimeLeft);
+            }
+            else if (action.equals(DelayedSosService.SOS_DELAY_FINISH)) {
+                // reset timer
+                showSosDelay(DelayedSosService.mSosDelay);
+            }
+            else if (action.equals(DelayedSosService.SOS_DELAY_CANCEL)) {
+                // reset timer
+                showSosDelay(DelayedSosService.mSosDelay);
+            }
+        }
+    };
 }

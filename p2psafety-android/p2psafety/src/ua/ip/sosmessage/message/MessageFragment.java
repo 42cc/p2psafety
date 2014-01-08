@@ -57,7 +57,6 @@ public class MessageFragment extends Fragment {
                 }
             });
         else {
-
             final View pic_protect = rootView.findViewById(R.id.img_protect);
             final View frame_indent = rootView.findViewById(R.id.frame_indent2);
             pic_protect.setVisibility(View.GONE);

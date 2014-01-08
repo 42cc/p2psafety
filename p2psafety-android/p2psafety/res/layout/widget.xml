@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
-             android:layout_height="match_parent">
+             android:layout_height="match_parent"
+    android:gravity="center_horizontal">
 
     <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:id="@+id/btn_run"
-            android:layout_gravity="center"
-            android:background="@drawable/sos_sel"
-            android:adjustViewBounds="true"/>
-</FrameLayout>
+            android:layout_gravity="center_horizontal"
+        android:layout_alignLeft="@+id/timer_text"
+        android:layout_alignRight="@+id/timer_text"
+        android:src="@drawable/btn_sos"
+        android:scaleType="fitXY"
+        android:longClickable="false"
+        android:background="@color/SOSRed" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="67:00"
+        android:id="@+id/timer_text"
+        android:textSize="50sp"
+        android:layout_below="@+id/btn_run"
+        android:autoText="false"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentStart="false"
+        android:textAlignment="gravity"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:gravity="top"
+        android:layout_marginTop="-12dp" />
+
+</RelativeLayout>
