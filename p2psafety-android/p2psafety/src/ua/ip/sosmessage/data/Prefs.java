@@ -12,18 +12,22 @@ public class Prefs {
     public static String MSG = "MSG_KEY";
     public static String IS_FIRST_RUN = "FIRST_RUN_KEY";
 
+    public static String SOS_DELAY_KEY = "SOS_DELAY";
+
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
     }
 
     public static void putIsLoc(Context context, boolean val) {
         getPrefs(context).edit().putBoolean(IS_LOC_KEY, val).commit();
-
     }
 
     public static void putMessage(Context context, String message) {
         getPrefs(context).edit().putString(MSG, message).commit();
+    }
 
+    public static void putSosDelay(Context context, long val) {
+        getPrefs(context).edit().putLong(SOS_DELAY_KEY, val).commit();
     }
 
     public static boolean getIsLoc(Context context) {
@@ -39,5 +43,9 @@ public class Prefs {
         if(b)
             getPrefs(context).edit().putBoolean(IS_FIRST_RUN, false).commit();
         return b;
+    }
+
+    public static long getSosDelay(Context context) {
+        return getPrefs(context).getLong(SOS_DELAY_KEY, 2*60*1000); // default is 2 min
     }
 }
