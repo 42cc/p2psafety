@@ -27,16 +27,19 @@ public class Widget extends AppWidgetProvider {
 
     RemoteViews mRemoteViews = null;
     ComponentName mWatchWidget = null;
+    Context mContext = null;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         mRemoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
         mWatchWidget = new ComponentName(context, Widget.class);
+        mContext = context;
 
         if (DelayedSosService.mTimerOn != true)
             showSosDelay();
 
         mRemoteViews.setOnClickPendingIntent(R.id.btn_run, getPendingSelfIntent(context, SYNC_CLICKED));
+        mRemoteViews.setOnClickPendingIntent(R.id.timer_text, getPendingSelfIntent(context, SYNC_CLICKED));
         appWidgetManager.updateAppWidget(mWatchWidget, mRemoteViews);
     }
 
@@ -44,9 +47,10 @@ public class Widget extends AppWidgetProvider {
     public void onReceive(final Context context, Intent intent) {
         super.onReceive(context, intent);
 
-        if (mRemoteViews == null || mWatchWidget == null) {
+        if (mRemoteViews == null || mWatchWidget == null || mContext == null) {
             mRemoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
             mWatchWidget = new ComponentName(context, Widget.class);
+            mContext = context;
         }
 
         String action = intent.getAction();
@@ -88,6 +92,11 @@ public class Widget extends AppWidgetProvider {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             appWidgetManager.updateAppWidget(mWatchWidget, mRemoteViews);
         }
+        else if (action.equals(DelayedSosService.SOS_DELAY_CHANGE)) {
+            showSosDelay();
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            appWidgetManager.updateAppWidget(mWatchWidget, mRemoteViews);
+        }
     }
 
     protected PendingIntent getPendingSelfIntent(Context context, String action) {
@@ -97,7 +106,7 @@ public class Widget extends AppWidgetProvider {
     }
 
     private void showSosDelay() {
-        long sosDelay = DelayedSosService.mSosDelay;
+        long sosDelay = DelayedSosService.getSosDelay(mContext);
         String timerText = String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toSeconds(sosDelay) / 60,
                 TimeUnit.MILLISECONDS.toSeconds(sosDelay) % 60);

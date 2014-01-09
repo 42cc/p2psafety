@@ -31,10 +31,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-
-                <action android:name="ua.ip.sosmessage.DelayedSosService.TimerTick"/>
-                <action android:name="ua.ip.sosmessage.DelayedSosService.TimerFinish"/>
-                <action android:name="ua.ip.sosmessage.DelayedSosService.TimerCancel"/>
             </intent-filter>
         </activity>
 
@@ -44,6 +40,7 @@
                 <action android:name="ua.ip.sosmessage.DelayedSosService.TimerTick"/>
                 <action android:name="ua.ip.sosmessage.DelayedSosService.TimerFinish"/>
                 <action android:name="ua.ip.sosmessage.DelayedSosService.TimerCancel"/>
+                <action android:name="ua.ip.sosmessage.DelayedSosService.TimerChange"/>
             </intent-filter>
 
             <meta-data

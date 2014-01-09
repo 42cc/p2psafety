@@ -76,10 +76,11 @@ public class DelayedSosFragment extends Fragment {
             @Override
             public void onTouchRepeat(View view) {
                 if (DelayedSosService.mTimerOn != true) {
-                    DelayedSosService.mSosDelay += 1*60*1000; // +1 min
-                    DelayedSosService.mSosDelay =
-                            Math.min(DelayedSosService.mSosDelay, 120 * 60 * 1000);
-                    showSosDelay(DelayedSosService.mSosDelay);
+                    long sosDelay = DelayedSosService.getSosDelay(mActivity);
+                    sosDelay += 1*60*1000; // +1 min
+                    sosDelay = Math.min(sosDelay, 120 * 60 * 1000); // max 120 min
+                    DelayedSosService.setSosDelay(mActivity, sosDelay);
+                    showSosDelay(sosDelay);
                 }
             }
         });
@@ -88,10 +89,11 @@ public class DelayedSosFragment extends Fragment {
             @Override
             public void onTouchRepeat(View view) {
                 if (DelayedSosService.mTimerOn != true) {
-                    DelayedSosService.mSosDelay -= 1*60*1000; // -1 min
-                    DelayedSosService.mSosDelay =
-                            Math.max(DelayedSosService.mSosDelay, 1*60*1000);
-                    showSosDelay(DelayedSosService.mSosDelay);
+                    long sosDelay = DelayedSosService.getSosDelay(mActivity);
+                    sosDelay -= 1*60*1000; // -1 min
+                    sosDelay = Math.max(sosDelay, 1*60*1000); // min 1 min
+                    DelayedSosService.setSosDelay(mActivity, sosDelay);
+                    showSosDelay(sosDelay);
                 }
             }
         });
@@ -135,7 +137,7 @@ public class DelayedSosFragment extends Fragment {
                 getResources().getDrawable(R.drawable.arrow_up));
         mArrowDownBtn.setImageDrawable(
                 getResources().getDrawable(R.drawable.arrow_down));
-        showSosDelay(DelayedSosService.mSosDelay);
+        showSosDelay(DelayedSosService.getSosDelay(mActivity));
         mTimerBtn.setText("Старт");
     }
 
@@ -157,12 +159,10 @@ public class DelayedSosFragment extends Fragment {
                 showSosDelay(DelayedSosService.mTimeLeft);
             }
             else if (action.equals(DelayedSosService.SOS_DELAY_FINISH)) {
-                // reset timer
-                showSosDelay(DelayedSosService.mSosDelay);
+                onTimerStop();
             }
             else if (action.equals(DelayedSosService.SOS_DELAY_CANCEL)) {
-                // reset timer
-                showSosDelay(DelayedSosService.mSosDelay);
+                onTimerStop();
             }
         }
     };
