@@ -31,4 +31,7 @@
     <string name="add_phone">Add phone</string>
     <string name="edit_message">Edit Message</string>
     <string name="save">Saved</string>
+
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
 </resources>

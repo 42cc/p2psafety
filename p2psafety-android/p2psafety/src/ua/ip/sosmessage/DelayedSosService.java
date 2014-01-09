@@ -18,9 +18,9 @@ public class DelayedSosService extends Service {
     public static final String SOS_DELAY_CANCEL = "ua.ip.sosmessage.DelayedSosService.TimerCancel";
     public static final String SOS_DELAY_CHANGE = "ua.ip.sosmessage.DelayedSosService.TimerChange";
 
-    public static Boolean mTimerOn = false;
+    private static Boolean mTimerOn = false;
     private static long mSosDelay = 0;
-    public static long mTimeLeft = 0;
+    private static long mTimeLeft = 0;
 
     private static DelayedSosTimer mTimer;
 
@@ -98,5 +98,13 @@ public class DelayedSosService extends Service {
             mSosDelay = Prefs.getSosDelay(context);
         }
         return mSosDelay;
+    }
+
+    public static boolean isTimerOn() {
+        return mTimerOn;
+    }
+
+    public static long getTimeLeft() {
+        return mTimeLeft;
     }
 }

@@ -34,4 +34,6 @@
     <string name="edit_message">Сообщения</string>
     <string name="save">Сохранено</string>
 
+    <string name="start">Старт</string>
+    <string name="stop">Стоп</string>
 </resources>

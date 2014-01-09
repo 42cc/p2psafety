@@ -35,8 +35,10 @@ public class Widget extends AppWidgetProvider {
         mWatchWidget = new ComponentName(context, Widget.class);
         mContext = context;
 
-        if (DelayedSosService.mTimerOn != true)
-            showSosDelay();
+        if (DelayedSosService.isTimerOn())
+            showSosDelay(DelayedSosService.getTimeLeft());
+        else
+            showSosDelay(DelayedSosService.getSosDelay(mContext));
 
         mRemoteViews.setOnClickPendingIntent(R.id.btn_run, getPendingSelfIntent(context, SYNC_CLICKED));
         mRemoteViews.setOnClickPendingIntent(R.id.timer_text, getPendingSelfIntent(context, SYNC_CLICKED));
@@ -56,7 +58,7 @@ public class Widget extends AppWidgetProvider {
         String action = intent.getAction();
 
         if (action.equals(SYNC_CLICKED)) {
-            if (DelayedSosService.mTimerOn) {
+            if (DelayedSosService.isTimerOn()) {
                 Intent i = new Intent(context, SosActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 i.putExtra(SosActivity.FRAGMENT_KEY, DelayedSosFragment.class.getName());
@@ -72,28 +74,23 @@ public class Widget extends AppWidgetProvider {
             context.startActivity(myIntent);      */
         }
         else if (action.equals(DelayedSosService.SOS_DELAY_TICK)) {
-            long millisUntilFinished = DelayedSosService.mTimeLeft;
-
-            String timerText = String.format("%02d:%02d",
-                    TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) / 60,
-                    TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) % 60);
-            mRemoteViews.setTextViewText(R.id.timer_text, timerText );
+            showSosDelay(DelayedSosService.getTimeLeft());
 
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             appWidgetManager.updateAppWidget(mWatchWidget, mRemoteViews);
         }
         else if (action.equals(DelayedSosService.SOS_DELAY_FINISH)) {
-            showSosDelay();
+            showSosDelay(DelayedSosService.getSosDelay(mContext));
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             appWidgetManager.updateAppWidget(mWatchWidget, mRemoteViews);
         }
         else if (action.equals(DelayedSosService.SOS_DELAY_CANCEL)) {
-            showSosDelay();
+            showSosDelay(DelayedSosService.getSosDelay(mContext));
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             appWidgetManager.updateAppWidget(mWatchWidget, mRemoteViews);
         }
         else if (action.equals(DelayedSosService.SOS_DELAY_CHANGE)) {
-            showSosDelay();
+            showSosDelay(DelayedSosService.getSosDelay(mContext));
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             appWidgetManager.updateAppWidget(mWatchWidget, mRemoteViews);
         }
@@ -105,8 +102,7 @@ public class Widget extends AppWidgetProvider {
         return PendingIntent.getBroadcast(context, 0, intent, 0);
     }
 
-    private void showSosDelay() {
-        long sosDelay = DelayedSosService.getSosDelay(mContext);
+    private void showSosDelay(long sosDelay) {
         String timerText = String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toSeconds(sosDelay) / 60,
                 TimeUnit.MILLISECONDS.toSeconds(sosDelay) % 60);
