@@ -65,7 +65,7 @@ public class SetPhoneFragment extends Fragment {
                     if (c != null && c.moveToFirst()) {
                         String number = c.getString(0);
                         int type = c.getInt(1);
-                        EditText edt_addphone = (EditText) vParent.findViewById(R.id.edt_addemail);
+                        EditText edt_addphone = (EditText) vParent.findViewById(R.id.edt_addphone);
                         edt_addphone.setText(number);
                     }
                 } finally {
