@@ -77,8 +77,8 @@ public class MessageResolver {
             protected void onPostExecute(Object o) {
                 super.onPostExecute(o);
                 String s = context.getString(R.string.sms_sent);
-                if (Prefs.getIsLoc(context))
-                    s += "\n" + context.getString(R.string.loc_will_send);
+//                if (Prefs.getIsLoc(context))
+//                    s += "\n" + context.getString(R.string.loc_will_send);
                 Toast.makeText(context, s, Toast.LENGTH_LONG).show();
             }
         };
