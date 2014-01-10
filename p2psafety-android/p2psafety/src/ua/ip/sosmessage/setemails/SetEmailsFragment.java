@@ -2,6 +2,8 @@ package ua.ip.sosmessage.setemails;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -16,6 +18,8 @@ import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.List;
 
 import ua.ip.sosmessage.R;
 import ua.ip.sosmessage.SosActivity;
@@ -55,6 +59,7 @@ public class SetEmailsFragment extends Fragment {
                     // BoD con't: CONTENT_TYPE instead of CONTENT_ITEM_TYPE
                     intent.setType(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE);
                     startActivityForResult(intent, 1001);
+
                     break;
             }
         }
@@ -131,8 +136,24 @@ public class SetEmailsFragment extends Fragment {
         mAdapter = new EmailsAdapter(getActivity());
         View ibtnAddPhone = vParent.findViewById(R.id.ibtn_addemail);
         ibtnAddPhone.setOnClickListener(lsnr);
+
+        //check whether email contact picker is available
+        final PackageManager packageManager = getActivity().getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        // BoD con't: CONTENT_TYPE instead of CONTENT_ITEM_TYPE
+        intent.setType(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE);
+        List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
+                PackageManager.GET_ACTIVITIES);
+
         View ibtnAddContact = vParent.findViewById(R.id.ibtn_addcontact);
-        ibtnAddContact.setOnClickListener(lsnr);
+        if (list.size()>0)
+        {
+            ibtnAddContact.setOnClickListener(lsnr);
+        }
+        else
+        {
+            ibtnAddContact.setVisibility(View.INVISIBLE);
+        }
 
         ListView lsv_phones = (ListView) vParent.findViewById(R.id.lsv_numbers);
         lsv_phones.setAdapter(mAdapter);
