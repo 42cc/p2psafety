@@ -1,6 +1,6 @@
 package ua.ip.sosmessage.sms;
 
-import android.content.Context;
+import android.app.Activity;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Looper;
@@ -8,8 +8,10 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 import ua.ip.sosmessage.R;
+import ua.ip.sosmessage.data.EmailsDatasourse;
 import ua.ip.sosmessage.data.PhonesDatasourse;
 import ua.ip.sosmessage.data.Prefs;
+import ua.ip.sosmessage.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,19 +21,21 @@ import java.util.concurrent.Executors;
  * Created by ihorpysmennyi on 12/7/13.
  */
 public class MessageResolver {
-    private Context context;
+    private Activity context;
     private String message;
     private List<String> phones;
+    private List<String> emails;
 
-    public MessageResolver(Context context, boolean isTest) {
+    public MessageResolver(Activity context, boolean isTest) {
         this.context = context;
         PhonesDatasourse phonesDatasourse = new PhonesDatasourse(context);
+        EmailsDatasourse emailsDatasourse = new EmailsDatasourse(context);
         message = Prefs.getMessage(context);
         if (isTest)
             message = context.getString(R.string.test_message) + " " + message;
         phones = new ArrayList<String>();
-        phones = phonesDatasourse.getAllPones();
-
+        phones = phonesDatasourse.getAllPhones();
+        emails = emailsDatasourse.getAllEmails();
     }
 
     /**
@@ -44,6 +48,13 @@ public class MessageResolver {
     private void sendMessage(String message) {
         for (String phone : phones)
             SMSSender.send(phone, message, context);
+        String account = Utils.getEmail(context);
+        if (account!=null)
+        {
+            String csv = emails.toString().replace("[", "").replace("]", "").replace(", ", ",");
+            GmailOAuth2Sender gmailOAuth2Sender = new GmailOAuth2Sender(context);
+            gmailOAuth2Sender.sendMail("SOS!!!", message, account, csv);
+        }
     }
 
     public void sendMessages() {
@@ -85,16 +96,19 @@ public class MessageResolver {
                         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
                             @Override
                             public void gotLocation(Location location) {
-                                String lat = location.getLatitude() + "";
-                                if (lat.length() > 10)
-                                    lat = lat.substring(0, 9);
-                                String lon = location.getLongitude() + "";
-                                if (lon.length() > 10)
-                                    lon = lon.substring(0, 9);
-                                message = formatTimeAndDay(location.getTime(), false) + " https://maps.google.com/maps?q="
-                                        + lat + "," + lon;
-                                Log.d("Message1", "Message sent" + message);
-                                sendMessage(message);
+                                if (location!=null)
+                                {
+                                    String lat = location.getLatitude() + "";
+                                    if (lat.length() > 10)
+                                        lat = lat.substring(0, 9);
+                                    String lon = location.getLongitude() + "";
+                                    if (lon.length() > 10)
+                                        lon = lon.substring(0, 9);
+                                    message = formatTimeAndDay(location.getTime(), false) + " https://maps.google.com/maps?q="
+                                            + lat + "," + lon;
+                                    Log.d("Message1", "Message sent" + message);
+                                    sendMessage(message);
+                                }
                             }
                         };
                         MyLocation myLocation = new MyLocation();

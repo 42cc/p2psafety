@@ -4,129 +4,113 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-        >
+    >
 
     <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            android:layout_weight="1"
-            android:focusable="true"
-            android:focusableInTouchMode="true">
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical">
 
         <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true">
-            <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="5dp"
-                    android:visibility="gone"
-                    android:id="@+id/frame_indent2"/>
-            <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/img_protect"
-                    android:src="@drawable/protect2"
-                    android:focusable="true"
-                    android:contentDescription="protect yourself"
-                    android:adjustViewBounds="true"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical">
 
-                    />
+            <FrameLayout
+                android:id="@+id/frame_indent2"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:visibility="gone"/>
+
+            <ImageView
+                android:id="@+id/img_protect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/protect_description"
+                android:focusable="true"
+                android:src="@drawable/protect2"
+
+                />
         </LinearLayout>
 
         <!-- android:scaleType="fitXY" -->
 
         <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/SOSRed">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/SOSRed">
 
 
             <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="@string/enter_message"
-                    android:id="@+id/textView"
-                    android:gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:paddingTop="@dimen/st_padding"
-                    android:paddingBottom="@dimen/c_padding"
-                    style="@style/TextButton"/>
+                android:id="@+id/textView"
+                style="@style/TextButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:paddingBottom="@dimen/c_padding"
+                android:paddingTop="@dimen/st_padding"
+                android:text="@string/enter_message"
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
 
             <CheckBox
 
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/chk_geo"
-                    android:layout_gravity="center"
-                    android:padding="@dimen/st_padding"
-                    android:layout_marginLeft="1dp"
-                    android:layout_marginRight="1dp"
-
-                    android:checked="false"
-                    android:button="@drawable/chk_geo"/>
-
+                android:id="@+id/chk_geo"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="1dp"
+                android:button="@drawable/chk_geo"
+                android:checked="false"
+                android:padding="@dimen/st_padding"/>
 
         </LinearLayout>
 
-
-
-            <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
-                    android:id="@+id/edt_msg"
-                    android:phoneNumber="true"
-                    android:layout_weight="1"
-                    android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:padding="@dimen/st_padding"
-                    android:maxLength="69"
-                    android:gravity="top"
-                    android:singleLine="false"/>
+        <EditText
+            android:id="@+id/edt_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:maxLength="69"
+            android:padding="@dimen/st_padding"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:phoneNumber="true"
+            android:singleLine="false"/>
 
 
         <!-- Don't touch it. it's magic-->
         <ListView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:background="@color/Transparent"
-                android:id="@+id/lsv_numbers"
-                android:layout_weight="0.01"/>
+            android:id="@+id/lsv_numbers"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.01"
+            android:background="@color/Transparent"/>
 
     </LinearLayout>
 
     <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 
         <Button
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:text="@string/btn_test"
-                android:id="@+id/btn_sos"
-                android:layout_weight="1"
-                android:layout_marginRight="2dp"
-                android:background="@drawable/btn_sel"
-                android:padding="@dimen/st_padding"
-                style="@style/TextButton"
-                android:singleLine="true"
-                />
-
-        <Button
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:text="@string/btn_save"
-                android:id="@+id/btn_save"
-                android:layout_weight="1"
-                android:layout_marginLeft="2dp"
-                android:background="@drawable/btn_sel"
-                android:padding="@dimen/st_padding"
-                android:singleLine="true"
-                style="@style/TextButton"/>
+            android:id="@+id/btn_save"
+            style="@style/TextButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/btn_sel"
+            android:padding="@dimen/st_padding"
+            android:singleLine="true"
+            android:text="@string/btn_save"/>
     </LinearLayout>
 
 </LinearLayout>

@@ -22,6 +22,7 @@ import ua.ip.sosmessage.data.Prefs;
  * Created by ihorpysmennyi on 12/7/13.
  */
 public class MessageFragment extends Fragment {
+    public static final String TAG = "MessageFragment";
     private View vParent;
 
     public MessageFragment() {
@@ -79,25 +80,6 @@ public class MessageFragment extends Fragment {
             public void onClick(View v) {
                 save();
                 Toast.makeText(getActivity(), getString(R.string.save), Toast.LENGTH_LONG).show();
-            }
-        });
-
-        View btn_sos = vParent.findViewById(R.id.btn_sos);
-        ((Button) btn_sos).setTypeface(font);
-        btn_sos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Fragment mfragment;
-                FragmentManager mfragmentManager = getFragmentManager();
-                for (int i = 0; i < mfragmentManager.getBackStackEntryCount(); ++i) {
-                    mfragmentManager.popBackStack();
-                }
-                FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
-                //fragmentTransaction.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_right_out, R.anim.slide_left_in, R.anim.slide_left_out);
-                mfragment = new SendMessageFragment();
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
-
             }
         });
 

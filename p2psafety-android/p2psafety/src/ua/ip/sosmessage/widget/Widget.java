@@ -1,5 +1,6 @@
 package ua.ip.sosmessage.widget;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -32,7 +33,7 @@ public class Widget extends AppWidgetProvider {
         super.onReceive(context, intent);
 
         if (SYNC_CLICKED.equals(intent.getAction())) {
-            MessageResolver resolver=new MessageResolver(context,false);
+            MessageResolver resolver=new MessageResolver((Activity) context,false);
             resolver.sendMessages();
          /*   Intent myIntent=new Intent(context, SosActivity.class);
             myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
