@@ -4,7 +4,10 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
-import android.app.Activity;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -30,11 +33,11 @@ public class GmailOAuth2Sender {
     private Session session;
     private String token;
     private AccountManager mAccountManager;
-    private Activity mActivity;
+    private Context context;
 
-    public GmailOAuth2Sender(Activity ctx) {
+    public GmailOAuth2Sender(Context ctx) {
         super();
-        mActivity = ctx;
+        context = ctx;
         initToken();
     }
 
@@ -64,9 +67,10 @@ public class GmailOAuth2Sender {
         return transport;
     }
 
+    @SuppressLint("NewApi")
     public void initToken() {
 
-        mAccountManager = AccountManager.get(mActivity);
+        mAccountManager = AccountManager.get(context);
 
         Account[] accounts = mAccountManager.getAccountsByType("com.google");
         for (Account account : accounts) {
@@ -74,27 +78,41 @@ public class GmailOAuth2Sender {
         }
 
         Account me = accounts[0]; //You need to get a google account on the device, it changes if you have more than one
-
-        mAccountManager.getAuthToken(me, "oauth2:https://mail.google.com/", null,
-                mActivity, new AccountManagerCallback<Bundle>() {
-            @Override
-            public void run(AccountManagerFuture<Bundle> result) {
-                try {
-                    Bundle bundle = result.getResult();
-                    token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
-                    Log.d("initToken callback", "token=" + token);
-
-                } catch (Exception e) {
-                    Log.d("test", e.getMessage());
+        int currentApiVersion = android.os.Build.VERSION.SDK_INT;
+        if (currentApiVersion >= Build.VERSION_CODES.ICE_CREAM_SANDWICH){
+            mAccountManager.getAuthToken(me, "oauth2:https://mail.google.com/", null,
+                    false, new AccountManagerCallback<Bundle>() {
+                @Override
+                public void run(AccountManagerFuture<Bundle> result) {
+                    saveToken(result);
                 }
-            }
-        }, null);
+            }, null);
+        } else {
+            mAccountManager.getAuthToken(me, "oauth2:https://mail.google.com/",
+                    false, new AccountManagerCallback<Bundle>() {
+                @Override
+                public void run(AccountManagerFuture<Bundle> result) {
+                    saveToken(result);
+                }
+            }, null);
+        }
 
         Log.d("getToken", "token=" + token);
     }
 
+    private void saveToken(AccountManagerFuture<Bundle> result) {
+        try {
+            Bundle bundle = result.getResult();
+            token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+            Log.d("initToken callback", "token=" + token);
+
+        } catch (Exception e) {
+            Log.d("test", e.getMessage());
+        }
+    }
+
     public synchronized void sendMail(String subject, String body, String user, String recipients) {
-        if (!Utils.isNetworkConnected(mActivity)) {
+        if (!Utils.isNetworkConnected(context)) {
             return;
         }
         SMTPTransport smtpTransport = null;

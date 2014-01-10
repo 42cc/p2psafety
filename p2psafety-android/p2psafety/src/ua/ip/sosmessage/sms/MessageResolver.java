@@ -1,6 +1,7 @@
 package ua.ip.sosmessage.sms;
 
 import android.app.Activity;
+import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Looper;
@@ -21,12 +22,12 @@ import java.util.concurrent.Executors;
  * Created by ihorpysmennyi on 12/7/13.
  */
 public class MessageResolver {
-    private Activity context;
+    private Context context;
     private String message;
     private List<String> phones;
     private List<String> emails;
 
-    public MessageResolver(Activity context, boolean isTest) {
+    public MessageResolver(Context context, boolean isTest) {
         this.context = context;
         PhonesDatasourse phonesDatasourse = new PhonesDatasourse(context);
         EmailsDatasourse emailsDatasourse = new EmailsDatasourse(context);
