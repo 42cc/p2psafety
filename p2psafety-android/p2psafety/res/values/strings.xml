@@ -34,4 +34,10 @@
 
     <string name="start">Start</string>
     <string name="stop">Stop</string>
+    <string name="retry">Retry</string>
+
+    <string name="password">Password:</string>
+    <string name="enter_password">Enter password:</string>
+    <string name="lock_with_password">Lock with password</string>
+    <string name="wrong_password">Wrong password</string>
 </resources>

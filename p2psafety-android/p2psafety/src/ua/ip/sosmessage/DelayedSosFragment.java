@@ -13,17 +13,26 @@ import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
 
+import ua.ip.sosmessage.data.Prefs;
 import ua.ip.sosmessage.message.MessageFragment;
 import ua.ip.sosmessage.setphones.SetPhoneFragment;
 import ua.ip.sosmessage.sms.MessageResolver;
@@ -32,6 +41,8 @@ public class DelayedSosFragment extends Fragment {
     TextView mTimerText;
     Button mTimerBtn;
     ImageButton mArrowUpBtn, mArrowDownBtn;
+    CheckBox mSosLockView;
+    EditText mPasswordText;
 
     Activity mActivity;
 
@@ -53,19 +64,52 @@ public class DelayedSosFragment extends Fragment {
         mTimerBtn = (Button) view.findViewById(R.id.timerBtn);
         mArrowUpBtn = (ImageButton) view.findViewById(R.id.arrowUpBtn);
         mArrowDownBtn = (ImageButton) view.findViewById(R.id.arrowDownBtn);
+        mSosLockView = (CheckBox) view.findViewById(R.id.fst_sos_lock);
+        mPasswordText = (EditText) view.findViewById(R.id.fst_password_text);
 
         return view;
     }
 
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
+        mPasswordText.setText(Prefs.getPassword(mActivity));
+        mPasswordText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                Prefs.putPassword(mActivity, s.toString());
+                if (s.length() <= 0) {
+                    mSosLockView.setChecked(false);
+                }
+            }
+        });
+
+        mSosLockView.setChecked(Prefs.getUsePassword(mActivity));
+        mSosLockView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Prefs.putUsePassword(mActivity, isChecked);
+                if (isChecked && mPasswordText.length() <= 0)
+                    mSosLockView.setChecked(false);
+            }
+        });
+
         mTimerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (DelayedSosService.isTimerOn()) {
-                    mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
-                    onTimerStop();
+                    // stop timer
+                    if (!mSosLockView.isChecked()) {
+                        mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
+                        onTimerStop();
+                    } else {
+                        askPasswordAndStopTimer();
+                    }
                 } else {
+                    // start timer
                     mActivity.startService(new Intent(mActivity, DelayedSosService.class));
                     onTimerStart();
                 }
@@ -75,28 +119,85 @@ public class DelayedSosFragment extends Fragment {
         mArrowUpBtn.setOnTouchListener(new OnTouchContinuousListener() {
             @Override
             public void onTouchRepeat(View view) {
-                if (!DelayedSosService.isTimerOn()) {
-                    long sosDelay = DelayedSosService.getSosDelay(mActivity);
-                    sosDelay += 1*60*1000; // +1 min
-                    sosDelay = Math.min(sosDelay, 120 * 60 * 1000); // max 120 min
-                    DelayedSosService.setSosDelay(mActivity, sosDelay);
-                    showSosDelay(sosDelay);
-                }
+                long sosDelay = DelayedSosService.getSosDelay(mActivity);
+                sosDelay += 1*60*1000; // +1 min
+                sosDelay = Math.min(sosDelay, 120 * 60 * 1000); // max 120 min
+                DelayedSosService.setSosDelay(mActivity, sosDelay);
+                showSosDelay(sosDelay);
             }
         });
 
         mArrowDownBtn.setOnTouchListener(new OnTouchContinuousListener() {
             @Override
             public void onTouchRepeat(View view) {
-                if (!DelayedSosService.isTimerOn()) {
-                    long sosDelay = DelayedSosService.getSosDelay(mActivity);
-                    sosDelay -= 1*60*1000; // -1 min
-                    sosDelay = Math.max(sosDelay, 1*60*1000); // min 1 min
-                    DelayedSosService.setSosDelay(mActivity, sosDelay);
-                    showSosDelay(sosDelay);
-                }
+                long sosDelay = DelayedSosService.getSosDelay(mActivity);
+                sosDelay -= 1*60*1000; // -1 min
+                sosDelay = Math.max(sosDelay, 1*60*1000); // min 1 min
+                DelayedSosService.setSosDelay(mActivity, sosDelay);
+                showSosDelay(sosDelay);
             }
         });
+    }
+
+    // builds dialog with password prompt
+    private void askPasswordAndStopTimer() {
+        LayoutInflater li = LayoutInflater.from(mActivity);
+        View promptsView = li.inflate(R.layout.password_dialog, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
+        alertDialogBuilder.setView(promptsView);
+
+        final EditText userInput = (EditText) promptsView.findViewById(R.id.pd_password_edit);
+
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                checkPasswordAndStopTimer(userInput.getText().toString());
+                            }
+                        })
+                .setNegativeButton(android.R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+        alertDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+        userInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    checkPasswordAndStopTimer(userInput.getText().toString());
+                    alertDialog.dismiss();
+                }
+                return true;
+            }
+        });
+    }
+
+    // stops timer or builds dialog with retry/cancel buttons
+    private void checkPasswordAndStopTimer(String password) {
+        if (password.equals(mPasswordText.getText().toString()))
+        {
+            mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
+            onTimerStop();
+        }
+        else{
+            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+            builder.setTitle(R.string.wrong_password);
+            builder.setNegativeButton(android.R.string.cancel, null);
+            builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    askPasswordAndStopTimer();
+                }
+            });
+            builder.create().show();
+        }
     }
 
     @Override
@@ -125,6 +226,10 @@ public class DelayedSosFragment extends Fragment {
 
     private void onTimerStart() {
         showSosDelay(DelayedSosService.getTimeLeft());
+        mPasswordText.setEnabled(false);
+        mSosLockView.setEnabled(false);
+        mArrowUpBtn.setEnabled(false);
+        mArrowDownBtn.setEnabled(false);
         mArrowUpBtn.setImageDrawable(
                 getResources().getDrawable(R.drawable.arrow_up_inactive));
         mArrowDownBtn.setImageDrawable(
@@ -133,11 +238,15 @@ public class DelayedSosFragment extends Fragment {
     }
 
     private void onTimerStop() {
+        showSosDelay(DelayedSosService.getSosDelay(mActivity));
+        mPasswordText.setEnabled(true);
+        mSosLockView.setEnabled(true);
+        mArrowUpBtn.setEnabled(true);
+        mArrowDownBtn.setEnabled(true);
         mArrowUpBtn.setImageDrawable(
                 getResources().getDrawable(R.drawable.arrow_up));
         mArrowDownBtn.setImageDrawable(
                 getResources().getDrawable(R.drawable.arrow_down));
-        showSosDelay(DelayedSosService.getSosDelay(mActivity));
         mTimerBtn.setText(getResources().getString(R.string.start));
     }
 

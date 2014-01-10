@@ -4,15 +4,29 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-    android:background="@color/White">
+    android:background="@color/White"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:clickable="true">
 
-    <ImageView
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/protect2"
-        android:focusable="true"
-        android:contentDescription="protect yourself"
-        android:adjustViewBounds="true" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/password" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/fst_password_text" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/lock_with_password"
+        android:id="@+id/fst_sos_lock" />
 
     <FrameLayout
             android:layout_width="fill_parent"

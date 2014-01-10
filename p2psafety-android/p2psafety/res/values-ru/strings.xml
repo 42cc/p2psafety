@@ -36,4 +36,10 @@
 
     <string name="start">Старт</string>
     <string name="stop">Стоп</string>
+    <string name="retry">Заново</string>
+
+    <string name="password">Пароль:</string>
+    <string name="enter_password">Введите пароль:</string>
+    <string name="lock_with_password">Заблокировать паролем</string>
+    <string name="wrong_password">Пароль не верный</string>
 </resources>

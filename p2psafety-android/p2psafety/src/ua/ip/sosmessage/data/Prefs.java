@@ -8,11 +8,13 @@ import ua.ip.sosmessage.R;
  * Created by ihorpysmennyi on 12/7/13.
  */
 public class Prefs {
-    public static String IS_LOC_KEY = "IS_LOC_KEY";
-    public static String MSG = "MSG_KEY";
-    public static String IS_FIRST_RUN = "FIRST_RUN_KEY";
+    private static final String IS_LOC_KEY = "IS_LOC_KEY";
+    private static final String MSG = "MSG_KEY";
+    private static final String IS_FIRST_RUN = "FIRST_RUN_KEY";
 
-    public static String SOS_DELAY_KEY = "SOS_DELAY";
+    private static final String SOS_DELAY_KEY = "SOS_DELAY";
+    private static final String SOS_PASSWORD_KEY = "SOS_PASSWORD";
+    private static final String SOS_USE_PASSWORD_KEY = "SOS_USE_PASSWORD";
 
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
@@ -28,6 +30,14 @@ public class Prefs {
 
     public static void putSosDelay(Context context, long val) {
         getPrefs(context).edit().putLong(SOS_DELAY_KEY, val).commit();
+    }
+
+    public static void putPassword(Context context, String val) {
+        getPrefs(context).edit().putString(SOS_PASSWORD_KEY, val).commit();
+    }
+
+    public static void putUsePassword(Context context, boolean val) {
+        getPrefs(context).edit().putBoolean(SOS_USE_PASSWORD_KEY, val).commit();
     }
 
     public static boolean getIsLoc(Context context) {
@@ -47,5 +57,13 @@ public class Prefs {
 
     public static long getSosDelay(Context context) {
         return getPrefs(context).getLong(SOS_DELAY_KEY, 2*60*1000); // default is 2 min
+    }
+
+    public static String getPassword(Context context) {
+        return getPrefs(context).getString(SOS_PASSWORD_KEY, "");
+    }
+
+    public static boolean getUsePassword(Context context) {
+        return getPrefs(context).getBoolean(SOS_USE_PASSWORD_KEY, false);
     }
 }
