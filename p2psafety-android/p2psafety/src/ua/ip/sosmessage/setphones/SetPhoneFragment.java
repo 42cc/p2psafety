@@ -25,9 +25,9 @@ public class SetPhoneFragment extends Fragment {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.ibtn_addemail:
+                case R.id.ibtn_addphone:
                     if (adapter != null) {
-                        EditText edt_addphone = (EditText) vParent.findViewById(R.id.edt_addemail);
+                        EditText edt_addphone = (EditText) vParent.findViewById(R.id.edt_addphone);
                         String phone = edt_addphone.getText().toString();
                         if (phone.length() > 0)
                             adapter.addPhone(phone);
