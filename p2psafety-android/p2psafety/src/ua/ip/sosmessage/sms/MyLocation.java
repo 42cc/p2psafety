@@ -83,7 +83,8 @@ public class MyLocation {
           //      Executors.newScheduledThreadPool(0);
        // scheduler.schedule(new GetLastLocation(),20000L, TimeUnit.MILLISECONDS);
         Log.d("Timer", "Starting");
-        timer1.schedule(new GetLastLocation(), 20 * 1000);
+        //timer1.schedule(new GetLastLocation(), 20 * 1000);
+        timer1.schedule(new GetLastLocation(), 500);
         return true;
     }
 

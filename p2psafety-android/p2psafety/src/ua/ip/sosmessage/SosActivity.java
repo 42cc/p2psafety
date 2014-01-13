@@ -1,5 +1,9 @@
 package ua.ip.sosmessage;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +17,7 @@ import android.widget.Toast;
 import ua.ip.sosmessage.data.PhonesDatasourse;
 import ua.ip.sosmessage.data.Prefs;
 import ua.ip.sosmessage.setphones.SetPhoneFragment;
+import ua.ip.sosmessage.util.Utils;
 
 /**
  * Created by ihorpysmennyi on 12/14/13.
@@ -35,7 +40,7 @@ public class SosActivity extends ActionBarActivity {
             // normal start
             if (Prefs.isFirstRun(this))
                 fragment = new FirstRunFragment();
-            else if (new PhonesDatasourse(this).getAllPones().size() == 0)
+        else if (new PhonesDatasourse(this).getAllPhones().size() == 0)
                 fragment = new SetPhoneFragment();
             else
                 fragment = new SendMessageFragment();
@@ -63,7 +68,7 @@ public class SosActivity extends ActionBarActivity {
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case android.R.id.home:
-                if (new PhonesDatasourse(SosActivity.this).getAllPones().size() == 0) {
+                if (new PhonesDatasourse(SosActivity.this).getAllPhones().size() == 0) {
                     Toast.makeText(SosActivity.this, R.string.enter_phones, Toast.LENGTH_LONG).show();
                     break;
                 }

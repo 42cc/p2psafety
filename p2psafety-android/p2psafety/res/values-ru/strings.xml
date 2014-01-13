@@ -33,7 +33,12 @@
     <string name="add_phone">Телефоны</string>
     <string name="edit_message">Сообщения</string>
     <string name="save">Сохранено</string>
-
+    <string name="settings">Настройки</string>
     <string name="start">Старт</string>
     <string name="stop">Стоп</string>
+    <string name="add_email">Добавить e-mail</string>
+    <string name="emails">E-mail\'ы</string>
+    <string name="no_account_message">Укажите ваш google-аккаунт в настройках телефона</string>
+    <string name="it_is_not_email">Пожалуйста, впишите правильный e-mail</string>
+    <string name="protect_description">protect yourself</string>
 </resources>

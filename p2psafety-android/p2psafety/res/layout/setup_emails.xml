@@ -32,6 +32,8 @@
             />
     </LinearLayout>
 
+    <!-- android:scaleType="fitXY" -->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -47,7 +49,7 @@
             android:gravity="center_vertical"
             android:paddingBottom="@dimen/st_padding"
             android:paddingTop="@dimen/st_padding"
-            android:text="@string/add_phone"
+            android:text="@string/add_email"
             android:textAppearance="?android:attr/textAppearanceLarge"/>
 
         <ImageView
@@ -55,9 +57,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:contentDescription="@string/protect_description"
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
+            android:contentDescription="@string/protect_description"
             android:adjustViewBounds="true"
             android:padding="@dimen/st_padding"
             android:src="@drawable/addnumber_sel"/>
@@ -69,13 +71,13 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/edt_addphone"
+            android:id="@+id/edt_addemail"
             android:layout_width="0dip"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:ems="9"
             android:gravity="center_vertical"
-            android:inputType="phone"
+            android:inputType="textEmailAddress"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:phoneNumber="true"/>
 
@@ -91,14 +93,14 @@
             android:padding="15dp"/>
 
         <ImageView
-            android:id="@+id/ibtn_addphone"
+            android:id="@+id/ibtn_addemail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:contentDescription="@string/protect_description"
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
             android:adjustViewBounds="true"
-            android:contentDescription="@string/protect_description"
             android:padding="@dimen/st_padding"
             android:src="@drawable/add_sel"/>
 

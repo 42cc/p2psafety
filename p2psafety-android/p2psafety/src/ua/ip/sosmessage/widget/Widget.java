@@ -1,6 +1,5 @@
 package ua.ip.sosmessage.widget;
 
-import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
