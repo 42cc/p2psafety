@@ -23,8 +23,6 @@ public class FirstRunFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.frag_enter_lay, container, false);
-        ((TextView) rootView.findViewById(R.id.textView)).setTypeface(Typeface.createFromAsset(getActivity().getAssets(),
-                "fonts/RobotoCondensed-Light.ttf"));
         //((SosActivity) getActivity()).getSupportActionBar().hide();
         rootView.setOnTouchListener(new View.OnTouchListener() {
             @Override
