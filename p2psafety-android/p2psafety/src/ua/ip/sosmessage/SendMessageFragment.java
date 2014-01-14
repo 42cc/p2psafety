@@ -30,20 +30,6 @@ public class SendMessageFragment extends Fragment {
             //fragmentTransaction.setCustomAnimations(R.anim.slide_left_in, R.anim.slide_left_out, R.anim.slide_right_in, R.anim.slide_right_out);
 
             switch (v.getId()) {
-                case R.id.button:
-                    MessageResolver resolver = new MessageResolver(getActivity(), false);
-                    resolver.sendMessages();
-                    break;
-                case R.id.btn_phone:
-                    mfragment = new SetPhoneFragment();
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
-                    break;
-                case R.id.btn_edt:
-                    mfragment = new MessageFragment();
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
-                    break;
                 case R.id.delayedSosBtn:
                     mfragment = new DelayedSosFragment();
                     fragmentTransaction.addToBackStack(null);
@@ -73,18 +59,30 @@ public class SendMessageFragment extends Fragment {
         btn_send.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                Notifications.notifSosStarted(getActivity());
+
                 MessageResolver resolver = new MessageResolver(getActivity(), false);
                 resolver.sendMessages();
                 return false;
             }
         });
-        View btn_phone=rootView.findViewById(R.id.btn_phone);
-        ((Button)btn_phone).setTypeface(font);
 
-        btn_phone.setOnClickListener(lsnr);
-        View btn_edt=rootView.findViewById(R.id.btn_edt);
-        ((Button)btn_edt).setTypeface(font);
-        btn_edt.setOnClickListener(lsnr);
+        Button settingsBtn = (Button) rootView.findViewById(R.id.btn_settings);
+        settingsBtn.setTypeface(font);
+        settingsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment mFragment = new SettingsFragment();
+                FragmentManager mFragmentManager = getFragmentManager();
+                FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+                for (int i = 0; i < mFragmentManager.getBackStackEntryCount(); ++i) {
+                    mFragmentManager.popBackStack();
+                }
+                //fragmentTransaction.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_right_out, R.anim.slide_left_in, R.anim.slide_left_out);
+                fragmentTransaction.addToBackStack("SettingsFragment");
+                fragmentTransaction.replace(R.id.content_frame, mFragment).commit();
+            }
+        });
 
         ((TextView)rootView.findViewById(R.id.textView)).setTypeface(font);
         rootView.setOnKeyListener(new View.OnKeyListener() {

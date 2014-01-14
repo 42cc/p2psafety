@@ -21,7 +21,6 @@
     <string name="enable_geo">Геолокация</string>
     <string name="enter_message">Сообщение:</string>
     <string name="geo_message">Мои координаты</string>
-    <string name="loc_will_send">Локацию будет отправлено через 20с</string>
 
     <string name="sos_message">Помогите, у меня проблемы!</string>
     <string name="sms_sent">Сообщение отправлено!</string>
@@ -33,7 +32,7 @@
     <string name="add_phone">Телефоны</string>
     <string name="edit_message">Сообщения</string>
     <string name="save">Сохранено</string>
-
+    <string name="settings">Настройки</string>
     <string name="start">Старт</string>
     <string name="stop">Стоп</string>
     <string name="retry">Заново</string>
@@ -42,4 +41,13 @@
     <string name="enter_password">Введите пароль:</string>
     <string name="lock_with_password">Заблокировать паролем</string>
     <string name="wrong_password">Пароль не верный</string>
+    <string name="add_email">Добавить e-mail</string>
+    <string name="emails">E-mail\'ы</string>
+    <string name="no_account_message">Укажите ваш google-аккаунт в настройках телефона</string>
+    <string name="it_is_not_email">Пожалуйста, впишите правильный e-mail</string>
+    <string name="protect_description">protect yourself</string>
+
+    <string name="sos">SOS</string>
+    <string name="sos_after">SOS через #n# мин.</string>
+    <string name="sos_activated">Тревога активирована!</string>
 </resources>

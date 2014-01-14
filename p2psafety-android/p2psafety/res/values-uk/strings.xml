@@ -33,5 +33,10 @@
     <string name="add_phone">Телефони</string>
     <string name="edit_message">Повідомлення</string>
     <string name="save">Збережено</string>
-
+    <string name="settings">Налаштування</string>
+    <string name="add_email">Додати e-mail</string>
+    <string name="emails">E-mail\'и</string>
+    <string name="no_account_message">Вкажіть ваш google-аккаунт в налаштуваннях телефону</string>
+    <string name="it_is_not_email">Будь ласка, впишіть правильний e-mail</string>
+    <string name="protect_description">protect yourself</string>
 </resources>

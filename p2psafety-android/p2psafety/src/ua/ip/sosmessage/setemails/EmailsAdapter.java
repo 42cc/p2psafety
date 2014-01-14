@@ -1,4 +1,4 @@
-package ua.ip.sosmessage.setphones;
+package ua.ip.sosmessage.setemails;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -8,37 +8,39 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import ua.ip.sosmessage.R;
-import ua.ip.sosmessage.data.PhonesDatasourse;
 
 import java.util.List;
 
+import ua.ip.sosmessage.R;
+import ua.ip.sosmessage.data.EmailsDatasourse;
+
 /**
- * Created by ihorpysmennyi on 12/7/13.
+ * @author Taras Melon
+ * @since 2014-01-09
  */
-public class PhonesAdapter extends BaseAdapter {
-    private PhonesDatasourse datasourse;
+public class EmailsAdapter extends BaseAdapter {
+    private EmailsDatasourse datasourse;
     private Typeface font;
     private List<String> items;
     private Context context;
 
-    public PhonesAdapter(Context context) {
+    public EmailsAdapter(Context context) {
         this.context = context;
-        this.datasourse = new PhonesDatasourse(context);
-        this.items = datasourse.getAllPhones();
+        this.datasourse = new EmailsDatasourse(context);
+        this.items = datasourse.getAllEmails();
         this.font = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoCondensed-Light.ttf");
     }
 
-    public void addPhone(String phone) {
-        datasourse.addPhone(phone);
-        items.add(phone);
+    public void addEmail(String email) {
+        datasourse.addEmail(email);
+        items.add(email);
         notifyDataSetChanged();
 
     }
 
-    public void removePhone(String phone) {
-        datasourse.removePhone(phone);
-        items.remove(phone);
+    public void removeEmail(String email) {
+        datasourse.removeEmail(email);
+        items.remove(email);
         notifyDataSetChanged();
 
     }
@@ -87,7 +89,7 @@ public class PhonesAdapter extends BaseAdapter {
         ibtn_del.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                removePhone(txt_phone.getText().toString());
+                removeEmail(txt_phone.getText().toString());
             }
         });
 
