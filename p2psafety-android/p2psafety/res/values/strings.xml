@@ -22,7 +22,6 @@
     <string name="geo_message">My geoposition</string>
     <string name="sos_message">Help! im in trouble</string>
     <string name="sms_sent">SMS sent!</string>
-    <string name="loc_will_send">Location will be sent in 20s</string>
 
     <string name="sms_failed">SMS failed, please try again later!</string>
     <string name="btn_save">Save</string>
@@ -40,4 +39,8 @@
     <string name="no_account_message">Point your google-account in the phone settings</string>
     <string name="it_is_not_email">Please enter a valid e-mail</string>
     <string name="protect_description">protect yourself</string>
+
+    <string name="sos">SOS</string>
+    <string name="sos_after">SOS in #n# min.</string>
+    <string name="sos_activated">Alarm activated!</string>
 </resources>

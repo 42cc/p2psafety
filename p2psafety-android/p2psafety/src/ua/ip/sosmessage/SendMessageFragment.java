@@ -30,10 +30,6 @@ public class SendMessageFragment extends Fragment {
             //fragmentTransaction.setCustomAnimations(R.anim.slide_left_in, R.anim.slide_left_out, R.anim.slide_right_in, R.anim.slide_right_out);
 
             switch (v.getId()) {
-                case R.id.button:
-                    MessageResolver resolver = new MessageResolver(getActivity(), false);
-                    resolver.sendMessages();
-                    break;
                 case R.id.delayedSosBtn:
                     mfragment = new DelayedSosFragment();
                     fragmentTransaction.addToBackStack(null);
@@ -63,6 +59,8 @@ public class SendMessageFragment extends Fragment {
         btn_send.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                Notifications.notifSosStarted(getActivity());
+
                 MessageResolver resolver = new MessageResolver(getActivity(), false);
                 resolver.sendMessages();
                 return false;

@@ -65,16 +65,9 @@ public class Widget extends AppWidgetProvider {
             }
             else
                 context.startService(new Intent(context, DelayedSosService.class));
-
-            //MessageResolver resolver=new MessageResolver(context,false);
-            //resolver.sendMessages();
-         /*   Intent myIntent=new Intent(context, SosActivity.class);
-            myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(myIntent);      */
         }
         else if (action.equals(DelayedSosService.SOS_DELAY_TICK)) {
             showSosDelay(DelayedSosService.getTimeLeft());
-
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             appWidgetManager.updateAppWidget(mWatchWidget, mRemoteViews);
         }

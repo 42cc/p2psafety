@@ -1,18 +1,18 @@
 package ua.ip.sosmessage;
 
+import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.CountDownTimer;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.Toast;
-
-import java.util.concurrent.TimeUnit;
 
 import ua.ip.sosmessage.data.Prefs;
 
 public class DelayedSosService extends Service {
+    public static final String SOS_DELAY_START = "ua.ip.sosmessage.DelayedSosService.TimerStart";
     public static final String SOS_DELAY_TICK = "ua.ip.sosmessage.DelayedSosService.TimerTick";
     public static final String SOS_DELAY_FINISH = "ua.ip.sosmessage.DelayedSosService.TimerFinish";
     public static final String SOS_DELAY_CANCEL = "ua.ip.sosmessage.DelayedSosService.TimerCancel";
@@ -36,12 +36,28 @@ public class DelayedSosService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (!mTimerOn) {
+            // let our notification manager know when things happen
+            registerReceiver(getApplicationContext(), new Notifications());
+
+            mTimeLeft = mSosDelay;
             mTimer = new DelayedSosTimer(mSosDelay, 1000);
             mTimer.start();
             mTimerOn = true;
+
+            Intent i = new Intent(SOS_DELAY_START);
+            sendBroadcast(i);
         }
 
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    public static void registerReceiver(Context context, BroadcastReceiver receiver) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(DelayedSosService.SOS_DELAY_START);
+        filter.addAction(DelayedSosService.SOS_DELAY_TICK);
+        filter.addAction(DelayedSosService.SOS_DELAY_FINISH);
+        filter.addAction(DelayedSosService.SOS_DELAY_CANCEL);
+        context.registerReceiver(receiver, filter);
     }
 
     private class DelayedSosTimer extends CountDownTimer {

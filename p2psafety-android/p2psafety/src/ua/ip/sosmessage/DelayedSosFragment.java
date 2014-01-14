@@ -103,12 +103,7 @@ public class DelayedSosFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        // start listen to delayed sos timer
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(DelayedSosService.SOS_DELAY_TICK);
-        filter.addAction(DelayedSosService.SOS_DELAY_FINISH);
-        filter.addAction(DelayedSosService.SOS_DELAY_CANCEL);
-        mActivity.registerReceiver(mBroadcastReceiver, filter);
+        DelayedSosService.registerReceiver(mActivity, mBroadcastReceiver);
 
         if (DelayedSosService.isTimerOn())
             onTimerStart();
