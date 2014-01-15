@@ -59,9 +59,7 @@ public class SetServersFragment extends Fragment {
         ((SosActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(true);
         ((SosActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final View pic_protect = rootView.findViewById(R.id.img_protect);
         final View frame_indent = rootView.findViewById(R.id.frame_indent);
-        pic_protect.setVisibility(View.GONE);
         frame_indent.setVisibility(View.VISIBLE);
 
         Typeface font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/RobotoCondensed-Bold.ttf");

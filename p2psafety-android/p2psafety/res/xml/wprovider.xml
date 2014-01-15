@@ -2,7 +2,7 @@
 
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
         android:widgetCategory="home_screen|keyguard"
-        android:previewImage="@drawable/btn_sos"
+        android:previewImage="@android:drawable/bottom_bar"
         android:minWidth="144dip"
         android:minHeight="72dip"
         android:updatePeriodMillis="86400000"

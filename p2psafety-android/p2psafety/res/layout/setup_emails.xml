@@ -20,16 +20,6 @@
             android:layout_height="5dp"
             android:visibility="gone"/>
 
-        <ImageView
-            android:id="@+id/img_protect"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/protect_description"
-            android:focusable="true"
-            android:src="@drawable/protect1"
-
-            />
     </LinearLayout>
 
     <!-- android:scaleType="fitXY" -->

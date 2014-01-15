@@ -90,7 +90,6 @@
             android:layout_height="wrap_content"
             android:id="@+id/imageView2"
             android:adjustViewBounds="true"
-            android:src="@drawable/entry"
             android:layout_weight="4" />
     </LinearLayout>
 

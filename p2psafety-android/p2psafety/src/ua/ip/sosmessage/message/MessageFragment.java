@@ -36,33 +36,9 @@ public class MessageFragment extends Fragment {
         ((SosActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final View rootView = inflater.inflate(R.layout.frag_message, container, false);
-        if (!getActivity().getString(R.string.strissmall).equals("small"))
-            rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    if (rootView == null || getActivity() == null)
-                        return;
-                    final View pic_protect = rootView.findViewById(R.id.img_protect);
-                    final View frame_indent = rootView.findViewById(R.id.frame_indent2);
-                    int heightDiff = rootView.getRootView().getHeight() - rootView.getHeight() - ((SosActivity)
-                            getActivity()).getSupportActionBar().getHeight();
-                    if (heightDiff > 150) {
-                        Log.d("KeyBoard", "mVisible" + heightDiff);
-                        pic_protect.setVisibility(View.GONE);
-                        frame_indent.setVisibility(View.VISIBLE);
-                    } else if (pic_protect.getVisibility() == View.GONE) {
-                        Log.d("KeyBoard", "minVisible" + heightDiff);
-                        pic_protect.setVisibility(View.VISIBLE);
-                        frame_indent.setVisibility(View.GONE);
-                    }
-                }
-            });
-        else {
-            final View pic_protect = rootView.findViewById(R.id.img_protect);
-            final View frame_indent = rootView.findViewById(R.id.frame_indent2);
-            pic_protect.setVisibility(View.GONE);
-            frame_indent.setVisibility(View.VISIBLE);
-        }
+        final View frame_indent = rootView.findViewById(R.id.frame_indent2);
+        frame_indent.setVisibility(View.VISIBLE);
+
         Typeface font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/RobotoCondensed-Bold.ttf");
 
         vParent = rootView;

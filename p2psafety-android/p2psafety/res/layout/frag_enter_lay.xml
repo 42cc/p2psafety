@@ -22,12 +22,5 @@
                 android:layout_weight="1">
         </FrameLayout>
 
-        <ImageView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/imageView"
-                android:adjustViewBounds="true"
-                android:src="@drawable/entry"
-                android:layout_weight="4"/>
     </LinearLayout>
 </LinearLayout>

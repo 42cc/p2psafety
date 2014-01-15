@@ -33,7 +33,8 @@
             android:layout_marginRight="20dp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/protect_description"
-            android:src="@drawable/sos_sel"/>
+            android:src="@android:drawable/bottom_bar"
+            android:cropToPadding="true" />
     </FrameLayout>
 
 

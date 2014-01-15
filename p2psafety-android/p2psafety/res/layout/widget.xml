@@ -12,7 +12,7 @@
             android:layout_gravity="center_horizontal"
         android:layout_alignLeft="@+id/timer_text"
         android:layout_alignRight="@+id/timer_text"
-        android:src="@drawable/btn_sos"
+        android:src="@android:drawable/bottom_bar"
         android:scaleType="fitXY"
         android:longClickable="false"
         android:background="@color/SOSRed" />

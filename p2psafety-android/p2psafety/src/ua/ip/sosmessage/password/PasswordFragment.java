@@ -40,9 +40,7 @@ public class PasswordFragment extends Fragment {
 
         final View rootView = inflater.inflate(R.layout.setup_password, container, false);
 
-        final View pic_protect = rootView.findViewById(R.id.img_protect);
         final View frame_indent = rootView.findViewById(R.id.frame_indent2);
-        pic_protect.setVisibility(View.GONE);
         frame_indent.setVisibility(View.VISIBLE);
         Typeface font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/RobotoCondensed-Bold.ttf");
 
