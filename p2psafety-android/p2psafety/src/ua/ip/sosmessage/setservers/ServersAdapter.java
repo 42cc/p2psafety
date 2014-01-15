@@ -1,4 +1,4 @@
-package ua.ip.sosmessage.setphones;
+package ua.ip.sosmessage.setservers;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -8,37 +8,40 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import ua.ip.sosmessage.R;
-import ua.ip.sosmessage.data.PhonesDatasourse;
 
 import java.util.List;
 
+import ua.ip.sosmessage.R;
+import ua.ip.sosmessage.data.EmailsDatasourse;
+import ua.ip.sosmessage.data.ServersDatasourse;
+
 /**
- * Created by ihorpysmennyi on 12/7/13.
+ * @author Taras Melon
+ * @since 2014-01-09
  */
-public class PhonesAdapter extends BaseAdapter {
-    private PhonesDatasourse datasourse;
+public class ServersAdapter extends BaseAdapter {
+    private ServersDatasourse datasourse;
     private Typeface font;
     private List<String> items;
     private Context context;
 
-    public PhonesAdapter(Context context) {
+    public ServersAdapter(Context context) {
         this.context = context;
-        this.datasourse = new PhonesDatasourse(context);
-        this.items = datasourse.getAllPhones();
+        this.datasourse = new ServersDatasourse(context);
+        this.items = datasourse.getAllServers();
         this.font = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoCondensed-Light.ttf");
     }
 
-    public void addPhone(String phone) {
-        datasourse.addPhone(phone);
-        items.add(phone);
+    public void addServer(String address) {
+        datasourse.addServer(address);
+        items.add(address);
         notifyDataSetChanged();
 
     }
 
-    public void removePhone(String phone) {
-        datasourse.removePhone(phone);
-        items.remove(phone);
+    public void removeServer(String address) {
+        datasourse.removeServer(address);
+        items.remove(address);
         notifyDataSetChanged();
 
     }
@@ -74,7 +77,6 @@ public class PhonesAdapter extends BaseAdapter {
         View v;
         LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         v = inflater.inflate(R.layout.phone_list_item, parent, false);
-        Log.w("VideoListAdapter", "added new View");
         return v;
     }
 
@@ -83,11 +85,12 @@ public class PhonesAdapter extends BaseAdapter {
 
         txt_phone.setText(items.get(position));
         txt_phone.setTypeface(font);
+
         View ibtn_del = view.findViewById(R.id.ibtn_del);
         ibtn_del.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                removePhone(txt_phone.getText().toString());
+                removeServer(txt_phone.getText().toString());
             }
         });
 
@@ -96,10 +99,10 @@ public class PhonesAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 if (position > 0) {
-                    String curPhone = items.get(position);
-                    String prevPhone = items.get(position-1);
-                    items.set(position, prevPhone);
-                    items.set(position-1, curPhone);
+                    String curItem = items.get(position);
+                    String prevItem = items.get(position-1);
+                    items.set(position, prevItem);
+                    items.set(position-1, curItem);
                     saveSortedData();
                     notifyDataSetChanged();
                 }
@@ -111,10 +114,10 @@ public class PhonesAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 if (position < items.size()-1) {
-                    String curPhone = items.get(position);
-                    String nextPhone = items.get(position+1);
-                    items.set(position, nextPhone);
-                    items.set(position+1, curPhone);
+                    String curItem = items.get(position);
+                    String nextItem = items.get(position+1);
+                    items.set(position, nextItem);
+                    items.set(position+1, curItem);
                     saveSortedData();
                     notifyDataSetChanged();
                 }
@@ -124,8 +127,8 @@ public class PhonesAdapter extends BaseAdapter {
 
     private void saveSortedData() {
         for (String item: items)
-            datasourse.removePhone(item);
+            datasourse.removeServer(item);
         for (String item: items)
-            datasourse.addPhone(item);
+            datasourse.addServer(item);
     }
 }

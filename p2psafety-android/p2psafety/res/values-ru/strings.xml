@@ -30,19 +30,25 @@
     <string name="hold">Зажмите кнопку!</string>
 
     <string name="add_phone">Телефоны</string>
-    <string name="edit_message">Сообщения</string>
+    <string name="edit_message">Сообщение</string>
     <string name="save">Сохранено</string>
     <string name="settings">Настройки</string>
     <string name="start">Старт</string>
     <string name="stop">Стоп</string>
     <string name="retry">Заново</string>
 
-    <string name="password">Пароль:</string>
     <string name="enter_password">Введите пароль:</string>
     <string name="lock_with_password">Заблокировать паролем</string>
     <string name="wrong_password">Пароль не верный</string>
+    <string name="password">Пароль</string>
+    <string name="set_password">Установить пароль</string>
     <string name="add_email">Добавить e-mail</string>
+    <string name="add_server">Добавить сервер</string>
     <string name="emails">E-mail\'ы</string>
+    <string name="servers">Адреса серверов</string>
+    <string name="media">Аудио/видео</string>
+    <string name="media_type">Запись инцидента:</string>
+    <string name="media_length">Продолжительность записи:</string>
     <string name="no_account_message">Укажите ваш google-аккаунт в настройках телефона</string>
     <string name="it_is_not_email">Пожалуйста, впишите правильный e-mail</string>
     <string name="protect_description">protect yourself</string>
@@ -50,4 +56,18 @@
     <string name="sos">SOS</string>
     <string name="sos_after">SOS через #n# мин.</string>
     <string name="sos_activated">Тревога активирована!</string>
+
+    <string-array name="media_types">
+        <item>Нет</item>
+        <item>Аудио</item>
+        <item>Видео</item>
+    </string-array>
+
+    <string-array name="media_length">
+        <item>30 сек</item>
+        <item>1 мин</item>
+        <item>2 мин</item>
+        <item>3 мин</item>
+        <item>5 мин</item>
+    </string-array>
 </resources>

@@ -13,9 +13,12 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import ua.ip.sosmessage.media.SetMediaFragment;
 import ua.ip.sosmessage.message.MessageFragment;
+import ua.ip.sosmessage.password.PasswordFragment;
 import ua.ip.sosmessage.setemails.SetEmailsFragment;
 import ua.ip.sosmessage.setphones.SetPhoneFragment;
+import ua.ip.sosmessage.setservers.SetServersFragment;
 
 /**
  * Created by Taras Melon on 08.01.14.
@@ -38,8 +41,14 @@ public class SettingsFragment extends Fragment {
         vParent = rootView;
 
         final ListView settingsList = (ListView) vParent.findViewById(R.id.settings_list);
-        final String[] values = new String[]{getResources().getString(R.string.add_phone),
-                getResources().getString(R.string.edit_message), getResources().getString(R.string.emails)};
+        final String[] values = new String[]{
+                getResources().getString(R.string.add_phone),
+                getResources().getString(R.string.edit_message),
+                getResources().getString(R.string.emails),
+                getResources().getString(R.string.servers),
+                getResources().getString(R.string.password),
+                getResources().getString(R.string.media)
+        };
 
         final ArrayList<String> list = new ArrayList<String>();
         Collections.addAll(list, values);
@@ -73,7 +82,21 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.addToBackStack(SetEmailsFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
                         break;
-
+                    case 3:
+                        mfragment = new SetServersFragment();
+                        fragmentTransaction.addToBackStack(SetServersFragment.TAG);
+                        fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                        break;
+                    case 4:
+                        mfragment = new PasswordFragment();
+                        fragmentTransaction.addToBackStack(PasswordFragment.TAG);
+                        fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                        break;
+                    case 5:
+                        mfragment = new SetMediaFragment();
+                        fragmentTransaction.addToBackStack(SetMediaFragment.TAG);
+                        fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                        break;
                 }
             }
 

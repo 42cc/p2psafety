@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+    android:focusableInTouchMode="true"
+    android:focusable="true"
+    android:clickable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/frame_indent2"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:visibility="gone"/>
+
+            <ImageView
+                android:id="@+id/img_protect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/protect_description"
+                android:focusable="true"
+                android:src="@drawable/protect2"
+
+                />
+        </LinearLayout>
+
+        <!-- android:scaleType="fitXY" -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/SOSRed">
+
+
+            <TextView
+                android:id="@+id/captionText"
+                style="@style/TextButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:paddingBottom="@dimen/c_padding"
+                android:paddingTop="@dimen/st_padding"
+                android:text="@string/media"
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:id="@+id/typeText"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:gravity="center_vertical"
+                android:paddingBottom="@dimen/c_padding"
+                android:paddingTop="@dimen/st_padding"
+                android:text="@string/media_type" />
+
+        </LinearLayout>
+
+        <Spinner
+            android:id="@+id/media_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/media_types"
+            android:paddingBottom="0dp"
+            android:paddingTop="0dp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:id="@+id/lengthText"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:gravity="center_vertical"
+                android:paddingBottom="@dimen/c_padding"
+                android:paddingTop="@dimen/st_padding"
+                android:text="@string/media_length" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Spinner
+        android:id="@+id/media_length"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/media_length"
+        android:paddingBottom="0dp"
+        android:paddingTop="0dp" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="bottom">
+
+        <Button
+            android:id="@+id/btn_save"
+            style="@style/TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/btn_sel"
+            android:padding="@dimen/st_padding"
+            android:singleLine="true"
+            android:text="@string/btn_save" />
+    </LinearLayout>
+
+</LinearLayout>

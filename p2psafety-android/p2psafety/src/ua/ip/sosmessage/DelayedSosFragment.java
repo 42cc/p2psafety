@@ -41,8 +41,6 @@ public class DelayedSosFragment extends Fragment {
     TextView mTimerText;
     Button mTimerBtn;
     ImageButton mArrowUpBtn, mArrowDownBtn;
-    CheckBox mSosLockView;
-    EditText mPasswordText;
 
     Activity mActivity;
 
@@ -64,45 +62,18 @@ public class DelayedSosFragment extends Fragment {
         mTimerBtn = (Button) view.findViewById(R.id.timerBtn);
         mArrowUpBtn = (ImageButton) view.findViewById(R.id.arrowUpBtn);
         mArrowDownBtn = (ImageButton) view.findViewById(R.id.arrowDownBtn);
-        mSosLockView = (CheckBox) view.findViewById(R.id.fst_sos_lock);
-        mPasswordText = (EditText) view.findViewById(R.id.fst_password_text);
 
         return view;
     }
 
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
-        mPasswordText.setText(Prefs.getPassword(mActivity));
-        mPasswordText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override
-            public void afterTextChanged(Editable s) {
-                Prefs.putPassword(mActivity, s.toString());
-                if (s.length() <= 0) {
-                    mSosLockView.setChecked(false);
-                }
-            }
-        });
-
-        mSosLockView.setChecked(Prefs.getUsePassword(mActivity));
-        mSosLockView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Prefs.putUsePassword(mActivity, isChecked);
-                if (isChecked && mPasswordText.length() <= 0)
-                    mSosLockView.setChecked(false);
-            }
-        });
-
         mTimerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (DelayedSosService.isTimerOn()) {
                     // stop timer
-                    if (!mSosLockView.isChecked()) {
+                    if (!Prefs.getUsePassword(mActivity)) {
                         mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
                         onTimerStop();
                     } else {
@@ -181,7 +152,7 @@ public class DelayedSosFragment extends Fragment {
 
     // stops timer or builds dialog with retry/cancel buttons
     private void checkPasswordAndStopTimer(String password) {
-        if (password.equals(mPasswordText.getText().toString()))
+        if (password.equals(Prefs.getPassword(mActivity)))
         {
             mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
             onTimerStop();
@@ -221,8 +192,6 @@ public class DelayedSosFragment extends Fragment {
 
     private void onTimerStart() {
         showSosDelay(DelayedSosService.getTimeLeft());
-        mPasswordText.setEnabled(false);
-        mSosLockView.setEnabled(false);
         mArrowUpBtn.setEnabled(false);
         mArrowDownBtn.setEnabled(false);
         mArrowUpBtn.setImageDrawable(
@@ -234,8 +203,6 @@ public class DelayedSosFragment extends Fragment {
 
     private void onTimerStop() {
         showSosDelay(DelayedSosService.getSosDelay(mActivity));
-        mPasswordText.setEnabled(true);
-        mSosLockView.setEnabled(true);
         mArrowUpBtn.setEnabled(true);
         mArrowDownBtn.setEnabled(true);
         mArrowUpBtn.setImageDrawable(

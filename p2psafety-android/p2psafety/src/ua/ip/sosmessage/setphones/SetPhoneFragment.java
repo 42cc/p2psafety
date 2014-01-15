@@ -21,6 +21,7 @@ public class SetPhoneFragment extends Fragment {
     public static final String TAG = "SetPhoneGragment";
     private View vParent;
     private PhonesAdapter adapter;
+
     private View.OnClickListener lsnr = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -36,7 +37,6 @@ public class SetPhoneFragment extends Fragment {
                     break;
                 case R.id.ibtn_addcontact:
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    // BoD con't: CONTENT_TYPE instead of CONTENT_ITEM_TYPE
                     intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
                     startActivityForResult(intent, 1001);
                     break;
@@ -57,7 +57,6 @@ public class SetPhoneFragment extends Fragment {
                 Cursor c = null;
                 try {
                     c = getActivity().getContentResolver().query(uri, new String[]{
-
                             ContactsContract.CommonDataKinds.Phone.NUMBER,
                             ContactsContract.CommonDataKinds.Phone.TYPE},
                             null, null, null);

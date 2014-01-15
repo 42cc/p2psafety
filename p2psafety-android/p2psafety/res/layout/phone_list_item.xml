@@ -25,16 +25,34 @@
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"/>
 
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/arrowUpBtn"
+        android:layout_gravity="center"
+        android:src="@drawable/arrow_up"
+        android:background="@color/White"
+        android:scaleType="fitXY"
+        android:padding="@dimen/st_padding" />
+
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/arrowDownBtn"
+        android:layout_gravity="center"
+        android:src="@drawable/arrow_down"
+        android:background="@color/White"
+        android:scaleType="fitXY"
+        android:padding="@dimen/st_padding" />
+
     <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:id="@+id/ibtn_del"
             android:layout_gravity="center"
             android:src="@drawable/del_sel"
-            android:adjustViewBounds="true"
-            android:layout_marginLeft="1dp"
-            android:layout_marginRight="1dp"
-            android:padding="@dimen/st_padding"
-            />
+            android:adjustViewBounds="false"
+        android:layout_marginRight="10dp"
+        android:scaleType="fitXY" />
 
 </LinearLayout>

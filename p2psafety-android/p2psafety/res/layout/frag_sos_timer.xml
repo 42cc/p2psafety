@@ -9,25 +9,6 @@
     android:focusableInTouchMode="true"
     android:clickable="true">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/password" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:ems="10"
-        android:id="@+id/fst_password_text" />
-
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/lock_with_password"
-        android:id="@+id/fst_sos_lock" />
-
     <FrameLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

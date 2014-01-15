@@ -80,11 +80,12 @@ public class EmailsAdapter extends BaseAdapter {
         return v;
     }
 
-    private void bindView(View view, int position) {
+    private void bindView(View view, final int position) {
         final TextView txt_phone = (TextView) view.findViewById(R.id.txt_phone);
 
         txt_phone.setText(items.get(position));
         txt_phone.setTypeface(font);
+
         View ibtn_del = view.findViewById(R.id.ibtn_del);
         ibtn_del.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,5 +94,41 @@ public class EmailsAdapter extends BaseAdapter {
             }
         });
 
+        View arrowUp = view.findViewById(R.id.arrowUpBtn);
+        arrowUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (position > 0) {
+                    String curItem = items.get(position);
+                    String prevItem = items.get(position-1);
+                    items.set(position, prevItem);
+                    items.set(position-1, curItem);
+                    saveSortedData();
+                    notifyDataSetChanged();
+                }
+            }
+        });
+
+        View arrowDown = view.findViewById(R.id.arrowDownBtn);
+        arrowDown.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (position < items.size()-1) {
+                    String curItem = items.get(position);
+                    String nextItem = items.get(position+1);
+                    items.set(position, nextItem);
+                    items.set(position+1, curItem);
+                    saveSortedData();
+                    notifyDataSetChanged();
+                }
+            }
+        });
+    }
+
+    private void saveSortedData() {
+        for (String item: items)
+            datasourse.removeEmail(item);
+        for (String item: items)
+            datasourse.addEmail(item);
     }
 }

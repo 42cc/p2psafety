@@ -2,29 +2,24 @@ package ua.ip.sosmessage.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * User: Ihor
- * Date: 10.10.12
- * Time: 14:51
- */
-public class PhonesDatasourse {
-    //old android api doesn't work with sets of strings
+public class ServersDatasourse {
 
-    private static String Pipe_Key_PREF = "Phones_key";
+    //old android api doesn't work with sets of strings
+    private static String Pipe_Key_PREF = "Servers_key";
     private Context context;
 
-    public PhonesDatasourse(Context context) {
+    public ServersDatasourse(Context context) {
         this.context = context;
     }
 
-    private JSONArray getPhonesArr()
-    {
+    private JSONArray getServersArr() {
         String s = getPrefs().getString(Pipe_Key_PREF, "");
         if (s.length() == 0)
             s = new JSONArray().toString();
@@ -41,15 +36,15 @@ public class PhonesDatasourse {
         return context.getSharedPreferences("MobileExchange", 0);
     }
 
-    public void addPhone(String phone)  {
-        JSONArray arr = getPhonesArr();
-        arr.put(phone);
+    public void addServer(String address) {
+        JSONArray arr = getServersArr();
+        arr.put(address);
         getPrefs().edit().putString(Pipe_Key_PREF, arr.toString()).commit();
 
     }
 
-    public void removePhone(String phone)  {
-        JSONArray arr = getPhonesArr();
+    public void removeServer(String address) {
+        JSONArray arr = getServersArr();
         JSONArray arr2 = new JSONArray();
         for (int i = 0; i < arr.length(); i++) {
             String s = null;
@@ -58,23 +53,22 @@ public class PhonesDatasourse {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            if (!phone.equals(s))
+            if (!address.equals(s))
                 arr2.put(s);
         }
         getPrefs().edit().putString(Pipe_Key_PREF, arr2.toString()).commit();
 
     }
 
-    public List<String> getAllPhones() {
-        JSONArray arr = getPhonesArr();
-        List<String> phones = new ArrayList<String>();
+    public List<String> getAllServers() {
+        JSONArray arr = getServersArr();
+        List<String> servers = new ArrayList<String>();
         for (int i = 0; i < arr.length(); i++)
             try {
-                phones.add(arr.getString(i));
+                servers.add(arr.getString(i));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        return phones;
+        return servers;
     }
-
 }

@@ -29,6 +29,7 @@ public class SetEmailsFragment extends Fragment {
     public static final String TAG = "SetEmailsFragment";
     private View vParent;
     private EmailsAdapter mAdapter;
+
     private View.OnClickListener lsnr = new View.OnClickListener() {
         @Override
         public void onClick(View v) {

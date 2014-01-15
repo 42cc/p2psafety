@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_weight="1"
+              android:focusable="true"
+              android:focusableInTouchMode="true"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/frame_indent"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/img_protect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/protect_description"
+            android:focusable="true"
+            android:src="@drawable/protect1"
+
+            />
+    </LinearLayout>
+
+    <!-- android:scaleType="fitXY" -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/SOSRed">
+
+        <TextView
+            android:id="@+id/textView"
+            style="@style/TextButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingBottom="@dimen/st_padding"
+            android:paddingTop="@dimen/st_padding"
+            android:text="@string/add_server"
+            android:textAppearance="?android:attr/textAppearanceLarge"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/edt_addserver"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:ems="9"
+            android:gravity="center_vertical"
+            android:inputType="textEmailAddress"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:phoneNumber="true"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/DimGray"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:padding="15dp"/>
+
+        <ImageView
+            android:id="@+id/ibtn_addserver"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:contentDescription="@string/protect_description"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:adjustViewBounds="true"
+            android:padding="@dimen/st_padding"
+            android:src="@drawable/add_sel"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="2dp"
+        android:background="@android:drawable/divider_horizontal_textfield"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
+
+    <ListView
+        android:id="@+id/lsv_servers"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:headerDividersEnabled="false" />
+
+</LinearLayout>
