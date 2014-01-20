@@ -3,6 +3,9 @@
 # C extensions
 *.so
 
+# Local settings
+p2psafety_django/p2psafety/settings/local.py
+
 # Packages
 *.egg
 *.egg-info

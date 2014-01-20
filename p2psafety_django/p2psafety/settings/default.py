@@ -1,5 +1,5 @@
 """
-Django settings for p2psafety_django project.
+Django settings for p2psafety project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -15,9 +15,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '_d(lvi73$s@a$ki(#j!_%f3s_&jb262(o-n5pewa0$qx3f!(w='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -47,9 +44,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'p2psafety_django.urls'
+ROOT_URLCONF = 'p2psafety.urls'
 
-WSGI_APPLICATION = 'p2psafety_django.wsgi.application'
+WSGI_APPLICATION = 'p2psafety.wsgi.application'
 
 
 # Database
