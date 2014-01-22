@@ -55,6 +55,7 @@
     <string name="sos">SOS</string>
     <string name="sos_after">SOS in #n# min.</string>
     <string name="sos_activated">Alarm activated!</string>
+    <string name="sos_cancel">Cancel</string>
     <string name="sos_canceled">Alarm canceled!</string>
     <string name="sos_already_active">Sos already active</string>
 

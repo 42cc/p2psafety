@@ -5,7 +5,7 @@
              android:layout_height="match_parent"
     android:gravity="center_horizontal">
 
-    <ImageView
+    <Button
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:id="@+id/btn_run"
@@ -15,7 +15,9 @@
         android:src="@android:drawable/bottom_bar"
         android:scaleType="fitXY"
         android:longClickable="false"
-        android:background="@color/SOSRed" />
+        android:background="@drawable/btn_sel"
+        android:text="@string/sos"
+        style="@style/TextButton" />
 
     <TextView
         android:layout_width="wrap_content"
