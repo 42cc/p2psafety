@@ -56,7 +56,8 @@
     <string name="sos">SOS</string>
     <string name="sos_after">SOS через #n# мин.</string>
     <string name="sos_activated">Тревога активирована!</string>
-    <string name="sos_canceled">Тревога отменена.</string>
+    <string name="sos_canceled">Тревога отменена</string>
+    <string name="sos_already_active">Тревога уже активна</string>
 
     <string name="audio_is_recording">Запись аудио. Осталось #n# мин"</string>
     <string name="audio_record_finished">Запись аудио завершена</string>

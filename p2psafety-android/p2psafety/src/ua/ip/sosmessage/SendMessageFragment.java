@@ -79,8 +79,12 @@ public class SendMessageFragment extends Fragment {
                     } else {
                         askPasswordAndCancelSos();
                     }
-
                 } else {
+                    // stop delayed SOS if it is on
+                    if (DelayedSosService.isTimerOn()) {
+                        mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
+                    }
+                    // start normal sos
                     sosManager.startSos();
                 }
                 return false;

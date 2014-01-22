@@ -19,6 +19,7 @@ import ua.ip.sosmessage.DelayedSosFragment;
 import ua.ip.sosmessage.DelayedSosService;
 import ua.ip.sosmessage.R;
 import ua.ip.sosmessage.SosActivity;
+import ua.ip.sosmessage.SosManager;
 import ua.ip.sosmessage.sms.MessageResolver;
 
 public class Widget extends AppWidgetProvider {
@@ -63,8 +64,13 @@ public class Widget extends AppWidgetProvider {
                 i.putExtra(SosActivity.FRAGMENT_KEY, DelayedSosFragment.class.getName());
                 context.startActivity(i);
             }
-            else
+            else if (SosManager.getInstance(mContext).isSosStarted()) {
+                String msg = mContext.getResources().getString(R.string.sos_already_active);
+                Toast.makeText(mContext, msg, Toast.LENGTH_LONG)
+                     .show();
+            } else {
                 context.startService(new Intent(context, DelayedSosService.class));
+            }
         }
         else if (action.equals(DelayedSosService.SOS_DELAY_TICK)) {
             showSosDelay(DelayedSosService.getTimeLeft());

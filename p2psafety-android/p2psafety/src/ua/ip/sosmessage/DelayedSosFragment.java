@@ -28,6 +28,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
@@ -79,6 +80,10 @@ public class DelayedSosFragment extends Fragment {
                     } else {
                         askPasswordAndStopTimer();
                     }
+                } else if (SosManager.getInstance(mActivity).isSosStarted()) {
+                    String msg = getResources().getString(R.string.sos_already_active);
+                    Toast.makeText(mActivity, msg, Toast.LENGTH_LONG)
+                         .show();
                 } else {
                     // start timer
                     mActivity.startService(new Intent(mActivity, DelayedSosService.class));

@@ -51,6 +51,8 @@ public class SosManager {
 
         // TODO: contact server
 
+        // TODO: send "i'm safe now" SMS and email messages (ask if needed)
+
         // TODO: save mSosStarted to Prefs
         mSosStarted = false;
     }

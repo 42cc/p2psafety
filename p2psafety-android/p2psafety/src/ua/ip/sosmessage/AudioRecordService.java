@@ -23,7 +23,7 @@ import ua.ip.sosmessage.data.Prefs;
 
 public class AudioRecordService extends Service {
     private static Boolean mTimerOn = false;
-    private static long mDuration = 1*1000*60;
+    private static long mDuration = 5*1000*60; // 5 min  TODO: get this val from Prefs
     private static long mTimeLeft = 0;
 
     private static AudioRecordTimer mTimer;
