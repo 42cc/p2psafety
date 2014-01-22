@@ -4,7 +4,7 @@ import hmac
 from django.db import models
 from django.contrib.auth.models import User
 
-from tastypie.models import ApiKey
+from tastypie.utils import now
 
 try:
     from hashlib import sha1
@@ -13,14 +13,16 @@ except ImportError:
     sha1 = sha.sha
 
 
-class PIN(ApiKey):
+class PIN(models.Model):
     """
     ApiKey model for api auth. Basically like tasypie's, but with custom
     generator and active/passive state.
     """
+    key = models.CharField(max_length=128, blank=True, default='', db_index=True)
     user = models.ForeignKey(User, related_name='api_key')
     is_active = models.BooleanField(default=True)
     PIN = models.SmallIntegerField(default=0)
+    created = models.DateTimeField(default=now)
 
     def save(self, *args, **kwargs):
         """
