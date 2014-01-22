@@ -45,7 +45,7 @@ public class AudioRecordService extends Service {
         if (!mTimerOn) {
             startRecording();
         }
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     private class AudioRecordTimer extends CountDownTimer {
@@ -90,11 +90,11 @@ public class AudioRecordService extends Service {
         mRecordFile = File.createTempFile("sound", ".mp4", sampleDir);
 
         mRecorder = new MediaRecorder();
-        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        mRecorder.setAudioSource(MediaRecorder.getAudioSourceMax());
+        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mRecorder.setAudioEncodingBitRate(128000);
-        mRecorder.setAudioEncodingBitRate(44100);
+        mRecorder.setAudioSamplingRate(16000);
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
         mRecorder.prepare();
     }
