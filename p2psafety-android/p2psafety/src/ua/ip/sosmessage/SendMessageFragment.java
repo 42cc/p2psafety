@@ -65,15 +65,12 @@ public class SendMessageFragment extends Fragment {
         btn_send.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (AudioRecordService.isTimerOn()) {
-                    mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
+                SosManager sosManager = SosManager.getInstance(mActivity);
+                if (sosManager.isSosStarted()) {
+                    sosManager.stopSos();
                 } else {
-                    mActivity.startService(new Intent(mActivity, AudioRecordService.class));
+                    sosManager.startSos();
                 }
-                //Notifications.notifSosStarted(getActivity());
-
-                //MessageResolver resolver = new MessageResolver(getActivity(), false);
-                //resolver.sendMessages();
                 return false;
             }
         });

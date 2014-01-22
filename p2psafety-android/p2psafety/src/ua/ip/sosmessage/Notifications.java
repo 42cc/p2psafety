@@ -9,8 +9,10 @@ import android.content.res.Resources;
 import android.support.v4.app.NotificationCompat;
 
 public class Notifications extends BroadcastReceiver{
-    private static final int NOTIF_DELAYED_SOS_CODE = 100;
-    private static final int NOTIF_SOS_STARTED_CODE = 101;
+    public static final int NOTIF_DELAYED_SOS_CODE = 100;
+    public static final int NOTIF_SOS_STARTED_CODE = 101;
+    public static final int NOTIF_AUDIO_RECORD_CODE = 102;
+    public static final int NOTIF_AUDIO_RECORD_FINISHED_CODE = 103;
 
     public static void notifDelayedSOS(Context context, long timeLeft, long timeTotal) {
         Intent notificationIntent = new Intent(context, SosActivity.class);
@@ -67,6 +69,50 @@ public class Notifications extends BroadcastReceiver{
                 .setPriority(1000);
 
         nm.notify(NOTIF_SOS_STARTED_CODE, builder.build());
+    }
+
+    public static void notifAudioRecording(Context context, long timeLeft, long timeTotal) {
+        NotificationManager nm = (NotificationManager) context
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Resources res = context.getResources();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+
+        builder.setContentIntent(PendingIntent.getActivity(context, 0, new Intent(), 0))
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setTicker("Audio is recording. #n# min left"
+                        .replace("#n#", String.valueOf(timeLeft / 1000 / 60)))
+                .setWhen(System.currentTimeMillis() + timeLeft)
+                .setAutoCancel(false)
+                .setContentTitle("Audio recording")
+                .setContentText("Audio is recording. #n# min left"
+                        .replace("#n#", String.valueOf(timeLeft / 1000 / 60)))
+                .setWhen(System.currentTimeMillis() + timeLeft)
+                .setOngoing(true)
+                .setProgress((int) (timeTotal / 1000), (int) ((timeTotal - timeLeft) / 1000), false)
+                .setOnlyAlertOnce(true)
+                .setPriority(1000);
+
+        nm.notify(NOTIF_AUDIO_RECORD_CODE, builder.build());
+    }
+
+    public static void notifAudioRecordingFinished(Context context) {
+        NotificationManager nm = (NotificationManager) context
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Resources res = context.getResources();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+
+        builder.setContentIntent(PendingIntent.getActivity(context, 0, new Intent(), 0))
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setTicker("Audio recording finished")
+                .setWhen(System.currentTimeMillis())
+                .setAutoCancel(true)
+                .setContentTitle("Audio recording")
+                .setContentText("Audio recording finished")
+                .setPriority(1000);
+
+        nm.notify(NOTIF_AUDIO_RECORD_FINISHED_CODE, builder.build());
     }
 
 

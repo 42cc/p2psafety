@@ -70,7 +70,7 @@ public class DelayedSosService extends Service {
             Intent i = new Intent(SOS_DELAY_FINISH);
             sendBroadcast(i);
 
-            Toast.makeText(getApplicationContext(), "Here we send SOS message", Toast.LENGTH_LONG).show();
+            SosManager.getInstance(getApplicationContext()).startSos();
             mTimerOn = false;
         }
 
