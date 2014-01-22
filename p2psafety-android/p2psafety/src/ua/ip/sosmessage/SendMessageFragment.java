@@ -1,7 +1,10 @@
 package ua.ip.sosmessage;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -20,6 +23,7 @@ import ua.ip.sosmessage.sms.MessageResolver;
  */
 public class SendMessageFragment extends Fragment {
     Button mDelayedSosBtn;
+    Activity mActivity;
 
     private View.OnClickListener lsnr = new View.OnClickListener() {
         @Override
@@ -46,6 +50,8 @@ public class SendMessageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mActivity = getActivity();
+
         ((SosActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(false);
         ((SosActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         Typeface font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/RobotoCondensed-Bold.ttf");
@@ -59,10 +65,15 @@ public class SendMessageFragment extends Fragment {
         btn_send.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Notifications.notifSosStarted(getActivity());
+                if (AudioRecordService.isTimerOn()) {
+                    mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
+                } else {
+                    mActivity.startService(new Intent(mActivity, AudioRecordService.class));
+                }
+                //Notifications.notifSosStarted(getActivity());
 
-                MessageResolver resolver = new MessageResolver(getActivity(), false);
-                resolver.sendMessages();
+                //MessageResolver resolver = new MessageResolver(getActivity(), false);
+                //resolver.sendMessages();
                 return false;
             }
         });

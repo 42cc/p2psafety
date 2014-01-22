@@ -61,7 +61,6 @@ public class DelayedSosService extends Service {
     }
 
     private class DelayedSosTimer extends CountDownTimer {
-
         public DelayedSosTimer(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
         }
