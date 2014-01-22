@@ -138,6 +138,9 @@
 -dontwarn javax.xml.**
 -dontwarn javax.xml.stream.events.**
 -dontwarn com.google.gson.**
+-dontwarn java.awt.**
+-dontwarn java.beans.Beans
+-dontwarn javax.security.**
 
 -keep class org.apache.http.** { *; }
 -keep class com.google.gson.** { *; }

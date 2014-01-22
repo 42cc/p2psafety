@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 *.py[cod]
 
 # C extensions
@@ -65,4 +64,6 @@ out
 #gradle
 build
 .gradle
->>>>>>> ticket_1Projectbootstrap
+
+# android apk-signing files
+*keystore
