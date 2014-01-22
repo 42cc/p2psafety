@@ -1,6 +1,8 @@
 package ua.ip.sosmessage;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -12,8 +14,13 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+
+import ua.ip.sosmessage.data.Prefs;
 import ua.ip.sosmessage.message.MessageFragment;
 import ua.ip.sosmessage.setphones.SetPhoneFragment;
 import ua.ip.sosmessage.sms.MessageResolver;
@@ -67,7 +74,12 @@ public class SendMessageFragment extends Fragment {
             public boolean onLongClick(View v) {
                 SosManager sosManager = SosManager.getInstance(mActivity);
                 if (sosManager.isSosStarted()) {
-                    sosManager.stopSos();
+                    if (!Prefs.getUsePassword(mActivity)) {
+                        sosManager.stopSos();
+                    } else {
+                        askPasswordAndCancelSos();
+                    }
+
                 } else {
                     sosManager.startSos();
                 }
@@ -106,5 +118,62 @@ public class SendMessageFragment extends Fragment {
         return rootView;
     }
 
+    // builds dialog with password prompt
+    private void askPasswordAndCancelSos() {
+        LayoutInflater li = LayoutInflater.from(mActivity);
+        View promptsView = li.inflate(R.layout.password_dialog, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
+        alertDialogBuilder.setView(promptsView);
 
+        final EditText userInput = (EditText) promptsView.findViewById(R.id.pd_password_edit);
+
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                checkPasswordAndCancelSos(userInput.getText().toString());
+                            }
+                        })
+                .setNegativeButton(android.R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+        alertDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+        userInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    checkPasswordAndCancelSos(userInput.getText().toString());
+                    alertDialog.dismiss();
+                }
+                return true;
+            }
+        });
+    }
+
+    // cancels sos or builds dialog with retry/cancel buttons
+    private void checkPasswordAndCancelSos(String password) {
+        if (password.equals(Prefs.getPassword(mActivity))) {
+            SosManager.getInstance(mActivity).stopSos();
+        }
+        else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+            builder.setTitle(R.string.wrong_password);
+            builder.setNegativeButton(android.R.string.cancel, null);
+            builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    askPasswordAndCancelSos();
+                }
+            });
+            builder.create().show();
+        }
+    }
 }
