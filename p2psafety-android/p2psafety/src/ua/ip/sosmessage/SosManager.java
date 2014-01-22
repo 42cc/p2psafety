@@ -46,7 +46,8 @@ public class SosManager {
         // stop media recording
         mContext.stopService(new Intent(mContext, AudioRecordService.class));
 
-        // TODO: remove notification
+        Notifications.removeNotification(mContext, Notifications.NOTIF_SOS_STARTED_CODE);
+        Notifications.notifSosCanceled(mContext);
 
         // TODO: contact server
 
