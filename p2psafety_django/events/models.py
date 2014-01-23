@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 import uuid
 import hmac
 
 from django.db import models
+from django.dispatch import receiver
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
@@ -53,6 +55,14 @@ class Event(models.Model):
         PIN = new_uuid.int % 1000000
         key = hmac.new(new_uuid.bytes, digestmod=sha1).hexdigest()
         return (PIN, key)
+
+
+@receiver(models.signals.post_save, sender=Event)
+def mark_old_events_as_finished(sender, **kwargs):
+    if kwargs.get('created'):
+        instance = kwargs.get('instance')
+        Event.objects.filter(status__in=['A', 'P']).exclude(
+            id=getattr(instance, 'id')).update(status='F')
 
 
 class EventUpdate(models.Model):
