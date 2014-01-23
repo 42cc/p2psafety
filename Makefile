@@ -1,6 +1,6 @@
 -include Makefile.def
 
-TEST_APP?=users events
+TEST_APP?=events
 
 # targets
 .PHONY: manage run mailserver syncdb shell test clean migrate init_migrate loaddata help

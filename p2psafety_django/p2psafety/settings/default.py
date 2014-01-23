@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Django settings for p2psafety project.
 
@@ -37,11 +38,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.gis',
 
-    'users',
     'events',
 
     'tastypie',
-    'social_auth',
+    'social',
     'south',
 )
 
