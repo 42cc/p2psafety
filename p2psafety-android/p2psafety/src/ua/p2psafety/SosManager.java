@@ -31,7 +31,8 @@ public class SosManager {
         resolver.sendMessages();
 
         // start media recording
-        mContext.startService(new Intent(mContext, AudioRecordService.class));
+        //mContext.startService(new Intent(mContext, AudioRecordService.class));
+        mContext.startService(new Intent(mContext, VideoRecordService.class));
 
         // show hint in notifications panel
         Notifications.notifSosStarted(mContext);
@@ -44,7 +45,8 @@ public class SosManager {
 
     public void stopSos() {
         // stop media recording
-        mContext.stopService(new Intent(mContext, AudioRecordService.class));
+        //mContext.stopService(new Intent(mContext, AudioRecordService.class));
+        mContext.stopService(new Intent(mContext, VideoRecordService.class));
 
         Notifications.removeNotification(mContext, Notifications.NOTIF_SOS_STARTED_CODE);
         Notifications.notifSosCanceled(mContext);

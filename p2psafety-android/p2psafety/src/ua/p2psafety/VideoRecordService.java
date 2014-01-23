@@ -24,16 +24,11 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 
 public class VideoRecordService extends Service implements SurfaceHolder.Callback {
-    public static final String VIDEO_RECORD_START = "ua.p2psafety.VideoRecordService.TimerStart";
-    public static final String VIDEO_RECORD_TICK = "ua.p2psafety.VideoRecordService.TimerTick";
-    public static final String VIDEO_RECORD_FINISH = "ua.p2psafety.VideoRecordService.TimerFinish";
-    public static final String VIDEO_RECORD_CANCEL = "ua.p2psafety.VideoRecordService.TimerCancel";
-    //public static final String VIDEO_RECORD_CHANGE = "ua.p2psafety.VideoRecordService.TimerChange";
-
     private static Boolean mTimerOn = false;
-    private static long mDuration = 2*1000*60;
+    private static long mDuration = 5*1000*60;
     private static long mTimeLeft = 0;
 
     private static VideoRecordTimer mTimer = null;
@@ -57,9 +52,6 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (!mTimerOn) {
-            // let our notification manager know when things happen
-            registerReceiver(getApplicationContext(), new Notifications());
-
             // Create new SurfaceView, set its size to 1x1, move it to the top left corner and set this service as a callback
             mWindowManager = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
             mSurfaceView = new SurfaceView(this);
@@ -78,33 +70,12 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         return super.onStartCommand(intent, flags, startId);
     }
 
-    public static void registerReceiver(Context context, BroadcastReceiver receiver) {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(VideoRecordService.VIDEO_RECORD_START);
-        filter.addAction(VideoRecordService.VIDEO_RECORD_TICK);
-        filter.addAction(VideoRecordService.VIDEO_RECORD_FINISH);
-        filter.addAction(VideoRecordService.VIDEO_RECORD_CANCEL);
-        context.registerReceiver(receiver, filter);
-    }
-
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-
-    }
+    public void surfaceCreated(SurfaceHolder holder) {}
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.i("VideoRecord", "surfaceChanged");
-        // TODO: move this stuff to after record started successfully
-        mTimeLeft = mDuration;
-        mTimer = new VideoRecordTimer(mDuration, 1000);
-        mTimer.start();
-        mTimerOn = true;
-        startRecording(holder);
-
-        Intent i = new Intent(VIDEO_RECORD_START);
-        sendBroadcast(i);
-
+        startRecording();
     }
 
     @Override
@@ -120,80 +91,54 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         @Override
         public void onFinish() {
             stopRecording();
-            Intent i = new Intent(VIDEO_RECORD_FINISH);
-            sendBroadcast(i);
             mTimerOn = false;
         }
 
         @Override
         public void onTick(long millisUntilFinished) {
             mTimeLeft = millisUntilFinished;
-            Intent i = new Intent(VIDEO_RECORD_TICK);
-            sendBroadcast(i);
         }
     }
 
-    public void startRecording(SurfaceHolder holder) {
-        Log.i("VideoRecord", "startrecording 1");
-        Log.i("VideoRecord", "startrecording 1.0");
-        File sampleDir = Environment.getExternalStorageDirectory();
-        Log.i("VideoRecord", "startrecording 1.1");
+    public void startRecording() {
         try {
-            mRecordFile = File.createTempFile("video", ".mp4", sampleDir);
-        } catch (Exception e) {
-            Log.i("VideoRecord", "SHIT HAPPENED 3 !!!");
-            Toast.makeText(getApplicationContext(), "Can't access SD card", Toast.LENGTH_LONG)
+            prepareRecorder();
+            mRecorder.start();
+
+            mTimeLeft = mDuration;
+            mTimer = new VideoRecordTimer(mDuration, 1000);
+            mTimer.start();
+            mTimerOn = true;
+
+            Toast.makeText(getApplicationContext(), "Video recording started", Toast.LENGTH_LONG)
                  .show();
-            return;
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Can't start video recording", Toast.LENGTH_LONG)
+                 .show();
         }
-        Log.i("VideoRecord", "startrecording 1.2");
-        mRecorder = new MediaRecorder();
+    }
 
-        Log.i("VideoRecord", "startrecording 2");
+    private void prepareRecorder() throws Exception {
+        File sampleDir = Environment.getExternalStorageDirectory();
+        mRecordFile = File.createTempFile("video", ".mp4", sampleDir);
+
         mCamera = getCameraInstance();
-
         if (mCamera == null) {
-            // TODO: tell user we cannot record video
-            Log.i("VideoRecord", "camera is null :(");
-            return;
+            throw new Exception();
         }
-//        try {
-
-            //mCamera.setPreviewDisplay(holder);
-//            //mCamera.startPreview();
-//        } catch (IOException e) {
-//            Log.i("VideoRecord", "SHIT HAPPENED 0 !!!");
-//            return;
-//        }
-
-        Log.i("VideoRecord", "startrecording 3");
-
         mCamera.unlock();
+
+        mRecorder = new MediaRecorder();
         mRecorder.setCamera(mCamera);
         mRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
-        mRecorder.setMaxDuration(500000); // 50 seconds
-        mRecorder.setMaxFileSize(5000000); // Approximately 5 megabytes
+        //mRecorder.setMaxDuration(500000); // 50 seconds
+        //mRecorder.setMaxFileSize(5000000); // Approximately 5 megabytes
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
 
-        Log.i("VideoRecord", "startrecording 4");
-
-        mRecorder.setPreviewDisplay(holder.getSurface());
-        try {
-            mRecorder.prepare();
-        } catch (Exception e) {
-            //e.printStackTrace();
-            Log.i("VideoRecord", "SHIT HAPPENED!!!");
-            return;
-        }
-        Log.i("VideoRecord", "startrecording 5");
-        mRecorder.start();
-
-        Toast.makeText(getApplicationContext(), "Video recording started", Toast.LENGTH_LONG)
-             .show();
-
-        Log.i("VideoRecord", "startrecording 6");
+        mRecorder.setPreviewDisplay(mSurfaceView.getHolder().getSurface());
+        mRecorder.prepare();
     }
 
     public static Camera getCameraInstance(){
@@ -209,44 +154,18 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         mRecorder.stop();
         mRecorder.release();
         releaseCamera();
+        mWindowManager.removeView(mSurfaceView);
+
         mTimer.cancel();
         mTimerOn = false;
-        addRecordingToMediaLibrary();
         Toast.makeText(getApplicationContext(), "Video recording is over", Toast.LENGTH_LONG)
              .show();
-    }
-
-    protected void addRecordingToMediaLibrary() {
-        ContentValues values = new ContentValues(4);
-        long current = System.currentTimeMillis();
-        values.put(MediaStore.Video.Media.TITLE, "video" + mRecordFile.getName());
-        values.put(MediaStore.Video.Media.DATE_ADDED, (int) (current / 1000));
-        values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
-        values.put(MediaStore.Video.Media.DATA, mRecordFile.getAbsolutePath());
-        ContentResolver contentResolver = getContentResolver();
-
-        Uri base = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-        Uri newUri = contentResolver.insert(base, values);
-
-        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, newUri));
-        Toast.makeText(this, "Added File " + newUri, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onDestroy() {
         if (mTimerOn) {
             stopRecording();
-            mTimer.cancel();
-            mTimerOn = false;
-            Intent i = new Intent(VIDEO_RECORD_CANCEL);
-            sendBroadcast(i);
-
-            if (mCamera != null) {
-                mCamera.lock();
-                releaseCamera();
-            }
-
-            mWindowManager.removeView(mSurfaceView);
         }
         super.onDestroy();
     }
@@ -259,11 +178,6 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
     public static void setDuration(Context context, long val) {
         mDuration = val;
         //Prefs.putAudioDuration(context, mDuration);
-
-        // send broadcast that audio time changed
-        //Intent i = new Intent(AUDIO_RECORD_CHANGE);
-        //context.sendBroadcast(i);
-
     }
 
     public static long getAudioDuration(Context context) {
@@ -271,14 +185,6 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
             //mDuration = Prefs.getAudioDuration(context);
         }
         return mDuration;
-    }
-
-    public static boolean isTimerOn() {
-        return mTimerOn;
-    }
-
-    public static long getTimeLeft() {
-        return mTimeLeft;
     }
 
     private void releaseCamera(){
