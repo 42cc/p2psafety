@@ -147,6 +147,8 @@
 -keep public interface com.android.vending.licensing.ILicensingService
 -keep class org.w3c.dom.** { *; }
 -keep class android.support.v4.** { *; }
+-keep class com.sun.mail.** { *; }
+-keep class javax.mail.** { *; }
 
 -dontwarn org.apache.http.**
 -dontwarn com.squareup.okhttp.**
