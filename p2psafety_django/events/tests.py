@@ -3,11 +3,12 @@ import json
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from mock import patch
 from factory.django import DjangoModelFactory
 
-from django.core.urlresolvers import reverse
+from models import Event
 
 
 class UserFactory(DjangoModelFactory):
@@ -38,7 +39,7 @@ class EventTestCase(TestCase):
 
         # bad params
         resp = self.client.post(url, data=json.dumps(data), content_type='application/json')
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 400)
 
         data['provider'] = 'facebook'
         resp = self.client.post(url, data=json.dumps(data), content_type='application/json')

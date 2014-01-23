@@ -47,14 +47,15 @@ class EventResource(ModelResource):
         social_auth_backend = get_backend(settings.AUTHENTICATION_BACKENDS, provider)
 
         if social_auth_backend and access_token:
-            social_auth = social_auth_backend(strategy=load_strategy(
-                request=bundle.request,
-                backend=provider,
-            ))
             try:
+                social_auth = social_auth_backend(strategy=load_strategy(
+                    request=bundle.request,
+                    backend=provider,
+                ))
                 user = social_auth.do_auth(access_token)
                 bundle.obj.user = user
             except:
+                # log exception here
                 raise ImmediateHttpResponse(
                     response=http.HttpBadRequest('Invalid access token'))
             bundle.data.pop('provider')
