@@ -17,6 +17,9 @@ public class Prefs {
     private static final String SOS_PASSWORD_KEY = "SOS_PASSWORD";
     private static final String SOS_USE_PASSWORD_KEY = "SOS_USE_PASSWORD";
 
+    private static final String MEDIA_RECORD_TYPE = "MEDIA_RECORD_TYPE";
+    private static final String MEDIA_RECORD_LENGTH = "MEDIA_RECORD_LENGTH";
+
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
     }
@@ -41,6 +44,14 @@ public class Prefs {
         getPrefs(context).edit().putBoolean(SOS_USE_PASSWORD_KEY, val).commit();
     }
 
+    public static void putMediaRecordType(Context context, int val) {
+        getPrefs(context).edit().putInt(MEDIA_RECORD_TYPE, val).commit();
+    }
+
+    public static void putMediaRecordLength(Context context, long val) {
+        getPrefs(context).edit().putLong(MEDIA_RECORD_LENGTH, val).commit();
+    }
+
     public static boolean getIsLoc(Context context) {
         return getPrefs(context).getBoolean(IS_LOC_KEY, true);
     }
@@ -57,7 +68,7 @@ public class Prefs {
     }
 
     public static long getSosDelay(Context context) {
-        return getPrefs(context).getLong(SOS_DELAY_KEY, 2*60*1000); // default is 2 min
+        return getPrefs(context).getLong(SOS_DELAY_KEY, 2*1000*60); // default is 2 min
     }
 
     public static String getPassword(Context context) {
@@ -66,5 +77,13 @@ public class Prefs {
 
     public static boolean getUsePassword(Context context) {
         return getPrefs(context).getBoolean(SOS_USE_PASSWORD_KEY, false);
+    }
+
+    public static int getMediaRecordType(Context context) {
+        return getPrefs(context).getInt(MEDIA_RECORD_TYPE, 0);
+    }
+
+    public static long getMediaRecordLength(Context context) {
+        return getPrefs(context).getLong(MEDIA_RECORD_LENGTH, 5*1000*60); // default is 5 min
     }
 }

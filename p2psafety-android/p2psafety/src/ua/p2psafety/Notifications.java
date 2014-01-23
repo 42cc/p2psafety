@@ -14,6 +14,8 @@ public class Notifications extends BroadcastReceiver{
     public static final int NOTIF_SOS_CANCELED_CODE = 102;
     public static final int NOTIF_AUDIO_RECORD_CODE = 103;
     public static final int NOTIF_AUDIO_RECORD_FINISHED_CODE = 104;
+    public static final int NOTIF_VIDEO_RECORD_CODE = 105;
+    public static final int NOTIF_VIDEO_RECORD_FINISHED_CODE = 106;
 
     public static void notifDelayedSOS(Context context, long timeLeft, long timeTotal) {
         Intent notificationIntent = new Intent(context, SosActivity.class);
@@ -133,6 +135,50 @@ public class Notifications extends BroadcastReceiver{
                 .setPriority(1000);
 
         nm.notify(NOTIF_AUDIO_RECORD_FINISHED_CODE, builder.build());
+    }
+
+    public static void notifVideoRecording(Context context, long timeLeft, long timeTotal) {
+        NotificationManager nm = (NotificationManager) context
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Resources res = context.getResources();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+
+        builder.setContentIntent(PendingIntent.getActivity(context, 0, new Intent(), 0))
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setTicker(res.getString(R.string.video_is_recording)
+                        .replace("#n#", String.valueOf(timeLeft / 1000 / 60)))
+                .setWhen(System.currentTimeMillis() + timeLeft)
+                .setAutoCancel(false)
+                .setContentTitle(res.getString(R.string.sos))
+                .setContentText(res.getString(R.string.video_is_recording)
+                        .replace("#n#", String.valueOf(timeLeft / 1000 / 60)))
+                .setWhen(System.currentTimeMillis() + timeLeft)
+                .setOngoing(true)
+                .setProgress((int) (timeTotal / 1000), (int) ((timeTotal - timeLeft) / 1000), false)
+                .setOnlyAlertOnce(true)
+                .setPriority(1000);
+
+        nm.notify(NOTIF_VIDEO_RECORD_CODE, builder.build());
+    }
+
+    public static void notifVideoRecordingFinished(Context context) {
+        NotificationManager nm = (NotificationManager) context
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Resources res = context.getResources();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+
+        builder.setContentIntent(PendingIntent.getActivity(context, 0, new Intent(), 0))
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setTicker(res.getString(R.string.video_record_finished))
+                .setWhen(System.currentTimeMillis())
+                .setAutoCancel(true)
+                .setContentTitle(res.getString(R.string.sos))
+                .setContentText(res.getString(R.string.video_record_finished))
+                .setPriority(1000);
+
+        nm.notify(NOTIF_VIDEO_RECORD_FINISHED_CODE, builder.build());
     }
 
 

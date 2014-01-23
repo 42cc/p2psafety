@@ -3,6 +3,7 @@ package ua.p2psafety;
 import android.content.Context;
 import android.content.Intent;
 
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.MessageResolver;
 
 public class SosManager {
@@ -31,8 +32,16 @@ public class SosManager {
         resolver.sendMessages();
 
         // start media recording
-        //mContext.startService(new Intent(mContext, AudioRecordService.class));
-        mContext.startService(new Intent(mContext, VideoRecordService.class));
+        switch (Prefs.getMediaRecordType(mContext)) {
+            case 1:
+                // record audio
+                mContext.startService(new Intent(mContext, AudioRecordService.class));
+                break;
+            case 2:
+                // record video
+                mContext.startService(new Intent(mContext, VideoRecordService.class));
+                break;
+        }
 
         // show hint in notifications panel
         Notifications.notifSosStarted(mContext);
@@ -45,7 +54,7 @@ public class SosManager {
 
     public void stopSos() {
         // stop media recording
-        //mContext.stopService(new Intent(mContext, AudioRecordService.class));
+        mContext.stopService(new Intent(mContext, AudioRecordService.class));
         mContext.stopService(new Intent(mContext, VideoRecordService.class));
 
         Notifications.removeNotification(mContext, Notifications.NOTIF_SOS_STARTED_CODE);

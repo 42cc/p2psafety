@@ -26,9 +26,11 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 
+import ua.p2psafety.data.Prefs;
+
 public class VideoRecordService extends Service implements SurfaceHolder.Callback {
     private static Boolean mTimerOn = false;
-    private static long mDuration = 5*1000*60;
+    private static long mDuration;
     private static long mTimeLeft = 0;
 
     private static VideoRecordTimer mTimer = null;
@@ -67,7 +69,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
             mSurfaceView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         }
 
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     @Override
@@ -97,6 +99,10 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         @Override
         public void onTick(long millisUntilFinished) {
             mTimeLeft = millisUntilFinished;
+
+            // update notification only once in a minute
+            if (mTimeLeft / 1000 % 60 == 0)
+                Notifications.notifVideoRecording(getApplicationContext(), mTimeLeft, mDuration);
         }
     }
 
@@ -105,13 +111,13 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
             prepareRecorder();
             mRecorder.start();
 
+            mDuration = Prefs.getMediaRecordLength(getApplicationContext());
             mTimeLeft = mDuration;
             mTimer = new VideoRecordTimer(mDuration, 1000);
             mTimer.start();
             mTimerOn = true;
 
-            Toast.makeText(getApplicationContext(), "Video recording started", Toast.LENGTH_LONG)
-                 .show();
+            Notifications.notifVideoRecording(getApplicationContext(), mTimeLeft, mDuration);
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Can't start video recording", Toast.LENGTH_LONG)
                  .show();
@@ -119,8 +125,13 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
     }
 
     private void prepareRecorder() throws Exception {
-        File sampleDir = Environment.getExternalStorageDirectory();
-        mRecordFile = File.createTempFile("video", ".mp4", sampleDir);
+        File mediaDir;
+        String state = Environment.getExternalStorageState();
+        if(state.equals(Environment.MEDIA_MOUNTED))
+            mediaDir = Environment.getExternalStorageDirectory();
+        else
+            mediaDir = getFilesDir();
+        mRecordFile = File.createTempFile("video", ".mp4", mediaDir);
 
         mCamera = getCameraInstance();
         if (mCamera == null) {
@@ -158,8 +169,9 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
         mTimer.cancel();
         mTimerOn = false;
-        Toast.makeText(getApplicationContext(), "Video recording is over", Toast.LENGTH_LONG)
-             .show();
+
+        Notifications.removeNotification(getApplicationContext(), Notifications.NOTIF_VIDEO_RECORD_CODE);
+        Notifications.notifVideoRecordingFinished(getApplicationContext());
     }
 
     @Override

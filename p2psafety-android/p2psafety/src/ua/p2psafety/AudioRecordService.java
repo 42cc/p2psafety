@@ -12,9 +12,11 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 
+import ua.p2psafety.data.Prefs;
+
 public class AudioRecordService extends Service {
     private static Boolean mTimerOn = false;
-    private static long mDuration = 5*1000*60; // 5 min  TODO: get this val from Prefs
+    private static long mDuration;
     private static long mTimeLeft = 0;
 
     private static AudioRecordTimer mTimer;
@@ -64,6 +66,7 @@ public class AudioRecordService extends Service {
             prepareRecorder();
             mRecorder.start();
 
+            mDuration = Prefs.getMediaRecordLength(getApplicationContext());
             mTimeLeft = mDuration;
             mTimer = new AudioRecordTimer(mDuration, 1000);
             mTimer.start();
@@ -77,8 +80,13 @@ public class AudioRecordService extends Service {
     }
 
     private void prepareRecorder() throws IOException {
-        File sampleDir = Environment.getExternalStorageDirectory();
-        mRecordFile = File.createTempFile("sound", ".mp4", sampleDir);
+        File mediaDir;
+        String state = Environment.getExternalStorageState();
+        if(state.equals(Environment.MEDIA_MOUNTED))
+            mediaDir = Environment.getExternalStorageDirectory();
+        else
+            mediaDir = getFilesDir();
+        mRecordFile = File.createTempFile("sound", ".mp4", mediaDir);
 
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.getAudioSourceMax());

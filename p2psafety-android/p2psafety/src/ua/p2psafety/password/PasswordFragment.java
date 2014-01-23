@@ -54,7 +54,9 @@ public class PasswordFragment extends Fragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (DelayedSosService.isTimerOn()) {
-                    Toast.makeText(getActivity(), "Alert is on, can't change", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(),
+                            getString(R.string.no_settings_while_sos), Toast.LENGTH_LONG)
+                         .show();
                     editText.clearFocus();
                 }
             }
@@ -77,7 +79,9 @@ public class PasswordFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (DelayedSosService.isTimerOn()) {
-                    Toast.makeText(getActivity(), "Alert is on, can't change", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(),
+                            getString(R.string.no_settings_while_sos), Toast.LENGTH_LONG)
+                         .show();
                     usePasswordBtn.setChecked(!isChecked); // reset changes
                     return;
                 }
@@ -93,7 +97,9 @@ public class PasswordFragment extends Fragment {
             public void onClick(View v) {
                 if (DelayedSosService.isTimerOn()) {
                     // tell user we can't
-                    Toast.makeText(getActivity(), "Alert is on, can't change", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(),
+                            getString(R.string.no_settings_while_sos), Toast.LENGTH_LONG)
+                         .show();
                 } else {
                     Prefs.putPassword(context, editText.getText().toString());
                     Prefs.putUsePassword(context, usePasswordBtn.isChecked());
