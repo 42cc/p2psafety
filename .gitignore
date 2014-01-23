@@ -68,3 +68,6 @@ out
 #gradle
 build
 .gradle
+
+# android apk-signing files
+*keystore

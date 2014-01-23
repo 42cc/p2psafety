@@ -56,6 +56,15 @@
     <string name="sos">SOS</string>
     <string name="sos_after">SOS через #n# мин.</string>
     <string name="sos_activated">Тревога активирована!</string>
+    <string name="sos_cancel">Отбой</string>
+    <string name="sos_canceled">Тревога отменена</string>
+    <string name="sos_already_active">Тревога уже активна</string>
+    <string name="no_settings_while_sos">Нельзя изменить эти настройки во время тревоги</string>
+
+    <string name="audio_is_recording">Запись аудио. Осталось #n# мин"</string>
+    <string name="audio_record_finished">Запись аудио завершена</string>
+    <string name="video_is_recording">Запись видео. Осталось #n# мин"</string>
+    <string name="video_record_finished">Запись видео завершена</string>
 
     <string-array name="media_types">
         <item>Нет</item>

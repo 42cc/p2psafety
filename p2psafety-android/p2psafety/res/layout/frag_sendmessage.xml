@@ -12,11 +12,11 @@
         android:text="SOS с задержкой"
         android:id="@+id/delayedSosBtn"
         android:background="@drawable/btn_sel"
-        android:padding="@dimen/st_padding"
         android:layout_marginRight="2dp"
         android:singleLine="true"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:padding="@dimen/st_padding" />
 
     <FrameLayout
         android:layout_width="fill_parent"
@@ -24,17 +24,22 @@
         android:layout_weight="1"
         >
 
-        <ImageView
+        <Button
             android:id="@+id/button"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:adjustViewBounds="true"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:adjustViewBounds="false"
             android:contentDescription="@string/protect_description"
             android:src="@android:drawable/bottom_bar"
-            android:cropToPadding="true" />
+            android:cropToPadding="true"
+            android:background="@drawable/btn_sel"
+            style="@style/TextButton"
+            android:text="@string/sos"
+            android:padding="@dimen/st_padding" />
+
     </FrameLayout>
 
 

@@ -35,7 +35,33 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file("../p2psafety.keystore")
+            storeFile file("../keys/debug.keystore")
+        }
+
+        release {
+            storeFile file("../keys/release.keystore")
+            keyAlias "xxxxx"
+            storePassword "xxxxx"
+            keyPassword "xxxxx"
+        }
+    }
+
+    // release with ProGuard optimization
+    buildTypes {
+        release {
+            runProguard true
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+            // or without optimization
+            // proguardFile getDefaultProguardFile('proguard-android.txt')
+            zipAlign true
+            signingConfig signingConfigs.release
+        }
+    }
+
+    // product with our ProGuard rules
+    productFlavors {
+        defaultFlavor {
+            proguardFile 'proguard-rules.txt'
         }
     }
 
