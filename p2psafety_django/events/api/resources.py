@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 from tastypie import http
 from tastypie.authentication import Authentication
@@ -11,7 +12,23 @@ from tastypie.exceptions import ImmediateHttpResponse
 from social.backends.utils import get_backend
 from social.apps.django_app.utils import load_strategy
 
-from events.models import Event, EventUpdate
+from ..models import Event, EventUpdate
+from ..utils import geo_point
+
+
+class MultipartResource(object):
+    def deserialize(self, request, data, format=None):
+        if not format:
+            format = request.META.get('CONTENT_TYPE', 'application/json')
+
+        if format == 'application/x-www-form-urlencoded':
+            return request.POST
+
+        if format.startswith('multipart'):
+            data = request.POST.copy()
+            data.update(request.FILES)
+            return data
+        return super(MultipartResource, self).deserialize(request, data, format)
 
 
 class EventValidation(Validation):
@@ -58,24 +75,61 @@ class EventResource(ModelResource):
                 # log exception here
                 raise ImmediateHttpResponse(
                     response=http.HttpBadRequest('Invalid access token'))
-            bundle.data.pop('provider')
-            bundle.data.pop('access_token')
+        return bundle
 
+    def dehydrate(self, bundle):
+        bundle.data.pop('provider')
+        bundle.data.pop('access_token')
         return bundle
 
 
-class EventUpdateResource(ModelResource):
+class EventUpdateValidation(Validation):
+    def is_valid(self, bundle, request=None):
+        if not bundle.data:
+            return {'__all__': 'Please add key and other arguments'}
+
+        errors = {}
+
+        key = bundle.data.get('key')
+        if not key:
+            errors['key'] = 'Key is required'
+
+        if bundle.data.keys() == ['key']:
+            errors['__all__'] = 'Additional arguments required'
+
+        latitude = bundle.data.get('latitude')
+        longitude = bundle.data.get('longitude')
+        if not (latitude and longitude) and (latitude or longitude):
+            errors['__all__'] = 'Both latitude and longitude are required'
+
+        return errors
+
+
+class EventUpdateResource(MultipartResource, ModelResource):
     class Meta:
         queryset = EventUpdate.objects.all()
         resource_name = 'eventupdates'
         list_allowed_methods = ['post', ]
         detail_allowed_methods = []
+        validation = EventUpdateValidation()
+        authentication = Authentication()
+        authorization = Authorization()
 
     def hydrate(self, bundle):
         key = bundle.data.get('key')
-        event = Event.objects.get(key=key)
-        bundle.obj.event = event
+        if key:
+            event = get_object_or_404(Event, key=key)
+            bundle.obj.event = event
 
-        # Add hydration for location. It must receive latitude and longitude
+        latitude = bundle.data.get('latitude')
+        longitude = bundle.data.get('longitude')
+        if latitude and longitude:
+            bundle.obj.location = geo_point(latitude=latitude,
+                longitude=longitude)
+            # Add hydration for location. It must receive latitude and longitude
+            pass  # convert to point here
+        elif latitude or longitude:
+            raise ImmediateHttpResponse(response=http.HttpBadRequest(
+                'Both latitude and longitude must be specified'))
 
         return bundle
