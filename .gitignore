@@ -7,6 +7,9 @@
 p2psafety_django/p2psafety/settings/local.py
 Makefile.def
 
+# media, uploaded files
+p2psafety_django/p2psafety/static_media/
+
 # Packages
 *.egg
 *.egg-info
