@@ -18,7 +18,7 @@
         android:cropToPadding="true"
         android:background="@drawable/btn_sel"
         style="@style/TextButton"
-        android:text="@string/sos"
+        android:text="@string/login_with_FB"
         android:padding="@dimen/st_padding" />
 
 </FrameLayout>

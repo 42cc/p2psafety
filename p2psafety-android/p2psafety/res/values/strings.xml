@@ -5,7 +5,7 @@
     <string name="app_id">1387419774852605</string>
 
     <string name="app_name">SOSMessage</string>
-    <string name="hello_world">Hello world!</string>
+
     <string name="action_settings">Settings</string>
     <string-array name="items_array">
         <item>Phones</item>

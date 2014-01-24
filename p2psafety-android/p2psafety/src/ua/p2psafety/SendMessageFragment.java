@@ -26,6 +26,7 @@ import ua.p2psafety.data.Prefs;
  */
 public class SendMessageFragment extends Fragment {
     Button mDelayedSosBtn;
+    Button mSosBtn;
     Activity mActivity;
 
     private View.OnClickListener lsnr = new View.OnClickListener() {
@@ -64,8 +65,8 @@ public class SendMessageFragment extends Fragment {
         mDelayedSosBtn = (Button) rootView.findViewById(R.id.delayedSosBtn);
         mDelayedSosBtn.setOnClickListener(lsnr);
 
-        View btn_send = rootView.findViewById(R.id.button);
-        btn_send.setOnLongClickListener(new View.OnLongClickListener() {
+        mSosBtn = (Button) rootView.findViewById(R.id.button);
+        mSosBtn.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 SosManager sosManager = SosManager.getInstance(mActivity);
@@ -82,6 +83,7 @@ public class SendMessageFragment extends Fragment {
                     }
                     // start normal sos
                     sosManager.startSos();
+                    mSosBtn.setText(getResources().getString(R.string.sos_cancel));
                 }
                 return false;
             }
@@ -116,6 +118,16 @@ public class SendMessageFragment extends Fragment {
             }
         });
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (SosManager.getInstance(mActivity).isSosStarted())
+            mSosBtn.setText(getString(R.string.sos_cancel));
+        else
+            mSosBtn.setText(getString(R.string.sos));
     }
 
     // builds dialog with password prompt
@@ -162,6 +174,7 @@ public class SendMessageFragment extends Fragment {
     private void checkPasswordAndCancelSos(String password) {
         if (password.equals(Prefs.getPassword(mActivity))) {
             SosManager.getInstance(mActivity).stopSos();
+            mSosBtn.setText(getResources().getString(R.string.sos));
         }
         else {
             AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
