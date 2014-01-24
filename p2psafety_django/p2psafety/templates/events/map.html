@@ -1,5 +1,40 @@
 {% extends "base.html" %}
 
+{% block styles %}
+  {{ block.super }}
+  <style type="text/css">
+    #map-canvas {
+      height: 500px;
+    }
+  </style>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="http://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&sensor=false&language=uk"></script>
+
+  <script type="text/javascript">
+      function initialize() {
+        var mapOptions = {
+          center: new google.maps.LatLng(50.444, 390.56),
+          zoom: 11,
+        };
+        var map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);
+        window.map = map;
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+{% endblock %}
+
 {% block content %}
-MAP
+  <div class="page-header">
+    <h1>Events map</h1>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div id="map-canvas">
+      </div>
+    </div>
+  </div>
 {% endblock %}
