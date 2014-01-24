@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block head_title %}{% endblock %}</title>
+  <meta charset="utf-8">
+  {% block styles %}
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+  {% endblock %}
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div id="container">
+    {% block content %}
+    {% endblock %}
+  </div>
+  {% block scripts %}
+  <script src="//code.jquery.com/jquery.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  {% endblock %}
+</body>
+</html>
