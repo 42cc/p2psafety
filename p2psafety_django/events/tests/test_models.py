@@ -1,25 +1,13 @@
 # -*- coding: utf-8 -*-
 import json
 from tempfile import TemporaryFile
+from mock import patch
 
 from django.test import TestCase
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from mock import patch
-import factory
-
-from .models import Event, EventUpdate
-
-
-class UserFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = User
-
-
-class EventFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Event
-
-    user = factory.SubFactory(UserFactory)
+from .helpers import UserFactory, EventFactory 
+from ..models import Event, EventUpdate
 
 
 class EventTestCase(TestCase):
