@@ -19,10 +19,6 @@ class EventTestCase(TestCase):
         user = UserFactory()
         back_mock()().do_auth.return_value = user
 
-        # wrong request type
-        resp = self.client.get(url, content_type='application/json')
-        self.assertEqual(resp.status_code, 405)
-
         # no params
         resp = self.client.post(url, content_type='application/json')
         self.assertEqual(resp.status_code, 400)
