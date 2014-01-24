@@ -16,6 +16,9 @@ repositories {
 }
 
 dependencies {
+    // "local" library modules
+    compile project(':vendor:facebook')
+
     compile 'com.android.support:support-v4:19.0.0'
     compile 'com.android.support:appcompat-v7:19.0.+'
 

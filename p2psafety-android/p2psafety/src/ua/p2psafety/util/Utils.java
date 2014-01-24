@@ -2,10 +2,14 @@ package ua.p2psafety.util;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
+import com.facebook.Session;
 
 import ua.p2psafety.R;
 
@@ -58,4 +62,15 @@ public class Utils {
         return result;
     }
 
+    public static boolean isFbAuthenticated(Context context) {
+        Session currentSession = Session.openActiveSessionFromCache(context);
+
+        if (currentSession == null) {
+            SharedPreferences sharedPref =
+                    PreferenceManager.getDefaultSharedPreferences(context);
+            sharedPref.edit().putString("MYSELF_KEY", "").commit();
+        }
+
+        return currentSession != null && currentSession.getState().isOpened();
+    }
 }

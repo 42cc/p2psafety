@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:id="@+id/content_frame">
+
+    <Button
+        android:id="@+id/loginBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:adjustViewBounds="false"
+        android:contentDescription="@string/protect_description"
+        android:src="@android:drawable/bottom_bar"
+        android:cropToPadding="true"
+        android:background="@drawable/btn_sel"
+        style="@style/TextButton"
+        android:text="@string/sos"
+        android:padding="@dimen/st_padding" />
+
+</FrameLayout>
