@@ -68,7 +68,10 @@ def mark_old_events_as_finished(sender, **kwargs):
 class EventUpdate(models.Model):
     """
     """
-    event = models.ForeignKey(Event)
+    class Meta:
+        get_latest_by = 'timestamp'
+
+    event = models.ForeignKey(Event, related_name='updates')
     timestamp = models.DateTimeField(default=timezone.now())
 
     text = models.TextField(blank=True)
