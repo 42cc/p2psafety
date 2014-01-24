@@ -100,6 +100,7 @@ class EventUpdateTestCase(TestCase):
         eu = EventUpdate.objects.latest('id')
         self.assertEqual(eu.event, event)
         self.assertEqual(eu.text, 'emergency')
+        self.assertEqual(eu.event.status, 'A')
 
         data.update({
             'latitude': 50.450731,
