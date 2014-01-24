@@ -78,3 +78,9 @@ class EventUpdate(models.Model):
     video = models.FileField(upload_to='video', blank=True, null=True)
 
     objects = geomodels.GeoManager()
+
+    def save(self, *args, **kwargs):
+        self.event.status = 'A'
+        self.event.save()
+
+        return super(EventUpdate, self).save(*args, **kwargs)

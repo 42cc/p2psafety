@@ -126,10 +126,5 @@ class EventUpdateResource(MultipartResource, ModelResource):
         if latitude and longitude:
             bundle.obj.location = geo_point(latitude=latitude,
                 longitude=longitude)
-            # Add hydration for location. It must receive latitude and longitude
-            pass  # convert to point here
-        elif latitude or longitude:
-            raise ImmediateHttpResponse(response=http.HttpBadRequest(
-                'Both latitude and longitude must be specified'))
 
         return bundle
