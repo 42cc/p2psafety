@@ -1,4 +1,4 @@
-from tempfile import TemporaryFile
+import tempfile
 
 from django.core.urlresolvers import reverse
 from django.contrib.gis.geos import Point
@@ -71,12 +71,8 @@ class EventUpdateTestCase(ModelsMixin, ResourceTestCase):
     def test_create(self):
         url = self.eventupdates_list_url
 
-        # wrong request type
-        resp = self.api_client.get(url)
-        self.assertEqual(resp.status_code, 405)
-
         # no params
-        resp = self.api_client.post(url,)
+        resp = self.api_client.post(url)
         self.assertEqual(resp.status_code, 400)
 
         # bad key
@@ -104,7 +100,7 @@ class EventUpdateTestCase(ModelsMixin, ResourceTestCase):
         self.assertEqual(eu.event, event)
         self.assertEqual((eu.location.y, eu.location.x), (50.450731, 30.529487))
 
-        with TemporaryFile(suffix='.mp3') as f:
+        with tempfile.TemporaryFile(suffix='.mp3') as f:
             data = {'key': event.key, 'audio': f}
             resp = self.api_client.post(url, data=data)
             self.assertEqual(resp.status_code, 201)
@@ -112,10 +108,39 @@ class EventUpdateTestCase(ModelsMixin, ResourceTestCase):
             self.assertEqual(eu.event, event)
             self.assertTrue(eu.audio)
 
-        with TemporaryFile(suffix='.avi') as f:
+        with tempfile.TemporaryFile(suffix='.avi') as f:
             data = {'key': event.key, 'video': f}
             resp = self.api_client.post(url, data=data)
             self.assertEqual(resp.status_code, 201)
             eu = EventUpdate.objects.latest('id')
             self.assertEqual(eu.event, event)
             self.assertTrue(eu.video)
+
+    def test_retrieve(self):
+        url = self.eventupdates_list_url
+
+        event = EventFactory()
+        event_without_updates = EventFactory()
+        base = dict(event=event)
+        empty = EventUpdateFactory(**base)
+        with_text = EventUpdateFactory(text='Text', **base)
+        with_location = EventUpdateFactory(location=Point(1, 1), **base)
+
+        # Get all
+        resp = self.api_client.get(url, format='json')
+        self.assertValidJSONResponse(resp)
+        objects = self.deserialize(resp)['objects']
+        self.assertEqual(len(objects), 3)        
+
+        # Get by event
+        resp = self.api_client.get(url, data=dict(event__id=event_without_updates.id))
+        self.assertValidJSONResponse(resp)
+        objects = self.deserialize(resp)['objects']
+        self.assertEqual(len(objects), 0)
+
+        resp = self.api_client.get(url, data=dict(event_id=event.id))
+        self.assertValidJSONResponse(resp)
+        objects = sorted(self.deserialize(resp)['objects'], key=lambda o: o['id'])
+        self.assertEqual(len(objects), 3)
+        self.assertEqual(objects[1]['text'], 'Text')
+        self.assertEqual(objects[2]['location'], dict(longitude=1, latitude=1))

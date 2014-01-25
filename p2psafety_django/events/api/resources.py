@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from tastypie import http, fields
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
+from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
 from tastypie.validation import Validation
 from tastypie.exceptions import ImmediateHttpResponse
@@ -55,6 +56,7 @@ class EventResource(ModelResource):
         validation = EventValidation()
         list_allowed_methods = ['post', 'get']
         fields = ['id', 'status', 'latest_location']
+        filtering = {'id': ALL}
         detail_allowed_methods = []
         always_return_data = True
 
@@ -109,11 +111,14 @@ class EventUpdateResource(MultipartResource, ModelResource):
     class Meta:
         queryset = EventUpdate.objects.all()
         resource_name = 'eventupdates'
-        list_allowed_methods = ['post', ]
+        list_allowed_methods = ['post', 'get']
         detail_allowed_methods = []
+        filtering = {'event': ALL_WITH_RELATIONS}
         validation = EventUpdateValidation()
         authentication = Authentication()
         authorization = Authorization()
+
+    event = fields.ForeignKey(EventResource, 'event', readonly=True)
 
     def hydrate(self, bundle):
         key = bundle.data.get('key')
