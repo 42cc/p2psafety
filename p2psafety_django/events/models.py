@@ -34,6 +34,13 @@ class Event(models.Model):
     def __unicode__(self):
         return "{} event by {}".format(self.status, self.user)
 
+    @property
+    def latest_location_update(self):
+        try:
+            return self.updates.filter(location__isnull=False).latest()
+        except EventUpdate.DoesNotExist:
+            return None
+
     def save(self, *args, **kwargs):
         """
         Basic save + generator until PIN is unique.

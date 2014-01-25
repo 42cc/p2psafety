@@ -21,20 +21,14 @@ class EntryResourceTestCase(ResourceTestCase):
         user = UserFactory()
         back_mock()().do_auth.return_value = user
 
-        events_num = 3
-        event_updates = {}
-        for i in xrange(events_num):
-            event = EventFactory()
-            EventUpdateFactory(event=event)
-            EventUpdateFactory(event=event, text='Some text')
-            EventUpdateFactory(event=event, audio=None)
-            EventUpdateFactory(event=event, video=None)
-            for j in xrange(i + 1):
-                EventUpdateFactory(event=event, location=Point(i, i))
-
+        event, event_location = EventFactory(), EventFactory()
+        EventUpdateFactory(event=event, location=None)
+        EventUpdateFactory(event=event_location, location=Point(1, 1))
         resp = self.api_client.get(self.events_list_url, format='json')
         self.assertValidJSONResponse(resp)
-        data = self.deserialize(resp)
-        self.assertEqual(data['meta']['total_count'], event_num)
-        for obj, location in zip(data['objects'], [None, Point(1, 1), Point(2, 2)])
-            self.assertEqual(obj['latest_location'], location)
+        objects = sorted(self.deserialize(resp)['objects'], key=lambda obj: obj['id'])
+        self.assertEqual(len(objects), 2)
+        self.assertIsNone(objects[0]['latest_location_update'])
+        self.assertIsNotNone(objects[1]['latest_location_update'])
+        self.assertEqual(objects[1]['latest_location_update']['location'],
+                         {u'latitude': 1, u'longitude': 1})

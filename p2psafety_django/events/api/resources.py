@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-from tastypie import http
+from tastypie import http, fields
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
 from tastypie.resources import ModelResource
@@ -13,7 +13,7 @@ from social.backends.utils import get_backend
 from social.apps.django_app.utils import load_strategy
 
 from ..models import Event, EventUpdate
-from ..utils import geo_point
+from ..utils import geo_point, geo_dict
 
 
 class MultipartResource(object):
@@ -53,9 +53,14 @@ class EventResource(ModelResource):
         authentication = Authentication()
         authorization = Authorization()
         validation = EventValidation()
-        list_allowed_methods = ['post', ]
+        list_allowed_methods = ['post', 'get']
+        fields = ['id', 'status', 'latest_location']
         detail_allowed_methods = []
         always_return_data = True
+
+    latest_location_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
+                                               'latest_location_update',
+                                               full=True, null=True, readonly=True)
 
     def hydrate(self, bundle):
         access_token = bundle.data.get('access_token')
@@ -75,11 +80,6 @@ class EventResource(ModelResource):
                 # log exception here
                 raise ImmediateHttpResponse(
                     response=http.HttpBadRequest('Invalid access token'))
-        return bundle
-
-    def dehydrate(self, bundle):
-        bundle.data.pop('provider')
-        bundle.data.pop('access_token')
         return bundle
 
 
@@ -132,4 +132,9 @@ class EventUpdateResource(MultipartResource, ModelResource):
             raise ImmediateHttpResponse(response=http.HttpBadRequest(
                 'Both latitude and longitude must be specified'))
 
+        return bundle
+
+    def dehydrate(self, bundle):
+        location = bundle.obj.location
+        bundle.data['location'] = geo_dict(location) if location else None
         return bundle
