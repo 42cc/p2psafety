@@ -12,6 +12,7 @@
 {% block scripts %}
   {{ block.super }}
   <script src="http://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&sensor=false&language=uk"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
 
   <script type="text/javascript">
       function initialize() {
@@ -33,8 +34,13 @@
   </div>
   <div class="row">
     <div class="col-md-12">
-      <div id="map-canvas">
+      {% verbatim %}
+      <div ng-app>
+        <div id="map-canvas">
+        </div>
+        <p> {{ 1 + 1 }} </p>
       </div>
+      {% endverbatim %}
     </div>
   </div>
 {% endblock %}
