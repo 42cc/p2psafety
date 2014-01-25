@@ -55,7 +55,7 @@ class EventResource(ModelResource):
         authorization = Authorization()
         validation = EventValidation()
         list_allowed_methods = ['post', 'get']
-        fields = ['id', 'status', 'latest_location']
+        fields = ['id', 'status']
         filtering = {'id': ALL}
         detail_allowed_methods = []
         always_return_data = True
