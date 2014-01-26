@@ -1,10 +1,21 @@
 {% extends "base.html" %}
 
+{# 
+ # TODO: fix static on getbarista, move scripts and styles to external files.
+ #}
+
 {% block styles %}
   {{ block.super }}
   <style type="text/css">
     #map-canvas {
       height: 500px;
+    }
+    .selected-event {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 25%;
+      overflow-y: auto;
     }
   </style>
 {% endblock %}
@@ -13,19 +24,97 @@
   {{ block.super }}
   <script src="http://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&sensor=false&language=uk"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
-
   <script type="text/javascript">
-      function initialize() {
+    var mapApp = angular.module('mapApp', []);
+
+    mapApp.controller('EventListCtrl', function($scope, $http) {
+      $scope.initGoogleMap = function(rootElement) {
         var mapOptions = {
           center: new google.maps.LatLng(50.444, 390.56),
           zoom: 11,
         };
-        var map = new google.maps.Map(document.getElementById("map-canvas"),
-            mapOptions);
-        window.map = map;
-      }
-      google.maps.event.addDomListener(window, 'load', initialize);
-    </script>
+        $scope.gmap = new google.maps.Map(rootElement, mapOptions);
+        $scope.gwindow = new google.maps.InfoWindow({content: "Sup"});
+        $scope.gwindow_opened = false;
+      };
+      $scope.zoomIn = function() {
+        if ($scope.zoomedIn == false) {
+          $scope.gmap.setZoom($scope.gmap.getZoom() + $scope.zoomScale);
+          $scope.zoomedIn = true;
+        }
+      };
+      $scope.zoomOut = function() {
+        if ($scope.zoomedIn == true) {
+          $scope.gmap.setZoom($scope.gmap.getZoom() - $scope.zoomScale);
+          $scope.zoomedIn = false;
+        }
+      };
+      $scope.select = function(event) {
+        if (event == null) {
+          $scope.zoomOut();
+          $scope.selectedEvent = null;
+        } else {
+          var params = {event__id: event.id};
+          $http.get('/api/v1/eventupdates/', params).success(function(data) {
+            event.updates = data.objects;
+            $scope.zoomIn();
+            $scope.selectedEvent = event;
+          });
+        };
+      };
+      $scope.focus = function(location) {
+        $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
+                                                 location.longitude));
+      };
+      $scope.selectedEvent = null;
+      $scope.zoomedIn = false;
+      $scope.zoomScale = 1;
+      $scope.initGoogleMap(document.getElementById("map-canvas"));
+      $scope.events = [];
+      
+      $http.get('/api/v1/events/').success(function(data) {
+        for (i in data.objects) {
+          var event = data.objects[i];
+          // TODO: display it manually
+          if (event.latest_location_update != null) {
+            $scope.events.push(event);
+          }
+        };
+      });
+    })
+    .directive('gmapMarker', function($http) {
+      var linker = function(scope, element, attrs) {
+        var loc = scope.$eval(attrs.location);
+
+        if (loc != null) {
+          var markerArgs = {
+            position: new google.maps.LatLng(loc.latitude, loc.longitude)
+          };
+          if (attrs.icon) {
+            markerArgs.icon = attrs.icon;
+          }
+          var marker = new google.maps.Marker(markerArgs);
+          marker.setMap(scope.$parent.gmap);
+
+          if (attrs.click) {
+            google.maps.event.addListener(marker, 'click', function() {          
+              scope.$eval(attrs.click);
+            });
+          }
+
+          element.on('$destroy', function() {
+            marker.setMap(null);
+            marker = null;
+          });
+        };
+      };
+      return {
+        replace: true,
+        restrict: 'E',
+        link: linker,
+      };
+    });
+  </script>  
 {% endblock %}
 
 {% block content %}
@@ -35,10 +124,52 @@
   <div class="row">
     <div class="col-md-12">
       {% verbatim %}
-      <div ng-app>
+      <div ng-app="mapApp">
         <div id="map-canvas">
         </div>
-        <p> {{ 1 + 1 }} </p>
+        <div ng-controller="EventListCtrl">
+          <gmap-marker icon="http://maps.google.com/mapfiles/ms/micons/red-dot.png"
+                       location="event.latest_location_update.location"
+                       click="select(event)"
+                       ng-repeat="event in events"></gmap-marker>
+          <div class="selected-event panel panel-primary"
+               ng-if="selectedEvent != null">
+            <h4 class="panel-heading">Status:
+              <span class="label label-primary"
+                    ng-if="selectedEvent.status == 'A'">active</span>
+              <span class="label label-danger"
+                    ng-if="selectedEvent.status == 'P'">passive</span>
+              <span class="label label-default"
+                    ng-if="selectedEvent.status == 'F'">finished</span>
+              <button type="button" class="close"
+                      ng-click="select(null)">&times;</button>
+            </h4>
+            <div class="panel-body">
+              <div class="list-group">
+                <div class="list-group-item"
+                     ng-repeat="update in selectedEvent.updates">
+                  <gmap-marker icon="http://maps.google.com/mapfiles/ms/micons/blue-dot.png"
+                               location="update.location"
+                               click="focus(update.location)"></gmap-marker>
+                  <p class="list-group-item-heading">
+                    <span class="badge">{{ update.timestamp | date:'dd.MM H:m' }}</span>
+                    {{ update.text || "..." }}
+                  </p>
+                  <a href="{{ update.audio }}" class="btn btn-default"
+                     ng-if="update.audio != null">
+                    <span class="glyphicon glyphicon-headphones"></span> Play</a>
+                  <a href="{{ update.video }}" class="btn btn-default"
+                     ng-if="update.video != null">
+                    <span class="glyphicon glyphicon-film"></span> Play</a>
+                  <a class="btn btn-success"
+                     ng-if="update.location != null"
+                     ng-click="focus(update.location)">                     
+                    <span class="glyphicon glyphicon-map-marker"></span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       {% endverbatim %}
     </div>
