@@ -1,6 +1,6 @@
 from mock import patch
 from factory import SubFactory, Sequence
-from factory.django import DjangoModelFactory
+from factory.django import DjangoModelFactory, FileField
 
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import Point
@@ -10,6 +10,7 @@ from ..models import Event, EventUpdate
 
 class UserFactory(DjangoModelFactory):
     FACTORY_FOR = User
+    FACTORY_DJANGO_GET_OR_CREATE = ('username',)
 
     username = Sequence(lambda n: 'user%d' % n)
 
@@ -22,6 +23,9 @@ class EventFactory(DjangoModelFactory):
 
 class EventUpdateFactory(DjangoModelFactory):
     FACTORY_FOR = EventUpdate
+
+    audio = FileField()
+    video = FileField()
 
 
 def mock_get_backend(module_path='events.api.resources'):
