@@ -12,11 +12,11 @@ import factory
 from .models import Event, EventUpdate
 
 
-class UserFactory(factory.django.DjangoModelFactory):
+class UserFactory(factory.DjangoModelFactory):
     FACTORY_FOR = User
 
 
-class EventFactory(factory.django.DjangoModelFactory):
+class EventFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Event
 
     user = factory.SubFactory(UserFactory)
