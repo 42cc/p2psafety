@@ -27,7 +27,7 @@
   <script type="text/javascript">
     var mapApp = angular.module('mapApp', []);
 
-    mapApp.controller('EventListCtrl', function($scope, $http) {
+    mapApp.controller('EventListCtrl', function($scope, $http, $interval) {
       $scope.initGoogleMap = function(rootElement) {
         var mapOptions = {
           center: new google.maps.LatLng(50.444, 390.56),
@@ -66,21 +66,26 @@
         $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
                                                  location.longitude));
       };
+      $scope.updatePerSeconds = 5;
       $scope.selectedEvent = null;
       $scope.zoomedIn = false;
       $scope.zoomScale = 1;
       $scope.initGoogleMap(document.getElementById("map-canvas"));
       $scope.events = [];
       
-      $http.get('/api/v1/events/').success(function(data) {
-        for (i in data.objects) {
-          var event = data.objects[i];
-          // TODO: display it manually
-          if (event.latest_location_update != null) {
-            $scope.events.push(event);
-          }
-        };
-      });
+      $interval(function() {
+        $http.get('/api/v1/events/').success(function(data) {
+          var newEvents = [];
+          for (i in data.objects) {
+            var event = data.objects[i];
+            // TODO: display it manually
+            if (event.latest_location_update != null) {
+              newEvents.push(event);
+            }
+          };
+          $scope.events = newEvents;
+        }); 
+      }, $scope.updatePerSeconds * 1000);
     })
     .directive('gmapMarker', function($http) {
       var linker = function(scope, element, attrs) {
