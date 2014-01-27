@@ -59,9 +59,13 @@ class Event(models.Model):
 
 @receiver(models.signals.post_save, sender=Event)
 def mark_old_events_as_finished(sender, **kwargs):
+    """
+    Every user has only one active or passive event. Design decision.
+    """
     if kwargs.get('created'):
         instance = kwargs.get('instance')
-        Event.objects.filter(status__in=['A', 'P']).exclude(
+        Event.objects.filter(
+            user=instance.user, status__in=['A', 'P']).exclude(
             id=getattr(instance, 'id')).update(status='F')
 
 
