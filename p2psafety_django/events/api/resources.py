@@ -17,6 +17,9 @@ from ..utils import geo_point
 
 
 class MultipartResource(object):
+    """
+    This class allows resources to receive files using multipart content type
+    """
     def deserialize(self, request, data, format=None):
         if not format:
             format = request.META.get('CONTENT_TYPE', 'application/json')
