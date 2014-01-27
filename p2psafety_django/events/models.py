@@ -42,7 +42,7 @@ class Event(models.Model):
             bad_key = True
             while bad_key:
                 self.PIN, self.key = self.generate_keys()
-                bad_key = self.__class__.objects.filter(PIN=self.PIN).exclude(
+                bad_key = Event.objects.filter(PIN=self.PIN).exclude(
                     status='F').exists()
 
         return super(Event, self).save(*args, **kwargs)
@@ -71,6 +71,8 @@ def mark_old_events_as_finished(sender, **kwargs):
 
 class EventUpdate(models.Model):
     """
+    Event Update. Stores any kind of additional information for event.
+    Event that receives at least one eventupdate becomes active.
     """
     event = models.ForeignKey(Event)
     timestamp = models.DateTimeField(default=timezone.now())
