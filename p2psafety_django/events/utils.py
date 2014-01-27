@@ -2,4 +2,7 @@
 
 
 def geo_point(latitude=None, longitude=None):
+    """
+    Helper to make geo point and not confuse the order of lat. and long.
+    """
     return 'POINT (%f %f)' % (float(longitude), float(latitude))
