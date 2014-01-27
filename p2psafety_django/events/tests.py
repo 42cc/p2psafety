@@ -12,11 +12,13 @@ import factory
 from .models import Event, EventUpdate
 
 
-class UserFactory(factory.django.DjangoModelFactory):
+class UserFactory(factory.DjangoModelFactory):
     FACTORY_FOR = User
 
+    username = factory.Sequence(lambda n: 'person{0}'.format(n))
 
-class EventFactory(factory.django.DjangoModelFactory):
+
+class EventFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Event
 
     user = factory.SubFactory(UserFactory)
@@ -28,8 +30,9 @@ class EventTestCase(TestCase):
     def test_events_post(self, back_mock):
         url = reverse('api_dispatch_list',
             kwargs={'resource_name': 'events', 'api_name': 'v1'})
-        user = UserFactory()
-        back_mock()().do_auth.return_value = user
+        user1 = UserFactory()
+        user2 = UserFactory()
+        back_mock()().do_auth.return_value = user1
 
         # wrong request type
         resp = self.client.get(url, content_type='application/json')
@@ -54,15 +57,23 @@ class EventTestCase(TestCase):
 
         event = Event.objects.latest('id')
         self.assertEqual(event.status, 'P')
-        self.assertEqual(event.user, user)
+        self.assertEqual(event.user, user1)
 
         resp = self.client.post(url, data=json.dumps(data), content_type='application/json')
         self.assertEqual(resp.status_code, 201)
         new_event = Event.objects.latest('id')
         self.assertEqual(new_event.status, 'P')
         self.assertEqual(Event.objects.get(id=event.id).status, 'F')
-        self.assertEqual(new_event.user, user)
+        self.assertEqual(new_event.user, user1)
         self.assertNotEqual(new_event.PIN, event.PIN)
+
+        back_mock()().do_auth.return_value = user2
+        resp = self.client.post(url, data=json.dumps(data), content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        event = Event.objects.latest('id')
+        self.assertEqual(event.status, 'P')
+        self.assertEqual(event.user, user2)
+        self.assertEqual(Event.objects.filter(status='P').count(), 2)
 
 
 class EventUpdateTestCase(TestCase):
@@ -100,6 +111,7 @@ class EventUpdateTestCase(TestCase):
         eu = EventUpdate.objects.latest('id')
         self.assertEqual(eu.event, event)
         self.assertEqual(eu.text, 'emergency')
+        self.assertEqual(eu.event.status, 'A')
 
         data.update({
             'latitude': 50.450731,
