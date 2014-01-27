@@ -127,7 +127,6 @@ class EventUpdateTestCase(TestCase):
         with TemporaryFile(suffix='.mp3') as f:
             data = {'key': event.key, 'audio': f}
             resp = self.client.post(url, data=data)
-                # content_type='application/json')
             self.assertEqual(resp.status_code, 201)
             eu = EventUpdate.objects.latest('id')
             self.assertEqual(eu.event, event)
@@ -136,9 +135,7 @@ class EventUpdateTestCase(TestCase):
         with TemporaryFile(suffix='.avi') as f:
             data = {'key': event.key, 'video': f}
             resp = self.client.post(url, data=data)
-                # content_type='application/json')
             self.assertEqual(resp.status_code, 201)
             eu = EventUpdate.objects.latest('id')
             self.assertEqual(eu.event, event)
             self.assertTrue(eu.video)
-
