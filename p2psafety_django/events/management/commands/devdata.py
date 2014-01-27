@@ -34,10 +34,10 @@ class Command(BaseCommand):
         """
         Updates every hour.
         """
-        hour = timestamp_start.hour
+        delta_hours = 0
         while True:
-            hour = (hour + 1) % 24
-            yield timestamp_start.replace(hour=hour)
+            delta_hours += 1
+            yield timestamp_start + datetime.timedelta(hours=delta_hours)
 
     def create_args_generator(self, location_start=None, event=None, **kwargs):
         points = self.create_point_generator(location_start)
