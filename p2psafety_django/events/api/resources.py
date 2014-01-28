@@ -137,7 +137,6 @@ class EventUpdateResource(MultipartResource, ModelResource):
 
         return bundle
 
-    def dehydrate(self, bundle):
+    def dehydrate_location(self, bundle):
         location = bundle.obj.location
-        bundle.data['location'] = geo_dict(location) if location else None
-        return bundle
+        return geo_dict(location) if location else None
