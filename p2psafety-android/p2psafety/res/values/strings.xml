@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">SOSMessage</string>
-    <string name="hello_world">Hello world!</string>
+
     <string name="action_settings">Settings</string>
     <string-array name="items_array">
         <item>Phones</item>
@@ -55,6 +55,15 @@
     <string name="sos">SOS</string>
     <string name="sos_after">SOS in #n# min.</string>
     <string name="sos_activated">Alarm activated!</string>
+    <string name="sos_cancel">Cancel</string>
+    <string name="sos_canceled">Alarm canceled!</string>
+    <string name="sos_already_active">Sos already active</string>
+    <string name="no_settings_while_sos">Cannot change these settings while alarm is active</string>
+
+    <string name="audio_is_recording">Audio recording. #n# min left</string>
+    <string name="audio_record_finished">Audio recording finished</string>
+    <string name="video_is_recording">Video recording. #n# min left</string>
+    <string name="video_record_finished">Video recording finished</string>
 
     <string-array name="media_types">
         <item>No</item>

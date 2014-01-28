@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Django settings for p2psafety project.
 
@@ -35,9 +36,13 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
 
-    'users',
     'events',
+
+    'tastypie',
+    'social',
+    'south',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -59,8 +64,12 @@ WSGI_APPLICATION = 'p2psafety.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'p2psafety',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': '127.0.0.1',
+        'PORT': '',
     }
 }
 
@@ -83,4 +92,24 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static_media', 'uploads')
+MEDIA_URL = '/media/uploads/'
+
+
 TASTYPIE_ABSTRACT_APIKEY = True
+
+SRID = {
+    'default': 4326,  # WGS84, stored in database
+    'projected': 900913,  # for Spatialite distance calculation
+}
+
+AUTHENTICATION_BACKENDS = (
+    'social.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Fill the fields below for facebook auth to work
+SOCIAL_AUTH_FACEBOOK_ID = ''
+SOCIAL_AUTH_FACEBOOK_SECRET = ''
+
+POSTGIS_TEMPLATE = 'template_postgis'

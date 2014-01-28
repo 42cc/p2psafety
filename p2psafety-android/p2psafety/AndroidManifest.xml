@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="ua.ip.sosmessage"
-          android:versionCode="5"
-          android:versionName="2.1">
+          package="ua.p2psafety"
+          android:versionCode="8"
+          android:versionName="2.4">
 
     <uses-sdk
             android:minSdkVersion="8"
@@ -16,6 +16,11 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.RECORD_VIDEO"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <uses-feature android:name="android.hardware.telephony"/>
 
@@ -26,6 +31,9 @@
             android:theme="@style/AppTheme">
 
         <service android:name=".DelayedSosService" />
+        <service android:name=".AudioRecordService" />
+        <service android:name=".VideoRecordService" />
+        <service android:name=".PowerButtonService" />
 
         <activity
                 android:name=".SosActivity"
@@ -40,10 +48,10 @@
         <receiver android:name=".widget.Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
-                <action android:name="ua.ip.sosmessage.DelayedSosService.TimerTick"/>
-                <action android:name="ua.ip.sosmessage.DelayedSosService.TimerFinish"/>
-                <action android:name="ua.ip.sosmessage.DelayedSosService.TimerCancel"/>
-                <action android:name="ua.ip.sosmessage.DelayedSosService.TimerChange"/>
+                <action android:name="ua.p2psafety.DelayedSosService.TimerTick"/>
+                <action android:name="ua.p2psafety.DelayedSosService.TimerFinish"/>
+                <action android:name="ua.p2psafety.DelayedSosService.TimerCancel"/>
+                <action android:name="ua.p2psafety.DelayedSosService.TimerChange"/>
             </intent-filter>
 
             <meta-data
