@@ -40,6 +40,7 @@ INSTALLED_APPS = (
 
     'events',
 
+    'djangular',
     'tastypie',
     'social',
     'south',

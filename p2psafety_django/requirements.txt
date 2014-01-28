@@ -1,6 +1,7 @@
 Django==1.6
-django-tastypie==0.9.16
 django-annoying==0.7.9
+django-angular==0.5.0
+django-tastypie==0.9.16
 south==0.8
 python-social-auth==0.1.20
 psycopg2==2.5
