@@ -33,6 +33,7 @@
         <service android:name=".DelayedSosService" />
         <service android:name=".AudioRecordService" />
         <service android:name=".VideoRecordService" />
+        <service android:name=".PowerButtonService" />
 
         <activity
                 android:name=".SosActivity"
