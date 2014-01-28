@@ -1,6 +1,6 @@
 var mapApp = angular.module('mapApp', []);
 
-mapApp.controller('EventListCtrl', function($scope, $http, $interval) {
+mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
   $scope.initGoogleMap = function(rootElement) {
     var mapOptions = {
       zoom: 11,
@@ -32,7 +32,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval) {
       $scope.selectedEvent = null;
     } else {
       var params = {event__id: event.id};
-      $http.get('/api/v1/eventupdates/', {params: params}).success(function(data) {
+      $http.get(urls.eventupdates, {params: params}).success(function(data) {
         event.updates = data.objects;
         $scope.zoomIn();
         $scope.selectedEvent = event;
@@ -40,7 +40,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval) {
     };
   };
   $scope.update = function() {
-    $http.get('/api/v1/events/').success(function(data) {
+    $http.get(urls.events).success(function(data) {
       for (i in data.objects) {
         var event = data.objects[i];
         // TODO: display it manually
