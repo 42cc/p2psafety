@@ -41,12 +41,7 @@ public class SosActivity extends ActionBarActivity {
             fragment = Fragment.instantiate(this, fragmentClass);
         else {
             // normal start
-            if (Prefs.isFirstRun(this))
-                fragment = new FirstRunFragment();
-        else if (new PhonesDatasourse(this).getAllPhones().size() == 0)
-                fragment = new SetPhoneFragment();
-            else
-                fragment = new SendMessageFragment();
+            fragment = new SendMessageFragment();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();

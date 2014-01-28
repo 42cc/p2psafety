@@ -1,6 +1,7 @@
 package ua.p2psafety.password;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -20,11 +21,13 @@ import android.widget.Toast;
 import ua.p2psafety.DelayedSosService;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
+import ua.p2psafety.SosManager;
 import ua.p2psafety.data.Prefs;
 
 public class PasswordFragment extends Fragment {
     public static final String TAG = "PasswordFragment";
     private View vParent;
+    private Activity mActivity;
 
     public PasswordFragment() {
         super();
@@ -37,6 +40,7 @@ public class PasswordFragment extends Fragment {
         ((SosActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final View rootView = inflater.inflate(R.layout.setup_password, container, false);
+        mActivity = getActivity();
 
         final View frame_indent = rootView.findViewById(R.id.frame_indent2);
         frame_indent.setVisibility(View.VISIBLE);
@@ -53,7 +57,7 @@ public class PasswordFragment extends Fragment {
         editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (DelayedSosService.isTimerOn()) {
+                if (SosManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()) {
                     Toast.makeText(getActivity(),
                             getString(R.string.no_settings_while_sos), Toast.LENGTH_LONG)
                          .show();
@@ -78,7 +82,7 @@ public class PasswordFragment extends Fragment {
         usePasswordBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (DelayedSosService.isTimerOn()) {
+                if (SosManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()) {
                     Toast.makeText(getActivity(),
                             getString(R.string.no_settings_while_sos), Toast.LENGTH_LONG)
                          .show();
@@ -95,7 +99,7 @@ public class PasswordFragment extends Fragment {
         btn_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (DelayedSosService.isTimerOn()) {
+                if (SosManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()) {
                     // tell user we can't
                     Toast.makeText(getActivity(),
                             getString(R.string.no_settings_while_sos), Toast.LENGTH_LONG)
