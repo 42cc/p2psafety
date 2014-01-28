@@ -32,9 +32,14 @@
         <div ng-controller="EventListCtrl">
           <gmap-marker icon="http://maps.google.com/mapfiles/ms/micons/red-dot.png"
                        location="event.latest_location"
-                       click="select(event)"
+                       click="select(event)" hover="__content__"
                        ng-repeat="event in events"
-                       ng-if="event.id != selectedEvent.id"></gmap-marker>
+                       ng-if="event.id != selectedEvent.id">
+            <div>
+              <span class="badge">{{ event.latest_update.timestamp | date:'H:m' }}</span>
+              {{ event.latest_update.text || "..." }}
+            </div>
+          </gmap-marker>
           <div class="selected-event panel panel-primary"
                ng-if="selectedEvent != null">
             <h4 class="panel-heading">Status:
@@ -53,7 +58,9 @@
                      ng-repeat="update in selectedEvent.updates">
                   <gmap-marker icon="http://maps.google.com/mapfiles/ms/micons/blue-dot.png"
                                location="update.location"
-                               click="focus(update.location)"></gmap-marker>                               
+                               click="focus(update.location)" hover="__content__">
+                    <p>{{ update.timestamp | date:'dd.MM H:m' }}</p>
+                  </gmap-marker>                               
                   <p class="list-group-item-heading">
                     <span class="badge">{{ update.timestamp | date:'dd.MM H:m' }}</span>
                     {{ update.text || "..." }}

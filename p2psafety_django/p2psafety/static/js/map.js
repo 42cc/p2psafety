@@ -79,14 +79,14 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
 .directive('gmapMarker', function($http) {
   var linker = function(scope, element, attrs) {
     var loc = scope.$eval(attrs.location);
+    var markersWindow = null;
 
     if (loc != null) {
       var markerArgs = {
         position: new google.maps.LatLng(loc.latitude, loc.longitude)
       };
-      if (attrs.icon) {
-        markerArgs.icon = attrs.icon;
-      }
+      if (attrs.icon)  markerArgs.icon = attrs.icon;
+
       var marker = new google.maps.Marker(markerArgs);
       marker.setMap(scope.$parent.gmap);
 
@@ -95,10 +95,30 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
           scope.$eval(attrs.click);
         });
       }
+      if (attrs.hover) {
+        markersWindow = new google.maps.InfoWindow();
+
+        if (attrs.hover == '__content__') {
+          var content = element.children()[0];
+        } else {
+          var content = attrs.hover;
+        }
+        google.maps.event.addListener(marker, 'mouseover', function() {
+          markersWindow.setContent(content);
+          markersWindow.open(scope.$parent.gmap, marker);
+        });
+        google.maps.event.addListener(marker, 'mouseout', function() {
+          if (markersWindow != null) markersWindow.close();
+        });
+      }
 
       element.on('$destroy', function() {
         marker.setMap(null);
         marker = null;
+        if (markersWindow != null) {
+          markersWindow.close();
+          markersWindow = null;
+        }
       });
     };
   };
