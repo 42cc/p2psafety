@@ -18,6 +18,9 @@ from ..utils import geo_point, geo_dict
 
 
 class MultipartResource(object):
+    """
+    This class allows resources to receive files using multipart content type
+    """
     def deserialize(self, request, data, format=None):
         if not format:
             format = request.META.get('CONTENT_TYPE', 'application/json')
@@ -131,11 +134,6 @@ class EventUpdateResource(MultipartResource, ModelResource):
         if latitude and longitude:
             bundle.obj.location = geo_point(latitude=latitude,
                 longitude=longitude)
-            # Add hydration for location. It must receive latitude and longitude
-            pass  # convert to point here
-        elif latitude or longitude:
-            raise ImmediateHttpResponse(response=http.HttpBadRequest(
-                'Both latitude and longitude must be specified'))
 
         return bundle
 

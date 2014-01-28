@@ -108,7 +108,6 @@ SRID = {
 
 AUTHENTICATION_BACKENDS = (
     'social.backends.facebook.FacebookOAuth2',
-
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -116,4 +115,4 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_FACEBOOK_ID = ''
 SOCIAL_AUTH_FACEBOOK_SECRET = ''
 
-
+POSTGIS_TEMPLATE = 'template_postgis'

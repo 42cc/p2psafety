@@ -65,6 +65,15 @@ class EventsTestCase(ModelsMixin, ResourceTestCase):
         self.assertEqual(new_event.user, self.auth_user)
         self.assertNotEqual(new_event.PIN, event.PIN)
 
+        user2 = UserFactory()
+        self.mocked_get_backend()().do_auth.return_value = user2
+        resp = self.api_client.post(self.events_list_url, data=data)
+        self.assertEqual(resp.status_code, 201)
+        event = Event.objects.latest('id')
+        self.assertEqual(event.status, 'P')
+        self.assertEqual(event.user, user2)
+        self.assertEqual(Event.objects.filter(status='P').count(), 2)
+
 
 class EventUpdateTestCase(ModelsMixin, ResourceTestCase):
 
@@ -92,6 +101,7 @@ class EventUpdateTestCase(ModelsMixin, ResourceTestCase):
         eu = EventUpdate.objects.latest('id')
         self.assertEqual(eu.event, event)
         self.assertEqual(eu.text, 'emergency')
+        self.assertEqual(eu.event.status, 'A')
 
         data.update(latitude=50.450731, longitude=30.529487)
         resp = self.api_client.post(url, data=data)

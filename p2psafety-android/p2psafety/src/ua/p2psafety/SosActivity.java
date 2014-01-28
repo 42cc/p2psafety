@@ -1,11 +1,15 @@
 package ua.p2psafety;
 
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -26,6 +30,9 @@ public class SosActivity extends ActionBarActivity {
         setContentView(R.layout.act_sosmain);
         setSupportActionBar();
 
+        // SOS launcher with power button press
+        startService(new Intent(this, PowerButtonService.class));
+
         Fragment fragment;
 
         String fragmentClass = getIntent().getStringExtra(FRAGMENT_KEY);
@@ -34,12 +41,7 @@ public class SosActivity extends ActionBarActivity {
             fragment = Fragment.instantiate(this, fragmentClass);
         else {
             // normal start
-            if (Prefs.isFirstRun(this))
-                fragment = new FirstRunFragment();
-        else if (new PhonesDatasourse(this).getAllPhones().size() == 0)
-                fragment = new SetPhoneFragment();
-            else
-                fragment = new SendMessageFragment();
+            fragment = new SendMessageFragment();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
