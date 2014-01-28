@@ -44,7 +44,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
       for (i in data.objects) {
         var event = data.objects[i];
         // TODO: display it manually
-        if (event.latest_location_update != null) {
+        if (event.latest_location != null) {
           var existingEvent = $scope.events[event.id];
           if (existingEvent == null) {
             $scope.events[event.id] = event;

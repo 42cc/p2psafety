@@ -35,9 +35,17 @@ class Event(models.Model):
         return "{} event by {}".format(self.status, self.user)
 
     @property
-    def latest_location_update(self):
+    def latest_update(self):
         try:
-            return self.updates.filter(location__isnull=False).latest()
+            return self.updates.latest()
+        except EventUpdate.DoesNotExist:
+            return None
+
+    @property
+    def latest_location(self):
+        try:
+            updates = self.updates.filter(location__isnull=False)
+            return updates.latest().location
         except EventUpdate.DoesNotExist:
             return None
 

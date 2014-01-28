@@ -13,8 +13,8 @@ from tastypie.exceptions import ImmediateHttpResponse
 from social.backends.utils import get_backend
 from social.apps.django_app.utils import load_strategy
 
+from .fields import GeoPointField
 from ..models import Event, EventUpdate
-from ..utils import geo_point, geo_dict
 
 
 class MultipartResource(object):
@@ -63,9 +63,10 @@ class EventResource(ModelResource):
         detail_allowed_methods = []
         always_return_data = True
 
-    latest_location_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
-                                               'latest_location_update',
-                                               full=True, null=True, readonly=True)
+    latest_location = GeoPointField('latest_location', null=True, readonly=True)
+    latest_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
+                                      'latest_update',
+                                       full=True, null=True, readonly=True)
 
     def hydrate(self, bundle):
         access_token = bundle.data.get('access_token')
@@ -102,11 +103,6 @@ class EventUpdateValidation(Validation):
         if bundle.data.keys() == ['key']:
             errors['__all__'] = 'Additional arguments required'
 
-        latitude = bundle.data.get('latitude')
-        longitude = bundle.data.get('longitude')
-        if not (latitude and longitude) and (latitude or longitude):
-            errors['__all__'] = 'Both latitude and longitude are required'
-
         return errors
 
 
@@ -121,6 +117,7 @@ class EventUpdateResource(MultipartResource, ModelResource):
         authentication = Authentication()
         authorization = Authorization()
 
+    location = GeoPointField('location', null=True)
     event = fields.ForeignKey(EventResource, 'event', readonly=True)
 
     def hydrate(self, bundle):
@@ -129,14 +126,4 @@ class EventUpdateResource(MultipartResource, ModelResource):
             event = get_object_or_404(Event, key=key)
             bundle.obj.event = event
 
-        latitude = bundle.data.get('latitude')
-        longitude = bundle.data.get('longitude')
-        if latitude and longitude:
-            bundle.obj.location = geo_point(latitude=latitude,
-                longitude=longitude)
-
         return bundle
-
-    def dehydrate_location(self, bundle):
-        location = bundle.obj.location
-        return geo_dict(location) if location else None

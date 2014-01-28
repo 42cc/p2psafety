@@ -26,16 +26,21 @@ class EventsTestCase(ModelsMixin, ResourceTestCase):
     @mock_get_backend(module_path='events.api.resources')
     def test_get_list(self):
         event, event_location = EventFactory(), EventFactory()
-        EventUpdateFactory(event=event, location=None)
-        EventUpdateFactory(event=event_location, location=Point(1, 1))
+        event_updates = [EventUpdateFactory(event=event, location=None),
+                         EventUpdateFactory(event=event_location, location=Point(1, 1))]
         resp = self.api_client.get(self.events_list_url, format='json')
+
         self.assertValidJSONResponse(resp)
         objects = sorted(self.deserialize(resp)['objects'], key=lambda obj: obj['id'])
         self.assertEqual(len(objects), 2)
-        self.assertIsNone(objects[0]['latest_location_update'])
-        self.assertIsNotNone(objects[1]['latest_location_update'])
-        self.assertEqual(objects[1]['latest_location_update']['location'],
-                         {u'latitude': 1, u'longitude': 1})
+        self.assertIsNone(objects[0]['latest_location'])
+        self.assertIsNotNone(objects[1]['latest_location'])
+        self.assertEqual(objects[1]['latest_location'], {'latitude': 1, 'longitude': 1})
+        
+        for update_dict, update_obj in zip(objects, event_updates):
+            latest_update = update_dict.get('latest_update')
+            self.assertIsNotNone(latest_update)
+            self.assertEqual(latest_update['id'], update_obj.id)
 
     @mock_get_backend(module_path='events.api.resources')
     def test_create(self):        
@@ -103,12 +108,19 @@ class EventUpdateTestCase(ModelsMixin, ResourceTestCase):
         self.assertEqual(eu.text, 'emergency')
         self.assertEqual(eu.event.status, 'A')
 
-        data.update(latitude=50.450731, longitude=30.529487)
+        test_lat, test_lon = 1, 1
+
+        # bad location
+        data['location'] = dict(latitude=test_lat)
+        resp = self.api_client.post(url, data=data)
+        self.assertEqual(resp.status_code, 400)
+
+        data['location']['longitude'] = test_lon
         resp = self.api_client.post(url, data=data)
         self.assertEqual(resp.status_code, 201)
         eu = EventUpdate.objects.latest('id')
         self.assertEqual(eu.event, event)
-        self.assertEqual((eu.location.y, eu.location.x), (50.450731, 30.529487))
+        self.assertEqual((eu.location.y, eu.location.x), (test_lat, test_lon))
 
         with tempfile.TemporaryFile(suffix='.mp3') as f:
             data = {'key': event.key, 'audio': f}
