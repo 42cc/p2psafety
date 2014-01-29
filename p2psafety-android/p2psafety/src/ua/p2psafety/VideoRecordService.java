@@ -1,22 +1,15 @@
 package ua.p2psafety;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.IBinder;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -24,9 +17,9 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Utils;
 
 public class VideoRecordService extends Service implements SurfaceHolder.Callback {
     private static Boolean mTimerOn = false;
@@ -108,10 +101,11 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
     public void startRecording() {
         try {
+            mDuration = Prefs.getMediaRecordLength(getApplicationContext());
+
             prepareRecorder();
             mRecorder.start();
 
-            mDuration = Prefs.getMediaRecordLength(getApplicationContext());
             mTimeLeft = mDuration;
             mTimer = new VideoRecordTimer(mDuration, 1000);
             mTimer.start();
@@ -143,9 +137,25 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         mRecorder.setCamera(mCamera);
         mRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-        mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
-        //mRecorder.setMaxDuration(500000); // 50 seconds
-        //mRecorder.setMaxFileSize(5000000); // Approximately 5 megabytes
+
+        int duration = (int) mDuration / 60000;
+        boolean lowQuality = false;
+        if (!Utils.isWiFiConnected(getApplicationContext()))
+            lowQuality = true;
+
+        if (duration < 2 && !lowQuality) {
+            mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_1080P));
+            mRecorder.setAudioEncodingBitRate(256000);
+            mRecorder.setAudioSamplingRate(48000);
+        } else if (duration < 5 && !lowQuality) {
+            mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_720P));
+            mRecorder.setAudioEncodingBitRate(128000);
+            mRecorder.setAudioSamplingRate(32000);
+        } else {
+            mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_480P));
+            mRecorder.setAudioEncodingBitRate(64000);
+            mRecorder.setAudioSamplingRate(16000);
+        }
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
 
         mRecorder.setPreviewDisplay(mSurfaceView.getHolder().getSurface());
@@ -157,7 +167,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         try {
             camera = Camera.open();
         }
-        catch (Exception e){}
+        catch (Exception e) { }
         return camera;
     }
 

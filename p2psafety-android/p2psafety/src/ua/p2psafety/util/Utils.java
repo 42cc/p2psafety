@@ -58,4 +58,22 @@ public class Utils {
         return result;
     }
 
+    public static boolean isWiFiConnected(Context context) {
+        boolean result = false;
+
+        try {
+            ConnectivityManager cm =
+                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+            if (netInfo != null && netInfo.isConnected()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }
