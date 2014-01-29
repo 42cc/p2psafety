@@ -108,3 +108,9 @@ class EventUpdate(models.Model):
         self.event.save()
 
         return super(EventUpdate, self).save(*args, **kwargs)
+
+
+# Little hack to add useful property for user
+full_name = property(lambda self: "{} {}".format(
+    self.first_name, self.last_name))
+User.add_to_class('full_name', full_name)
