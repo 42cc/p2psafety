@@ -3,7 +3,6 @@ package ua.p2psafety;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 public class PowerButtonListener extends BroadcastReceiver{
     final int mPressThreshold = 3; // 3 presses to activate sos

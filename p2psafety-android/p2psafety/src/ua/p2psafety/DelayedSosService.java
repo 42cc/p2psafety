@@ -1,10 +1,10 @@
 package ua.p2psafety;
 
-import android.content.BroadcastReceiver;
-import android.content.IntentFilter;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 

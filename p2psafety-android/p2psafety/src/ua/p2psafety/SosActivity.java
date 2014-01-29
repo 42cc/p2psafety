@@ -1,23 +1,18 @@
 package ua.p2psafety;
 
-import android.content.BroadcastReceiver;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import ua.p2psafety.data.PhonesDatasourse;
-import ua.p2psafety.data.Prefs;
-import ua.p2psafety.setphones.SetPhoneFragment;
 
 /**
  * Created by ihorpysmennyi on 12/14/13.
