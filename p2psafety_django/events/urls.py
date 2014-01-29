@@ -4,11 +4,14 @@ from tastypie.api import Api
 
 from .api.resources import EventResource, EventUpdateResource
 
+
 v1_api = Api(api_name='v1')
 v1_api.register(EventResource())
 v1_api.register(EventUpdateResource())
 
 
 urlpatterns = patterns('',
+    url(r'^$', 'events.views.map'),
+
     url(r'^api/', include(v1_api.urls)),
 )

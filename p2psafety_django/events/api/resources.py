@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-from tastypie import http
+from tastypie import http, fields
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
+from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
 from tastypie.validation import Validation
 from tastypie.exceptions import ImmediateHttpResponse
@@ -12,8 +14,8 @@ from tastypie.exceptions import ImmediateHttpResponse
 from social.backends.utils import get_backend
 from social.apps.django_app.utils import load_strategy
 
+from .fields import GeoPointField
 from ..models import Event, EventUpdate
-from ..utils import geo_point
 
 
 class MultipartResource(object):
@@ -32,6 +34,19 @@ class MultipartResource(object):
             data.update(request.FILES)
             return data
         return super(MultipartResource, self).deserialize(request, data, format)
+
+
+class UserResource(ModelResource):
+    class Meta:
+        queryset = User.objects.all()
+        resource_name = 'users'
+        fields = ['id']
+
+    full_name = fields.CharField('get_full_name')
+
+    def dehydrate_full_name(self, bundle):
+        if not bundle.data['full_name']:
+            return bundle.obj.username
 
 
 class EventValidation(Validation):
@@ -56,9 +71,20 @@ class EventResource(ModelResource):
         authentication = Authentication()
         authorization = Authorization()
         validation = EventValidation()
-        list_allowed_methods = ['post', ]
+        list_allowed_methods = ['post', 'get']
+        fields = ['id', 'status', 'user']
+        filtering = {
+            'id': ALL,
+            'status': ALL,
+        }
         detail_allowed_methods = []
         always_return_data = True
+
+    user = fields.ForeignKey(UserResource, 'user', full=True,  readonly=True)
+    latest_location = GeoPointField('latest_location', null=True, readonly=True)
+    latest_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
+                                      'latest_update',
+                                       full=True, null=True, readonly=True)
 
     def hydrate(self, bundle):
         access_token = bundle.data.get('access_token')
@@ -81,8 +107,10 @@ class EventResource(ModelResource):
         return bundle
 
     def dehydrate(self, bundle):
-        bundle.data.pop('provider')
-        bundle.data.pop('access_token')
+        if 'access_token' in bundle.data:
+            del bundle.data['access_token']
+        if 'provider' in bundle.data:
+            del bundle.data['provider']
         return bundle
 
 
@@ -100,34 +128,27 @@ class EventUpdateValidation(Validation):
         if bundle.data.keys() == ['key']:
             errors['__all__'] = 'Additional arguments required'
 
-        latitude = bundle.data.get('latitude')
-        longitude = bundle.data.get('longitude')
-        if not (latitude and longitude) and (latitude or longitude):
-            errors['__all__'] = 'Both latitude and longitude are required'
-
         return errors
 
 
 class EventUpdateResource(MultipartResource, ModelResource):
     class Meta:
-        queryset = EventUpdate.objects.all()
+        queryset = EventUpdate.objects.order_by('-timestamp')
         resource_name = 'eventupdates'
-        list_allowed_methods = ['post', ]
+        list_allowed_methods = ['post', 'get']
         detail_allowed_methods = []
+        filtering = {'event': ALL_WITH_RELATIONS}
         validation = EventUpdateValidation()
         authentication = Authentication()
         authorization = Authorization()
+
+    location = GeoPointField('location', null=True)
+    event = fields.ForeignKey(EventResource, 'event', readonly=True)
 
     def hydrate(self, bundle):
         key = bundle.data.get('key')
         if key:
             event = get_object_or_404(Event, key=key)
             bundle.obj.event = event
-
-        latitude = bundle.data.get('latitude')
-        longitude = bundle.data.get('longitude')
-        if latitude and longitude:
-            bundle.obj.location = geo_point(latitude=latitude,
-                longitude=longitude)
 
         return bundle
