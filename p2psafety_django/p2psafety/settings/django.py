@@ -91,6 +91,19 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static_media', 'uploads')
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
 )
+TEMPLATE_CONTEXT_PROCESSORS = (
+    # Django defaults
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.contrib.messages.context_processors.messages',
+    # python-social-auth
+    'social.apps.django_app.context_processors.backends',
+    'social.apps.django_app.context_processors.login_redirect',
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/

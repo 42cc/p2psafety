@@ -14,4 +14,6 @@ urlpatterns = patterns('',
     url(r'^$', 'events.views.map'),
 
     url(r'^api/', include(v1_api.urls)),
+
+    url('', include('social.apps.django_app.urls', namespace='social')),
 )
