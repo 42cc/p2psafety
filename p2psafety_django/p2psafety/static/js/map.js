@@ -95,16 +95,14 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
           scope.$eval(attrs.click);
         });
       }
-      if (attrs.hover) {
-        markersWindow = new google.maps.InfoWindow();
 
-        if (attrs.hover == '__content__') {
-          var content = element.children()[0];
-        } else {
-          var content = attrs.hover;
-        }
+      var hoverContent = element.children();
+      if (hoverContent.length) {
+        hoverContent = hoverContent.detach()[0];
+        markersWindow = new google.maps.InfoWindow();
+        
         google.maps.event.addListener(marker, 'mouseover', function() {
-          markersWindow.setContent(content);
+          markersWindow.setContent(hoverContent);
           markersWindow.open(scope.$parent.gmap, marker);
         });
         google.maps.event.addListener(marker, 'mouseout', function() {
@@ -124,6 +122,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
   };
   return {
     replace: true,
+    template: '',
     restrict: 'E',
     link: linker,
   };
