@@ -36,6 +36,12 @@ class EventsTestCase(ModelsMixin, ResourceTestCase):
         self.assertIsNone(objects[0]['latest_location'])
         self.assertIsNotNone(objects[1]['latest_location'])
         self.assertEqual(objects[1]['latest_location'], {'latitude': 1, 'longitude': 1})
+        self.assertDictContainsSubset({'id': event.user.id,
+                                       'full_name': event.user.username},
+                                        objects[0]['user'])
+        self.assertDictContainsSubset({'id': event_location.user.id,
+                                       'full_name': event_location.user.username},
+                                       objects[1]['user'])
         
         for update_dict, update_obj in zip(objects, event_updates):
             latest_update = update_dict.get('latest_update')

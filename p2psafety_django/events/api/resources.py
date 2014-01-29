@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from tastypie import http, fields
@@ -35,6 +36,19 @@ class MultipartResource(object):
         return super(MultipartResource, self).deserialize(request, data, format)
 
 
+class UserResource(ModelResource):
+    class Meta:
+        queryset = User.objects.all()
+        resource_name = 'users'
+        fields = ['id']
+
+    full_name = fields.CharField('get_full_name')
+
+    def dehydrate_full_name(self, bundle):
+        if not bundle.data['full_name']:
+            return bundle.obj.username
+
+
 class EventValidation(Validation):
     def is_valid(self, bundle, request=None):
         if not bundle.data:
@@ -66,6 +80,7 @@ class EventResource(ModelResource):
         detail_allowed_methods = []
         always_return_data = True
 
+    user = fields.ForeignKey(UserResource, 'user', full=True,  readonly=True)
     latest_location = GeoPointField('latest_location', null=True, readonly=True)
     latest_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
                                       'latest_update',
@@ -92,7 +107,6 @@ class EventResource(ModelResource):
         return bundle
 
     def dehydrate(self, bundle):
-        bundle.data.update({'user': bundle.obj.user.full_name})
         if 'access_token' in bundle.data:
             del bundle.data['access_token']
         if 'provider' in bundle.data:

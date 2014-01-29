@@ -106,11 +106,4 @@ class EventUpdate(models.Model):
     def save(self, *args, **kwargs):
         self.event.status = 'A'
         self.event.save()
-
         return super(EventUpdate, self).save(*args, **kwargs)
-
-
-# Little hack to add useful property for user
-full_name = property(lambda self: "{} {}".format(
-    self.first_name, self.last_name))
-User.add_to_class('full_name', full_name)
