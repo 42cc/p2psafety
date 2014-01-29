@@ -36,6 +36,7 @@
                        ng-repeat="event in events"
                        ng-if="event.id != selectedEvent.id">
             <div>
+              <p>{{ event.user.full_name }}</p>
               <span class="badge">{{ event.latest_update.timestamp | date:'H:m' }}</span>
               {{ event.latest_update.text || "..." }}
             </div>
