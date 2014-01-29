@@ -1,9 +1,17 @@
 from django.conf import settings
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.shortcuts import render, redirect
 
 from annoying.decorators import render_to
 
 
+def login(request):
+    url = reverse('social:begin', kwargs={'backend': 'facebook'})
+    return redirect(url)
+
+
+@login_required
 @render_to('events/map.html')
 def map(request):
     return {
