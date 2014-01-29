@@ -58,8 +58,11 @@ class EventResource(ModelResource):
         authorization = Authorization()
         validation = EventValidation()
         list_allowed_methods = ['post', 'get']
-        fields = ['id', 'status']
-        filtering = {'id': ALL}
+        fields = ['id', 'status', 'user']
+        filtering = {
+            'id': ALL,
+            'status': ALL,
+        }
         detail_allowed_methods = []
         always_return_data = True
 
@@ -86,6 +89,14 @@ class EventResource(ModelResource):
                 # log exception here
                 raise ImmediateHttpResponse(
                     response=http.HttpBadRequest('Invalid access token'))
+        return bundle
+
+    def dehydrate(self, bundle):
+        bundle.data.update({'user': bundle.obj.user.full_name})
+        if 'access_token' in bundle.data:
+            del bundle.data['access_token']
+        if 'provider' in bundle.data:
+            del bundle.data['provider']
         return bundle
 
 

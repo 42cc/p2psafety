@@ -43,9 +43,9 @@
           <div class="selected-event panel panel-primary"
                ng-if="selectedEvent != null">
             <h4 class="panel-heading">Status:
-              <span class="label label-primary"
-                    ng-if="selectedEvent.status == 'A'">active</span>
               <span class="label label-danger"
+                    ng-if="selectedEvent.status == 'A'">active</span>
+              <span class="label label-primary"
                     ng-if="selectedEvent.status == 'P'">passive</span>
               <span class="label label-default"
                     ng-if="selectedEvent.status == 'F'">finished</span>
@@ -60,7 +60,7 @@
                                location="update.location"
                                click="focus(update.location)" hover="__content__">
                     <p>{{ update.timestamp | date:'dd.MM H:m' }}</p>
-                  </gmap-marker>                               
+                  </gmap-marker>
                   <p class="list-group-item-heading">
                     <span class="badge">{{ update.timestamp | date:'dd.MM H:m' }}</span>
                     {{ update.text || "..." }}
@@ -73,7 +73,7 @@
                     <span class="glyphicon glyphicon-film"></span> Play</a>
                   <a class="btn btn-success"
                      ng-if="update.location != null"
-                     ng-click="focus(update.location)">                     
+                     ng-click="focus(update.location)">
                     <span class="glyphicon glyphicon-map-marker"></span></a>
                 </div>
               </div>
