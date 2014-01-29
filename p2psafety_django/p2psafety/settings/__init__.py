@@ -1,4 +1,5 @@
-from default import *
+from django import *
+from apps import *
 
 try:
     from local import *
