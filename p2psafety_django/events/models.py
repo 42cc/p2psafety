@@ -34,6 +34,21 @@ class Event(models.Model):
     def __unicode__(self):
         return "{} event by {}".format(self.status, self.user)
 
+    @property
+    def latest_update(self):
+        try:
+            return self.updates.latest()
+        except EventUpdate.DoesNotExist:
+            return None
+
+    @property
+    def latest_location(self):
+        try:
+            updates = self.updates.filter(location__isnull=False)
+            return updates.latest().location
+        except EventUpdate.DoesNotExist:
+            return None
+
     def save(self, *args, **kwargs):
         """
         Basic save + generator until PIN is unique.
@@ -74,7 +89,10 @@ class EventUpdate(models.Model):
     Event Update. Stores any kind of additional information for event.
     Event that receives at least one eventupdate becomes active.
     """
-    event = models.ForeignKey(Event)
+    class Meta:
+        get_latest_by = 'timestamp'
+
+    event = models.ForeignKey(Event, related_name='updates')
     timestamp = models.DateTimeField(default=timezone.now())
 
     text = models.TextField(blank=True)
@@ -88,5 +106,4 @@ class EventUpdate(models.Model):
     def save(self, *args, **kwargs):
         self.event.status = 'A'
         self.event.save()
-
         return super(EventUpdate, self).save(*args, **kwargs)
