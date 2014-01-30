@@ -5,20 +5,21 @@ from django.contrib.gis.geos import Point
 
 from tastypie.test import ResourceTestCase
 
-from .helpers import EventFactory, EventUpdateFactory, UserFactory, mock_get_backend
+from .helpers import (EventFactory, EventUpdateFactory, UserFactory,
+    mock_get_backend)
 from ..models import Event, EventUpdate
 
 
 class ModelsMixin(object):
     @property
     def events_list_url(self):
-        return reverse('api_dispatch_list', kwargs=dict(resource_name='events',
-                                                        api_name='v1'))
+        return reverse('api_dispatch_list',
+            kwargs=dict(resource_name='events', api_name='v1'))
 
     @property
     def eventupdates_list_url(self):
-        return reverse('api_dispatch_list', kwargs=dict(resource_name='eventupdates',
-                                                        api_name='v1'))
+        return reverse('api_dispatch_list',
+            kwargs=dict(resource_name='eventupdates', api_name='v1'))
 
 
 class EventsTestCase(ModelsMixin, ResourceTestCase):
@@ -26,22 +27,26 @@ class EventsTestCase(ModelsMixin, ResourceTestCase):
     @mock_get_backend(module_path='events.api.resources')
     def test_get_list(self):
         event, event_location = EventFactory(), EventFactory()
-        event_updates = [EventUpdateFactory(event=event, location=None),
-                         EventUpdateFactory(event=event_location, location=Point(1, 1))]
+        event_updates = [
+            EventUpdateFactory(event=event, location=None),
+            EventUpdateFactory(event=event_location, location=Point(1, 1)),
+        ]
         resp = self.api_client.get(self.events_list_url, format='json')
 
         self.assertValidJSONResponse(resp)
-        objects = sorted(self.deserialize(resp)['objects'], key=lambda obj: obj['id'])
+        objects = sorted(self.deserialize(resp)['objects'],
+            key=lambda obj: obj['id'])
         self.assertEqual(len(objects), 2)
         self.assertIsNone(objects[0]['latest_location'])
         self.assertIsNotNone(objects[1]['latest_location'])
-        self.assertEqual(objects[1]['latest_location'], {'latitude': 1, 'longitude': 1})
+        self.assertEqual(objects[1]['latest_location'],
+            {'latitude': 1, 'longitude': 1})
         self.assertDictContainsSubset({'id': event.user.id,
-                                       'full_name': event.user.username},
-                                        objects[0]['user'])
+                                      'full_name': event.user.username},
+                                      objects[0]['user'])
         self.assertDictContainsSubset({'id': event_location.user.id,
-                                       'full_name': event_location.user.username},
-                                       objects[1]['user'])
+                                      'full_name': event_location.user.username},
+                                      objects[1]['user'])
 
         for update_dict, update_obj in zip(objects, event_updates):
             latest_update = update_dict.get('latest_update')
@@ -161,14 +166,16 @@ class EventUpdateTestCase(ModelsMixin, ResourceTestCase):
         self.assertEqual(len(objects), 3)
 
         # Get by event
-        resp = self.api_client.get(url, data=dict(event__id=event_without_updates.id))
+        resp = self.api_client.get(url,
+            data=dict(event__id=event_without_updates.id))
         self.assertValidJSONResponse(resp)
         objects = self.deserialize(resp)['objects']
         self.assertEqual(len(objects), 0)
 
         resp = self.api_client.get(url, data=dict(event_id=event.id))
         self.assertValidJSONResponse(resp)
-        objects = sorted(self.deserialize(resp)['objects'], key=lambda o: o['id'])
+        objects = sorted(self.deserialize(resp)['objects'],
+            key=lambda obj: obj['id'])
         self.assertEqual(len(objects), 3)
         self.assertEqual(objects[1]['text'], 'Text')
         self.assertEqual(objects[2]['location'], dict(longitude=1, latitude=1))
