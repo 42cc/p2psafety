@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'events',
 
     'tastypie',
-    'social',
+    'social.apps.django_app.default',
     'south',
 )
 
