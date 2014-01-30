@@ -3,7 +3,6 @@ from factory import SubFactory, Sequence
 from factory.django import DjangoModelFactory, FileField
 
 from django.contrib.auth.models import User
-from django.contrib.gis.geos import Point
 
 from ..models import Event, EventUpdate
 

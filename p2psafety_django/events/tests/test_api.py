@@ -42,14 +42,14 @@ class EventsTestCase(ModelsMixin, ResourceTestCase):
         self.assertDictContainsSubset({'id': event_location.user.id,
                                        'full_name': event_location.user.username},
                                        objects[1]['user'])
-        
+
         for update_dict, update_obj in zip(objects, event_updates):
             latest_update = update_dict.get('latest_update')
             self.assertIsNotNone(latest_update)
             self.assertEqual(latest_update['id'], update_obj.id)
 
     @mock_get_backend(module_path='events.api.resources')
-    def test_create(self):        
+    def test_create(self):
         # no params
         resp = self.api_client.post(self.events_list_url)
         self.assertEqual(resp.status_code, 400)
@@ -158,7 +158,7 @@ class EventUpdateTestCase(ModelsMixin, ResourceTestCase):
         resp = self.api_client.get(url, format='json')
         self.assertValidJSONResponse(resp)
         objects = self.deserialize(resp)['objects']
-        self.assertEqual(len(objects), 3)        
+        self.assertEqual(len(objects), 3)
 
         # Get by event
         resp = self.api_client.get(url, data=dict(event__id=event_without_updates.id))

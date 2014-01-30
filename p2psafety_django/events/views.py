@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.shortcuts import render
 
 from annoying.decorators import render_to
 
