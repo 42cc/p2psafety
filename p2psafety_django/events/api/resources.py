@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import logging
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
@@ -16,6 +18,9 @@ from social.apps.django_app.utils import load_strategy
 
 from .fields import GeoPointField
 from ..models import Event, EventUpdate
+
+
+logger = logging.getLogger(__name__)
 
 
 class MultipartResource(object):
@@ -80,11 +85,11 @@ class EventResource(ModelResource):
         detail_allowed_methods = []
         always_return_data = True
 
-    user = fields.ForeignKey(UserResource, 'user', full=True,  readonly=True)
+    user = fields.ForeignKey(UserResource, 'user', full=True, readonly=True)
     latest_location = GeoPointField('latest_location', null=True, readonly=True)
     latest_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
                                       'latest_update',
-                                       full=True, null=True, readonly=True)
+                                      full=True, null=True, readonly=True)
 
     def hydrate(self, bundle):
         access_token = bundle.data.get('access_token')
@@ -100,8 +105,8 @@ class EventResource(ModelResource):
                 ))
                 user = social_auth.do_auth(access_token)
                 bundle.obj.user = user
-            except:
-                # log exception here
+            except Exception as e:
+                logger.exception(e)
                 raise ImmediateHttpResponse(
                     response=http.HttpBadRequest('Invalid access token'))
         return bundle

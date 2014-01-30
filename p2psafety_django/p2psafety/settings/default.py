@@ -143,5 +143,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
+        'events': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
     }
 }
