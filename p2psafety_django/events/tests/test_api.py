@@ -1,4 +1,5 @@
 import tempfile
+from operator import itemgetter
 
 from django.core.urlresolvers import reverse
 from django.contrib.gis.geos import Point
@@ -20,6 +21,19 @@ class ModelsMixin(object):
     def eventupdates_list_url(self):
         return reverse('api_dispatch_list',
             kwargs=dict(resource_name='eventupdates', api_name='v1'))
+
+
+class UsersTestCase(ModelsMixin, ResourceTestCase):
+
+    def test_get_detail(self):
+        user1 = UserFactory(first_name='test', last_name='user')
+        user2 = UserFactory(first_name='', last_name='')
+        event1, event2 = EventFactory(user=user1), EventFactory(user=user2)
+
+        resp = self.api_client.get(self.events_list_url, format='json')
+        objects = sorted(self.deserialize(resp)['objects'], key=itemgetter('id'))
+        self.assertEqual(objects[0]['user']['full_name'], 'test user')
+        self.assertEqual(objects[1]['user']['full_name'], user2.username)
 
 
 class EventsTestCase(ModelsMixin, ResourceTestCase):
