@@ -4,8 +4,6 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from tastypie import http, fields
-from tastypie.authentication import Authentication
-from tastypie.authorization import Authorization
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
 from tastypie.validation import Validation
@@ -15,6 +13,8 @@ from social.backends.utils import get_backend
 from social.apps.django_app.utils import load_strategy
 
 from .fields import GeoPointField
+from .authentication import PostFreeSessionAuthentication
+from .authorization import CreateFreeDjangoAuthorization
 from ..models import Event, EventUpdate
 
 
@@ -68,8 +68,8 @@ class EventResource(ModelResource):
     class Meta:
         queryset = Event.objects.all()
         resource_name = 'events'
-        authentication = Authentication()
-        authorization = Authorization()
+        authentication = PostFreeSessionAuthentication()
+        authorization = CreateFreeDjangoAuthorization()
         validation = EventValidation()
         list_allowed_methods = ['post', 'get']
         fields = ['id', 'status', 'user']
@@ -139,8 +139,8 @@ class EventUpdateResource(MultipartResource, ModelResource):
         detail_allowed_methods = []
         filtering = {'event': ALL_WITH_RELATIONS}
         validation = EventUpdateValidation()
-        authentication = Authentication()
-        authorization = Authorization()
+        authentication = PostFreeSessionAuthentication()
+        authorization = CreateFreeDjangoAuthorization()
 
     location = GeoPointField('location', null=True)
     event = fields.ForeignKey(EventResource, 'event', readonly=True)

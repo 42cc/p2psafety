@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 
@@ -12,6 +12,7 @@ def login(request):
 
 
 @login_required
+@permission_required('events.view_event', raise_exception=True)
 @render_to('events/map.html')
 def map(request):
     return {
