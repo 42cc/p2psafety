@@ -37,7 +37,7 @@
                        ng-if="event.id != selectedEvent.id">
             <div>
               <p ng-if="event.user.full_name != null">{{ event.user.full_name }}</p>
-              <span class="badge">{{ event.latest_update.timestamp | date:'H:m' }}</span>
+              <span class="badge">{{ event.latest_update.timestamp | date:'HH:mm' }}</span>
               {{ event.latest_update.text || "..." }}
             </div>
           </gmap-marker>
@@ -60,10 +60,10 @@
                   <gmap-marker icon="http://maps.google.com/mapfiles/ms/micons/blue-dot.png"
                                location="update.location"
                                click="focus(update.location)">
-                    <p>{{ update.timestamp | date:'dd.MM H:m' }}</p>
+                    <p>{{ update.timestamp | date:'dd.MM HH:mm' }}</p>
                   </gmap-marker>
                   <p class="list-group-item-heading">
-                    <span class="badge">{{ update.timestamp | date:'dd.MM H:m' }}</span>
+                    <span class="badge">{{ update.timestamp | date:'dd.MM HH:mm' }}</span>
                     {{ update.text || "..." }}
                   </p>
                   <a href="{{ update.audio }}" class="btn btn-default"
