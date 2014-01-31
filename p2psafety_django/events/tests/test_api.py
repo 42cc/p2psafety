@@ -1,5 +1,6 @@
 import mock
 import tempfile
+from operator import itemgetter
 
 from django.core.urlresolvers import reverse
 from django.contrib.gis.geos import Point
@@ -74,27 +75,24 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
     @mock_get_backend(module_path='events.api.resources')
     def test_create(self):
+        url = self.events_list_url
+
         # no params
-        resp = self.api_client.post(self.events_list_url)
-        self.assertEqual(resp.status_code, 400)
+        self.assertHttpBadRequest(self.api_client.post(url))
 
         data = dict(provider='bad_provider', access_token='some_token')
 
         # bad params
-        resp = self.api_client.post(self.events_list_url, data=data)
-        self.assertEqual(resp.status_code, 400)
-        self.assertHttpBadRequest(resp)
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
 
         data['provider'] = 'facebook'
-        resp = self.api_client.post(self.events_list_url, data=data)
-        self.assertEqual(resp.status_code, 201)
+        self.assertHttpCreated(self.api_client.post(url, data=data))
 
         event = Event.objects.latest('id')
         self.assertEqual(event.status, 'P')
         self.assertEqual(event.user, self.auth_user)
 
-        resp = self.api_client.post(self.events_list_url, data=data)
-        self.assertEqual(resp.status_code, 201)
+        self.assertHttpCreated(self.api_client.post(url, data=data))
         new_event = Event.objects.latest('id')
         self.assertEqual(new_event.status, 'P')
         self.assertEqual(Event.objects.get(id=event.id).status, 'F')
@@ -103,8 +101,7 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
         user2 = UserFactory()
         self.mocked_get_backend()().do_auth.return_value = user2
-        resp = self.api_client.post(self.events_list_url, data=data)
-        self.assertEqual(resp.status_code, 201)
+        self.assertHttpCreated(self.api_client.post(url, data=data))
         event = Event.objects.latest('id')
         self.assertEqual(event.status, 'P')
         self.assertEqual(event.user, user2)
@@ -118,7 +115,7 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
         self.login_as_superuser()
         resp = self.api_client.get(self.events_list_url, format='json')
-        objects = sorted(self.deserialize(resp)['objects'], key=lambda obj: obj['id'])
+        objects = sorted(self.deserialize(resp)['objects'], key=itemgetter('id'))
         self.assertEqual(len(objects), 2)
         self.assertIsNone(objects[0]['latest_location'])
         self.assertIsNotNone(objects[1]['latest_location'])
@@ -142,23 +139,19 @@ class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         url = self.eventupdates_list_url
 
         # no params
-        resp = self.api_client.post(url)
-        self.assertEqual(resp.status_code, 400)
+        self.assertHttpBadRequest(self.api_client.post(url))
 
         # bad key
         data = dict(key='wrong_key')
-        resp = self.api_client.post(url, data=data)
-        self.assertEqual(resp.status_code, 404)
+        self.assertHttpNotFound(self.api_client.post(url, data=data))
 
         # no additional args
         event = EventFactory()
         data['key'] = event.key
-        resp = self.api_client.post(url, data=data)
-        self.assertEqual(resp.status_code, 400)
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
 
         data['text'] = 'emergency'
-        resp = self.api_client.post(url, data=data)
-        self.assertEqual(resp.status_code, 201)
+        self.assertHttpCreated(self.api_client.post(url, data=data))
         eu = EventUpdate.objects.latest('id')
         self.assertEqual(eu.event, event)
         self.assertEqual(eu.text, 'emergency')
@@ -168,28 +161,23 @@ class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
         # bad location
         data['location'] = dict(latitude=test_lat)
-        resp = self.api_client.post(url, data=data)
-        self.assertEqual(resp.status_code, 400)
-
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
         data['location']['longitude'] = test_lon
-        resp = self.api_client.post(url, data=data)
-        self.assertEqual(resp.status_code, 201)
+        self.assertHttpCreated(self.api_client.post(url, data=data))
         eu = EventUpdate.objects.latest('id')
         self.assertEqual(eu.event, event)
         self.assertEqual((eu.location.y, eu.location.x), (test_lat, test_lon))
 
         with tempfile.TemporaryFile(suffix='.mp3') as f:
             data = {'key': event.key, 'audio': f}
-            resp = self.api_client.post(url, data=data)
-            self.assertEqual(resp.status_code, 201)
+            self.assertHttpCreated(self.api_client.post(url, data=data))
             eu = EventUpdate.objects.latest('id')
             self.assertEqual(eu.event, event)
             self.assertTrue(eu.audio)
 
         with tempfile.TemporaryFile(suffix='.avi') as f:
             data = {'key': event.key, 'video': f}
-            resp = self.api_client.post(url, data=data)
-            self.assertEqual(resp.status_code, 201)
+            self.assertHttpCreated(self.api_client.post(url, data=data))
             eu = EventUpdate.objects.latest('id')
             self.assertEqual(eu.event, event)
             self.assertTrue(eu.video)
@@ -215,7 +203,7 @@ class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertEqual(len(objects), 0)
 
         resp = self.api_client.get(url, data=dict(event_id=event.id))
-        objects = sorted(self.deserialize(resp)['objects'], key=lambda o: o['id'])
+        objects = sorted(self.deserialize(resp)['objects'], key=itemgetter('id'))
         self.assertEqual(len(objects), 3)
         self.assertEqual(objects[1]['text'], 'Text')
         self.assertEqual(objects[2]['location'], dict(longitude=1, latitude=1))
