@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Permission
 from django.core.urlresolvers import reverse
 
 from .factories import UserFactory
@@ -18,10 +19,16 @@ class UsersMixin(object):
 
     def setUp(self):
         super(UsersMixin, self).setUp()
+        self.user = UserFactory()
+
+        self.events_granted_user = UserFactory()
+        view_event = Permission.objects.get(codename='view_event')
+        view_eventupdate = Permission.objects.get(codename='view_eventupdate')
+        self.events_granted_user.user_permissions.add(view_event, view_eventupdate)
+
         self.superuser = UserFactory()
         self.superuser.is_superuser = True; self.superuser.is_staff = True
         self.superuser.save()
-        self.user = UserFactory()
 
     def _get_client(self):
         if hasattr(self, 'api_client'):

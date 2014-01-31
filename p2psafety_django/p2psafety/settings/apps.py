@@ -5,9 +5,6 @@ SRID = {
     'projected': 900913,  # for Spatialite distance calculation
 }
 
-LOGIN_URL = 'events.views.login'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
 # Fill the fields below for facebook auth to work
 SOCIAL_AUTH_FACEBOOK_KEY = NotImplemented
 SOCIAL_AUTH_FACEBOOK_SECRET = NotImplemented

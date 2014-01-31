@@ -4,7 +4,6 @@ from operator import itemgetter
 
 from django.core.urlresolvers import reverse
 from django.contrib.gis.geos import Point
-from django.contrib.auth.models import Permission
 
 from tastypie.test import ResourceTestCase
 
@@ -15,19 +14,12 @@ from .helpers.factories import EventFactory, EventUpdateFactory, UserFactory
 from .helpers.mixins import ModelsMixin, UsersMixin
 
 
-class PermissionTestCase(ResourceTestCase, ModelsMixin, UsersMixin):
+class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
     """
     Tests permissions on different RESP methods.
     """
-    def setUp(self):
-        super(PermissionTestCase, self).setUp()
-        self.granted_user = UserFactory()
-        view_event = Permission.objects.get(codename='view_event')
-        view_eventupdate = Permission.objects.get(codename='view_eventupdate')
-        self.granted_user.user_permissions.add(view_event, view_eventupdate)
-
     def login_as_granted_user(self):
-        self.login_as(self.granted_user)
+        self.login_as(self.events_granted_user)
 
     @mock_get_backend(module_path='events.api.resources')
     def test_create_events(self):
