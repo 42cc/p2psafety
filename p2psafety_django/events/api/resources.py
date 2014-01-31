@@ -45,8 +45,8 @@ class UserResource(ModelResource):
     full_name = fields.CharField('get_full_name')
 
     def dehydrate_full_name(self, bundle):
-        if not bundle.data['full_name']:
-            return bundle.obj.username
+        value = bundle.data['full_name']
+        return value if value else bundle.obj.username
 
 
 class EventValidation(Validation):
