@@ -1,7 +1,7 @@
 import datetime
 import random
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.contrib.gis import geos
 
 from events.tests.helpers import EventFactory, EventUpdateFactory, UserFactory
@@ -72,7 +72,7 @@ class Command(BaseCommand):
         yield dict(text='Audio, video and locatio data', location=points.next())
 
     def handle(self, *args, **kwargs):
-        cfg = self.setup();
+        cfg = self.setup()
         event = EventFactory(user=cfg['main_user'])
         args_generator = self.create_args_generator(event=event, **cfg)
         timestamp_generator = self.create_timestamp_generator(cfg['timestamp_start'])
@@ -82,6 +82,5 @@ class Command(BaseCommand):
             created.append(EventUpdateFactory(event=event,
                                               timestamp=timestamp_generator.next(),
                                               **entity_args))
-
 
         print 'Created %d event updates' % len(created)

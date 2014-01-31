@@ -186,16 +186,16 @@ class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.login_as_superuser()
         resp = self.api_client.get(url, format='json')
         objects = self.deserialize(resp)['objects']
-        self.assertEqual(len(objects), 3)        
+        self.assertEqual(len(objects), 3)
 
         # Get by event
         resp = self.api_client.get(url, data=dict(event__id=event_without_updates.id))
-
         objects = self.deserialize(resp)['objects']
         self.assertEqual(len(objects), 0)
 
         resp = self.api_client.get(url, data=dict(event_id=event.id))
         objects = sorted(self.deserialize(resp)['objects'], key=itemgetter('id'))
+
         self.assertEqual(len(objects), 3)
         self.assertEqual(objects[1]['text'], 'Text')
         self.assertEqual(objects[2]['location'], dict(longitude=1, latitude=1))
