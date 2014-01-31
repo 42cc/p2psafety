@@ -13,6 +13,7 @@ def login(request):
 
 @login_required
 @permission_required('events.view_event', raise_exception=True)
+@permission_required('events.view_eventupdate', raise_exception=True)
 @render_to('events/map.html')
 def map(request):
     return {
