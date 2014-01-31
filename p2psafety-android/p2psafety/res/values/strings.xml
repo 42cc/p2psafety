@@ -64,6 +64,7 @@
     <string name="audio_record_finished">Audio recording finished</string>
     <string name="video_is_recording">Video recording. #n# min left</string>
     <string name="video_record_finished">Video recording finished</string>
+    <string name="sos_with_delay">SOS with delay</string>
 
     <string-array name="media_types">
         <item>No</item>
