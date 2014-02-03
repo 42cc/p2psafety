@@ -40,6 +40,11 @@
         <activity
                 android:name=".SosActivity"
                 android:screenOrientation="portrait"
+                android:noHistory="true"
+                android:excludeFromRecents="true"
+                android:launchMode="singleInstance"
+                android:clearTaskOnLaunch="true"
+                android:finishOnTaskLaunch="true"
                 >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
