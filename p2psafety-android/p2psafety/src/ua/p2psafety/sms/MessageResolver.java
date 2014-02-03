@@ -6,13 +6,10 @@ import android.os.AsyncTask;
 import android.os.Looper;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 
-import ua.p2psafety.R;
 import ua.p2psafety.data.EmailsDatasourse;
 import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.data.Prefs;
