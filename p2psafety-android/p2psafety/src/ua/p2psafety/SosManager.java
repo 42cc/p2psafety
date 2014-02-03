@@ -28,7 +28,7 @@ public class SosManager {
 
     public void startSos() {
         // send SMS and email messages
-        MessageResolver resolver = new MessageResolver(mContext, false);
+        MessageResolver resolver = new MessageResolver(mContext);
         resolver.sendMessages();
 
         // start media recording
