@@ -50,7 +50,7 @@ public class MessageResolver {
         for (String phone : phones)
             SMSSender.send(phone, message, context);
         String account = Utils.getEmail(context);
-        if (account!=null)
+        if (account!=null && emails.size() > 0)
         {
             String csv = emails.toString().replace("[", "").replace("]", "").replace(", ", ",");
             GmailOAuth2Sender gmailOAuth2Sender = new GmailOAuth2Sender(context);
