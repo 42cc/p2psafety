@@ -8,4 +8,4 @@ DJANGO_SETTINGS=p2psafety.settings
 
 TEST_APP?=events
 
-MANAGE= DJANGO_SETTINGS_MODULE=$(DJANGO_SETTINGS) python manage.py
+MANAGE= DJANGO_SETTINGS_MODULE=$(DJANGO_SETTINGS) python p2psafety_django/manage.py
