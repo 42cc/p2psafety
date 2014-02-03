@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.MessageResolver;
+import ua.p2psafety.util.Utils;
 
 public class SosManager {
     private static SosManager mInstance;
@@ -27,6 +28,8 @@ public class SosManager {
     }
 
     public void startSos() {
+        Utils.startVibration(mContext);
+
         // send SMS and email messages
         MessageResolver resolver = new MessageResolver(mContext);
         resolver.sendMessages();

@@ -3,7 +3,6 @@ package ua.p2psafety;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 public class PowerButtonListener extends BroadcastReceiver{
     final int mPressThreshold = 3; // 3 presses to activate sos
@@ -23,6 +22,8 @@ public class PowerButtonListener extends BroadcastReceiver{
         mLastPressTime = System.currentTimeMillis();
 
         if (mPressCount == mPressThreshold) {
+            // ATTN: vibrate every time when something's activated by hardware buttons
+            // (startSos has vibration by itself though)
             SosManager.getInstance(context).startSos();
             mPressCount = 0;
         }

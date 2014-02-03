@@ -63,7 +63,6 @@ public class MessageResolver {
             @Override
             protected Object doInBackground(Object[] params) {
                 try {
-                Utils.startVibration(context);
                     if (Prefs.getIsLoc(context)) {
                         // loop until we have location
                         Looper.prepare();
@@ -78,28 +77,24 @@ public class MessageResolver {
                                     if (lon.length() > 10)
                                         lon = lon.substring(0, 9);
 
-                                    Log.i("locationResult", "message: " + message);
-
                                     message = new StringBuilder().append(message)
                                             .append("\n")
                                             .append(formatTimeAndDay(location.getTime(), false))
                                             .append(" https://maps.google.com/maps?q=")
                                             .append(lat).append(",").append(lon).toString();
 
-                                    Log.i("locationResult", "message: " + message);
-
                                     sendMessage(message);
-                                    Log.d("Message", "1.0 Message sent" + message);
+                                    Log.d("Message", "Message sent" + message);
                                 }
                             }
                         };
                         MyLocation myLocation = new MyLocation();
                         myLocation.getLocation(context, locationResult);
                         Looper.loop();
+                    } else {
+                        sendMessage(message);
+                        Log.d("Message", "Message sent" + message);
                     }
-
-                    //sendMessage(message);
-                    //Log.d("Message", "1.1 Message sent" + message);
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e("Error", "while sending messages ", e);
