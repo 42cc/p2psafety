@@ -6,6 +6,7 @@ import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -87,13 +88,12 @@ public class GmailOAuth2Sender {
                 }
             }, null);
         } else {
-            mAccountManager.getAuthToken(me, "oauth2:https://mail.google.com/",
-                    false, new AccountManagerCallback<Bundle>() {
+            mAccountManager.getAuthToken(me, "oauth2:https://mail.google.com/", false, new AccountManagerCallback<Bundle>() {
                 @Override
-                public void run(AccountManagerFuture<Bundle> result) {
-                    saveToken(result);
+                public void run(AccountManagerFuture<Bundle> future) {
+                    saveToken(future);
                 }
-            }, null);
+           }, null);
         }
 
         Log.d("getToken", "token=" + token);
@@ -102,9 +102,11 @@ public class GmailOAuth2Sender {
     private void saveToken(AccountManagerFuture<Bundle> result) {
         try {
             Bundle bundle = result.getResult();
-            token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
-            Log.d("initToken callback", "token=" + token);
-
+            Intent intent = bundle.getParcelable(AccountManager.KEY_INTENT);
+            if (intent != null)
+                context.startActivity(intent);
+            else
+                token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
         } catch (Exception e) {
             Log.d("test", e.getMessage());
         }

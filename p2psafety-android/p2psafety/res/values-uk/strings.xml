@@ -39,4 +39,5 @@
     <string name="no_account_message">Вкажіть ваш google-аккаунт в налаштуваннях телефону</string>
     <string name="it_is_not_email">Будь ласка, впишіть правильний e-mail</string>
     <string name="protect_description">protect yourself</string>
+    <string name="sos_with_delay">SOS із затримкою</string>
 </resources>
