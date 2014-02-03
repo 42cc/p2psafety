@@ -11,7 +11,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MyLocation {
-    Timer timer1;
     LocationManager lm;
     LocationResult locationResult;
     boolean gps_enabled = false;
@@ -75,54 +74,48 @@ public class MyLocation {
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListenerGps);
         if (network_enabled)
             lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerNetwork);
-        timer1 = new Timer();
-        // final ScheduledExecutorService scheduler =
-          //      Executors.newScheduledThreadPool(0);
-       // scheduler.schedule(new GetLastLocation(),20000L, TimeUnit.MILLISECONDS);
-        Log.d("Timer", "Starting");
-        //timer1.schedule(new GetLastLocation(), 20 * 1000);
-        timer1.schedule(new GetLastLocation(), 500);
+
+        getLastLocation();
+
         return true;
+    }
+
+    private void getLastLocation() {
+        if (locationResult == null)
+            return;
+
+        lm.removeUpdates(locationListenerGps);
+        lm.removeUpdates(locationListenerNetwork);
+        Log.d("Timer", "Executing");
+        Location net_loc = null, gps_loc = null;
+        if (gps_enabled)
+            gps_loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (network_enabled)
+            net_loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Log.d("message11", net_loc + "");
+        Log.d("message12", gps_loc + "");
+
+        //if there are both values use the latest one
+        if (gps_loc != null && net_loc != null) {
+            if ((net_loc.getTime() - gps_loc.getTime()) < 600)
+                locationResult.gotLocation(gps_loc);
+            else
+                locationResult.gotLocation(net_loc);
+            return;
+        }
+
+        if (gps_loc != null) {
+            locationResult.gotLocation(gps_loc);
+            return;
+        }
+        if (net_loc != null) {
+            locationResult.gotLocation(net_loc);
+            return;
+        }
+        locationResult.gotLocation(null);
     }
 
     public static abstract class LocationResult {
         public abstract void gotLocation(Location location);
-    }
-
-    class GetLastLocation extends TimerTask {
-
-        @Override
-        public void run() {
-
-            lm.removeUpdates(locationListenerGps);
-            lm.removeUpdates(locationListenerNetwork);
-            Log.d("Timer", "Executing");
-            Location net_loc = null, gps_loc = null;
-            if (gps_enabled)
-                gps_loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (network_enabled)
-                net_loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            Log.d("message11", net_loc + "");
-            Log.d("message12", gps_loc + "");
-
-            //if there are both values use the latest one
-            if (gps_loc != null && net_loc != null) {
-                if ((net_loc.getTime() - gps_loc.getTime()) < 600)
-                    locationResult.gotLocation(gps_loc);
-                else
-                    locationResult.gotLocation(net_loc);
-                return;
-            }
-
-            if (gps_loc != null) {
-                locationResult.gotLocation(gps_loc);
-                return;
-            }
-            if (net_loc != null) {
-                locationResult.gotLocation(net_loc);
-                return;
-            }
-            locationResult.gotLocation(null);
-        }
     }
 }
