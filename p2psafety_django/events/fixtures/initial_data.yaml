@@ -1,6 +1,0 @@
-- fields: {codename: view_event, content_type: 12, name: Can view event}
-  model: auth.permission
-  pk: 43
-- fields: {codename: view_eventupdate, content_type: 13, name: Can view event update}
-  model: auth.permission
-  pk: 44
