@@ -8,15 +8,15 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+
 import ua.p2psafety.R;
 import ua.p2psafety.data.EmailsDatasourse;
 import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
 
 /**
  * Created by ihorpysmennyi on 12/7/13.
@@ -80,6 +80,7 @@ public class MessageResolver {
 //                if (Prefs.getIsLoc(context))
 //                    s += "\n" + context.getString(R.string.loc_will_send);
                 Toast.makeText(context, s, Toast.LENGTH_LONG).show();
+                Utils.startVibration(context);
             }
         };
         try {
@@ -89,7 +90,6 @@ public class MessageResolver {
         if (Prefs.getIsLoc(context)) {
 
             try {
-
                 AsyncTask astGeo = new AsyncTask() {
                     @Override
                     protected Object doInBackground(Object[] params) {
