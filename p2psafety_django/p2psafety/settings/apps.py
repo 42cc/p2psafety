@@ -10,3 +10,5 @@ SOCIAL_AUTH_FACEBOOK_KEY = NotImplemented
 SOCIAL_AUTH_FACEBOOK_SECRET = NotImplemented
 
 POSTGIS_TEMPLATE = 'template_postgis'
+
+GOOGLE_API_KEY = NotImplemented
