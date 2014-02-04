@@ -20,6 +20,8 @@ public class Prefs {
     private static final String MEDIA_RECORD_TYPE = "MEDIA_RECORD_TYPE";
     private static final String MEDIA_RECORD_LENGTH = "MEDIA_RECORD_LENGTH";
 
+    private static final String GMAIL_TOKEN = "GMAIL_TOKEN";
+
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
     }
@@ -65,6 +67,16 @@ public class Prefs {
         if(b)
             getPrefs(context).edit().putBoolean(IS_FIRST_RUN, false).commit();
         return b;
+    }
+
+    public static String getGmailToken(Context context)
+    {
+        return getPrefs(context).getString(GMAIL_TOKEN, null);
+    }
+
+    public static void setGmailToken(Context context, String token)
+    {
+        getPrefs(context).edit().putString(GMAIL_TOKEN, token).commit();
     }
 
     public static long getSosDelay(Context context) {

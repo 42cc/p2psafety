@@ -66,6 +66,9 @@
     <string name="video_is_recording">Запись видео. Осталось #n# мин"</string>
     <string name="video_record_finished">Запись видео завершена</string>
     <string name="sos_with_delay">SOS с задержкой</string>
+    <string name="recorded_media">Запись #media# находиться в вложениях.</string>
+    <string name="video">видео</string>
+    <string name="audio">аудио</string>
 
     <string-array name="media_types">
         <item>Нет</item>

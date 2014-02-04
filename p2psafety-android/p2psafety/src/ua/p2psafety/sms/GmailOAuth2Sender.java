@@ -14,15 +14,24 @@ import android.util.Log;
 import com.sun.mail.smtp.SMTPTransport;
 import com.sun.mail.util.BASE64EncoderStream;
 
+import java.io.File;
 import java.util.Properties;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.URLName;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -38,7 +47,7 @@ public class GmailOAuth2Sender {
     public GmailOAuth2Sender(Context ctx) {
         super();
         context = ctx;
-        initToken();
+        token = Prefs.getGmailToken(context);
     }
 
     private SMTPTransport connectToSmtp(String host, int port, String userEmail,
@@ -106,7 +115,10 @@ public class GmailOAuth2Sender {
             if (intent != null)
                 context.startActivity(intent);
             else
+            {
                 token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+                Prefs.setGmailToken(context, token);
+            }
         } catch (Exception e) {
             Log.d("test", e.getMessage());
         }
@@ -144,6 +156,62 @@ public class GmailOAuth2Sender {
             mAccountManager.invalidateAuthToken("com.google", token);
             initToken();
             sendMail(subject, body, user, recipients);
+        }
+    }
+
+    public synchronized void sendMail(String subject, String body, String user, String recipients, File file) {
+        if (!Utils.isNetworkConnected(context)) {
+            return;
+        }
+        SMTPTransport smtpTransport = null;
+        try {
+            smtpTransport = connectToSmtp("smtp.gmail.com",
+                    587,
+                    user,
+                    token,
+                    true);
+
+            MimeMessage message = new MimeMessage(session);
+            message.setSender(new InternetAddress(user));
+            message.setSubject(subject);
+            //message.setContent(body, "text/html; charset=utf-8");
+            // Create the message part
+            BodyPart messageBodyPart = new MimeBodyPart();
+
+            // Fill the message
+            messageBodyPart.setText(body);
+
+            // Create a multipar message
+            Multipart multipart = new MimeMultipart();
+
+            // Set text message part
+            multipart.addBodyPart(messageBodyPart);
+
+            // Part two is attachment
+            messageBodyPart = new MimeBodyPart();
+            DataSource source = new FileDataSource(file);
+            messageBodyPart.setDataHandler(new DataHandler(source));
+            messageBodyPart.setFileName(file.getName());
+            multipart.addBodyPart(messageBodyPart);
+
+            // Send the complete message parts
+            message.setContent(multipart);
+
+            try {
+                if (recipients.indexOf(',') > 0)
+                    message.setRecipients(Message.RecipientType.TO,
+                            InternetAddress.parse(recipients));
+                else
+                    message.setRecipient(Message.RecipientType.TO,
+                            new InternetAddress(recipients));
+                smtpTransport.sendMessage(message, message.getAllRecipients());
+            } finally {
+                smtpTransport.close();
+            }
+        } catch (MessagingException e) {
+            mAccountManager.invalidateAuthToken("com.google", token);
+            initToken();
+            sendMail(subject, body, user, recipients, file);
         }
     }
 }

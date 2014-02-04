@@ -6,9 +6,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Vibrator;
 
+import java.io.File;
+
 import ua.p2psafety.R;
+import ua.p2psafety.data.ServersDatasourse;
+import ua.p2psafety.sms.MessageResolver;
 
 /**
  * Created by Taras Melon on 10.01.14.
@@ -70,6 +75,24 @@ public class Utils {
                     v.vibrate(2000);
             }
         }).start();
+    }
+
+    public static void sendMailsWithAttachments(final Context context, final int mediaId, final File file) {
+        AsyncTask ast = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] params) {
+                ServersDatasourse serversDatasourse = new ServersDatasourse(context);
+                if (serversDatasourse.getAllServers().size() == 0)
+                {
+                    MessageResolver resolver = new MessageResolver(context);
+                    resolver.sendEmails(context.getString(R.string.recorded_media).replace("#media#", context.getString(mediaId)), file);
+                }
+                return null;
+            }
+        };
+        try {
+            ast.execute();
+        } catch (Exception e) {}
     }
 
 }

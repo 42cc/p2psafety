@@ -21,6 +21,7 @@ import java.util.List;
 
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.GmailOAuth2Sender;
 import ua.p2psafety.util.Utils;
 
@@ -37,7 +38,7 @@ public class SetEmailsFragment extends Fragment {
                 return;
             }
 
-            if (Utils.isNetworkConnected(getActivity()))
+            if (Utils.isNetworkConnected(getActivity()) && Prefs.getGmailToken(getActivity()) == null)
             {
                 GmailOAuth2Sender sender = new GmailOAuth2Sender(getActivity());
                 sender.initToken();

@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Utils;
 
 public class AudioRecordService extends Service {
     private static Boolean mTimerOn = false;
@@ -104,6 +105,8 @@ public class AudioRecordService extends Service {
 
         mTimer.cancel();
         mTimerOn = false;
+
+        Utils.sendMailsWithAttachments(this, R.string.audio, mRecordFile);
 
         Notifications.removeNotification(getApplicationContext(), Notifications.NOTIF_AUDIO_RECORD_CODE);
         Notifications.notifAudioRecordingFinished(getApplicationContext());
