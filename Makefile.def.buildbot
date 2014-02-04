@@ -4,8 +4,4 @@ BIND_TO?=0.0.0.0
 BIND_PORT?=8000
 MAILSERVER_PORT?=1025
 DJANGO_SETTINGS=p2psafety.settings
-
-
-TEST_APP?=events
-
 MANAGE= DJANGO_SETTINGS_MODULE=$(DJANGO_SETTINGS) python p2psafety_django/manage.py

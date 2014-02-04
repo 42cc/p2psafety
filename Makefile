@@ -1,7 +1,5 @@
 -include Makefile.def
 
-TEST_APP?=events
-
 # targets
 .PHONY: manage run mailserver syncdb shell test clean migrate init_migrate loaddata help
 
@@ -34,7 +32,7 @@ shell:
 	$(MANAGE) shell
 
 test:
-	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
+	TESTING=1 $(MANAGE) test $(TEST_OPTIONS)
 
 clean:
 	@echo Cleaning up...
