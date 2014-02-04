@@ -2,10 +2,17 @@ package ua.p2psafety;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.os.Looper;
+import android.util.Log;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.MessageResolver;
+import ua.p2psafety.sms.MyLocation;
 import ua.p2psafety.util.Utils;
 
 public class SosManager {
@@ -48,7 +55,7 @@ public class SosManager {
         Notifications.notifSosStarted(mContext);
 
         // report event to the server
-        NetworkManager.updateEvent(mContext, null, null);
+        serverStartSos();
 
         mSosStarted = true;
     }
@@ -61,11 +68,11 @@ public class SosManager {
         Notifications.removeNotification(mContext, Notifications.NOTIF_SOS_STARTED_CODE);
         Notifications.notifSosCanceled(mContext);
 
-        // TODO: contact server
-
         // TODO: send "i'm safe now" SMS and email messages (ask if needed)
 
-        // TODO: save mSosStarted to Prefs
+        // report event to the server
+        serverStopSos();
+
         mSosStarted = false;
     }
 
@@ -83,5 +90,33 @@ public class SosManager {
 
     public Event getEvent() {
         return mEvent;
+    }
+
+    private void serverStartSos() {
+        mEvent.setStatus(Event.STATUS_ACTIVE);
+        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+            @Override
+            public void gotLocation(Location location) {
+                Map data = new HashMap();
+                if (location != null)
+                    data.put("loc", location);
+                data.put("text", Prefs.getMessage(mContext));
+
+                NetworkManager.updateEvent(mContext, data, null);
+            }
+        };
+        MyLocation myLocation = new MyLocation();
+        myLocation.getLocation(mContext, locationResult);
+    }
+
+    private void serverStopSos() {
+        mEvent.setStatus(Event.STATUS_FINISHED);
+        NetworkManager.createEvent(mContext,
+                new NetworkManager.DeliverResultRunnable<Event>() {
+                    @Override
+                    public void deliver(Event event) {
+                        setEvent(event);
+                    }
+                });
     }
 }

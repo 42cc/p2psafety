@@ -2,6 +2,7 @@ package ua.p2psafety.Network;
 
 import android.app.Activity;
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 
 import com.facebook.Session;
@@ -49,7 +50,7 @@ public class NetworkManager {
         httpClient = new DefaultHttpClient(httpParams);
     }
 
-    public static void createEvent(final Activity context,
+    public static void createEvent(final Context context,
                                    final DeliverResultRunnable<Event> postRunnable) {
         executor.execute(new Runnable() {
             @Override
@@ -102,7 +103,9 @@ public class NetworkManager {
                         postRunnable.setResult(null);
                     }
 
-                    context.runOnUiThread(postRunnable);
+                    if (postRunnable != null) {
+                        postRunnable.run();
+                    }
                 } catch (Exception e) {
                     errorDialog(context, DIALOG_NETWORK_ERROR);
                 }
@@ -134,7 +137,13 @@ public class NetworkManager {
 
                     JSONObject json = new JSONObject();
                     json.put("key", event.getKey());
-                    json.put("text", Prefs.getMessage(context));
+                    json.put("text", data.get("text"));
+                    try {
+                        Location loc = (Location) data.get("loc");
+                        json.put("latitude",  loc.getLatitude());
+                        json.put("longitude", loc.getLongitude());
+                    } catch (Exception e) {}
+
                     StringEntity se = new StringEntity(json.toString(), "UTF-8");
                     httpPost.setEntity(se);
 
