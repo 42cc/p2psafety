@@ -9,7 +9,7 @@ from ..models import Role
 class UserResource(ModelResource):
     class Meta:
         queryset = User.objects.all()
-        resource_name = 'users'
+        resource_name = 'users'        
         fields = ['id']
 
     full_name = fields.CharField('get_full_name')
@@ -23,3 +23,4 @@ class RoleResource(ModelResource):
     class Meta:
         queryset = Role.objects.all()
         resource_name = 'roles'
+        detail_allowed_methods = []
