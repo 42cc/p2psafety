@@ -57,10 +57,18 @@
     <div class="row well">
         <div class="col-md-4">
             <h3>Завантажте додаток</h3>
-            <a href="https://play.google.com/store/apps/details?id=ua.p2psafety" target="_blank">
-              <img alt="Колективна безпека на Google Play"
-                   src="https://developer.android.com/images/brand/uk_generic_rgb_wo_60.png" />
+            <a href="https://play.google.com/store/apps/details?id=ua.p2psafety" class="btn btn-default btn-lg" target="_blank">
+                <img alt="Колективна безпека на Google Play"
+                   src="{% static "img/google_play.png" %}" />
+                Колективна безпека
             </a>
+            {% comment %}
+                {# Anternative button #}
+                <a href="https://play.google.com/store/apps/details?id=ua.p2psafety" target="_blank">
+                  <img alt="Колективна безпека на Google Play"
+                       src="https://developer.android.com/images/brand/uk_generic_rgb_wo_60.png" />
+                </a>
+            {% endcomment %}
         </div>
         <div class="col-md-4">
             <h3>Долучайтесь до дискусії</h3>
@@ -89,7 +97,11 @@
         <div class="col-md-12">
             <p>
                 Ми віримо в розподілені системи, де кожен може брати на себе відповідальність.
+            </p>
+            <p>
                 Ми вважаємо, що якщо громаді потрібен захист, то найкращий спосіб його надати - дозволити та навчити людей захищати самих себе.
+            </p>
+            <p>
                 Ми вважаємо, що в 21 столітті варто використовувати потенціал технологій, особливо, в таких сферах, як безпека.
             </p>
         </div>
