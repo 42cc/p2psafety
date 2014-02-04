@@ -3,26 +3,19 @@ package ua.p2psafety;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 
-import ua.p2psafety.data.PhonesDatasourse;
-import ua.p2psafety.data.Prefs;
-import ua.p2psafety.setphones.SetPhoneFragment;
+import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -49,7 +42,7 @@ public class LoginActivity extends ActionBarActivity {
         setSupportActionBar();
 
         mLoginBtn = (Button) findViewById(R.id.loginBtn);
-        mUiHelper = new UiLifecycleHelper(this, mStatusCallback);
+        mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
     }
 
@@ -58,8 +51,9 @@ public class LoginActivity extends ActionBarActivity {
         super.onResume();
         mUiHelper.onResume();
 
+        NetworkManager.init(this);
+
         if (Utils.isFbAuthenticated(this)) {
-            // start application
             startSosActivity();
         }
 

@@ -3,21 +3,19 @@ package ua.p2psafety;
 import android.content.Context;
 import android.content.Intent;
 
+import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.MessageResolver;
 
 public class SosManager {
     private static SosManager mInstance;
-
-    private boolean mSosStarted;
-
     private Context mContext;
+
+    private Event mEvent;
+    private boolean mSosStarted = false;
 
     private SosManager(Context context) {
         mContext = context;
-
-        // TODO: load mSosStarted from Prefs
-        mSosStarted = false;
     }
 
     public static SosManager getInstance(Context context) {
@@ -28,27 +26,27 @@ public class SosManager {
 
     public void startSos() {
         // send SMS and email messages
-        MessageResolver resolver = new MessageResolver(mContext, false);
-        resolver.sendMessages();
-
-        // start media recording
-        switch (Prefs.getMediaRecordType(mContext)) {
-            case 1:
-                // record audio
-                mContext.startService(new Intent(mContext, AudioRecordService.class));
-                break;
-            case 2:
-                // record video
-                mContext.startService(new Intent(mContext, VideoRecordService.class));
-                break;
-        }
+//        MessageResolver resolver = new MessageResolver(mContext, false);
+//        resolver.sendMessages();
+//
+//        // start media recording
+//        switch (Prefs.getMediaRecordType(mContext)) {
+//            case 1:
+//                // record audio
+//                mContext.startService(new Intent(mContext, AudioRecordService.class));
+//                break;
+//            case 2:
+//                // record video
+//                mContext.startService(new Intent(mContext, VideoRecordService.class));
+//                break;
+//        }
 
         // show hint in notifications panel
         Notifications.notifSosStarted(mContext);
 
-        // TODO: contact server
+        // report event to the server
+        NetworkManager.updateEvent(mContext, null, null);
 
-        // TODO: save mSosStarted to Prefs
         mSosStarted = true;
     }
 
@@ -70,5 +68,17 @@ public class SosManager {
 
     public boolean isSosStarted() {
         return mSosStarted;
+    }
+
+    public void setEvent(Event event) {
+        mEvent = event;
+        if (mEvent.getStatus() == Event.STATUS_ACTIVE)
+            mSosStarted = true;
+        else
+            mSosStarted = false;
+    }
+
+    public Event getEvent() {
+        return mEvent;
     }
 }

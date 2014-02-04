@@ -19,6 +19,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.facebook.Session;
+
+import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 
 /**
@@ -128,6 +131,16 @@ public class SendMessageFragment extends Fragment {
             mSosBtn.setText(getString(R.string.sos_cancel));
         else
             mSosBtn.setText(getString(R.string.sos));
+
+        if (SosManager.getInstance(mActivity).getEvent() == null) {
+            NetworkManager.createEvent(mActivity,
+                    new NetworkManager.DeliverResultRunnable<Event>() {
+                        @Override
+                        public void deliver(Event event) {
+                            SosManager.getInstance(mActivity).setEvent(event);
+                        }
+                    });
+        }
     }
 
     // builds dialog with password prompt
