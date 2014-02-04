@@ -17,6 +17,11 @@ Install PostGIS as described here:
 Then you can run app locally by
   make run
 
+
+    You can use "events.devdata" command to generate some Event & EventUpdate
+records for testing purposes::
+    python manage.py devdata
+
 Warning! Do not user this type of installation on production, change your
 SECRET_KEY in settings/local.py before deploying to production. Keep your secrets
 to yourself. Have fun.

@@ -3,10 +3,6 @@
 # C extensions
 *.so
 
-# Local settings
-p2psafety_django/p2psafety/settings/local.py
-Makefile.def
-
 # Packages
 *.egg
 *.egg-info
@@ -71,3 +67,14 @@ build
 
 # android apk-signing files
 *keystore
+
+# ************* #
+# Project files #
+# ************* #
+
+# Local settings
+p2psafety_django/p2psafety/settings/local.py
+Makefile.def
+
+# Media, uploaded files
+p2psafety_django/p2psafety/static_media/

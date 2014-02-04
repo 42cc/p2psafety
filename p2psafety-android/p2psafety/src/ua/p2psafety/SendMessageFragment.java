@@ -76,6 +76,7 @@ public class SendMessageFragment extends Fragment {
                 if (sosManager.isSosStarted()) {
                     if (!Prefs.getUsePassword(mActivity)) {
                         sosManager.stopSos();
+                        mSosBtn.setText(getString(R.string.sos));
                     } else {
                         askPasswordAndCancelSos();
                     }
@@ -187,7 +188,7 @@ public class SendMessageFragment extends Fragment {
     private void checkPasswordAndCancelSos(String password) {
         if (password.equals(Prefs.getPassword(mActivity))) {
             SosManager.getInstance(mActivity).stopSos();
-            mSosBtn.setText(getResources().getString(R.string.sos));
+            mSosBtn.setText(getString(R.string.sos));
         }
         else {
             AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);

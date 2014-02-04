@@ -68,6 +68,7 @@
     <string name="audio_record_finished">Audio recording finished</string>
     <string name="video_is_recording">Video recording. #n# min left</string>
     <string name="video_record_finished">Video recording finished</string>
+    <string name="sos_with_delay">SOS with delay</string>
 
     <string name="login_with_FB">Login with Facebook</string>
 

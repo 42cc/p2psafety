@@ -1,5 +1,6 @@
 package ua.p2psafety;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,8 +13,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import ua.p2psafety.data.PhonesDatasourse;
-import ua.p2psafety.data.Prefs;
-import ua.p2psafety.setphones.SetPhoneFragment;
+import ua.p2psafety.sms.GmailOAuth2Sender;
+import ua.p2psafety.util.Utils;
 
 /**
  * Created by ihorpysmennyi on 12/14/13.
@@ -25,6 +26,9 @@ public class SosActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_sosmain);
         setSupportActionBar();
+
+        // SOS launcher with power button press
+        startService(new Intent(this, PowerButtonService.class));
 
         Fragment fragment;
 
@@ -38,6 +42,12 @@ public class SosActivity extends ActionBarActivity {
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+        if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this))
+        {
+            GmailOAuth2Sender sender = new GmailOAuth2Sender(this);
+            sender.initToken();
+        }
     }
 
     private void setSupportActionBar() {

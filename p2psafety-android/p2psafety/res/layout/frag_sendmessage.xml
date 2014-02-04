@@ -9,7 +9,7 @@
         style="@style/TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SOS с задержкой"
+        android:text="@string/sos_with_delay"
         android:id="@+id/delayedSosBtn"
         android:background="@drawable/btn_sel"
         android:layout_marginRight="2dp"

@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
+import android.os.Vibrator;
 import com.facebook.Session;
 
 import ua.p2psafety.R;
@@ -60,6 +61,19 @@ public class Utils {
         }
 
         return result;
+    }
+
+    public static void startVibration(final Context context)
+    {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                // Vibrate for 2000 milliseconds
+                if (v != null)
+                    v.vibrate(2000);
+            }
+        }).start();
     }
 
     public static boolean isFbAuthenticated(Context context) {

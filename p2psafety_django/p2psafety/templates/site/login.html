@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block styles %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="signin">
+    <h2>Колективна безпека</h2>
+    <p class="lead">Для доступу необхідна авторизація</p>
+    {% url 'social:begin' backend='facebook' as login_url %}
+    <a class="btn btn-lg btn-primary btn-block" href="{{ login_url }}?next={{ NEXT_PAGE }}">Sign in with Facebook</a>
+  </div>
+{% endblock %}

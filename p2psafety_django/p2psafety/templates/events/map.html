@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block styles %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/map.css' %}">
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="http://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&sensor=false&language=uk"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
+  <script src="{% static 'js/map.js' %}"></script>
+  <script>
+    mapApp.constant('urls', {
+      events: "{% url 'api_dispatch_list' resource_name='events' api_name='v1' %}",
+      eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h3>Events map</h3>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      {% verbatim %}
+      <div ng-app="mapApp">
+        <div id="map-canvas"></div>
+        <div ng-controller="EventListCtrl">
+          <gmap-marker icon="http://maps.google.com/mapfiles/ms/micons/red-dot.png"
+                       location="event.latest_location"
+                       click="select(event)"
+                       ng-repeat="event in events"
+                       ng-if="event.id != selectedEvent.id">
+            <div>
+              <p ng-if="event.user.full_name != null">{{ event.user.full_name }}</p>
+              <span class="badge">{{ event.latest_update.timestamp | date:'HH:mm' }}</span>
+              {{ event.latest_update.text || "..." }}
+            </div>
+          </gmap-marker>
+          <div class="selected-event panel panel-primary"
+               ng-if="selectedEvent != null">
+            <h4 class="panel-heading">Status:
+              <span class="label label-danger"
+                    ng-if="selectedEvent.status == 'A'">active</span>
+              <span class="label label-primary"
+                    ng-if="selectedEvent.status == 'P'">passive</span>
+              <span class="label label-default"
+                    ng-if="selectedEvent.status == 'F'">finished</span>
+              <button type="button" class="close"
+                      ng-click="select(null)">&times;</button>
+            </h4>
+            <div class="panel-body">
+              <div class="list-group">
+                <div class="list-group-item"
+                     ng-repeat="update in selectedEvent.updates">
+                  <gmap-marker icon="http://maps.google.com/mapfiles/ms/micons/blue-dot.png"
+                               location="update.location"
+                               click="focus(update.location)">
+                    <p>{{ update.timestamp | date:'dd.MM HH:mm' }}</p>
+                  </gmap-marker>
+                  <p class="list-group-item-heading">
+                    <span class="badge">{{ update.timestamp | date:'dd.MM HH:mm' }}</span>
+                    {{ update.text || "..." }}
+                  </p>
+                  <a href="{{ update.audio }}" class="btn btn-default"
+                     ng-if="update.audio != null">
+                    <span class="glyphicon glyphicon-headphones"></span> Play</a>
+                  <a href="{{ update.video }}" class="btn btn-default"
+                     ng-if="update.video != null">
+                    <span class="glyphicon glyphicon-film"></span> Play</a>
+                  <a class="btn btn-success"
+                     ng-if="update.location != null"
+                     ng-click="focus(update.location)">
+                    <span class="glyphicon glyphicon-map-marker"></span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endverbatim %}
+    </div>
+  </div>
+{% endblock %}
