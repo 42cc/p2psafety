@@ -2,7 +2,6 @@
 import logging
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from tastypie import http, fields
@@ -18,6 +17,7 @@ from .fields import GeoPointField
 from .authentication import PostFreeSessionAuthentication
 from .authorization import CreateFreeDjangoAuthorization
 from ..models import Event, EventUpdate
+from users.api.resources import UserResource
 
 
 logger = logging.getLogger(__name__)
@@ -39,19 +39,6 @@ class MultipartResource(object):
             data.update(request.FILES)
             return data
         return super(MultipartResource, self).deserialize(request, data, format)
-
-
-class UserResource(ModelResource):
-    class Meta:
-        queryset = User.objects.all()
-        resource_name = 'users'
-        fields = ['id']
-
-    full_name = fields.CharField('get_full_name')
-
-    def dehydrate_full_name(self, bundle):
-        value = bundle.data['full_name']
-        return value if value else bundle.obj.username
 
 
 class EventValidation(Validation):
