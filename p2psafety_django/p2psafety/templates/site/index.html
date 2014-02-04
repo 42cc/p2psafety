@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block styles %}
+  {{ block.super }}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12 page-header">
+            <h1>Колективна безпека.</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Що це?</h2>
+        </div>
+    </div>
+    <div class="row well">
+        <div class="col-md-12">
+            <p>
+                Колективна безпека - розподілена система швидкого реагування на екстренні події. Це як 911, тільки захист учасників забезпечують інші учасники, а не третя сторона.
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Як це працює?</h2>
+        </div>
+    </div>
+    <div class="row well">
+        <div class="col-md-6">
+            <h3>Мені потрібен захист</h3>
+            <ol>
+                <li>Завантажте додаток</li>
+                <li>Зареєструйтеся, введіть необхідні дані</li>
+                <li>В разі не безпеки активуйте кнопку СОС через додаток, або потрійним нажаттям на кнопку блоку</li>
+            </ol>
+        </div>
+        <div class="col-md-6">
+            <h3>Я хочу бути корисним</h3>
+            <ol>
+                <li>Будьте на зв’язку, ми працюємо над цим</li>
+                <li>Долучайтесь до дискусії у фейсбук групі</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Як допомогти проекту?</h2>
+        </div>
+    </div>
+    <div class="row well">
+        <div class="col-md-4">
+            <h3>Завантажте додаток</h3>
+            <a href="https://play.google.com/store/apps/details?id=ua.p2psafety">
+              <img alt="Колективна безпека на Google Play"
+                   src="https://developer.android.com/images/brand/uk_generic_rgb_wo_60.png" />
+            </a>
+        </div>
+        <div class="col-md-4">
+            <h3>Долучайтесь до дискусії</h3>
+            <a href="https://www.facebook.com/groups/p2psafety/" class="btn btn-default btn-lg" role="button">
+                <img alt="Колективна безпека на фейсбуці"
+                   src="{% static "img/facebook.png" %}" />
+                Колективна безпека.
+            </a>
+       </div>
+        <div class="col-md-4">
+            <h3>Cлідкуйте за прогресом</h3>
+            <a href="https://github.com/42cc/p2psafety/" class="btn btn-default btn-lg">
+              <img alt="Колективна безпека на гітхабі"
+                   src="{% static "img/github.png" %}" />
+               42cc/p2psafety/
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Навіщо?</h2>
+        </div>
+    </div>
+    <div class="row well">
+        <div class="col-md-12">
+            <p>Ми віримо в розподілені системи, де кожен може брати на себе відповідальність</p>
+        </div>
+    </div>
+{% endblock %}
