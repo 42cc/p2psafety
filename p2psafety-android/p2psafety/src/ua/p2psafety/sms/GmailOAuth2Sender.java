@@ -48,6 +48,7 @@ public class GmailOAuth2Sender {
         super();
         context = ctx;
         token = Prefs.getGmailToken(context);
+        mAccountManager = AccountManager.get(context);
     }
 
     private SMTPTransport connectToSmtp(String host, int port, String userEmail,
@@ -78,9 +79,6 @@ public class GmailOAuth2Sender {
 
     @SuppressLint("NewApi")
     public void initToken() {
-
-        mAccountManager = AccountManager.get(context);
-
         Account[] accounts = mAccountManager.getAccountsByType("com.google");
         for (Account account : accounts) {
             Log.d("getToken", "account=" + account);

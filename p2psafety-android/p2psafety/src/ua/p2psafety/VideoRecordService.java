@@ -1,22 +1,15 @@
 package ua.p2psafety;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.IBinder;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -24,9 +17,9 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Utils;
 
 public class VideoRecordService extends Service implements SurfaceHolder.Callback {
     private static Boolean mTimerOn = false;
@@ -82,7 +75,6 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
     }
 
     private class VideoRecordTimer extends CountDownTimer {
@@ -119,6 +111,8 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
             Notifications.notifVideoRecording(getApplicationContext(), mTimeLeft, mDuration);
         } catch (Exception e) {
+            mRecorder.release();
+            releaseCamera();
             Toast.makeText(getApplicationContext(), "Can't start video recording", Toast.LENGTH_LONG)
                  .show();
         }
@@ -137,13 +131,23 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         if (mCamera == null) {
             throw new Exception();
         }
+        mCamera.stopPreview();
         mCamera.unlock();
 
         mRecorder = new MediaRecorder();
         mRecorder.setCamera(mCamera);
         mRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-        mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+
+        CamcorderProfile camcorderProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        camcorderProfile.videoFrameWidth = 640;
+        camcorderProfile.videoFrameHeight = 480;
+//      camcorderProfile.videoFrameRate = 15;
+        camcorderProfile.videoCodec = MediaRecorder.VideoEncoder.H264;
+//      camcorderProfile.audioCodec = MediaRecorder.AudioEncoder.AAC;
+        camcorderProfile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
+
+        mRecorder.setProfile(camcorderProfile);
         //mRecorder.setMaxDuration(500000); // 50 seconds
         //mRecorder.setMaxFileSize(5000000); // Approximately 5 megabytes
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
@@ -169,6 +173,8 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
         mTimer.cancel();
         mTimerOn = false;
+
+        Utils.sendMailsWithAttachments(this, R.string.video, mRecordFile);
 
         Notifications.removeNotification(getApplicationContext(), Notifications.NOTIF_VIDEO_RECORD_CODE);
         Notifications.notifVideoRecordingFinished(getApplicationContext());
