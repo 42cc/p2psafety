@@ -1,15 +1,13 @@
-import mock
+import json
 import tempfile
 from operator import itemgetter
 
-from django.core.urlresolvers import reverse
 from django.contrib.gis.geos import Point
 
 from tastypie.test import ResourceTestCase
 
 from ..models import Event, EventUpdate
-from ..api.resources import EventResource
-from .helpers import  mock_get_backend
+from .helpers import mock_get_backend
 from .helpers.factories import EventFactory, EventUpdateFactory, UserFactory
 from .helpers.mixins import ModelsMixin, UsersMixin
 
@@ -84,7 +82,9 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertEqual(event.status, 'P')
         self.assertEqual(event.user, self.auth_user)
 
-        self.assertHttpCreated(self.api_client.post(url, data=data))
+        response = self.api_client.post(url, data=data)
+        self.assertHttpCreated(response)
+        self.assertIn('key', json.loads(response.content))
         new_event = Event.objects.latest('id')
         self.assertEqual(new_event.status, 'P')
         self.assertEqual(Event.objects.get(id=event.id).status, 'F')
@@ -98,7 +98,7 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertEqual(event.status, 'P')
         self.assertEqual(event.user, user2)
         self.assertEqual(Event.objects.filter(status='P').count(), 2)
-    
+
     @mock_get_backend(module_path='events.api.resources')
     def test_get_list(self):
         event, event_location = EventFactory(), EventFactory()
@@ -118,7 +118,7 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertDictContainsSubset({'id': event_location.user.id,
                                        'full_name': event_location.user.username},
                                        objects[1]['user'])
-        
+
         for update_dict, update_obj in zip(objects, event_updates):
             latest_update = update_dict.get('latest_update')
             self.assertIsNotNone(latest_update)

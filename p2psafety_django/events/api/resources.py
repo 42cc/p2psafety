@@ -116,6 +116,10 @@ class EventResource(ModelResource):
             del bundle.data['access_token']
         if 'provider' in bundle.data:
             del bundle.data['provider']
+
+        if bundle.request.META['REQUEST_METHOD'] == 'POST':
+            bundle.data['key'] = bundle.obj.key
+
         return bundle
 
 
