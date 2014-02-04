@@ -4,10 +4,17 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
-from events.api import api_v1
+from tastypie.api import Api
+
+from events.api import EventResource, EventUpdateResource
 
 
 admin.autodiscover()
+
+
+api_v1 = Api(api_name='v1')
+api_v1.register(EventResource())
+api_v1.register(EventUpdateResource())
 
 
 urlpatterns = patterns('',
