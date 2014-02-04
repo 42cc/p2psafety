@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from tastypie import fields
 from tastypie.resources import ModelResource
 
+from ..models import Role
+
 
 class UserResource(ModelResource):
     class Meta:
@@ -15,3 +17,9 @@ class UserResource(ModelResource):
     def dehydrate_full_name(self, bundle):
         value = bundle.data['full_name']
         return value if value else bundle.obj.username
+
+
+class RoleResource(ModelResource):
+    class Meta:
+        queryset = Role.objects.all()
+        resource_name = 'roles'

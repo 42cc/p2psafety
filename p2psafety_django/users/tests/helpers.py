@@ -1,7 +1,10 @@
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
 from factory import Sequence
 from factory.django import DjangoModelFactory
+
+from ..models import Role
 
 
 class UserFactory(DjangoModelFactory):
@@ -17,3 +20,16 @@ class UserFactory(DjangoModelFactory):
         user = manager.create_user(*args, **kwargs)
         user.real_password = kwargs.get('password')
         return user
+
+
+class RoleFactory(DjangoModelFactory):
+    FACTORY_FOR = Role
+
+    name = Sequence(lambda n: 'role%d' % n)
+
+
+class ModelsMixin(object):
+    @property
+    def roles_list_url(self):
+        return reverse('api_dispatch_list', kwargs=dict(resource_name='roles',
+                                                        api_name='v1'))
