@@ -39,7 +39,8 @@ class UserResource(ModelResource):
         For POST method, sets user's roles to given list of ids as
         ``role_id`` POST param.
 
-        Raises 403 if ``role_id`` is not found within POST params dict.
+        Raises 403 if ``role_id`` is not found within POST params dict or it is
+        not a list of valid ids.
         Raises 404 if user is not found.
         """
         self.method_check(request, allowed=['get', 'post'])
@@ -54,12 +55,16 @@ class UserResource(ModelResource):
             if request.method == 'POST':
                 if 'role_id' not in request.POST:
                     return http.HttpBadRequest()
-                else:
-                    role_ids = request.POST.getlist('role_id')
-                    roles = Role.objects.filter(id__in=role_ids)
-                    user.roles.clear()
-                    user.roles.add(*roles)
-                    return http.HttpAccepted()
+
+                try:
+                    role_ids = map(int, request.POST.getlist('role_id'))
+                except ValueError:
+                    return http.HttpBadRequest()
+
+                roles = Role.objects.filter(id__in=role_ids)
+                user.roles.clear()
+                user.roles.add(*roles)
+                return http.HttpAccepted()
             else:
                 objects = [role.id for role in user.roles.all()]
                 return self.create_response(request, objects)
@@ -70,5 +75,4 @@ class RoleResource(ModelResource):
         queryset = Role.objects.all()
         resource_name = 'roles'
         detail_allowed_methods = []
-
-    users = fields.ToManyField(UserResource, 'users', full=True)
+        include_resource_uri = False

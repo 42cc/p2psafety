@@ -45,8 +45,8 @@ class RolesTestCase(ModelsMixin, ResourceTestCase):
         resp = self.api_client.get(self.roles_list_url, format='json')
         self.assertValidJSONResponse(resp)
         roles_dicts = sorted(self.deserialize(resp)['objects'], key=itemgetter('id'))
-        self.assertDictContainsSubset(dict(id=role1.id, name=role1.name), roles_dicts[0])
-        self.assertDictContainsSubset(dict(id=role2.id, name=role2.name), roles_dicts[1])
+        self.assertEqual(dict(id=role1.id, name=role1.name), roles_dicts[0])
+        self.assertEqual(dict(id=role2.id, name=role2.name), roles_dicts[1])
 
 
 class UsersTestCase(ModelsMixin, ResourceTestCase):
@@ -80,6 +80,17 @@ class UsersTestCase(ModelsMixin, ResourceTestCase):
     def test_role_errors(self):
         user = UserFactory()
         role = RoleFactory()
-
+        existing_user = self.users_roles_url(user.id)
         not_existing_user = self.users_roles_url(user.id + 1)
+
+        # User does not exist
         self.assertHttpNotFound(self.api_client.post(not_existing_user))
+
+        # No ``role_id`` supplied
+        resp = self.api_client.client.post(existing_user, data={})
+        self.assertEqual(resp.status_code, 400)
+
+        # Invalid ``role_id`` param
+        data = {'role_id': '[]'}
+        resp = self.api_client.client.post(existing_user, data=data)
+        self.assertEqual(resp.status_code, 400)
