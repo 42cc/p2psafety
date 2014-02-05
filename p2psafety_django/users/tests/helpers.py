@@ -33,3 +33,20 @@ class ModelsMixin(object):
     def roles_list_url(self):
         return reverse('api_dispatch_list', kwargs=dict(resource_name='roles',
                                                         api_name='v1'))
+
+    def roles_detail_url(self, role_id):
+        kwargs = dict(resource_name='roles', api_name='v1', pk=role_id)
+        return reverse('api_dispatch_detail', kwargs=kwargs)
+
+    @property
+    def users_list_url(self):
+        kwargs = dict(resource_name='users', api_name='v1')
+        return reverse('api_dispatch_list', kwargs=kwargs)
+
+    def users_detail_url(self, user_id):
+        kwargs = dict(resource_name='users', api_name='v1', pk=user_id)
+        return reverse('api_dispatch_detail', kwargs=kwargs)
+
+    def users_role_url(self, user_id, role_id):
+        kwargs = dict(resource_name='users', api_name='v1', pk=user_id, role_pk=role_id)
+        return reverse('api_users_role', kwargs=kwargs)
