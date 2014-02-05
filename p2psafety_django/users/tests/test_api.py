@@ -59,8 +59,8 @@ class UsersTestCase(ModelsMixin, ResourceTestCase):
 
         resp = self.api_client.get(url, format='json')
         self.assertValidJSONResponse(resp)
-        roles_dict_list = self.deserialize(resp)['objects']
-        self.assertEqual(roles_dict_list, [{'id': rol1.id}])
+        roles_list = self.deserialize(resp)
+        self.assertEqual(roles_list, [role1.id])
 
     def test_set_roles(self):
         # User has 1100
@@ -70,11 +70,12 @@ class UsersTestCase(ModelsMixin, ResourceTestCase):
         url = self.users_roles_url(user.id)
         
         # Setting 0110
-        data = dict(role_id=[role1.id, role2.id])
+        data = {'role_id': [role1.id, role2.id]}
         
         # Results in 0110
-        self.assertHttpAccepted(self.api_client.post(url, data=data))
-        self.assertEqual(user.roles.all(), [role1, role2])
+        resp = self.api_client.client.post(url, data=data)
+        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(data['role_id'], [r.id for r in user.roles.all()])
 
     def test_role_errors(self):
         user = UserFactory()
@@ -82,7 +83,3 @@ class UsersTestCase(ModelsMixin, ResourceTestCase):
 
         not_existing_user = self.users_roles_url(user.id + 1)
         self.assertHttpNotFound(self.api_client.post(not_existing_user))
-        
-        existing_user = self.users_roles_url(user.id)
-        data = dict(role_id=[role.id + 1])
-        self.assertHttpNotFound(self.api_client.post(not_existing_role, data=data))

@@ -1,6 +1,7 @@
 from django import http as django_http
 from django.conf.urls import url
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 
 from tastypie import exceptions, fields, http
@@ -27,28 +28,33 @@ class UserResource(ModelResource):
 
     def prepend_urls(self):
         return [
-            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/role/(?P<role_pk>\d+)%s$' % 
+            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/roles%s$' % 
                 (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('role'), name='api_users_role'),
+                self.wrap_view('roles'), name='api_users_roles'),
         ]
 
-    def role(self, request, pk=None, role_pk=None, **kwargs):
-        if request.method not in ('POST', 'DELETE'):
-            return http.HttpMethodNotAllowed()
-
-        self.log_throttled_access(request)
+    def roles(self, request, pk=None, **kwargs):
+        self.method_check(request, allowed=['get', 'post'])
+        self.throttle_check(request)
+        
         try:
-            user = get_object_or_404(User, pk=pk)
-            role = get_object_or_404(Role, pk=role_pk)
+            user = get_object_or_404(User, pk=pk)            
         except django_http.Http404:
             return http.HttpNotFound()
         else:
+            self.log_throttled_access(request)
             if request.method == 'POST':
-                user.roles.add(role)
-                return http.HttpAccepted()
+                if 'role_id' not in request.POST:
+                    return http.HttpBadRequest()
+                else:
+                    role_ids = request.POST.getlist('role_id')
+                    roles = Role.objects.filter(id__in=role_ids)
+                    user.roles.clear()
+                    user.roles.add(*roles)
+                    return http.HttpAccepted()
             else:
-                user.roles.remove(role)
-                return http.HttpNoContent()
+                objects = [role.id for role in user.roles.all()]
+                return self.create_response(request, objects)
 
 
 class RoleResource(ModelResource):
