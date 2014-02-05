@@ -104,6 +104,9 @@ class EventUpdate(models.Model):
     objects = geomodels.GeoManager()
 
     def save(self, *args, **kwargs):
+        """
+        Event that received an update becomes active.
+        """
         self.event.status = 'A'
         self.event.save()
         return super(EventUpdate, self).save(*args, **kwargs)
