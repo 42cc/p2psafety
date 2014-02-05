@@ -34,6 +34,9 @@ shell:
 test:
 	TESTING=1 $(MANAGE) test $(TEST_OPTIONS)
 
+testone:
+	$(TEST) $(MANAGE) test $(filter-out $@,$(MAKECMDGOALS))
+
 clean:
 	@echo Cleaning up...
 	find ./survey | grep '\.pyc$$' | xargs -I {} rm {}
