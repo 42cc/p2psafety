@@ -32,7 +32,7 @@ class PermissionTestCase(ModelsMixin, ResourceTestCase):
         """
         Anyone can add/remove role.
         """
-        url = self.users_role_url(1, 1)
+        url = self.users_roles_url(1)
         self.assertNotEqual(self.api_client.post(url).status_code, 403)
         self.assertNotEqual(self.api_client.delete(url).status_code, 403)
 
@@ -51,28 +51,38 @@ class RolesTestCase(ModelsMixin, ResourceTestCase):
 
 class UsersTestCase(ModelsMixin, ResourceTestCase):
 
-    def test_role_add(self):
+    def test_get_roles(self):
         user = UserFactory()
-        role = RoleFactory()
-        url = self.users_role_url(user.id, role.id)
+        role1, role2 = RoleFactory(), RoleFactory()
+        user.roles.add(role1)
+        url = self.users_roles_url(user.id)
 
-        self.assertHttpAccepted(self.api_client.post(url))
-        self.assertEqual(user.roles.count(), 1)
+        resp = self.api_client.get(url, format='json')
+        self.assertValidJSONResponse(resp)
+        roles_dict_list = self.deserialize(resp)['objects']
+        self.assertEqual(roles_dict_list, [{'id': rol1.id}])
 
-    def test_role_remove(self):
+    def test_set_roles(self):
+        # User has 1100
         user = UserFactory()
-        role = RoleFactory()
-        url = self.users_role_url(user.id, role.id)
-
-        user.roles.add(role)
-        self.assertHttpAccepted(self.api_client.delete(url))
-        self.assertEqual(user.roles.count(), 0)
+        role0, role1, role2, role3 = RoleFactory(), RoleFactory(), RoleFactory(), RoleFactory()
+        user.roles.add(role0, role1)
+        url = self.users_roles_url(user.id)
+        
+        # Setting 0110
+        data = dict(role_id=[role1.id, role2.id])
+        
+        # Results in 0110
+        self.assertHttpAccepted(self.api_client.post(url, data=data))
+        self.assertEqual(user.roles.all(), [role1, role2])
 
     def test_role_errors(self):
         user = UserFactory()
         role = RoleFactory()
-        not_existing_user = self.users_role_url(user.id + 1, role.id)
-        not_existing_role = self.users_role_url(user.id, role.id + 1)
 
+        not_existing_user = self.users_roles_url(user.id + 1)
         self.assertHttpNotFound(self.api_client.post(not_existing_user))
-        self.assertHttpNotFound(self.api_client.post(not_existing_role))
+        
+        existing_user = self.users_roles_url(user.id)
+        data = dict(role_id=[role.id + 1])
+        self.assertHttpNotFound(self.api_client.post(not_existing_role, data=data))
