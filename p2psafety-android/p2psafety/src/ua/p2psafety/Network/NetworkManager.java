@@ -10,12 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -23,6 +26,8 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -170,6 +175,64 @@ public class NetworkManager {
                     }
 
                     postRunnable.run();
+                } catch (Exception e) {
+                    errorDialog(context, DIALOG_NETWORK_ERROR);
+                }
+            }
+        });
+    }
+
+    // TODO: make it work (now it returns code 401)
+    public static void getEvents(final Context context,
+                                 final DeliverResultRunnable<List<Event>> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final String TAG = "getEvents";
+
+//                if (!Utils.isNetworkConnected(context)) {
+//                    errorDialog(context, DIALOG_NO_CONNECTION);
+//                    return;
+//                }
+
+                try {
+                    HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
+                            .append("/api/v1/events/")
+                            .append("?user=")
+                            .append(SosManager.getInstance(context).getEvent().getUser().getId())
+                            .toString());
+
+                    httpGet.setHeader("Accept", "application/json");
+                    //httpGet.setHeader("Content-type", "application/json");
+
+                    Log.i(TAG, "request: " + httpGet.getRequestLine().toString());
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpGet);
+                    } catch (Exception e) {
+                        errorDialog(context, DIALOG_NETWORK_ERROR);
+                        return;
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        Map<String, Object> data = mapper.readValue(responseContent, Map.class);
+                        Event event = JsonHelper.jsonToEvent(data);
+                        data.clear();
+
+                        postRunnable.setResult(null);
+                    } else {
+                        postRunnable.setResult(null);
+                    }
+
+                    if (postRunnable != null) {
+                        postRunnable.run();
+                    }
                 } catch (Exception e) {
                     errorDialog(context, DIALOG_NETWORK_ERROR);
                 }

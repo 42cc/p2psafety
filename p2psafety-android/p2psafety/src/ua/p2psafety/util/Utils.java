@@ -87,4 +87,10 @@ public class Utils {
 
         return currentSession != null && currentSession.getState().isOpened();
     }
+
+//    public static void setLoading(Activity activity, boolean visible) {
+//        if (activity != null)
+//            activity.findViewById(R.id.loading_view)
+//                .setVisibility(visible ? View.VISIBLE : View.GONE);
+//    }
 }

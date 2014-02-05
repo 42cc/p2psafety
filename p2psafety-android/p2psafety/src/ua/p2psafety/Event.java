@@ -2,8 +2,8 @@ package ua.p2psafety;
 
 public class Event {
     public static String STATUS_PASSIVE  = "P";
-    public static String STATUS_ACTIVE   = "A";
-    public static String STATUS_FINISHED = "F";
+    public static String STATUS_ACTIVE   = "A"; // currently not in use
+    public static String STATUS_FINISHED = "F"; // currently not in use
 
     String mId;
     String mKey;

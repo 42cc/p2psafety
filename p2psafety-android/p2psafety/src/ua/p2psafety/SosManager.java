@@ -24,6 +24,8 @@ public class SosManager {
 
     private SosManager(Context context) {
         mContext = context;
+        mSosStarted = Prefs.getSosStarted(mContext);
+        mEvent = Prefs.getEvent(mContext);
     }
 
     public static SosManager getInstance(Context context) {
@@ -57,7 +59,7 @@ public class SosManager {
         // report event to the server
         serverStartSos();
 
-        mSosStarted = true;
+        setSosStarted(true);
     }
 
     public void stopSos() {
@@ -73,7 +75,7 @@ public class SosManager {
         // report event to the server
         serverStopSos();
 
-        mSosStarted = false;
+        setSosStarted(false);
     }
 
     public boolean isSosStarted() {
@@ -82,6 +84,10 @@ public class SosManager {
 
     public void setEvent(Event event) {
         mEvent = event;
+        Prefs.putEvent(mContext, mEvent);
+        if (mEvent == null)
+            return;
+
         if (mEvent.getStatus() == Event.STATUS_ACTIVE)
             mSosStarted = true;
         else
@@ -93,6 +99,23 @@ public class SosManager {
     }
 
     private void serverStartSos() {
+        // if you have no event try to create one on server
+        // (you must have an event at this point though)
+        if (mEvent == null) {
+            NetworkManager.createEvent(mContext,
+                    new NetworkManager.DeliverResultRunnable<Event>() {
+                        @Override
+                        public void deliver(Event event) {
+                            setEvent(event);
+                            serverUpdateLocation(); // make this event active
+                        }
+                    });
+        } else {
+            serverUpdateLocation();
+        }
+    }
+
+    private void serverUpdateLocation() {
         mEvent.setStatus(Event.STATUS_ACTIVE);
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
@@ -110,7 +133,9 @@ public class SosManager {
     }
 
     private void serverStopSos() {
-        mEvent.setStatus(Event.STATUS_FINISHED);
+        if (mEvent != null)
+            mEvent.setStatus(Event.STATUS_FINISHED);
+
         NetworkManager.createEvent(mContext,
                 new NetworkManager.DeliverResultRunnable<Event>() {
                     @Override
@@ -118,5 +143,10 @@ public class SosManager {
                         setEvent(event);
                     }
                 });
+    }
+
+    private void setSosStarted(boolean started) {
+        mSosStarted = started;
+        Prefs.putSosStarted(mContext, mSosStarted);
     }
 }
