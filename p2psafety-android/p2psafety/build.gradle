@@ -16,10 +16,18 @@ repositories {
 }
 
 dependencies {
+    // "local" library modules
+    compile project(':vendor:facebook')
+
     compile 'com.android.support:support-v4:19.0.0'
     compile 'com.android.support:appcompat-v7:19.0.+'
 
     compile 'com.google.code.gson:gson:2.2.4'
+
+    // jackson
+    compile 'com.fasterxml.jackson.core:jackson-core:2.3.0' exclude module: 'httpclient'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0' exclude module: 'httpclient'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0' exclude module: 'httpclient'
 
     compile fileTree(dir: '../libs', include: '*.jar')
 }
@@ -75,5 +83,11 @@ android {
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
+    }
+
+    // Gradle bug workaround
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
     }
 }
