@@ -69,6 +69,7 @@ INSTALLED_APPS = (
     'django.contrib.gis',
 
     'events',
+    'users',
 
     'tastypie',
     'social.apps.django_app.default',
