@@ -120,6 +120,8 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
             Notifications.notifVideoRecording(getApplicationContext(), mTimeLeft, mDuration);
         } catch (Exception e) {
+            e.printStackTrace();
+
             mRecorder.reset();
             mRecorder.release();
 
@@ -156,11 +158,10 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
         if (mQuality == QUALITY_UNDETECTED)
             detectQuality();
-        setupQuality();
 
-        Log.i("prepareRecorder", "3=============================");
         Log.i("prepareRecorder", "quality: " + mQuality);
-        Log.i("prepareRecorder", "=============================");
+        setupQuality();
+        Log.i("prepareRecorder", "3=============================");
 
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
         mRecorder.setPreviewDisplay(mSurfaceView.getHolder().getSurface());
@@ -221,25 +222,36 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
     public void setLowQuality() {
         mQuality = QUALITY_LOW;
 
-        mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_LOW));
-        //mRecorder.setAudioEncodingBitRate(64000);
-        //mRecorder.setAudioSamplingRate(16000);
+        CamcorderProfile camcorderProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        camcorderProfile.videoFrameWidth = 320;
+        camcorderProfile.videoFrameHeight = 240;
+        camcorderProfile.videoCodec = MediaRecorder.VideoEncoder.H264;
+        camcorderProfile.audioCodec = MediaRecorder.AudioEncoder.AAC;
+        camcorderProfile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
+        mRecorder.setMaxFileSize(5*1024*1024); // 5 mb
+
+        mRecorder.setProfile(camcorderProfile);
     }
 
     public void setMediumQuality() {
         mQuality = QUALITY_MEDIUM;
 
-        mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
-        //mRecorder.setAudioEncodingBitRate(128000);
-        //mRecorder.setAudioSamplingRate(32000);
+        CamcorderProfile camcorderProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        camcorderProfile.videoFrameWidth = 640;
+        camcorderProfile.videoFrameHeight = 480;
+        camcorderProfile.videoCodec = MediaRecorder.VideoEncoder.H264;
+        camcorderProfile.audioCodec = MediaRecorder.AudioEncoder.AAC;
+        camcorderProfile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
+        mRecorder.setMaxFileSize(10*1024*1024); // 10 mb
+
+        mRecorder.setProfile(camcorderProfile);
     }
 
     public void setHighQuality() {
         mQuality = QUALITY_HIGH;
 
         mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_1080P));
-        mRecorder.setAudioEncodingBitRate(256000);
-        mRecorder.setAudioSamplingRate(48000);
+        mRecorder.setMaxFileSize(20*1024*1024); // 20 mb
     }
 
     private void detectQuality() {
