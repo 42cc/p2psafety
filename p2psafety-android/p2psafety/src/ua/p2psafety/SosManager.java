@@ -38,20 +38,20 @@ public class SosManager {
         Utils.startVibration(mContext);
 
         // send SMS and email messages
-//        MessageResolver resolver = new MessageResolver(mContext);
-//        resolver.sendMessages();
-//
-//        // start media recording
-//        switch (Prefs.getMediaRecordType(mContext)) {
-//            case 1:
-//                // record audio
-//                mContext.startService(new Intent(mContext, AudioRecordService.class));
-//                break;
-//            case 2:
-//                // record video
-//                mContext.startService(new Intent(mContext, VideoRecordService.class));
-//                break;
-//        }
+        MessageResolver resolver = new MessageResolver(mContext);
+        resolver.sendMessages();
+
+        // start media recording
+        switch (Prefs.getMediaRecordType(mContext)) {
+            case 1:
+                // record audio
+                mContext.startService(new Intent(mContext, AudioRecordService.class));
+                break;
+            case 2:
+                // record video
+                mContext.startService(new Intent(mContext, VideoRecordService.class));
+                break;
+        }
 
         // show hint in notifications panel
         Notifications.notifSosStarted(mContext);

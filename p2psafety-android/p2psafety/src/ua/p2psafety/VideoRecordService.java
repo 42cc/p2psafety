@@ -10,6 +10,7 @@ import android.media.MediaRecorder;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -22,6 +23,11 @@ import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
 public class VideoRecordService extends Service implements SurfaceHolder.Callback {
+    private final int QUALITY_LOW = 0;
+    private final int QUALITY_MEDIUM = 1;
+    private final int QUALITY_HIGH = 2;
+    private final int QUALITY_UNDETECTED = -1;
+
     private static Boolean mTimerOn = false;
     private static long mDuration;
     private static long mTimeLeft = 0;
@@ -32,6 +38,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
     private Camera mCamera = null;
     private WindowManager mWindowManager = null;
     private SurfaceView mSurfaceView = null;
+    private int mQuality = QUALITY_UNDETECTED;
 
     private File mRecordFile = null;
 
@@ -113,12 +120,15 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
             Notifications.notifVideoRecording(getApplicationContext(), mTimeLeft, mDuration);
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Can't start video recording", Toast.LENGTH_LONG)
-                 .show();
+            mRecorder.reset();
+            mRecorder.release();
+
+            tryLowerQuality();
         }
     }
 
     private void prepareRecorder() throws Exception {
+        Log.i("prepareRecorder", "1=============================");
         File mediaDir;
         String state = Environment.getExternalStorageState();
         if(state.equals(Environment.MEDIA_MOUNTED))
@@ -131,48 +141,48 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         if (mCamera == null) {
             throw new Exception();
         }
-        mCamera.unlock();
+        Log.i("prepareRecorder", "2=============================");
+        //mCamera.stopPreview();
+        try {
+            mCamera.unlock();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         mRecorder = new MediaRecorder();
         mRecorder.setCamera(mCamera);
         mRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
-        int duration = (int) mDuration / 60000;
-        boolean lowQuality = false;
-        if (!Utils.isWiFiConnected(getApplicationContext()))
-            lowQuality = true;
+        if (mQuality == QUALITY_UNDETECTED)
+            detectQuality();
+        setupQuality();
 
-        if (duration < 2 && !lowQuality) {
-            mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_1080P));
-            mRecorder.setAudioEncodingBitRate(256000);
-            mRecorder.setAudioSamplingRate(48000);
-        } else if (duration < 5 && !lowQuality) {
-            mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_720P));
-            mRecorder.setAudioEncodingBitRate(128000);
-            mRecorder.setAudioSamplingRate(32000);
-        } else {
-            mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_480P));
-            mRecorder.setAudioEncodingBitRate(64000);
-            mRecorder.setAudioSamplingRate(16000);
-        }
+        Log.i("prepareRecorder", "3=============================");
+        Log.i("prepareRecorder", "quality: " + mQuality);
+        Log.i("prepareRecorder", "=============================");
+
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
-
         mRecorder.setPreviewDisplay(mSurfaceView.getHolder().getSurface());
         mRecorder.prepare();
     }
 
-    public static Camera getCameraInstance(){
+    public Camera getCameraInstance(){
+        if (mCamera != null)
+            return mCamera;
+
         Camera camera = null;
         try {
             camera = Camera.open();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        catch (Exception e) { }
         return camera;
     }
 
     public void stopRecording() {
         mRecorder.stop();
+        mRecorder.reset();
         mRecorder.release();
         releaseCamera();
         mWindowManager.removeView(mSurfaceView);
@@ -197,22 +207,79 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         return null;
     }
 
-    public static void setDuration(Context context, long val) {
-        mDuration = val;
-        //Prefs.putAudioDuration(context, mDuration);
-    }
-
-    public static long getAudioDuration(Context context) {
-        if (mDuration == 0) {
-            //mDuration = Prefs.getAudioDuration(context);
-        }
-        return mDuration;
-    }
-
     private void releaseCamera(){
         if (mCamera != null){
+            try {
+                mCamera.unlock();
+            } catch ( Exception e) {}
+            //mCamera.stopPreview();
             mCamera.release();
             mCamera = null;
         }
+    }
+
+    public void setLowQuality() {
+        mQuality = QUALITY_LOW;
+
+        mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_LOW));
+        //mRecorder.setAudioEncodingBitRate(64000);
+        //mRecorder.setAudioSamplingRate(16000);
+    }
+
+    public void setMediumQuality() {
+        mQuality = QUALITY_MEDIUM;
+
+        mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+        //mRecorder.setAudioEncodingBitRate(128000);
+        //mRecorder.setAudioSamplingRate(32000);
+    }
+
+    public void setHighQuality() {
+        mQuality = QUALITY_HIGH;
+
+        mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_1080P));
+        mRecorder.setAudioEncodingBitRate(256000);
+        mRecorder.setAudioSamplingRate(48000);
+    }
+
+    private void detectQuality() {
+        int duration = (int) mDuration / 60000; // in minutes
+        boolean hasWiFi = false;
+        if (Utils.isWiFiConnected(getApplicationContext()))
+            hasWiFi = true;
+
+        Log.i("detectQuality", "hasWifi: " + true);
+        Log.i("detectQuality", "duration: " + duration);
+        // setup record quality
+        if (duration < 2 && hasWiFi)
+            mQuality = QUALITY_HIGH;
+        else if (duration < 5 && hasWiFi)
+            mQuality = QUALITY_MEDIUM;
+        else
+            mQuality = QUALITY_LOW;
+    }
+
+    private void setupQuality() {
+        if (mQuality == QUALITY_LOW)
+            setLowQuality();
+        else if (mQuality == QUALITY_MEDIUM)
+            setMediumQuality();
+        else if (mQuality == QUALITY_HIGH)
+            setHighQuality();
+    }
+
+    private void tryLowerQuality() {
+        if (mQuality == QUALITY_LOW || mQuality == QUALITY_UNDETECTED) {
+            releaseCamera();
+            Toast.makeText(getApplicationContext(), "Can't start video recording", Toast.LENGTH_LONG)
+                 .show();
+            return;
+        }
+        // we have lower quality to try
+        if (mQuality == QUALITY_HIGH)
+            mQuality = QUALITY_MEDIUM;
+        else if (mQuality == QUALITY_MEDIUM)
+            mQuality = QUALITY_LOW;
+        startRecording();
     }
 }
