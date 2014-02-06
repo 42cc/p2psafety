@@ -91,12 +91,17 @@ class EventResource(ModelResource):
 
     def support(self, request, pk=None, **kwargs):
         """
+        ***
+        TODO: replace ``user_id`` with ``request.user``.
+        ***
+
         For POST method, marks current user as "supporter".
 
         POST params:
           * user_id: current user's id.
 
-        TODO: replace ``user_id`` with ``request.user``.
+        Raises 400 if ``used_id`` param is not a number.
+        Raises 404 if user with given ``user_id`` or given event pk is not found.
         """
         self.method_check(request, allowed=['post'])
         self.throttle_check(request)
@@ -109,15 +114,15 @@ class EventResource(ModelResource):
             return http.HttpBadRequest()
 
         try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return http.HttpBadRequest()
+
+        try:
             target_event = Event.objects.get(id=pk)
         except Event.DoesNotExist:
             return http.HttpNotFound()
 
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return http.HttpBadRequest()
-        
         self.log_throttled_access(request)
         target_event.support_by_user(user)
 

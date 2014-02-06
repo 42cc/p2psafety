@@ -80,15 +80,15 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertHttpCreated(self.api_client.post(url, data=data))
 
         event = Event.objects.latest('id')
-        self.assertEqual(event.status, 'P')
+        self.assertEqual(event.status, Event.STATUS_PASSIVE)
         self.assertEqual(event.user, self.auth_user)
 
         response = self.api_client.post(url, data=data)
         self.assertHttpCreated(response)
         self.assertIn('key', json.loads(response.content))
         new_event = Event.objects.latest('id')
-        self.assertEqual(new_event.status, 'P')
-        self.assertEqual(Event.objects.get(id=event.id).status, 'F')
+        self.assertEqual(new_event.status, Event.STATUS_PASSIVE)
+        self.assertEqual(Event.objects.get(id=event.id).status, Event.STATUS_FINISHED)
         self.assertEqual(new_event.user, self.auth_user)
         self.assertNotEqual(new_event.PIN, event.PIN)
 
@@ -96,9 +96,9 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.mocked_get_backend()().do_auth.return_value = user2
         self.assertHttpCreated(self.api_client.post(url, data=data))
         event = Event.objects.latest('id')
-        self.assertEqual(event.status, 'P')
+        self.assertEqual(event.status, Event.STATUS_PASSIVE)
         self.assertEqual(event.user, user2)
-        self.assertEqual(Event.objects.filter(status='P').count(), 2)
+        self.assertEqual(Event.objects.filter(status=Event.STATUS_PASSIVE).count(), 2)
 
     @mock_get_backend(module_path='events.api.resources')
     def test_get_list(self):

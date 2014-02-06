@@ -22,6 +22,12 @@ from .managers import EventManager
 class Event(models.Model):
     """
     Event class.
+
+    Event that receives at least one :class:`EventUpdate` becomes active. User
+    can has only one active event at the same time.
+
+    As some events can "support" other events, there are ``supported`` and
+    ``supporters`` fields.
     """
     STATUS_ACTIVE = 'A'
     STATUS_PASSIVE = 'P'
@@ -41,9 +47,10 @@ class Event(models.Model):
     objects = EventManager()
 
     user = models.ForeignKey(User, related_name='events')
+
     PIN = models.IntegerField(default=0)
     key = models.CharField(max_length=128, blank=True, default='', db_index=True)
-    status = models.CharField(max_length=1, choices=STATUS, default='P')
+    status = models.CharField(max_length=1, choices=STATUS, default=STATUS_PASSIVE)
     type = models.IntegerField(choices=EVENT_TYPE, default=TYPE_VICTIM)
     supported = models.ManyToManyField('self', symmetrical=False, related_name='supporters')
 
@@ -73,10 +80,10 @@ class Event(models.Model):
             bad_key = True
             while bad_key:
                 self.PIN, self.key = self.generate_keys()
-                bad_key = Event.objects.filter(PIN=self.PIN).exclude(
-                    status='F').exists()
-
-        return super(Event, self).save(*args, **kwargs)
+                bad_key = (Event.objects.filter(PIN=self.PIN)
+                                        .exclude(status=self.STATUS_FINISHED)
+                                        .exists())
+        super(Event, self).save(*args, **kwargs)
 
     def support_by_user(self, user):
         """
@@ -115,8 +122,7 @@ def mark_old_events_as_finished(sender, **kwargs):
 
 class EventUpdate(models.Model):
     """
-    Event Update. Stores any kind of additional information for event.
-    Event that receives at least one eventupdate becomes active.
+    Event update. Stores any kind of additional information for event.
     """
     class Meta:
         get_latest_by = 'timestamp'
@@ -125,8 +131,7 @@ class EventUpdate(models.Model):
     timestamp = models.DateTimeField(default=timezone.now())
 
     text = models.TextField(blank=True)
-    location = geomodels.PointField(srid=settings.SRID['default'], blank=True,
-        null=True)
+    location = geomodels.PointField(srid=settings.SRID['default'], blank=True, null=True)
     audio = models.FileField(upload_to='audio', blank=True, null=True)
     video = models.FileField(upload_to='video', blank=True, null=True)
 
@@ -135,4 +140,4 @@ class EventUpdate(models.Model):
     def save(self, *args, **kwargs):
         self.event.status = 'A'
         self.event.save()
-        return super(EventUpdate, self).save(*args, **kwargs)
+        super(EventUpdate, self).save(*args, **kwargs)
