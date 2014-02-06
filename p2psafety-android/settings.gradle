@@ -1,1 +1,1 @@
-include ':p2psafety'
+include ':p2psafety', ':vendor:facebook'

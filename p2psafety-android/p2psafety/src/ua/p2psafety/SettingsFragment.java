@@ -1,6 +1,10 @@
 package ua.p2psafety;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -9,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import com.facebook.Session;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +32,7 @@ import ua.p2psafety.setservers.SetServersFragment;
 public class SettingsFragment extends Fragment {
 
     private View vParent;
+    private Activity mActivity;
 
     public SettingsFragment() {
         super();
@@ -40,6 +47,8 @@ public class SettingsFragment extends Fragment {
 
         vParent = rootView;
 
+        mActivity = getActivity();
+
         final ListView settingsList = (ListView) vParent.findViewById(R.id.settings_list);
         final String[] values = new String[]{
                 getResources().getString(R.string.add_phone),
@@ -47,7 +56,8 @@ public class SettingsFragment extends Fragment {
                 getResources().getString(R.string.emails),
                 getResources().getString(R.string.servers),
                 getResources().getString(R.string.password),
-                getResources().getString(R.string.media)
+                getResources().getString(R.string.media),
+                getResources().getString(R.string.logout)
         };
 
         final ArrayList<String> list = new ArrayList<String>();
@@ -97,11 +107,34 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.addToBackStack(SetMediaFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
                         break;
+                    case 6:
+                        logout();
+                        break;
                 }
             }
 
         });
         return rootView;
+    }
+
+    public void logout() {
+
+        if (Session.getActiveSession() != null)
+            Session.getActiveSession().closeAndClearTokenInformation();
+        Session.setActiveSession(null);
+
+        SharedPreferences sharedPref = PreferenceManager
+                .getDefaultSharedPreferences(mActivity);
+        sharedPref.edit().putString("MYSELF_KEY", "").commit();
+
+        Intent i = new Intent(mActivity, LoginActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
+
+        mActivity.finish();
+
+        return;
     }
 
 }

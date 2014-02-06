@@ -16,6 +16,8 @@ import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.GmailOAuth2Sender;
 import ua.p2psafety.util.Utils;
+import ua.p2psafety.data.Prefs;
+import ua.p2psafety.setphones.SetPhoneFragment;
 
 /**
  * Created by ihorpysmennyi on 12/14/13.

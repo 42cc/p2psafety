@@ -2,6 +2,7 @@ package ua.p2psafety;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -19,6 +20,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.facebook.Session;
+
+import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 
 /**
@@ -129,6 +133,25 @@ public class SendMessageFragment extends Fragment {
             mSosBtn.setText(getString(R.string.sos_cancel));
         else
             mSosBtn.setText(getString(R.string.sos));
+
+        if (SosManager.getInstance(mActivity).getEvent() == null) {
+            // TODO: refactor this with Utils.setLoading() like we did in AW
+            final ProgressDialog progressDialog = new ProgressDialog(mActivity);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+            progressDialog.setContentView(R.layout.loading_progressbar);
+
+            NetworkManager.createEvent(mActivity,
+                    new NetworkManager.DeliverResultRunnable<Event>() {
+                        @Override
+                        public void deliver(Event event) {
+                            SosManager.getInstance(mActivity).setEvent(event);
+                            progressDialog.dismiss();
+                        }
+                    });
+
+            //NetworkManager.getEvents(mActivity, null);
+       }
     }
 
     // builds dialog with password prompt

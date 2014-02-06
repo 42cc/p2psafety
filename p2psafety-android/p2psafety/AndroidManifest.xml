@@ -38,6 +38,16 @@
         <service android:name=".PowerButtonService" />
 
         <activity
+            android:name=".LoginActivity"
+            android:screenOrientation="portrait"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
                 android:name=".SosActivity"
                 android:screenOrientation="portrait"
                 android:noHistory="true"
@@ -46,11 +56,9 @@
                 android:clearTaskOnLaunch="true"
                 android:finishOnTaskLaunch="true"
                 >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
+
+        <activity android:name="com.facebook.LoginActivity" />
 
         <receiver android:name=".widget.Widget">
             <intent-filter>
@@ -65,6 +73,10 @@
                     android:name="android.appwidget.provider"
                     android:resource="@xml/wprovider"/>
         </receiver>
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/app_id" />
 
     </application>
 

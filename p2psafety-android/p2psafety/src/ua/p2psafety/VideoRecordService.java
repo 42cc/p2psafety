@@ -22,6 +22,11 @@ import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
 public class VideoRecordService extends Service implements SurfaceHolder.Callback {
+    private final int QUALITY_LOW = 0;
+    private final int QUALITY_MEDIUM = 1;
+    private final int QUALITY_HIGH = 2;
+    private final int QUALITY_UNDETECTED = -1;
+
     private static Boolean mTimerOn = false;
     private static long mDuration;
     private static long mTimeLeft = 0;
@@ -32,6 +37,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
     private Camera mCamera = null;
     private WindowManager mWindowManager = null;
     private SurfaceView mSurfaceView = null;
+    private int mQuality = QUALITY_UNDETECTED;
 
     private File mRecordFile = null;
 
@@ -100,10 +106,11 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
     public void startRecording() {
         try {
+            mDuration = Prefs.getMediaRecordLength(getApplicationContext());
+
             prepareRecorder();
             mRecorder.start();
 
-            mDuration = Prefs.getMediaRecordLength(getApplicationContext());
             mTimeLeft = mDuration;
             mTimer = new VideoRecordTimer(mDuration, 1000);
             mTimer.start();
@@ -111,14 +118,17 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
             Notifications.notifVideoRecording(getApplicationContext(), mTimeLeft, mDuration);
         } catch (Exception e) {
+            e.printStackTrace();
+
+            mRecorder.reset();
             mRecorder.release();
-            releaseCamera();
-            Toast.makeText(getApplicationContext(), "Can't start video recording", Toast.LENGTH_LONG)
-                 .show();
+
+            tryLowerQuality();
         }
     }
 
     private void prepareRecorder() throws Exception {
+        Log.i("prepareRecorder", "1=============================");
         File mediaDir;
         String state = Environment.getExternalStorageState();
         if(state.equals(Environment.MEDIA_MOUNTED))
@@ -131,42 +141,47 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         if (mCamera == null) {
             throw new Exception();
         }
-        mCamera.stopPreview();
-        mCamera.unlock();
+        Log.i("prepareRecorder", "2=============================");
+        //mCamera.stopPreview();
+        try {
+            mCamera.unlock();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         mRecorder = new MediaRecorder();
         mRecorder.setCamera(mCamera);
         mRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
-        CamcorderProfile camcorderProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
-        camcorderProfile.videoFrameWidth = 640;
-        camcorderProfile.videoFrameHeight = 480;
-//      camcorderProfile.videoFrameRate = 15;
-        camcorderProfile.videoCodec = MediaRecorder.VideoEncoder.H264;
-//      camcorderProfile.audioCodec = MediaRecorder.AudioEncoder.AAC;
-        camcorderProfile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
+        if (mQuality == QUALITY_UNDETECTED)
+            detectQuality();
 
-        mRecorder.setProfile(camcorderProfile);
-        //mRecorder.setMaxDuration(500000); // 50 seconds
-        //mRecorder.setMaxFileSize(5000000); // Approximately 5 megabytes
+        Log.i("prepareRecorder", "quality: " + mQuality);
+        setupQuality();
+        Log.i("prepareRecorder", "3=============================");
+
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
-
         mRecorder.setPreviewDisplay(mSurfaceView.getHolder().getSurface());
         mRecorder.prepare();
     }
 
-    public static Camera getCameraInstance(){
+    public Camera getCameraInstance(){
+        if (mCamera != null)
+            return mCamera;
+
         Camera camera = null;
         try {
             camera = Camera.open();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        catch (Exception e){}
         return camera;
     }
 
     public void stopRecording() {
         mRecorder.stop();
+        mRecorder.reset();
         mRecorder.release();
         releaseCamera();
         mWindowManager.removeView(mSurfaceView);
@@ -193,22 +208,90 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         return null;
     }
 
-    public static void setDuration(Context context, long val) {
-        mDuration = val;
-        //Prefs.putAudioDuration(context, mDuration);
-    }
-
-    public static long getAudioDuration(Context context) {
-        if (mDuration == 0) {
-            //mDuration = Prefs.getAudioDuration(context);
-        }
-        return mDuration;
-    }
-
     private void releaseCamera(){
         if (mCamera != null){
+            try {
+                mCamera.unlock();
+            } catch ( Exception e) {}
+            //mCamera.stopPreview();
             mCamera.release();
             mCamera = null;
         }
+    }
+
+    public void setLowQuality() {
+        mQuality = QUALITY_LOW;
+
+        CamcorderProfile camcorderProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        camcorderProfile.videoFrameWidth = 320;
+        camcorderProfile.videoFrameHeight = 240;
+        camcorderProfile.videoCodec = MediaRecorder.VideoEncoder.H264;
+        camcorderProfile.audioCodec = MediaRecorder.AudioEncoder.AAC;
+        camcorderProfile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
+        mRecorder.setMaxFileSize(5*1024*1024); // 5 mb
+
+        mRecorder.setProfile(camcorderProfile);
+    }
+
+    public void setMediumQuality() {
+        mQuality = QUALITY_MEDIUM;
+
+        CamcorderProfile camcorderProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        camcorderProfile.videoFrameWidth = 640;
+        camcorderProfile.videoFrameHeight = 480;
+        camcorderProfile.videoCodec = MediaRecorder.VideoEncoder.H264;
+        camcorderProfile.audioCodec = MediaRecorder.AudioEncoder.AAC;
+        camcorderProfile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
+        mRecorder.setMaxFileSize(10*1024*1024); // 10 mb
+
+        mRecorder.setProfile(camcorderProfile);
+    }
+
+    public void setHighQuality() {
+        mQuality = QUALITY_HIGH;
+
+        mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_1080P));
+        mRecorder.setMaxFileSize(20*1024*1024); // 20 mb
+    }
+
+    private void detectQuality() {
+        int duration = (int) mDuration / 60000; // in minutes
+        boolean hasWiFi = false;
+        if (Utils.isWiFiConnected(getApplicationContext()))
+            hasWiFi = true;
+
+        Log.i("detectQuality", "hasWifi: " + true);
+        Log.i("detectQuality", "duration: " + duration);
+        // setup record quality
+        if (duration < 2 && hasWiFi)
+            mQuality = QUALITY_HIGH;
+        else if (duration < 5 && hasWiFi)
+            mQuality = QUALITY_MEDIUM;
+        else
+            mQuality = QUALITY_LOW;
+    }
+
+    private void setupQuality() {
+        if (mQuality == QUALITY_LOW)
+            setLowQuality();
+        else if (mQuality == QUALITY_MEDIUM)
+            setMediumQuality();
+        else if (mQuality == QUALITY_HIGH)
+            setHighQuality();
+    }
+
+    private void tryLowerQuality() {
+        if (mQuality == QUALITY_LOW || mQuality == QUALITY_UNDETECTED) {
+            releaseCamera();
+            Toast.makeText(getApplicationContext(), "Can't start video recording", Toast.LENGTH_LONG)
+                 .show();
+            return;
+        }
+        // we have lower quality to try
+        if (mQuality == QUALITY_HIGH)
+            mQuality = QUALITY_MEDIUM;
+        else if (mQuality == QUALITY_MEDIUM)
+            mQuality = QUALITY_LOW;
+        startRecording();
     }
 }

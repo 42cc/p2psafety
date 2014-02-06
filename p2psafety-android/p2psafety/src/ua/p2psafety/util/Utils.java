@@ -2,12 +2,16 @@ package ua.p2psafety.util;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.os.Vibrator;
+import com.facebook.Session;
 
 import java.io.File;
 
@@ -64,6 +68,24 @@ public class Utils {
         return result;
     }
 
+    public static boolean isWiFiConnected(Context context) {
+        boolean result = false;
+
+        try {
+            ConnectivityManager cm =
+                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+            if (netInfo != null && netInfo.isConnected()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static void startVibration(final Context context)
     {
         new Thread(new Runnable() {
@@ -95,4 +117,21 @@ public class Utils {
         } catch (Exception e) {}
     }
 
+    public static boolean isFbAuthenticated(Context context) {
+        Session currentSession = Session.openActiveSessionFromCache(context);
+
+        if (currentSession == null) {
+            SharedPreferences sharedPref =
+                    PreferenceManager.getDefaultSharedPreferences(context);
+            sharedPref.edit().putString("MYSELF_KEY", "").commit();
+        }
+
+        return currentSession != null && currentSession.getState().isOpened();
+    }
+
+//    public static void setLoading(Activity activity, boolean visible) {
+//        if (activity != null)
+//            activity.findViewById(R.id.loading_view)
+//                .setVisibility(visible ? View.VISIBLE : View.GONE);
+//    }
 }

@@ -64,10 +64,11 @@ public class AudioRecordService extends Service {
 
     public void startRecording() {
         try {
+            mDuration = Prefs.getMediaRecordLength(getApplicationContext());
+
             prepareRecorder();
             mRecorder.start();
 
-            mDuration = Prefs.getMediaRecordLength(getApplicationContext());
             mTimeLeft = mDuration;
             mTimer = new AudioRecordTimer(mDuration, 1000);
             mTimer.start();
@@ -90,11 +91,25 @@ public class AudioRecordService extends Service {
         mRecordFile = File.createTempFile("sound", ".mp4", mediaDir);
 
         mRecorder = new MediaRecorder();
-        mRecorder.setAudioSource(MediaRecorder.getAudioSourceMax());
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        mRecorder.setAudioEncodingBitRate(128000);
-        mRecorder.setAudioSamplingRate(16000);
+
+        int duration = (int) mDuration / 60000;
+        boolean lowQuality = false;
+        if (!Utils.isWiFiConnected(getApplicationContext()))
+            lowQuality = true;
+
+        if (duration < 2 && !lowQuality) {
+            mRecorder.setAudioEncodingBitRate(256000);
+            mRecorder.setAudioSamplingRate(48000);
+        } else if (duration < 5 && !lowQuality) {
+            mRecorder.setAudioEncodingBitRate(128000);
+            mRecorder.setAudioSamplingRate(32000);
+        } else {
+            mRecorder.setAudioEncodingBitRate(64000);
+            mRecorder.setAudioSamplingRate(16000);
+        }
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
         mRecorder.prepare();
     }
