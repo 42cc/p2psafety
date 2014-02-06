@@ -1,9 +1,9 @@
 from django.test import TestCase
 
-#from .helpers.mixins import UsersMixin
 from .helpers.factories import EventFactory, EventUpdateFactory
-from users.tests.helpers import UserFactory
 from ..models import Event
+
+from users.tests.helpers import UserFactory
 
 
 class EventsTestCase(TestCase):
