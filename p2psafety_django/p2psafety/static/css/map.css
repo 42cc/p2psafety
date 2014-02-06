@@ -1,0 +1,10 @@
+#map-canvas {
+  height: 500px;
+}
+.selected-event {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 25%;
+  overflow-y: auto;
+}

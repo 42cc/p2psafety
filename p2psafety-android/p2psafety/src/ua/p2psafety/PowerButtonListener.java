@@ -22,6 +22,8 @@ public class PowerButtonListener extends BroadcastReceiver{
         mLastPressTime = System.currentTimeMillis();
 
         if (mPressCount == mPressThreshold) {
+            // ATTN: vibrate every time when something's activated by hardware buttons
+            // (startSos has vibration by itself though)
             SosManager.getInstance(context).startSos();
             mPressCount = 0;
         }
