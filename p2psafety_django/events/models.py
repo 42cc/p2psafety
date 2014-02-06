@@ -25,11 +25,18 @@ class Event(models.Model):
         ('A', 'Active'),
         ('F', 'Finished'),
     )
+    EVENT_VICTIM = 0
+    EVENT_SUPPORT = 1
+    EVENT_TYPE = (
+        (EVENT_VICTIM, 'victim'),
+        (EVENT_SUPPORT, 'support')
+    )
 
     user = models.ForeignKey(User, related_name='events')
     PIN = models.IntegerField(default=0)
     key = models.CharField(max_length=128, blank=True, default='', db_index=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='P')
+    type = models.IntegerField(choices=EVENT_TYPE, default=EVENT_VICTIM)
 
     def __unicode__(self):
         return "{} event by {}".format(self.status, self.user)
