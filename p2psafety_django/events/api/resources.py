@@ -2,13 +2,17 @@
 import logging
 
 from django.conf import settings
+from django.conf.urls import url
+from django.contrib.auth.models import User
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from tastypie import http, fields
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
-from tastypie.resources import ModelResource
-from tastypie.validation import Validation
 from tastypie.exceptions import ImmediateHttpResponse
+from tastypie.resources import ModelResource
+from tastypie.utils import trailing_slash
+from tastypie.validation import Validation
 
 from social.backends.utils import get_backend
 from social.apps.django_app.utils import load_strategy
@@ -77,6 +81,47 @@ class EventResource(ModelResource):
     latest_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
                                       'latest_update',
                                       full=True, null=True, readonly=True)
+
+    def prepend_urls(self):
+        return [
+            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/support%s$' % 
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('support'), name='api_events_support'),
+        ]
+
+    def support(self, request, pk=None, **kwargs):
+        """
+        For POST method, marks current user as "supporter".
+
+        POST params:
+          * user_id: current user's id.
+
+        TODO: replace ``user_id`` with ``request.user``.
+        """
+        self.method_check(request, allowed=['post'])
+        self.throttle_check(request)
+
+        user_id = request.POST.get('user_id')
+        if user_id is None:
+            return http.HttpNotFound()
+
+        if user_id.isdigit() is False:
+            return http.HttpBadRequest()
+
+        try:
+            target_event = Event.objects.get(id=pk)
+        except Event.DoesNotExist:
+            return http.HttpNotFound()
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return http.HttpBadRequest()
+        
+        self.log_throttled_access(request)
+        target_event.support_by_user(user)
+
+        return HttpResponse()
 
     def hydrate(self, bundle):
         access_token = bundle.data.get('access_token')

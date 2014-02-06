@@ -16,27 +16,36 @@ except ImportError:
     sha1 = sha.sha
 
 
+from .managers import EventManager
+
+
 class Event(models.Model):
     """
     Event class.
     """
-    STATUS_CHOICES = (
-        ('P', 'Passive'),
-        ('A', 'Active'),
-        ('F', 'Finished'),
+    STATUS_ACTIVE = 'A'
+    STATUS_PASSIVE = 'P'
+    STATUS_FINISHED = 'F'
+    STATUS = (
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_PASSIVE, 'Passive'),
+        (STATUS_FINISHED, 'Finished'),
     )
-    EVENT_VICTIM = 0
-    EVENT_SUPPORT = 1
+    TYPE_VICTIM = 0
+    TYPE_SUPPORT = 1
     EVENT_TYPE = (
-        (EVENT_VICTIM, 'victim'),
-        (EVENT_SUPPORT, 'support')
+        (TYPE_VICTIM, 'victim'),
+        (TYPE_SUPPORT, 'support')
     )
+
+    objects = EventManager()
 
     user = models.ForeignKey(User, related_name='events')
     PIN = models.IntegerField(default=0)
     key = models.CharField(max_length=128, blank=True, default='', db_index=True)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='P')
-    type = models.IntegerField(choices=EVENT_TYPE, default=EVENT_VICTIM)
+    status = models.CharField(max_length=1, choices=STATUS, default='P')
+    type = models.IntegerField(choices=EVENT_TYPE, default=TYPE_VICTIM)
+    supported = models.ManyToManyField('self', symmetrical=False, related_name='supporters')
 
     def __unicode__(self):
         return "{} event by {}".format(self.status, self.user)
@@ -68,6 +77,19 @@ class Event(models.Model):
                     status='F').exists()
 
         return super(Event, self).save(*args, **kwargs)
+
+    def support_by_user(self, user):
+        """
+        Binds provided user to this event as "supporter".
+
+        Raises: ``DoesNotExist`` if user has no active event.
+        """
+        supports_event = Event.objects.get_current_active_of(user)
+        if supports_event.type != self.TYPE_SUPPORT:
+            supports_event.type = self.TYPE_SUPPORT
+            supports_event.save()
+
+        self.supporters.add(supports_event)
 
     def generate_keys(self):
         """

@@ -5,15 +5,23 @@ from .factories import UserFactory
 
 
 class ModelsMixin(object):
+    def __url(self, url_name, *args, **kwargs):
+        kwargs['api_name'] = 'v1'
+        if 'res_name' in kwargs:
+            kwargs['resource_name'] = kwargs.pop('res_name')
+        return reverse(url_name, args=args, kwargs=kwargs)
+
+    def events_support_url(self, event_id):
+        return self.__url('api_events_support', res_name='events', pk=event_id)
+    
     @property
     def events_list_url(self):
-        return reverse('api_dispatch_list', kwargs=dict(resource_name='events',
-                                                        api_name='v1'))
+        return self.__url('api_dispatch_list', res_name='events')
 
     @property
     def eventupdates_list_url(self):
-        return reverse('api_dispatch_list', kwargs=dict(resource_name='eventupdates',
-                                                        api_name='v1'))
+        return self.__url('api_dispatch_list', res_name='eventupdates')
+
 
 class UsersMixin(object):
 

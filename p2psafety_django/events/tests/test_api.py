@@ -1,4 +1,5 @@
 import json
+import mock
 import tempfile
 from operator import itemgetter
 
@@ -123,6 +124,43 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
             latest_update = update_dict.get('latest_update')
             self.assertIsNotNone(latest_update)
             self.assertEqual(latest_update['id'], update_obj.id)
+
+    @mock.patch('events.models.Event.support_by_user')
+    def test_support_good(self, support_by_user_mock):
+        user_victim, user_supporter = UserFactory(), self.superuser
+        event_victim = EventFactory(user=user_victim)
+        event_supporter = EventFactory(user=user_supporter,
+                                       status=Event.STATUS_ACTIVE)
+
+        self.login_as_superuser()
+        url = self.events_support_url(event_victim.id)
+        data = dict(user_id=user_supporter.id)
+        resp = self.api_client.client.post(url, data=data)
+        self.assertEqual(resp.status_code, 200)
+        support_by_user_mock.assert_called_once_with(user_supporter)
+
+    @mock.patch('events.models.Event.support_by_user')
+    def test_support_bad(self, support_by_user_mock):
+        user_victim, user_supporter = UserFactory(), self.superuser
+        event_victim = EventFactory(user=user_victim)
+        
+        url = self.events_support_url(event_victim.id)
+
+        # Invalid method
+        self.assertHttpMethodNotAllowed(self.api_client.get(url))
+
+        # Invalid params
+        data = dict(user_id='wtf')
+        self.assertHttpBadRequest(self.api_client.client.post(url, data=data))
+
+        # Event does not exists
+        data = dict(user_id=user_supporter.id)
+        not_found_url = self.events_support_url(123)
+        self.assertHttpNotFound(self.api_client.post(not_found_url, data=data))
+
+        # User does not exists
+        data = dict(user_id=123)
+        self.assertHttpBadRequest(self.api_client.client.post(url, data=data))
 
 
 class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
