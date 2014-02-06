@@ -9,6 +9,8 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.widget.Toast;
 
+import com.sun.mail.dsn.multipart_report;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -88,7 +90,7 @@ public class AudioRecordService extends Service {
             mediaDir = Environment.getExternalStorageDirectory();
         else
             mediaDir = getFilesDir();
-        mRecordFile = File.createTempFile("sound", ".mp4", mediaDir);
+        mRecordFile = new File(mediaDir, "sound.mp4");
 
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);

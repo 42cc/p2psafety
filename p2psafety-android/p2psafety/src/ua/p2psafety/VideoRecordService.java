@@ -10,6 +10,7 @@ import android.media.MediaRecorder;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -135,7 +136,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
             mediaDir = Environment.getExternalStorageDirectory();
         else
             mediaDir = getFilesDir();
-        mRecordFile = File.createTempFile("video", ".mp4", mediaDir);
+        mRecordFile = new File(mediaDir, "video.mp4");
 
         mCamera = getCameraInstance();
         if (mCamera == null) {
