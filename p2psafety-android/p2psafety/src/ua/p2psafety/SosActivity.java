@@ -13,8 +13,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import ua.p2psafety.data.PhonesDatasourse;
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.GmailOAuth2Sender;
 import ua.p2psafety.util.Utils;
+import ua.p2psafety.data.Prefs;
+import ua.p2psafety.setphones.SetPhoneFragment;
 
 /**
  * Created by ihorpysmennyi on 12/14/13.
@@ -43,7 +46,7 @@ public class SosActivity extends ActionBarActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-        if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this))
+        if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this) && Prefs.getGmailToken(this) == null)
         {
             GmailOAuth2Sender sender = new GmailOAuth2Sender(this);
             sender.initToken();

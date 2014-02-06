@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
-import android.util.Log;
 
 public class PowerButtonService extends Service {
     BroadcastReceiver mReceiver=null;

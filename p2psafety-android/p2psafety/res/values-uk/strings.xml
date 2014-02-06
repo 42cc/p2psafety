@@ -40,4 +40,7 @@
     <string name="it_is_not_email">Будь ласка, впишіть правильний e-mail</string>
     <string name="protect_description">protect yourself</string>
     <string name="sos_with_delay">SOS із затримкою</string>
+    <string name="recorded_media">Запис #media# знаходиться в вкладеннях.</string>
+    <string name="video">відео</string>
+    <string name="audio">аудіо</string>
 </resources>

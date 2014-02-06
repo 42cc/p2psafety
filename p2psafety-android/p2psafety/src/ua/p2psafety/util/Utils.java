@@ -8,11 +8,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.os.Vibrator;
 import com.facebook.Session;
 
+import java.io.File;
+
 import ua.p2psafety.R;
+import ua.p2psafety.data.ServersDatasourse;
+import ua.p2psafety.sms.MessageResolver;
 
 /**
  * Created by Taras Melon on 10.01.14.
@@ -63,6 +68,24 @@ public class Utils {
         return result;
     }
 
+    public static boolean isWiFiConnected(Context context) {
+        boolean result = false;
+
+        try {
+            ConnectivityManager cm =
+                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+            if (netInfo != null && netInfo.isConnected()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static void startVibration(final Context context)
     {
         new Thread(new Runnable() {
@@ -74,6 +97,24 @@ public class Utils {
                     v.vibrate(2000);
             }
         }).start();
+    }
+
+    public static void sendMailsWithAttachments(final Context context, final int mediaId, final File file) {
+        AsyncTask ast = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] params) {
+                ServersDatasourse serversDatasourse = new ServersDatasourse(context);
+                if (serversDatasourse.getAllServers().size() == 0)
+                {
+                    MessageResolver resolver = new MessageResolver(context);
+                    resolver.sendEmails(context.getString(R.string.recorded_media).replace("#media#", context.getString(mediaId)), file);
+                }
+                return null;
+            }
+        };
+        try {
+            ast.execute();
+        } catch (Exception e) {}
     }
 
     public static boolean isFbAuthenticated(Context context) {
