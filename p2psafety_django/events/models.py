@@ -113,10 +113,11 @@ def mark_old_events_as_finished(sender, **kwargs):
     Every user has only one active or passive event. Design decision.
     """
     if kwargs.get('created'):
-        instance = kwargs.get('instance')
-        Event.objects.filter(
-            user=instance.user, status__in=['A', 'P']).exclude(
-            id=getattr(instance, 'id')).update(status='F')
+        event = kwargs['instance']
+        (Event.objects.filter(user=event.user)
+                      .exclude(status=Event.STATUS_FINISHED)
+                      .exclude(id=event.id)
+                      .update(status=Event.STATUS_FINISHED))
 
 
 class EventUpdate(models.Model):
