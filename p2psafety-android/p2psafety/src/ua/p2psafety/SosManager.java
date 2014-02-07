@@ -55,7 +55,7 @@ public class SosManager {
         Notifications.notifSosStarted(mContext);
 
         // report event to the server
-        serverStartSos();
+        //serverStartSos();
 
         // make phone call
         mContext.startService(new Intent(mContext, PhoneCallService.class));
@@ -74,7 +74,7 @@ public class SosManager {
         // TODO: send "i'm safe now" SMS and email messages (ask if needed)
 
         // report event to the server
-        serverStopSos();
+        //serverStopSos();
 
         mContext.stopService(new Intent(mContext, PhoneCallService.class));
 

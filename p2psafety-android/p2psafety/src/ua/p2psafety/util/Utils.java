@@ -6,14 +6,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.os.Vibrator;
+import android.util.Base64;
+import android.util.Log;
+
 import com.facebook.Session;
 
 import java.io.File;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import ua.p2psafety.R;
 import ua.p2psafety.data.ServersDatasourse;
@@ -117,21 +125,46 @@ public class Utils {
         } catch (Exception e) {}
     }
 
-    public static boolean isFbAuthenticated(Context context) {
-        Session currentSession = Session.openActiveSessionFromCache(context);
-
-        if (currentSession == null) {
-            SharedPreferences sharedPref =
-                    PreferenceManager.getDefaultSharedPreferences(context);
-            sharedPref.edit().putString("MYSELF_KEY", "").commit();
-        }
-
-        return currentSession != null && currentSession.getState().isOpened();
-    }
+//    public static boolean isFbAuthenticated(Context context) {
+//        Session currentSession = Session.openActiveSessionFromCache(context);
+//
+//        if (currentSession == null) {
+//            SharedPreferences sharedPref =
+//                    PreferenceManager.getDefaultSharedPreferences(context);
+//            sharedPref.edit().putString("MYSELF_KEY", "").commit();
+//        }
+//
+//        return currentSession != null && currentSession.getState().isOpened();
+//    }
 
 //    public static void setLoading(Activity activity, boolean visible) {
 //        if (activity != null)
 //            activity.findViewById(R.id.loading_view)
 //                .setVisibility(visible ? View.VISIBLE : View.GONE);
 //    }
+
+    public static void logKeyHash(Context context) {
+        final String TAG = "logKeyHash()";
+        try {
+            PackageInfo info = context.getPackageManager().getPackageInfo(
+                    "ua.p2psafety", PackageManager.GET_SIGNATURES
+            );
+            for (Signature signature: info.signatures) {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                Log.i(TAG, "KeyHash:" +
+                        Base64.encodeToString(md.digest(), Base64.DEFAULT));
+            }
+        }
+        catch (PackageManager.NameNotFoundException e) {
+            Log.i("KeyHash:", "NameNotFound");
+        }
+        catch (NoSuchAlgorithmException e) {
+            Log.i("KeyHash:", "NoAlgo");
+        }
+        catch (NullPointerException e) {
+            Log.i(TAG, "NullPonterException  " +
+                    "SHOULD HAPPEN ONLY UNDER ROBOLECTRIC");
+        }
+    }
 }
