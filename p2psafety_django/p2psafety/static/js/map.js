@@ -1,5 +1,11 @@
 var mapApp = angular.module('mapApp', []);
 
+mapApp.constant('ICONS', {
+  RED: 'http://maps.google.com/mapfiles/ms/micons/red-dot.png',
+  GREEN: 'http://maps.google.com/mapfiles/ms/micons/green-dot.png',
+  BLUE: 'http://maps.google.com/mapfiles/ms/micons/blue-dot.png',
+});
+
 mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
   $scope.initGoogleMap = function(rootElement) {
     var mapOptions = {
@@ -76,16 +82,27 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
     $scope.update();
   }, $scope.updatePerSeconds * 1000);
 })
-.directive('gmapMarker', function($http) {
+.directive('eventMarker', function($http, ICONS) {
   var linker = function(scope, element, attrs) {
     var loc = scope.$eval(attrs.location);
     var markersWindow = null;
 
-    if (loc != null) {
+    if (loc != null) {      
       var markerArgs = {
         position: new google.maps.LatLng(loc.latitude, loc.longitude)
       };
-      if (attrs.icon)  markerArgs.icon = attrs.icon;
+
+      var mode = (attrs.mode == null) ? 'event' : attrs.mode;
+      if (mode == 'event') {
+        var eventType = (attrs.type == null) ? 'victim' : attrs.type;
+        if (eventType == 'victim') {
+          markerArgs.icon = ICONS.RED;
+        } else if (eventType == 'support') {
+          markerArgs.icon = ICONS.GREEN;
+        };
+      } else if (mode == 'eventupdate') {
+        markerArgs.icon = ICONS.BLUE;
+      }
 
       var marker = new google.maps.Marker(markerArgs);
       marker.setMap(scope.$parent.gmap);
