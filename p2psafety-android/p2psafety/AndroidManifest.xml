@@ -23,6 +23,9 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
 
     <uses-feature android:name="android.hardware.telephony"/>
 
@@ -36,6 +39,7 @@
         <service android:name=".AudioRecordService" />
         <service android:name=".VideoRecordService" />
         <service android:name=".PowerButtonService" />
+        <service android:name=".PhoneCallService"/>
 
         <activity
             android:name=".LoginActivity"

@@ -24,15 +24,6 @@ public class DelayedSosService extends Service {
     private static DelayedSosTimer mTimer;
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    public void onCreate(Context context) {
-        super.onCreate();
-    }
-
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (!mTimerOn) {
             // let our notification manager know when things happen

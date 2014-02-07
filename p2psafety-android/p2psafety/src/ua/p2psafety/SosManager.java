@@ -3,8 +3,6 @@ package ua.p2psafety;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.os.Looper;
-import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +57,9 @@ public class SosManager {
         // report event to the server
         serverStartSos();
 
+        // make phone call
+        mContext.startService(new Intent(mContext, PhoneCallService.class));
+
         setSosStarted(true);
     }
 
@@ -74,6 +75,8 @@ public class SosManager {
 
         // report event to the server
         serverStopSos();
+
+        mContext.stopService(new Intent(mContext, PhoneCallService.class));
 
         setSosStarted(false);
     }
