@@ -68,7 +68,7 @@ class EventResource(ModelResource):
         authorization = CreateFreeDjangoAuthorization()
         validation = EventValidation()
         list_allowed_methods = ['post', 'get']
-        fields = ['id', 'status', 'user']
+        fields = ['id', 'user', 'type', 'status']
         filtering = {
             'id': ALL,
             'status': ALL,

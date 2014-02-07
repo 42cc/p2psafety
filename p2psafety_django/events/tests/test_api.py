@@ -64,6 +64,9 @@ class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
 
 class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
+    required_model_fields = [u'id', u'user', u'type', u'status', u'resource_uri',
+                             u'latest_location', u'latest_update']
+
     @mock_get_backend(module_path='events.api.resources')
     def test_create(self):
         url = self.events_list_url
@@ -88,6 +91,7 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertIn('key', json.loads(response.content))
         new_event = Event.objects.latest('id')
         self.assertEqual(new_event.status, Event.STATUS_PASSIVE)
+        self.assertEqual(new_event.type, Event.TYPE_VICTIM)
         self.assertEqual(Event.objects.get(id=event.id).status, Event.STATUS_FINISHED)
         self.assertEqual(new_event.user, self.auth_user)
         self.assertNotEqual(new_event.PIN, event.PIN)
@@ -110,6 +114,10 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         resp = self.api_client.get(self.events_list_url, format='json')
         objects = sorted(self.deserialize(resp)['objects'], key=itemgetter('id'))
         self.assertEqual(len(objects), 2)
+
+        for event_dict in objects:
+            self.assertKeys(event_dict, self.required_model_fields)
+
         self.assertIsNone(objects[0]['latest_location'])
         self.assertIsNotNone(objects[1]['latest_location'])
         self.assertEqual(objects[1]['latest_location'], {'latitude': 1, 'longitude': 1})
