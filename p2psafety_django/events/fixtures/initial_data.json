@@ -5,7 +5,7 @@
   "fields": {
     "codename": "view_event",
     "name": "Can view event",
-    "content_type": 8
+    "content_type": 12
   }
 },
 {
@@ -14,7 +14,7 @@
   "fields": {
     "codename": "view_eventupdate",
     "name": "Can view event update",
-    "content_type": 9
+    "content_type": 13
   }
 }
 ]
