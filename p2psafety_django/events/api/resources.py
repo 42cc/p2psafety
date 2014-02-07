@@ -77,6 +77,7 @@ class EventResource(ModelResource):
         always_return_data = True
 
     user = fields.ForeignKey(UserResource, 'user', full=True, readonly=True)
+    type = fields.CharField('get_type_display', readonly=True)
     latest_location = GeoPointField('latest_location', null=True, readonly=True)
     latest_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
                                       'latest_update',
