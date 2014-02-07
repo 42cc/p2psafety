@@ -7,7 +7,6 @@ from django.dispatch import receiver
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
-from django.utils import timezone
 
 try:
     from hashlib import sha1
@@ -128,7 +127,7 @@ class EventUpdate(models.Model):
         get_latest_by = 'timestamp'
 
     event = models.ForeignKey(Event, related_name='updates')
-    timestamp = models.DateTimeField(default=timezone.now())
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     text = models.TextField(blank=True)
     location = geomodels.PointField(srid=settings.SRID['default'], blank=True, null=True)
