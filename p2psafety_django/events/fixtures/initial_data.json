@@ -1,20 +1,20 @@
 [
 {
-  "pk": 43, 
-  "model": "auth.permission", 
+  "pk": 43,
+  "model": "auth.permission",
   "fields": {
-    "codename": "view_event", 
-    "name": "Can view event", 
-    "content_type": 12
+    "codename": "view_event",
+    "name": "Can view event",
+    "content_type": 8
   }
 },
 {
-  "pk": 44, 
-  "model": "auth.permission", 
+  "pk": 44,
+  "model": "auth.permission",
   "fields": {
-    "codename": "view_eventupdate", 
-    "name": "Can view event update", 
-    "content_type": 13
+    "codename": "view_eventupdate",
+    "name": "Can view event update",
+    "content_type": 9
   }
 }
 ]
