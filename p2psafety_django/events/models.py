@@ -20,6 +20,11 @@ class Event(models.Model):
     """
     Event class.
     """
+    class Meta:
+        permissions = (
+            ("view_event", "Can view event"),
+        )
+
     STATUS_CHOICES = (
         ('P', 'Passive'),
         ('A', 'Active'),
@@ -90,6 +95,9 @@ class EventUpdate(models.Model):
     Event that receives at least one eventupdate becomes active.
     """
     class Meta:
+        permissions = (
+            ("view_eventupdate", "Can view event update"),
+        )
         get_latest_by = 'timestamp'
 
     event = models.ForeignKey(Event, related_name='updates')
