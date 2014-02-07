@@ -3,8 +3,6 @@ package ua.p2psafety;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.os.Looper;
-import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +55,10 @@ public class SosManager {
         Notifications.notifSosStarted(mContext);
 
         // report event to the server
-        serverStartSos();
+        //serverStartSos();
+
+        // make phone call
+        mContext.startService(new Intent(mContext, PhoneCallService.class));
 
         setSosStarted(true);
     }
@@ -73,7 +74,9 @@ public class SosManager {
         // TODO: send "i'm safe now" SMS and email messages (ask if needed)
 
         // report event to the server
-        serverStopSos();
+        //serverStopSos();
+
+        mContext.stopService(new Intent(mContext, PhoneCallService.class));
 
         setSosStarted(false);
     }

@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.GmailOAuth2Sender;
@@ -29,6 +30,8 @@ public class SosActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_sosmain);
         setSupportActionBar();
+
+        NetworkManager.init(this);
 
         // SOS launcher with power button press
         startService(new Intent(this, PowerButtonService.class));
