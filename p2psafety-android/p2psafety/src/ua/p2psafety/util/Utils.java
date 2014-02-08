@@ -125,17 +125,17 @@ public class Utils {
         } catch (Exception e) {}
     }
 
-//    public static boolean isFbAuthenticated(Context context) {
-//        Session currentSession = Session.openActiveSessionFromCache(context);
-//
-//        if (currentSession == null) {
-//            SharedPreferences sharedPref =
-//                    PreferenceManager.getDefaultSharedPreferences(context);
-//            sharedPref.edit().putString("MYSELF_KEY", "").commit();
-//        }
-//
-//        return currentSession != null && currentSession.getState().isOpened();
-//    }
+    public static boolean isFbAuthenticated(Context context) {
+        Session currentSession = Session.openActiveSessionFromCache(context);
+
+        if (currentSession == null) {
+            SharedPreferences sharedPref =
+                    PreferenceManager.getDefaultSharedPreferences(context);
+            sharedPref.edit().putString("MYSELF_KEY", "").commit();
+        }
+
+        return currentSession != null && currentSession.getState().isOpened();
+    }
 
 //    public static void setLoading(Activity activity, boolean visible) {
 //        if (activity != null)

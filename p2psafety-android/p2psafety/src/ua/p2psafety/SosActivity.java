@@ -1,5 +1,6 @@
 package ua.p2psafety;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,10 @@ import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.UiLifecycleHelper;
 
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.PhonesDatasourse;
@@ -26,10 +31,15 @@ import ua.p2psafety.setphones.SetPhoneFragment;
 public class SosActivity extends ActionBarActivity {
     public static final String FRAGMENT_KEY = "fragmentKey";
 
+    private UiLifecycleHelper mUiHelper;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_sosmain);
         setSupportActionBar();
+
+        mUiHelper = new UiLifecycleHelper(this, null);
+        mUiHelper.onCreate(savedInstanceState);
 
         NetworkManager.init(this);
 
@@ -53,6 +63,65 @@ public class SosActivity extends ActionBarActivity {
         {
             GmailOAuth2Sender sender = new GmailOAuth2Sender(this);
             sender.initToken();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mUiHelper.onResume();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mUiHelper.onActivityResult(requestCode, resultCode, data);
+        Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mUiHelper.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mUiHelper.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Session currentSession = Session.getActiveSession();
+        if (currentSession == null || currentSession.getState() != SessionState.OPENING)
+            super.onBackPressed();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mUiHelper.onSaveInstanceState(outState);
+        Session session = Session.getActiveSession();
+        Session.saveSession(session, outState);
+    }
+
+    public void loginToFacebook(Activity activity, Session.StatusCallback callback) {
+        if (!Utils.isNetworkConnected(activity)) {
+            //errorDialog(activity, DIALOG_NO_CONNECTION);
+            return;
+        }
+        Session session = Session.getActiveSession();
+        if (session == null)
+        {
+            Session.openActiveSession(activity, true, callback);
+        }
+        else if (!session.getState().isOpened() && !session.getState().isClosed()) {
+            session.openForRead(new Session.OpenRequest(activity)
+                    //.setPermissions(Const.FB_PERMISSIONS_READ)
+                    .setCallback(callback));
+        } else {
+            Session.openActiveSession(activity, true, callback);
         }
     }
 

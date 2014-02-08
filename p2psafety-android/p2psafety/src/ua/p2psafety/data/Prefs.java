@@ -118,14 +118,16 @@ public class Prefs {
     private static final String EVENT_URI = "EVENT_URI";
 
     public static void putEvent(Context context, Event event) {
-        getPrefs(context).edit()
-                .putString(EVENT_ID, event.getId())
-                .putString(EVENT_KEY, event.getKey())
-                .putString(EVENT_STATUS, event.getStatus())
-                .putString(EVENT_URI, event.getUri())
-                .commit();
+        if (event != null) {
+            getPrefs(context).edit()
+                    .putString(EVENT_ID, event.getId())
+                    .putString(EVENT_KEY, event.getKey())
+                    .putString(EVENT_STATUS, event.getStatus())
+                    .putString(EVENT_URI, event.getUri())
+                    .commit();
 
-        putUser(context, event.getUser());
+            putUser(context, event.getUser());
+        }
     }
 
     public static Event getEvent(Context context) {
