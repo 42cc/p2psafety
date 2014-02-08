@@ -30,7 +30,7 @@ import ua.p2psafety.SosManager;
 import ua.p2psafety.util.Utils;
 
 public class NetworkManager {
-    private static final String SERVER_URL = "http://p2psafety.net";
+    private static final String SERVER_URL = "http://p2psafety.staging.42cc.co";
 
     private static final int CODE_SUCCESS = 201;
 
