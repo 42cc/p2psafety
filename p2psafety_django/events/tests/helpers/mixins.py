@@ -7,13 +7,14 @@ from .factories import UserFactory
 class ModelsMixin(object):
     @property
     def events_list_url(self):
-        return reverse('api_dispatch_list', kwargs=dict(resource_name='events',
-                                                        api_name='v1'))
+        return reverse('api_dispatch_list',
+            kwargs=dict(resource_name='events', api_name='v1'))
 
     @property
     def eventupdates_list_url(self):
-        return reverse('api_dispatch_list', kwargs=dict(resource_name='eventupdates',
-                                                        api_name='v1'))
+        return reverse('api_dispatch_list',
+            kwargs=dict(resource_name='eventupdates', api_name='v1'))
+
 
 class UsersMixin(object):
 
@@ -24,10 +25,12 @@ class UsersMixin(object):
         self.events_granted_user = UserFactory()
         view_event = Permission.objects.get(codename='view_event')
         view_eventupdate = Permission.objects.get(codename='view_eventupdate')
-        self.events_granted_user.user_permissions.add(view_event, view_eventupdate)
+        self.events_granted_user.user_permissions.add(
+            view_event, view_eventupdate)
 
         self.superuser = UserFactory()
-        self.superuser.is_superuser = True; self.superuser.is_staff = True
+        self.superuser.is_superuser = True
+        self.superuser.is_staff = True
         self.superuser.save()
 
     def _get_client(self):
