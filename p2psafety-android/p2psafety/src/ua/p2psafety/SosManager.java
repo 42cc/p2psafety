@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 
+import com.facebook.android.Util;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +57,8 @@ public class SosManager {
         Notifications.notifSosStarted(mContext);
 
         // report event to the server
-        //serverStartSos();
+        if (Utils.isFbAuthenticated(mContext))
+            serverStartSos();
 
         // make phone call
         mContext.startService(new Intent(mContext, PhoneCallService.class));
@@ -74,7 +77,8 @@ public class SosManager {
         // TODO: send "i'm safe now" SMS and email messages (ask if needed)
 
         // report event to the server
-        //serverStopSos();
+        if (Utils.isFbAuthenticated(mContext))
+            serverStopSos();
 
         mContext.stopService(new Intent(mContext, PhoneCallService.class));
 
@@ -109,8 +113,10 @@ public class SosManager {
                     new NetworkManager.DeliverResultRunnable<Event>() {
                         @Override
                         public void deliver(Event event) {
-                            setEvent(event);
-                            serverUpdateLocation(); // make this event active
+                            if (event != null) {
+                                setEvent(event);
+                                serverUpdateLocation(); // make this event active
+                            }
                         }
                     });
         } else {

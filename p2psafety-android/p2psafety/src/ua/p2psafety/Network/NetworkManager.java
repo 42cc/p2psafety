@@ -35,6 +35,7 @@ import java.util.concurrent.Executors;
 import ua.p2psafety.Event;
 import ua.p2psafety.SosManager;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Utils;
 
 public class NetworkManager {
     private static final String SERVER_URL = "http://www.p2psafety.net";
@@ -62,10 +63,14 @@ public class NetworkManager {
             public void run() {
                 final String TAG = "createEvent";
 
-//                if (!Utils.isNetworkConnected(context)) {
+                if (!Utils.isNetworkConnected(context)) {
 //                    errorDialog(context, DIALOG_NO_CONNECTION);
-//                    return;
-//                }
+                    if (postRunnable != null) {
+                        postRunnable.setResult(null);
+                        postRunnable.run();
+                    }
+                    return;
+                }
 
                 String access_token = Session.getActiveSession().getAccessToken();
 
@@ -89,7 +94,11 @@ public class NetworkManager {
                     try {
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
-                        errorDialog(context, DIALOG_NETWORK_ERROR);
+                        //errorDialog(context, DIALOG_NETWORK_ERROR);
+                        if (postRunnable != null) {
+                            postRunnable.setResult(null);
+                            postRunnable.run();
+                        }
                         return;
                     }
 
@@ -112,7 +121,11 @@ public class NetworkManager {
                         postRunnable.run();
                     }
                 } catch (Exception e) {
-                    errorDialog(context, DIALOG_NETWORK_ERROR);
+                    //errorDialog(context, DIALOG_NETWORK_ERROR);
+                    if (postRunnable != null) {
+                        postRunnable.setResult(null);
+                        postRunnable.run();
+                    }
                 }
             }
         });

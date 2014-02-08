@@ -36,7 +36,6 @@ public class PhoneCallService extends Service {
         filter.addAction("android.intent.action.NEW_OUTGOING_CALL");
         context.registerReceiver(new OutgoingBroadcastReceiver(), filter);
 
-
         return START_STICKY;
     }
 
@@ -75,8 +74,9 @@ public class PhoneCallService extends Service {
 
                         // start our app
                         startMain = new Intent(context, SosActivity.class);
-                        startMain.addCategory(Intent.CATEGORY_HOME);
+                        //startMain.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        //startMain.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         context.startActivity(startMain);
 
                         return null;
