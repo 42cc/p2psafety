@@ -23,6 +23,8 @@ public class Prefs {
     private static final String MEDIA_RECORD_TYPE = "MEDIA_RECORD_TYPE";
     private static final String MEDIA_RECORD_LENGTH = "MEDIA_RECORD_LENGTH";
 
+    private static final String GMAIL_TOKEN = "GMAIL_TOKEN";
+
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
     }
@@ -74,6 +76,16 @@ public class Prefs {
         return b;
     }
 
+    public static String getGmailToken(Context context)
+    {
+        return getPrefs(context).getString(GMAIL_TOKEN, null);
+    }
+
+    public static void setGmailToken(Context context, String token)
+    {
+        getPrefs(context).edit().putString(GMAIL_TOKEN, token).commit();
+    }
+
     public static long getSosDelay(Context context) {
         return getPrefs(context).getLong(SOS_DELAY_KEY, 2*1000*60); // default is 2 min
     }
@@ -106,14 +118,16 @@ public class Prefs {
     private static final String EVENT_URI = "EVENT_URI";
 
     public static void putEvent(Context context, Event event) {
-        getPrefs(context).edit()
-                .putString(EVENT_ID, event.getId())
-                .putString(EVENT_KEY, event.getKey())
-                .putString(EVENT_STATUS, event.getStatus())
-                .putString(EVENT_URI, event.getUri())
-                .commit();
+        if (event != null) {
+            getPrefs(context).edit()
+                    .putString(EVENT_ID, event.getId())
+                    .putString(EVENT_KEY, event.getKey())
+                    .putString(EVENT_STATUS, event.getStatus())
+                    .putString(EVENT_URI, event.getUri())
+                    .commit();
 
-        putUser(context, event.getUser());
+            putUser(context, event.getUser());
+        }
     }
 
     public static Event getEvent(Context context) {

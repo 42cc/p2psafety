@@ -9,10 +9,13 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.widget.Toast;
 
+import com.sun.mail.dsn.multipart_report;
+
 import java.io.File;
 import java.io.IOException;
 
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Utils;
 
 public class AudioRecordService extends Service {
     private static Boolean mTimerOn = false;
@@ -63,10 +66,11 @@ public class AudioRecordService extends Service {
 
     public void startRecording() {
         try {
+            mDuration = Prefs.getMediaRecordLength(getApplicationContext());
+
             prepareRecorder();
             mRecorder.start();
 
-            mDuration = Prefs.getMediaRecordLength(getApplicationContext());
             mTimeLeft = mDuration;
             mTimer = new AudioRecordTimer(mDuration, 1000);
             mTimer.start();
@@ -86,14 +90,28 @@ public class AudioRecordService extends Service {
             mediaDir = Environment.getExternalStorageDirectory();
         else
             mediaDir = getFilesDir();
-        mRecordFile = File.createTempFile("sound", ".mp4", mediaDir);
+        mRecordFile = new File(mediaDir, "sound.mp4");
 
         mRecorder = new MediaRecorder();
-        mRecorder.setAudioSource(MediaRecorder.getAudioSourceMax());
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        mRecorder.setAudioEncodingBitRate(128000);
-        mRecorder.setAudioSamplingRate(16000);
+
+        int duration = (int) mDuration / 60000;
+        boolean lowQuality = false;
+        if (!Utils.isWiFiConnected(getApplicationContext()))
+            lowQuality = true;
+
+        if (duration < 2 && !lowQuality) {
+            mRecorder.setAudioEncodingBitRate(256000);
+            mRecorder.setAudioSamplingRate(48000);
+        } else if (duration < 5 && !lowQuality) {
+            mRecorder.setAudioEncodingBitRate(128000);
+            mRecorder.setAudioSamplingRate(32000);
+        } else {
+            mRecorder.setAudioEncodingBitRate(64000);
+            mRecorder.setAudioSamplingRate(16000);
+        }
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
         mRecorder.prepare();
     }
@@ -104,6 +122,8 @@ public class AudioRecordService extends Service {
 
         mTimer.cancel();
         mTimerOn = false;
+
+        Utils.sendMailsWithAttachments(this, R.string.audio, mRecordFile);
 
         Notifications.removeNotification(getApplicationContext(), Notifications.NOTIF_AUDIO_RECORD_CODE);
         Notifications.notifAudioRecordingFinished(getApplicationContext());
