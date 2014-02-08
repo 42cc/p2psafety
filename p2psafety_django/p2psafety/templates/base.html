@@ -5,6 +5,11 @@
 <head>
   <title>{% block head_title %}Колективна безпека.{% endblock %}</title>
   <meta charset="utf-8">
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="{{ request.build_absolute_uri }}"/>
+  <meta property="og:title" content="Колективна безпека."/>
+  <meta property="og:site_name" content="p2psafety.net"/>
+  <meta property="og:description" content="Розподілена система швидкого реагування на екстренні події." />
   {% block styles %}
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
   <link rel="stylesheet" href="{% static 'css/common.css' %}">
