@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -83,6 +83,8 @@ WSGI_APPLICATION = 'p2psafety.wsgi.application'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
+
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'static_media', 'static'))
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
