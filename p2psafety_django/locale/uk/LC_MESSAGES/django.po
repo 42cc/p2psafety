@@ -31,7 +31,7 @@ msgstr "Що це?"
 #: templates/site/index.html:25
 msgid ""
 "P2P Safety is decentralized system to quickly react on emergencies. Think "
-"911, but protection is provided by other users, not third-parties"
+"911, but protection is provided by other users, not third-parties."
 msgstr ""
 "Колективна безпека - розподілена система швидкого реагування на екстренні "
 "події. Це як 911, тільки захист учасників забезпечують інші учасники, а не "
