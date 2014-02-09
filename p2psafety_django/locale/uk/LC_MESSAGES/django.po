@@ -59,7 +59,7 @@ msgid ""
 "hardware button - wait for vibro response - another 3 clicks"
 msgstr ""
 "В разі небезпеки активуйте кнопку СОС через додаток, або потрійним "
-"нажаттям на кнопку блоку"
+"нажаттям на кнопку блоку - вібро фідбек - ще три нажаття"
 
 #: templates/site/index.html:45
 msgid "I want to protect"
