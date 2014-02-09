@@ -11,6 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+.. tastydoc:: p2psafety.urls.api_v1
+
 
 Indices and tables
 ==================
