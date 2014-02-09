@@ -67,5 +67,13 @@ loaddata:
 	@echo Load data from fixtures ...
 	$(MANAGE) loaddata $(FIXTURES)
 
+makemessages:
+	@echo Preparing .po files ...
+	cd p2psafety_django && python manage.py makemessages --all
+
+compilemessages:
+	@echo Preparing .mo files ...
+	$(MANAGE) compilemessages
+
 help:
 	@cat INSTALL.rst
