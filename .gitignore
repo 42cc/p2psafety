@@ -78,3 +78,6 @@ Makefile.def
 
 # Media, uploaded files
 p2psafety_django/p2psafety/static_media/
+
+# Sphinx docs build
+p2psafety_django/docs/build/
