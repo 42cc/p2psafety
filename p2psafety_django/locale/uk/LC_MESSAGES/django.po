@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-09 20:12+0000\n"
+"POT-Creation-Date: 2014-02-09 20:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,11 +55,11 @@ msgstr "Зареєструйтеся, введіть необхідні дані
 
 #: templates/site/index.html:41
 msgid ""
-"In case of emergency pull the SOS button or activate it by 3 clicks on "
+"In case of emergency hold the SOS button or activate it by 3 clicks on "
 "hardware block button - wait for vibro response - another 3 clicks"
 msgstr ""
-"В разі небезпеки активуйте кнопку СОС через додаток, або потрійним нажаттям "
-"на кнопку блоку - вібро фідбек - ще три нажаття"
+"В разі небезпеки натисніть кнопку СОС у додатку, або активуйте тривогу "
+"потрійним нажаттям на кнопку блоку - вібро фідбек - ще три нажаття"
 
 #: templates/site/index.html:45
 msgid "I want to protect"
