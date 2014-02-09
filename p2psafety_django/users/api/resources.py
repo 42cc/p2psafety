@@ -19,6 +19,11 @@ class UserResource(ModelResource):
         fields = ['id']
         detail_allowed_methods = []
         list_allowed_methods = []
+        extra_actions = {
+            'roles': {
+                'url': '/{userpk}/roles/',
+            }
+        }
 
     full_name = fields.CharField('get_full_name')
 
@@ -35,13 +40,15 @@ class UserResource(ModelResource):
 
     def roles(self, request, pk=None, **kwargs):
         """
-        For GET method, returns user's roles as list of ids.
-        For POST method, sets user's roles to given list of ids as
-        ``role_id`` POST param.
+        Manages user's roles:
 
-        Raises 403 if ``role_id`` is not found within POST params dict or it is
-        not a list of valid ids.
-        Raises 404 if user is not found.
+        * For **GET** method, returns user's roles as list of ids.
+        * For **POST** method, sets user's roles to given list of ids as ``role_id`` POST param.
+
+        Raises:
+
+        * **403** if ``role_id`` is not found within POST params dict or it is not a list of valid ids.
+        * **404** if user is not found.
         """
         self.method_check(request, allowed=['get', 'post'])
         self.throttle_check(request)

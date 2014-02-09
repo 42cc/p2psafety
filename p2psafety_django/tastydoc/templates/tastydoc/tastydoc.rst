@@ -1,3 +1,5 @@
+{% autoescape off %}
+
 {% for key,endpoint in endpoints.items %}
 {{ endpoint.list_endpoint }}
 ----------------------------------------------------------
@@ -7,7 +9,6 @@
 **Model Fields**:
 {% for field, field_meta in endpoint.schema.fields.items %}
     ``{{ field }}``:
-
         :Type:
             {{ field_meta.type }}
         :Description: 
@@ -20,10 +21,15 @@
 
 JSON Response ::
 
-    {
-    {% for field, field_meta in endpoint.schema.fields.items %} {{ field }}:<{{ field_meta.type }}>,
-    {% endfor %}
+    {{% for field, field_meta in endpoint.schema.fields.items %}
+        {{ field }}:<{{ field_meta.type }}>,{% endfor %}
     }
 
+{% for method_name, method_data in endpoint.extra_actions.items %}
+{{ method_data.url }}
+-----------------------------------------------------------
+    {{ method_data.description }}
+{% endfor %}
 
 {% endfor %}
+{% endautoescape %}

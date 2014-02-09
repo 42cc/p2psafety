@@ -1,5 +1,6 @@
 import simplejson
 
+from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 
@@ -39,7 +40,18 @@ class TastyDirective(Directive):
             resource = api._registry[name]
             top_level_doc[name]['schema'] = resource.build_schema()
             top_level_doc[name]['docstring'] = resource.__doc__
+            list_endpoint = top_level_doc[name]['list_endpoint']
+            top_level_doc[name]['extra_actions'] = self.build_extra_actions(resource, list_endpoint)
 
         output_rst = render_to_string('tastydoc/tastydoc.rst', {'endpoints': top_level_doc})
         doctree = publish_doctree(output_rst)
         return doctree.children
+
+    def build_extra_actions(self, resource, list_endpoint):
+        result = getattr(resource._meta, 'extra_actions', {})
+        for method_name, method_cfg in result.iteritems():
+            method_cfg['url'] = list_endpoint + method_cfg.get('url', '').lstrip('/')
+            method = getattr(resource, method_name, None)
+            if method:
+                method_cfg['description'] = method.__doc__
+        return result
