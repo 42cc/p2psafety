@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-09 19:25+0000\n"
+"POT-Creation-Date: 2014-02-09 20:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,8 +34,8 @@ msgid ""
 "911, but protection is provided by other users, not third-parties"
 msgstr ""
 "Колективна безпека - розподілена система швидкого реагування на екстренні "
-"події. Це як 911, тільки захист учасників забезпечують інші учасники, а "
-"не третя сторона."
+"події. Це як 911, тільки захист учасників забезпечують інші учасники, а не "
+"третя сторона."
 
 #: templates/site/index.html:32
 msgid "How does it work?"
@@ -56,10 +56,10 @@ msgstr "Зареєструйтеся, введіть необхідні дані
 #: templates/site/index.html:41
 msgid ""
 "In case of emergency pull the SOS button or activate it by 3 clicks on "
-"hardware button - wait for vibro response - another 3 clicks"
+"hardware block button - wait for vibro response - another 3 clicks"
 msgstr ""
-"В разі небезпеки активуйте кнопку СОС через додаток, або потрійним "
-"нажаттям на кнопку блоку - вібро фідбек - ще три нажаття"
+"В разі небезпеки активуйте кнопку СОС через додаток, або потрійним нажаттям "
+"на кнопку блоку - вібро фідбек - ще три нажаття"
 
 #: templates/site/index.html:45
 msgid "I want to protect"
