@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load staticfiles %}
+{% load i18n %}
 
 {% block styles %}
   {{ block.super }}
@@ -9,58 +10,58 @@
 {% block content %}
     <div class="row">
         <div class="col-md-12 page-header">
-            <h1>Колективна безпека.</h1>
+            <h1>{% trans "P2P Safety" %}</h1>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12">
-            <h2>Що це?</h2>
+            <h2>{% trans "What is it?" %}</h2>
         </div>
     </div>
     <div class="row well">
         <div class="col-md-12">
             <p>
-                Колективна безпека - розподілена система швидкого реагування на екстренні події. Це як 911, тільки захист учасників забезпечують інші учасники, а не третя сторона.
+                {% trans "P2P Safety is decentralized system to quickly react on emergencies. Think 911, but protection is provided by other users, not third-parties" %}
             </p>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12">
-            <h2>Як це працює?</h2>
+            <h2>{% trans "How does it work?" %}</h2>
         </div>
     </div>
     <div class="row well">
         <div class="col-md-6">
-            <h3>Мені потрібен захист</h3>
+            <h3>{% trans "I need protection" %}</h3>
             <ol>
-                <li>Завантажте додаток</li>
-                <li>Зареєструйтеся, введіть необхідні дані</li>
-                <li>В разі небезпеки активуйте кнопку СОС через додаток, або потрійним нажаттям на кнопку блоку</li>
+                <li>{% trans "Download the app" %}</li>
+                <li>{% trans "Register, fill in all the required data" %}</li>
+                <li>{% trans "In case of emergency pull the SOS button or activate it by 3 clicks on hardware block button - wait for vibro response - another 3 clicks" %}</li>
             </ol>
         </div>
         <div class="col-md-6">
-            <h3>Я хочу бути корисним</h3>
+            <h3>{% trans "I want to protect" %}</h3>
             <ol>
-                <li>Будьте на зв’язку, ми працюємо над цим</li>
-                <li>Долучайтесь до дискусії у фейсбук групі</li>
+                <li>{% trans "Keep in touch, we are working on this part" %}</li>
+                <li>{% trans "Join the discussion group on facebook" %}</li>
             </ol>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12">
-            <h2>Як допомогти проекту?</h2>
+            <h2>{% trans "How can I help?" %}</h2>
         </div>
     </div>
     <div class="row well">
         <div class="col-md-4">
-            <h3>Завантажте додаток</h3>
+            <h3>{% trans "Download the app" %}</h3>
             <a href="https://play.google.com/store/apps/details?id=ua.p2psafety" class="btn btn-default btn-lg" target="_blank">
                 <img alt="Колективна безпека на Google Play"
                    src="{% static "img/google_play.png" %}" />
-                Колективна безпека
+                {% trans "P2P Safety" %}
             </a>
             {% comment %}
                 {# Anternative button #}
@@ -71,15 +72,15 @@
             {% endcomment %}
         </div>
         <div class="col-md-4">
-            <h3>Долучайтесь до дискусії</h3>
+            <h3>{% trans "Join the discussion" %}</h3>
             <a href="https://www.facebook.com/groups/p2psafety/" class="btn btn-default btn-lg" target="_blank">
                 <img alt="Колективна безпека на фейсбуці"
                    src="{% static "img/facebook.png" %}" />
-                Колективна безпека.
+                {% trans "P2P Safety" %}
             </a>
        </div>
         <div class="col-md-4">
-            <h3>Cлідкуйте за прогресом</h3>
+            <h3>{% trans "Track our progress" %}</h3>
             <a href="https://github.com/42cc/p2psafety/" class="btn btn-default btn-lg" target="_blank">
               <img alt="Колективна безпека на гітхабі"
                    src="{% static "img/github.png" %}" />
@@ -90,19 +91,19 @@
 
     <div class="row">
         <div class="col-md-12">
-            <h2>Навіщо?</h2>
+            <h2>{% trans "Why?" %}</h2>
         </div>
     </div>
     <div class="row well">
         <div class="col-md-12">
             <p>
-                Ми віримо в розподілені системи, де кожен може брати на себе відповідальність.
+                {% trans "We believe in decentralised systems, where everyone can take responsibility." %}
             </p>
             <p>
-                Ми вважаємо, що якщо громаді потрібен захист, то найкращий спосіб його надати - дозволити та навчити людей захищати самих себе.
+                {% trans "We think that the best way to provide safety is to teach people how to protect themselves." %}
             </p>
             <p>
-                Ми вважаємо, що в 21 столітті варто використовувати потенціал технологій, особливо, в таких сферах, як безпека.
+                {% trans "We are certain that in 21st century we should use the full potential of technologies, especially in such fields as protection." %}
             </p>
         </div>
     </div>
