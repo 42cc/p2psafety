@@ -36,10 +36,9 @@ class TastyDirective(Directive):
         top_level_doc = simplejson.loads(top_level_response.content)
 
         for name in sorted(api._registry.keys()):        
-            resource_dict = top_level_doc[name]
             resource = api._registry[name]
-            schema = resource.build_schema()
-            resource_dict['schema'] = schema
+            top_level_doc[name]['schema'] = resource.build_schema()
+            top_level_doc[name]['docstring'] = resource.__doc__
 
         output_rst = render_to_string('tastydoc/tastydoc.rst', {'endpoints': top_level_doc})
         doctree = publish_doctree(output_rst)

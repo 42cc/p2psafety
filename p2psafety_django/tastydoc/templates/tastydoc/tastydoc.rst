@@ -2,6 +2,7 @@
 {{ endpoint.list_endpoint }}
 ----------------------------------------------------------
 
+{% if endpoint.docstring %}{{ endpoint.docstring }}{% endif %}
 
 **Model Fields**:
 {% for field, field_meta in endpoint.schema.fields.items %}
