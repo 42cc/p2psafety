@@ -9,10 +9,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.util.List;
+
 import ua.p2psafety.R;
 import ua.p2psafety.data.PhonesDatasourse;
-
-import java.util.List;
 
 /**
  * Created by ihorpysmennyi on 12/7/13.

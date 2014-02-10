@@ -1,10 +1,10 @@
 package ua.p2psafety;
 
-import android.content.BroadcastReceiver;
-import android.content.IntentFilter;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 
@@ -22,15 +22,6 @@ public class DelayedSosService extends Service {
     private static long mTimeLeft = 0;
 
     private static DelayedSosTimer mTimer;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    public void onCreate(Context context) {
-        super.onCreate();
-    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

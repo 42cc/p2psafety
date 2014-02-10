@@ -1,6 +1,8 @@
 package ua.p2psafety;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -13,8 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.facebook.Session;
+import com.facebook.SessionState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +29,7 @@ import ua.p2psafety.password.PasswordFragment;
 import ua.p2psafety.setemails.SetEmailsFragment;
 import ua.p2psafety.setphones.SetPhoneFragment;
 import ua.p2psafety.setservers.SetServersFragment;
+import ua.p2psafety.util.Utils;
 
 /**
  * Created by Taras Melon on 08.01.14.
@@ -71,41 +76,67 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view,
                                     int position, long id) {
-                Fragment mfragment;
+                final Fragment[] mfragment = new Fragment[1];
                 FragmentManager mfragmentManager = getFragmentManager();
-                FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
+                final FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
 
                 switch (position) {
                     case 0:
-                        mfragment = new SetPhoneFragment();
+                        mfragment[0] = new SetPhoneFragment();
                         fragmentTransaction.addToBackStack(SetPhoneFragment.TAG);
-                        fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
 
                     case 1:
-                        mfragment = new MessageFragment();
+                        mfragment[0] = new MessageFragment();
                         fragmentTransaction.addToBackStack(MessageFragment.TAG);
-                        fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 2:
-                        mfragment = new SetEmailsFragment();
+                        mfragment[0] = new SetEmailsFragment();
                         fragmentTransaction.addToBackStack(SetEmailsFragment.TAG);
-                        fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 3:
-                        mfragment = new SetServersFragment();
-                        fragmentTransaction.addToBackStack(SetServersFragment.TAG);
-                        fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                        if (Utils.isFbAuthenticated(mActivity)) {
+                            mfragment[0] = new SetServersFragment();
+                            fragmentTransaction.addToBackStack(SetServersFragment.TAG);
+                            fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
+                        } else {
+                            // ask user if he wants to login via FB
+                            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                            builder.setTitle("Авторизоваться через Facebook?");
+                            builder.setNegativeButton(android.R.string.cancel, null);
+                            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Session.StatusCallback mStatusCallback = new Session.StatusCallback() {
+                                        @Override
+                                        public void call(final Session session, SessionState state, Exception exception) {
+                                            if (state.isOpened()) {
+                                                mfragment[0] = new SetServersFragment();
+                                                fragmentTransaction.addToBackStack(SetServersFragment.TAG);
+                                                fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
+                                            }
+                                        }
+                                    };
+
+                                    ((SosActivity) mActivity)
+                                            .loginToFacebook(mActivity, mStatusCallback);
+                                }
+                            });
+                            builder.create().show();
+                        }
                         break;
                     case 4:
-                        mfragment = new PasswordFragment();
+                        mfragment[0] = new PasswordFragment();
                         fragmentTransaction.addToBackStack(PasswordFragment.TAG);
-                        fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 5:
-                        mfragment = new SetMediaFragment();
+                        mfragment[0] = new SetMediaFragment();
                         fragmentTransaction.addToBackStack(SetMediaFragment.TAG);
-                        fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 6:
                         logout();
@@ -118,7 +149,6 @@ public class SettingsFragment extends Fragment {
     }
 
     public void logout() {
-
         if (Session.getActiveSession() != null)
             Session.getActiveSession().closeAndClearTokenInformation();
         Session.setActiveSession(null);
@@ -132,7 +162,10 @@ public class SettingsFragment extends Fragment {
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(i);
 
-        mActivity.finish();
+        Toast.makeText(mActivity, "Готово", Toast.LENGTH_SHORT)
+             .show();
+
+        //mActivity.finish();
 
         return;
     }

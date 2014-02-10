@@ -1,4 +1,5 @@
 TASTYPIE_ABSTRACT_APIKEY = True
+API_LIMIT_PER_PAGE = 0
 
 SRID = {
     'default': 4326,  # WGS84, stored in database

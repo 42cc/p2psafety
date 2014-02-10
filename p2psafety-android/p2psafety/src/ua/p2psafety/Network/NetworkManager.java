@@ -8,25 +8,18 @@ import android.util.Log;
 import com.facebook.Session;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -34,7 +27,7 @@ import java.util.concurrent.Executors;
 
 import ua.p2psafety.Event;
 import ua.p2psafety.SosManager;
-import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Utils;
 
 public class NetworkManager {
     private static final String SERVER_URL = "http://p2psafety.staging.42cc.co";
@@ -62,10 +55,14 @@ public class NetworkManager {
             public void run() {
                 final String TAG = "createEvent";
 
-//                if (!Utils.isNetworkConnected(context)) {
+                if (!Utils.isNetworkConnected(context)) {
 //                    errorDialog(context, DIALOG_NO_CONNECTION);
-//                    return;
-//                }
+                    if (postRunnable != null) {
+                        postRunnable.setResult(null);
+                        postRunnable.run();
+                    }
+                    return;
+                }
 
                 String access_token = Session.getActiveSession().getAccessToken();
 
@@ -89,7 +86,11 @@ public class NetworkManager {
                     try {
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
-                        errorDialog(context, DIALOG_NETWORK_ERROR);
+                        //errorDialog(context, DIALOG_NETWORK_ERROR);
+                        if (postRunnable != null) {
+                            postRunnable.setResult(null);
+                            postRunnable.run();
+                        }
                         return;
                     }
 
@@ -112,7 +113,11 @@ public class NetworkManager {
                         postRunnable.run();
                     }
                 } catch (Exception e) {
-                    errorDialog(context, DIALOG_NETWORK_ERROR);
+                    //errorDialog(context, DIALOG_NETWORK_ERROR);
+                    if (postRunnable != null) {
+                        postRunnable.setResult(null);
+                        postRunnable.run();
+                    }
                 }
             }
         });
@@ -145,8 +150,10 @@ public class NetworkManager {
                     json.put("text", data.get("text"));
                     try {
                         Location loc = (Location) data.get("loc");
-                        json.put("latitude",  loc.getLatitude());
-                        json.put("longitude", loc.getLongitude());
+                        JSONObject jsonLocation = new JSONObject();
+                        jsonLocation.put("latitude",  loc.getLatitude());
+                        jsonLocation.put("longitude", loc.getLongitude());
+                        json.put("location", jsonLocation);
                     } catch (Exception e) {}
 
                     StringEntity se = new StringEntity(json.toString(), "UTF-8");

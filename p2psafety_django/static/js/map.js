@@ -40,7 +40,8 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
     };
   };
   $scope.update = function() {
-    $http.get(urls.events).success(function(data) {
+    var params = {status: 'A'};
+    $http.get(urls.events, {params: params}).success(function(data) {
       for (i in data.objects) {
         var event = data.objects[i];
         // TODO: display it manually
