@@ -55,12 +55,13 @@ public class Widget extends AppWidgetProvider {
         String action = intent.getAction();
 
         if (action.equals(WIDGET_CLICKED)) {
-            if (!Utils.isFbAuthenticated(mContext)) {
-                // don't let use widget if not authenticated
-                Intent i = new Intent(context, LoginActivity.class);
-                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(i);
-            } else if (DelayedSosService.isTimerOn()) {
+//            if (!Utils.isFbAuthenticated(mContext)) {
+//                // don't let use widget if not authenticated
+//                Intent i = new Intent(context, LoginActivity.class);
+//                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                context.startActivity(i);
+//            } else
+            if (DelayedSosService.isTimerOn()) {
                 // if delayed sos is on - show timer screen
                 Intent i = new Intent(context, SosActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

@@ -113,6 +113,7 @@ public class Notifications extends BroadcastReceiver{
                 .setOngoing(true)
                 .setProgress((int) (timeTotal / 1000), (int) ((timeTotal - timeLeft) / 1000), false)
                 .setOnlyAlertOnce(true)
+                .setSound(null)
                 .setPriority(1000);
 
         nm.notify(NOTIF_AUDIO_RECORD_CODE, builder.build());
@@ -157,6 +158,7 @@ public class Notifications extends BroadcastReceiver{
                 .setOngoing(true)
                 .setProgress((int) (timeTotal / 1000), (int) ((timeTotal - timeLeft) / 1000), false)
                 .setOnlyAlertOnce(true)
+                .setSound(null)
                 .setPriority(1000);
 
         nm.notify(NOTIF_VIDEO_RECORD_CODE, builder.build());

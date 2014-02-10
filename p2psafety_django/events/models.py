@@ -40,8 +40,13 @@ class Event(models.Model):
     TYPE_SUPPORT = 1
     EVENT_TYPE = (
         (TYPE_VICTIM, 'victim'),
-        (TYPE_SUPPORT, 'support')
+        (TYPE_SUPPORT, 'support'),
     )
+
+    class Meta:
+        permissions = (
+            ("view_event", "Can view event"),
+        )
 
     objects = EventManager()
 
@@ -125,6 +130,9 @@ class EventUpdate(models.Model):
     Event update. Stores any kind of additional information for event.
     """
     class Meta:
+        permissions = (
+            ("view_eventupdate", "Can view event update"),
+        )
         get_latest_by = 'timestamp'
 
     event = models.ForeignKey(Event, related_name='updates')
@@ -138,6 +146,9 @@ class EventUpdate(models.Model):
     objects = geomodels.GeoManager()
 
     def save(self, *args, **kwargs):
+        """
+        Event that received an update becomes active.
+        """
         self.event.status = 'A'
         self.event.save()
-        super(EventUpdate, self).save(*args, **kwargs)
+        return super(EventUpdate, self).save(*args, **kwargs)
