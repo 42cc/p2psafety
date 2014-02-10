@@ -107,4 +107,20 @@
             </p>
         </div>
     </div>
+
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE != 'uk' %}
+        <div class="row">
+            <div class="col-md-12">
+                <h2>{% trans "What else should I know?" %}</h2>
+            </div>
+        </div>
+        <div class="row well">
+            <div class="col-md-12">
+                <p>
+                    {% trans "The main language of our facebook group is Ukrainian. Don't be scared, you can ask your question in English and we will provide answers for you" %}
+                </p>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
