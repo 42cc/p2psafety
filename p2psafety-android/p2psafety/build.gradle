@@ -29,6 +29,11 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0' exclude module: 'httpclient'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0' exclude module: 'httpclient'
 
+    // http client
+    compile 'httpcomponents-httpcore:httpcore:4.0-alpha6' exclude module: 'httpclient'
+    compile 'org.apache.httpcomponents:httpmime:4.3.1' exclude module: 'httpclient'
+    compile 'org.apache.httpcomponents:httpclient:4.3.1'
+
     compile fileTree(dir: '../libs', include: '*.jar')
 }
 
