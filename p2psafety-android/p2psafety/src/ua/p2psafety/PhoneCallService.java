@@ -48,7 +48,9 @@ public class PhoneCallService extends Service {
             Intent phoneCallIntent = new Intent(Intent.ACTION_CALL);
             phoneCallIntent.setData(Uri.parse(phoneCallUri));
             phoneCallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(phoneCallIntent);
+            try {
+                context.startActivity(phoneCallIntent);
+            } catch (Exception e) {}
         }
     }
 

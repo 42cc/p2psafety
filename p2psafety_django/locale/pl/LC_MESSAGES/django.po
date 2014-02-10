@@ -55,7 +55,7 @@ msgstr "Zarejestruj się, wprowadź wymagane dane"
 
 #: templates/site/index.html:41
 msgid ""
-"In case of emergency pull the SOS button or activate it by 3 clicks on "
+"In case of emergency hold the SOS button or activate it by 3 clicks on "
 "hardware block button - wait for vibro response - another 3 clicks"
 msgstr ""
 "W razie niebezpieczeństwa włącz przycisk SOS za pośrednictwem aplikacji lub "
