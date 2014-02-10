@@ -71,6 +71,7 @@ INSTALLED_APPS = (
 
     'events',
     'users',
+    'tastydoc',
 
     'tastypie',
     'social.apps.django_app.default',
