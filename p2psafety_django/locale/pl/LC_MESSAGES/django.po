@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-10 13:55+0000\n"
-"PO-Revision-Date: 2014-02-10 11:19+0100\n"
+"POT-Creation-Date: 2014-02-10 21:40+0000\n"
+"PO-Revision-Date: 2014-02-10 15:30+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: pl\n"
@@ -34,8 +34,8 @@ msgid ""
 "911, but protection is provided by other users, not third-parties"
 msgstr ""
 "P2P Safety to rozproszony system szybkiego reagowania na zdarzenia awaryjne. "
-"Jest to podobne do 911, tylko ochronę uczestników zapewniają pozostali "
-"uczestnicy, a nie osoby trzecie"
+"Jest to system podobny do systemu ratunkowego 112, z tą różnicą, że ochronę "
+"uczestników zapewniają pozostali uczestnicy, a nie osoby trzecie"
 
 #: templates/site/index.html:32
 msgid "How does it work?"
@@ -109,8 +109,18 @@ msgid ""
 "We are certain that in 21st century we should use the full potential of "
 "technologies, especially in such fields as protection."
 msgstr ""
-"Wierzymy, że w 21 wieku powinniśmy wykorzystywać potencjał technologii, "
+"Wierzymy, że w XXI. wieku powinniśmy wykorzystywać potencjał technologii, "
 "szczególnie w takich dziedzinach, jak bezpieczeństwo."
+
+#: templates/site/index.html:116
+msgid "What else should I know?"
+msgstr ""
+
+#: templates/site/index.html:122
+msgid ""
+"The main language of our facebook group is Ukrainian. Don't be scared, you "
+"can ask your question in English and we will provide answers for you"
+msgstr ""
 
 #: users/models.py:8
 msgid "Role"
