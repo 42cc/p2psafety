@@ -3,6 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.views.generic import TemplateView
 
 from tastypie.api import Api
 
@@ -21,7 +22,7 @@ api_v1.register(RoleResource())
 
 
 urlpatterns = patterns('',
-    url(r'^$', 'p2psafety.views.index', name='index'),
+    url(r'^$', TemplateView.as_view(template_name='site/index.html'), name='index'),
     url(r'^', include('events.urls', namespace='events')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(api_v1.urls)),
