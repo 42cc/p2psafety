@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from phonenumber_field.modelfields import PhoneNumberField
+
 
 class Profile(models.Model):
     class Meta:
@@ -9,6 +11,7 @@ class Profile(models.Model):
         verbose_name_plural = _('Profiles')
 
     user = models.OneToOneField(User, related_name='profile')
+    phone_number = PhoneNumberField(null=True, blank=True)
 
     def __unicode__(self):
         return u"%s' profile" % self.user.username 
