@@ -3,6 +3,20 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
+class Profile(models.Model):
+    class Meta:
+        verbose_name = _('Profile')
+        verbose_name_plural = _('Profiles')
+
+    user = models.OneToOneField(User, related_name='profile')
+
+    def __unicode__(self):
+        return u"%s' profile" % self.user.username 
+    
+
+User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
+
+
 class Role(models.Model):
     class Meta:
         verbose_name = _('Role')
