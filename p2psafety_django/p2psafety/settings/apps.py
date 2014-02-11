@@ -6,9 +6,17 @@ SRID = {
     'projected': 900913,  # for Spatialite distance calculation
 }
 
-# Fill the fields below for facebook auth to work
-SOCIAL_AUTH_FACEBOOK_KEY = NotImplemented
-SOCIAL_AUTH_FACEBOOK_SECRET = NotImplemented
+#
+# django-allauth settings
+#
+# Login method to use
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
+# Required during registration
+ACCOUNT_EMAIL_REQUIRED = True
+# Email verification is required
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_SIGNUP_FORM_CLASS = 'users.forms.SignupForm'
+
 
 POSTGIS_TEMPLATE = 'template_postgis'
 
