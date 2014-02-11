@@ -26,6 +26,10 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(api_v1.urls)),
     url(r'^login/$', 'p2psafety.views.login', name='login'),
+    
+    # Delete next line to allow logout confirmation
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}),
+    
     url(r'^accounts/', include('allauth.urls')),
 )
 
