@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load staticfiles %}
+{% load socialaccount %}
 
 {% block styles %}
   {{ block.super }}
@@ -11,7 +12,6 @@
   <div class="signin">
     <h2>Колективна безпека</h2>
     <p class="lead">Для доступу необхідна авторизація</p>
-    {% url 'social:begin' backend='facebook' as login_url %}
-    <a class="btn btn-lg btn-primary btn-block" href="{{ login_url }}?next={{ NEXT_PAGE }}">Sign in with Facebook</a>
+    <a class="btn btn-lg btn-primary btn-block" href="{% provider_login_url 'facebook' method='oauth2' %}">Sign in with Facebook</a>
   </div>
 {% endblock %}

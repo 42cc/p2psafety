@@ -47,9 +47,6 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-LOGIN_URL = '/login/'
-LOGOUT_REDIRECT_URL = '/'
-
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -82,6 +79,8 @@ INSTALLED_APPS = (
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
 )
+
+SITE_ID = 1
 
 ROOT_URLCONF = 'p2psafety.urls'
 
