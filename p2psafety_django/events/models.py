@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
+from django.utils import timezone
 
 try:
     from hashlib import sha1
@@ -136,7 +137,7 @@ class EventUpdate(models.Model):
         get_latest_by = 'timestamp'
 
     event = models.ForeignKey(Event, related_name='updates')
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(default=timezone.now)
 
     text = models.TextField(blank=True)
     location = geomodels.PointField(srid=settings.SRID['default'], blank=True, null=True)
@@ -149,6 +150,9 @@ class EventUpdate(models.Model):
         """
         Event that received an update becomes active.
         """
-        self.event.status = 'A'
-        self.event.save()
+        all_events_are_finished = not self.event.user.events.filter(
+            status__in=[Event.STATUS_PASSIVE, Event.STATUS_ACTIVE]).exists()
+        if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
+            self.event.status = Event.STATUS_ACTIVE
+            self.event.save()
         return super(EventUpdate, self).save(*args, **kwargs)
