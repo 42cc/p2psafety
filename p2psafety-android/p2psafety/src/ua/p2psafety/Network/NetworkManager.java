@@ -9,17 +9,24 @@ import com.facebook.Session;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -43,6 +50,8 @@ public class NetworkManager {
 
     public static void init(Context c) {
         HttpParams httpParams = new BasicHttpParams();
+        HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1);
+        //HttpProtocolParams.setContentCharset(httpParams, "unicode");
         HttpConnectionParams.setConnectionTimeout(httpParams, 0);
         HttpConnectionParams.setSoTimeout(httpParams, 0);
         httpClient = new DefaultHttpClient(httpParams);
@@ -118,6 +127,63 @@ public class NetworkManager {
                         postRunnable.setResult(null);
                         postRunnable.run();
                     }
+                }
+            }
+        });
+    }
+
+    public static void updateEventWithAttachment(final Context context,
+                                   final File file, final boolean isAudio,
+                                   final DeliverResultRunnable<Boolean> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final String TAG = "updateEvent";
+
+//                if (!Utils.isNetworkConnected(context)) {
+//                    errorDialog(context, DIALOG_NO_CONNECTION);
+//                    return;
+//                }
+
+                Event event = SosManager.getInstance(context).getEvent();
+
+                try {
+                    HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
+                            .append("/api/v1/eventupdates/").toString());
+
+                    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                    builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+                    if (isAudio)
+                        builder.addPart("audio", new FileBody(file));
+                    else
+                        builder.addPart("video", new FileBody(file));
+
+                    builder.addTextBody("key", event.getKey(), ContentType.APPLICATION_JSON);
+
+                    httpPost.setEntity(builder.build());
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpPost);
+                    } catch (Exception e) {
+                        errorDialog(context, DIALOG_NETWORK_ERROR);
+                        return;
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        postRunnable.setResult(true);
+                    } else {
+                        postRunnable.setResult(false);
+                    }
+
+                    postRunnable.run();
+                } catch (Exception e) {
+                    errorDialog(context, DIALOG_NETWORK_ERROR);
                 }
             }
         });

@@ -30,9 +30,14 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0' exclude module: 'httpclient'
 
     // http client
-    compile 'httpcomponents-httpcore:httpcore:4.0-alpha6' exclude module: 'httpclient'
+    compile 'org.apache.httpcomponents:httpcore:4.3.1' exclude module: 'httpclient'
     compile 'org.apache.httpcomponents:httpmime:4.3.1' exclude module: 'httpclient'
     compile 'org.apache.httpcomponents:httpclient:4.3.1'
+    compile 'commons-io:commons-io:2.4' exclude module: 'httpclient'
+    compile 'org.apache.httpcomponents:fluent-hc:4.3.2' exclude module: 'httpclient'
+    compile 'org.apache.httpcomponents:httpclient-cache:4.3.2'
+    compile 'commons-logging:commons-logging:1.1.3'
+    compile 'commons-codec:commons-codec:1.9'
 
     compile fileTree(dir: '../libs', include: '*.jar')
 }
@@ -92,7 +97,11 @@ android {
 
     // Gradle bug workaround
     packagingOptions {
-        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
     }
+
 }

@@ -9,11 +9,10 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.widget.Toast;
 
-import com.sun.mail.dsn.multipart_report;
-
 import java.io.File;
 import java.io.IOException;
 
+import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
@@ -51,7 +50,7 @@ public class AudioRecordService extends Service {
 
         @Override
         public void onFinish() {
-            stopRecording();
+            stopRecording(false);
         }
 
         @Override
@@ -90,7 +89,7 @@ public class AudioRecordService extends Service {
             mediaDir = Environment.getExternalStorageDirectory();
         else
             mediaDir = getFilesDir();
-        mRecordFile = new File(mediaDir, "sound.mp4");
+        mRecordFile = File.createTempFile("sound", ".mp4", mediaDir);
 
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
@@ -116,7 +115,7 @@ public class AudioRecordService extends Service {
         mRecorder.prepare();
     }
 
-    public void stopRecording() {
+    public void stopRecording(boolean isAlarmStop) {
         mRecorder.stop();
         mRecorder.release();
 
@@ -124,15 +123,27 @@ public class AudioRecordService extends Service {
         mTimerOn = false;
 
         Utils.sendMailsWithAttachments(this, R.string.audio, mRecordFile);
+        if (Utils.isFbAuthenticated(this))
+        {
+            NetworkManager.updateEventWithAttachment(this, mRecordFile, true, new NetworkManager.DeliverResultRunnable<Boolean>() {
+                @Override
+                public void deliver(Boolean aBoolean) {
+                    //good
+                }
+            });
+        }
 
         Notifications.removeNotification(getApplicationContext(), Notifications.NOTIF_AUDIO_RECORD_CODE);
         Notifications.notifAudioRecordingFinished(getApplicationContext());
+
+        if (!isAlarmStop)
+            startRecording();
     }
 
     @Override
     public void onDestroy() {
         if (mTimerOn) {
-            stopRecording();
+            stopRecording(true);
         }
         super.onDestroy();
     }

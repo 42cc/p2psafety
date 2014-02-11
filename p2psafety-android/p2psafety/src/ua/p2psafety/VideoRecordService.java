@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import java.io.File;
 
+import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
@@ -91,7 +92,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
         @Override
         public void onFinish() {
-            stopRecording();
+            stopRecording(false);
             mTimerOn = false;
         }
 
@@ -136,7 +137,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
             mediaDir = Environment.getExternalStorageDirectory();
         else
             mediaDir = getFilesDir();
-        mRecordFile = new File(mediaDir, "video.mp4");
+        mRecordFile = File.createTempFile("video", ".mp4", mediaDir);
 
         mCamera = getCameraInstance();
         if (mCamera == null) {
@@ -180,7 +181,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         return camera;
     }
 
-    public void stopRecording() {
+    public void stopRecording(boolean isAlarmStop) {
         mRecorder.stop();
         mRecorder.reset();
         mRecorder.release();
@@ -191,15 +192,27 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         mTimerOn = false;
 
         Utils.sendMailsWithAttachments(this, R.string.video, mRecordFile);
+        if (Utils.isFbAuthenticated(this))
+        {
+            NetworkManager.updateEventWithAttachment(this, mRecordFile, false, new NetworkManager.DeliverResultRunnable<Boolean>() {
+                @Override
+                public void deliver(Boolean aBoolean) {
+                    //good
+                }
+            });
+        }
 
         Notifications.removeNotification(getApplicationContext(), Notifications.NOTIF_VIDEO_RECORD_CODE);
         Notifications.notifVideoRecordingFinished(getApplicationContext());
+
+        if (!isAlarmStop)
+            startRecording();
     }
 
     @Override
     public void onDestroy() {
         if (mTimerOn) {
-            stopRecording();
+            stopRecording(true);
         }
         super.onDestroy();
     }
