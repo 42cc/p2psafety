@@ -14,9 +14,6 @@ from tastypie.resources import ModelResource
 from tastypie.utils import trailing_slash
 from tastypie.validation import Validation
 
-from social.backends.utils import get_backend
-from social.apps.django_app.utils import load_strategy
-
 from .fields import GeoPointField
 from .authentication import PostFreeSessionAuthentication
 from .authorization import CreateFreeDjangoAuthorization
@@ -133,20 +130,20 @@ class EventResource(ModelResource):
         access_token = bundle.data.get('access_token')
         provider = bundle.data.get('provider')
 
-        social_auth_backend = get_backend(settings.AUTHENTICATION_BACKENDS, provider)
+        # social_auth_backend = get_backend(settings.AUTHENTICATION_BACKENDS, provider)
 
-        if social_auth_backend and access_token:
-            try:
-                social_auth = social_auth_backend(strategy=load_strategy(
-                    request=bundle.request,
-                    backend=provider,
-                ))
-                user = social_auth.do_auth(access_token)
-                bundle.obj.user = user
-            except Exception as e:
-                logger.exception(e)
-                raise ImmediateHttpResponse(
-                    response=http.HttpBadRequest('Invalid access token'))
+        # if social_auth_backend and access_token:
+        #     try:
+        #         social_auth = social_auth_backend(strategy=load_strategy(
+        #             request=bundle.request,
+        #             backend=provider,
+        #         ))
+        #         user = social_auth.do_auth(access_token)
+        #         bundle.obj.user = user
+        #     except Exception as e:
+        #         logger.exception(e)
+        #         raise ImmediateHttpResponse(
+        #             response=http.HttpBadRequest('Invalid access token'))
         return bundle
 
     def dehydrate(self, bundle):

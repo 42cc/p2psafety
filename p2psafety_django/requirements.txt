@@ -1,10 +1,10 @@
 Django==1.6
+django-allauth==0.15.0
 django-annoying==0.7.9
 django-tastypie==0.9.16
 south==0.8
 Sphinx==1.2.1
 simplejson==3.3.2
-python-social-auth==0.1.20
 psycopg2==2.5
 mock==1.0.1
 git+git://github.com/alekzvik/factory_boy.git

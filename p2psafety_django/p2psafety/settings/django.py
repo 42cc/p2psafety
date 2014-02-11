@@ -43,8 +43,8 @@ DATABASES = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    'social.backends.facebook.FacebookOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 LOGIN_URL = '/login/'
@@ -64,18 +64,23 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
     'django.contrib.gis',
+    'django.contrib.messages',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.staticfiles',
 
     'events',
     'users',
     'tastydoc',
 
     'tastypie',
-    'social.apps.django_app.default',
     'south',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
 )
 
 ROOT_URLCONF = 'p2psafety.urls'
@@ -111,9 +116,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
     'django.core.context_processors.request',
 
-    # python-social-auth
-    'social.apps.django_app.context_processors.backends',
-    'social.apps.django_app.context_processors.login_redirect',
+    # django-allauth
+    'allauth.account.context_processors.account',
+    'allauth.socialaccount.context_processors.socialaccount',
 )
 
 # Quick-start development settings - unsuitable for production
