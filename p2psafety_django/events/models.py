@@ -88,9 +88,9 @@ class Event(models.Model):
         """
         Binds provided user to this event as "supporter".
 
-        Raises: ``DoesNotExist`` if user has no active event.
+        Raises: ``DoesNotExist`` if user has no current event.
         """
-        supports_event = Event.objects.get_current_active_of(user)
+        supports_event = Event.objects.get_current_of(user)
         if supports_event.type != self.TYPE_SUPPORT:
             supports_event.type = self.TYPE_SUPPORT
             supports_event.save()
