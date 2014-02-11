@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-10 13:55+0000\n"
+"POT-Creation-Date: 2014-02-10 21:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -111,6 +111,16 @@ msgid ""
 msgstr ""
 "Ми вважаємо, що в 21 столітті варто використовувати потенціал технологій, "
 "особливо, в таких сферах, як безпека."
+
+#: templates/site/index.html:116
+msgid "What else should I know?"
+msgstr ""
+
+#: templates/site/index.html:122
+msgid ""
+"The main language of our facebook group is Ukrainian. Don't be scared, you "
+"can ask your question in English and we will provide answers for you"
+msgstr ""
 
 #: users/models.py:8
 msgid "Role"
