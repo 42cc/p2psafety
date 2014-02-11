@@ -120,7 +120,8 @@ public class AudioRecordService extends Service {
         mRecorder.release();
 
         mTimer.cancel();
-        mTimerOn = false;
+        if (isAlarmStop)
+            mTimerOn = false;
 
         Utils.sendMailsWithAttachments(this, R.string.audio, mRecordFile);
         if (Utils.isFbAuthenticated(this))

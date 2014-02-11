@@ -93,7 +93,6 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         @Override
         public void onFinish() {
             stopRecording(false);
-            mTimerOn = false;
         }
 
         @Override
@@ -186,10 +185,12 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         mRecorder.reset();
         mRecorder.release();
         releaseCamera();
-        mWindowManager.removeView(mSurfaceView);
+        if (isAlarmStop)
+            mWindowManager.removeView(mSurfaceView);
 
         mTimer.cancel();
-        mTimerOn = false;
+        if (isAlarmStop)
+            mTimerOn = false;
 
         Utils.sendMailsWithAttachments(this, R.string.video, mRecordFile);
         if (Utils.isFbAuthenticated(this))
