@@ -28,6 +28,15 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+LANGUAGES = (
+    ('en', u'English'),
+    ('uk', u'Українська'),
+    ('pl', u'Polski'),
+)
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
+
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
@@ -156,13 +165,3 @@ LOGGING = {
         },
     }
 }
-
-LANGUAGES = (
-    ('en', u'English'),
-    ('uk', u'Українська'),
-    ('pl', u'Polski'),
-)
-
-LOCALE_PATHS = (
-    os.path.join(BASE_DIR, 'locale'),
-)
