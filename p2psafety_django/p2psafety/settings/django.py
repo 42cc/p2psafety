@@ -78,6 +78,7 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
+    'bootstrap3',
 )
 
 SITE_ID = 1
