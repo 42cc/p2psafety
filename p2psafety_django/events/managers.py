@@ -12,4 +12,3 @@ class EventManager(models.Manager):
         """
         return self.get(user__id=user.id, status__in=(self.model.STATUS_ACTIVE,
                                                       self.model.STATUS_PASSIVE))
-        

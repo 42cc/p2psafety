@@ -7,8 +7,10 @@ import android.os.Looper;
 import android.text.format.DateFormat;
 import android.util.Log;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import ua.p2psafety.data.EmailsDatasourse;
 import ua.p2psafety.data.PhonesDatasourse;
@@ -44,6 +46,23 @@ public class MessageResolver {
     private void sendMessage(String message) {
         for (String phone : phones)
             SMSSender.send(phone, message, context);
+        sendEmails(message);
+    }
+
+    public void sendEmails(String message, File file) {
+        if (file == null)
+            return;
+
+        String account = Utils.getEmail(context);
+        if (account != null && emails.size() > 0)
+        {
+            String csv = emails.toString().replace("[", "").replace("]", "").replace(", ", ",");
+            GmailOAuth2Sender gmailOAuth2Sender = new GmailOAuth2Sender(context);
+            gmailOAuth2Sender.sendMail("SOS!!!", message, account, csv, file);
+        }
+    }
+
+    private void sendEmails(String message) {
         String account = Utils.getEmail(context);
         if (account!=null && emails.size() > 0)
         {

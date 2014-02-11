@@ -59,12 +59,10 @@ public class MyLocation {
         //exceptions will be thrown if provider is not permitted.
         try {
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch (Exception ex) {
-        }
+        } catch (Exception ex) {}
         try {
             network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch (Exception ex) {
-        }
+        } catch (Exception ex) {}
 
         //don't start listeners if no provider is enabled
         if (!gps_enabled && !network_enabled)

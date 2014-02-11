@@ -52,17 +52,18 @@ public class LoginActivity extends ActionBarActivity {
         mUiHelper.onResume();
 
         NetworkManager.init(this);
+        Utils.logKeyHash(this);
 
-        if (Utils.isFbAuthenticated(this)) {
+        //if (Utils.isFbAuthenticated(this)) {
             startSosActivity();
-        }
+        //}
 
-        mLoginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginToFacebook(LoginActivity.this, mStatusCallback);
-            }
-        });
+//        mLoginBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                loginToFacebook(LoginActivity.this, mStatusCallback);
+//            }
+//        });
     }
 
     @Override
