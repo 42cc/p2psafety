@@ -1,4 +1,5 @@
 import json
+import mock
 import tempfile
 from operator import itemgetter
 
@@ -63,6 +64,9 @@ class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
 
 class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
+    required_model_fields = [u'id', u'user', u'type', u'status', u'resource_uri',
+                             u'latest_location', u'latest_update']
+
     @mock_get_backend(module_path='events.api.resources')
     def test_create(self):
         url = self.events_list_url
@@ -79,15 +83,16 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertHttpCreated(self.api_client.post(url, data=data))
 
         event = Event.objects.latest('id')
-        self.assertEqual(event.status, 'P')
+        self.assertEqual(event.status, Event.STATUS_PASSIVE)
         self.assertEqual(event.user, self.auth_user)
 
         response = self.api_client.post(url, data=data)
         self.assertHttpCreated(response)
         self.assertIn('key', json.loads(response.content))
         new_event = Event.objects.latest('id')
-        self.assertEqual(new_event.status, 'P')
-        self.assertEqual(Event.objects.get(id=event.id).status, 'F')
+        self.assertEqual(new_event.status, Event.STATUS_PASSIVE)
+        self.assertEqual(new_event.type, Event.TYPE_VICTIM)
+        self.assertEqual(Event.objects.get(id=event.id).status, Event.STATUS_FINISHED)
         self.assertEqual(new_event.user, self.auth_user)
         self.assertNotEqual(new_event.PIN, event.PIN)
 
@@ -95,9 +100,9 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.mocked_get_backend()().do_auth.return_value = user2
         self.assertHttpCreated(self.api_client.post(url, data=data))
         event = Event.objects.latest('id')
-        self.assertEqual(event.status, 'P')
+        self.assertEqual(event.status, Event.STATUS_PASSIVE)
         self.assertEqual(event.user, user2)
-        self.assertEqual(Event.objects.filter(status='P').count(), 2)
+        self.assertEqual(Event.objects.filter(status=Event.STATUS_PASSIVE).count(), 2)
 
     @mock_get_backend(module_path='events.api.resources')
     def test_get_list(self):
@@ -109,6 +114,10 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         resp = self.api_client.get(self.events_list_url, format='json')
         objects = sorted(self.deserialize(resp)['objects'], key=itemgetter('id'))
         self.assertEqual(len(objects), 2)
+
+        for event_dict in objects:
+            self.assertKeys(event_dict, self.required_model_fields)
+
         self.assertIsNone(objects[0]['latest_location'])
         self.assertIsNotNone(objects[1]['latest_location'])
         self.assertEqual(objects[1]['latest_location'], {'latitude': 1, 'longitude': 1})
@@ -123,6 +132,43 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
             latest_update = update_dict.get('latest_update')
             self.assertIsNotNone(latest_update)
             self.assertEqual(latest_update['id'], update_obj.id)
+
+    @mock.patch('events.models.Event.support_by_user')
+    def test_support_good(self, support_by_user_mock):
+        user_victim, user_supporter = UserFactory(), self.superuser
+        event_victim = EventFactory(user=user_victim)
+        event_supporter = EventFactory(user=user_supporter,
+                                       status=Event.STATUS_ACTIVE)
+
+        self.login_as_superuser()
+        url = self.events_support_url(event_victim.id)
+        data = dict(user_id=user_supporter.id)
+        resp = self.api_client.client.post(url, data=data)
+        self.assertEqual(resp.status_code, 200)
+        support_by_user_mock.assert_called_once_with(user_supporter)
+
+    @mock.patch('events.models.Event.support_by_user')
+    def test_support_bad(self, support_by_user_mock):
+        user_victim, user_supporter = UserFactory(), self.superuser
+        event_victim = EventFactory(user=user_victim)
+        
+        url = self.events_support_url(event_victim.id)
+
+        # Invalid method
+        self.assertHttpMethodNotAllowed(self.api_client.get(url))
+
+        # Invalid params
+        data = dict(user_id='wtf')
+        self.assertHttpBadRequest(self.api_client.client.post(url, data=data))
+
+        # Event does not exists
+        data = dict(user_id=user_supporter.id)
+        not_found_url = self.events_support_url(123)
+        self.assertHttpNotFound(self.api_client.post(not_found_url, data=data))
+
+        # User does not exists
+        data = dict(user_id=123)
+        self.assertHttpBadRequest(self.api_client.client.post(url, data=data))
 
 
 class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):

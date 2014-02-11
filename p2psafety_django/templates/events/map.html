@@ -30,17 +30,24 @@
       <div ng-app="mapApp">
         <div id="map-canvas"></div>
         <div ng-controller="EventListCtrl">
-          <gmap-marker icon="http://maps.google.com/mapfiles/ms/micons/red-dot.png"
-                       location="event.latest_location"
-                       click="select(event)"
-                       ng-repeat="event in events"
-                       ng-if="event.id != selectedEvent.id">
+          <event-marker mode="event"
+                        type="{{ event.type }}"
+                        location="event.latest_location"
+                        click="select(event)"
+                        ng-repeat="event in events"
+                        ng-if="event.id != selectedEvent.id">
             <div>
-              <p ng-if="event.user.full_name != null">{{ event.user.full_name }}</p>
+              <p ng-if="event.user.full_name != null">
+                <span class="glyphicon glyphicon-exclamation-sign"
+                      ng-if="event.type == 'victim'"></span>
+                <span class="glyphicon glyphicon-user"
+                      ng-if="event.type == 'support'"></span>
+                      {{ event.user.full_name }}
+              </p>
               <span class="badge">{{ event.latest_update.timestamp | date:'HH:mm' }}</span>
               {{ event.latest_update.text || "..." }}
             </div>
-          </gmap-marker>
+          </event-marker>
           <div class="selected-event panel panel-primary"
                ng-if="selectedEvent != null">
             <h4 class="panel-heading">Status:
@@ -57,11 +64,11 @@
               <div class="list-group">
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
-                  <gmap-marker icon="http://maps.google.com/mapfiles/ms/micons/blue-dot.png"
-                               location="update.location"
-                               click="focus(update.location)">
+                  <event-marker mode="eventupdate"
+                                location="update.location"
+                                click="focus(update.location)">
                     <p>{{ update.timestamp | date:'dd.MM HH:mm' }}</p>
-                  </gmap-marker>
+                  </event-marker>
                   <p class="list-group-item-heading">
                     <span class="badge">{{ update.timestamp | date:'dd.MM HH:mm' }}</span>
                     {{ update.text || "..." }}
