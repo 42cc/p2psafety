@@ -42,14 +42,15 @@ class UserResource(ModelResource):
         TODO: replace user with request.user.
         ***
 
-        Manages user's roles:
+        Manages user's roles.
+        Accepts args as json object.
 
         * For **GET** method, returns user's roles as list of ids.
-        * For **POST** method, sets user's roles to given list of ids as ``role_id`` POST param.
+        * For **POST** method, sets user's roles to given list of ids as ``role_id`` param.
 
         Raises:
 
-        * **403** if ``role_id`` is not found within POST params dict or it is not a list of valid ids.
+        * **403** if ``role_id`` is not found within params dict or it is not a list of valid ids.
         * **404** if user is not found.
         """
         self.method_check(request, allowed=['get', 'post'])
@@ -62,11 +63,21 @@ class UserResource(ModelResource):
         else:
             self.log_throttled_access(request)
             if request.method == 'POST':
-                if 'role_id' not in request.POST:
+                try:
+                    args_dict = self.deserialize(request, request.body)
+                except ValueError:
+                    return http.HttpBadRequest()
+
+                if not isinstance(args_dict, dict):
+                    return http.HttpBadRequest()
+            
+                role_ids = args_dict.get('role_id')
+            
+                if not isinstance(role_ids, list):
                     return http.HttpBadRequest()
 
                 try:
-                    role_ids = map(int, request.POST.getlist('role_id'))
+                    role_ids = [int(id) for id in role_ids]
                 except ValueError:
                     return http.HttpBadRequest()
 

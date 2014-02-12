@@ -73,7 +73,7 @@ class UsersTestCase(ModelsMixin, ResourceTestCase):
         data = {'role_id': [role1.id, role2.id]}
         
         # Results in 0110
-        resp = self.api_client.client.post(url, data=data)
+        resp = self.api_client.post(url, data=data)
         self.assertEqual(resp.status_code, 202)
         self.assertEqual(data['role_id'], [r.id for r in user.roles.all()])
 
@@ -87,10 +87,13 @@ class UsersTestCase(ModelsMixin, ResourceTestCase):
         self.assertHttpNotFound(self.api_client.post(not_existing_user))
 
         # No ``role_id`` supplied
-        resp = self.api_client.client.post(existing_user, data={})
+        resp = self.api_client.post(existing_user, data={})
+        self.assertEqual(resp.status_code, 400)
+
+        # Invalid body
+        resp = self.api_client.post(existing_user, data='invalid data')
         self.assertEqual(resp.status_code, 400)
 
         # Invalid ``role_id`` param
-        data = {'role_id': '[]'}
-        resp = self.api_client.client.post(existing_user, data=data)
-        self.assertEqual(resp.status_code, 400)
+        resp = self.api_client.post(existing_user, data={'role_id': '1'})
+        self.assertEqual(resp.status_code, 400)        
