@@ -15,12 +15,15 @@ Create virtualenv as usual. Then run::
 Install PostGIS as described here:
   https://docs.djangoproject.com/en/dev/ref/contrib/gis/install/postgis/
 
+Go to site admin, for each OAuth based provider add a Social App (socialaccount app).
+Fill in the site and the OAuth app credentials obtained from the provider (basically 
+some id and secret).
+
 Then you can run app locally by::
 
     $ make run
 
-
-    You can use "events.devdata" command to generate some Event & EventUpdate
+You can use "events.devdata" command to generate some Event & EventUpdate
 records for testing purposes::
 
     $ python manage.py devdata
