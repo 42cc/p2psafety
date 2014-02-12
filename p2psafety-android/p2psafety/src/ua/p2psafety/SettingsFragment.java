@@ -26,6 +26,7 @@ import java.util.Collections;
 import ua.p2psafety.media.SetMediaFragment;
 import ua.p2psafety.message.MessageFragment;
 import ua.p2psafety.password.PasswordFragment;
+import ua.p2psafety.roles.SetRolesFragment;
 import ua.p2psafety.setemails.SetEmailsFragment;
 import ua.p2psafety.setphones.SetPhoneFragment;
 import ua.p2psafety.setservers.SetServersFragment;
@@ -62,6 +63,7 @@ public class SettingsFragment extends Fragment {
                 getResources().getString(R.string.servers),
                 getResources().getString(R.string.password),
                 getResources().getString(R.string.media),
+                "Wanna help",
                 getResources().getString(R.string.logout)
         };
 
@@ -139,6 +141,11 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 6:
+                        mfragment[0] = new SetRolesFragment();
+                        fragmentTransaction.addToBackStack(SetRolesFragment.TAG);
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
+                        break;
+                    case 7:
                         logout();
                         break;
                 }
@@ -146,6 +153,13 @@ public class SettingsFragment extends Fragment {
 
         });
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        getView().bringToFront();
     }
 
     public void logout() {

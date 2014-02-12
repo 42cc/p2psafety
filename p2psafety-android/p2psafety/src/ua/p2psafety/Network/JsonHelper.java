@@ -1,10 +1,16 @@
 package ua.p2psafety.Network;
 
 import android.util.Log;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import ua.p2psafety.Event;
 import ua.p2psafety.User;
+import ua.p2psafety.roles.Role;
 
 public class JsonHelper {
 
@@ -52,6 +58,44 @@ public class JsonHelper {
         } catch (Exception e) {}
 
         return user;
+    }
+
+    public static List<Role> jsonResponseToRoles(String json) {
+        List<Role> roles = new ArrayList<Role>();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> data = mapper.readValue(json, Map.class);
+            List<Map> objects = (ArrayList) data.get("objects");
+
+            // deserializing json response
+            for (Map jsonMap : objects) {
+                roles.add(JsonHelper.jsonToRole(jsonMap));
+            }
+
+            data.clear();
+            objects.clear();
+        } catch (Exception e) {
+            // ignore
+        }
+
+        return roles;
+    }
+
+    public static Role jsonToRole(Map data) {
+        String TAG = "jsonToRole";
+        Role role = null;
+
+        try {
+            role = new Role();
+            role.id = String.valueOf( data.get("id"));
+            role.name = (String.valueOf(data.get("name")));
+
+            Log.i(TAG, "id: "           + role.id);
+            Log.i(TAG, "fullName: "     + role.name);
+
+        } catch (Exception e) {}
+
+        return role;
     }
 
 

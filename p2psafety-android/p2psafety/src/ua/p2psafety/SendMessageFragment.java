@@ -22,8 +22,11 @@ import android.widget.TextView;
 
 import com.facebook.Session;
 
+import java.util.List;
+
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.roles.Role;
 import ua.p2psafety.util.Utils;
 
 /**
