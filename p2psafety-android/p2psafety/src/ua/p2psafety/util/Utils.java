@@ -2,7 +2,6 @@ package ua.p2psafety.util;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,8 +11,8 @@ import android.content.pm.Signature;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
 
@@ -96,15 +95,19 @@ public class Utils {
 
     public static void startVibration(final Context context)
     {
-        new Thread(new Runnable() {
+        AsyncTask<Integer, Void, Void> vibration = new AsyncTask<Integer, Void, Void>() {
+
             @Override
-            public void run() {
+            protected Void doInBackground(Integer... params) {
                 Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-                // Vibrate for 2000 milliseconds
                 if (v != null)
-                    v.vibrate(2000);
+                    v.vibrate(params[0]);
+                return null;
             }
-        }).start();
+        };
+
+        // Vibrate for 2000 milliseconds
+        vibration.execute(2000);
     }
 
     public static void sendMailsWithAttachments(final Context context, final int mediaId, final File file) {
