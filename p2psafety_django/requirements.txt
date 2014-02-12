@@ -1,6 +1,7 @@
 Django==1.6
 django-annoying==0.7.9
 django-tastypie==0.9.16
+schematics==0.9-4
 south==0.8
 Sphinx==1.2.1
 simplejson==3.3.2
