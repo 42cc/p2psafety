@@ -77,6 +77,23 @@ class UsersTestCase(ModelsMixin, ResourceTestCase):
         self.assertEqual(resp.status_code, 202)
         self.assertEqual(data['role_ids'], [r.id for r in user.roles.all()])
 
+    def test_set_single_role(self):
+        user, role = UserFactory(), RoleFactory()
+        url = self.users_roles_url(user.id)
+
+        resp = self.api_client.post(url, data=dict(role_ids=role.id))
+        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(list(user.roles.all()), [role])
+
+    def test_clear_roles(self):
+        user, role = UserFactory(), RoleFactory()
+        url = self.users_roles_url(user.id)
+        user.roles.add(role)
+
+        resp = self.api_client.post(url, data=dict(role_ids=[]))
+        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(user.roles.count(), 0)
+
     def test_role_errors(self):
         user = UserFactory()
         role = RoleFactory()
