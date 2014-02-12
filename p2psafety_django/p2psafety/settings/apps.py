@@ -1,10 +1,4 @@
 #
-# Site settings
-#
-# Set ``is_active`` to False for new registered users or not
-ACCOUNT_MODERATION_REQUIRED = False
-
-#
 # Tastypie settings
 #
 TASTYPIE_ABSTRACT_APIKEY = True

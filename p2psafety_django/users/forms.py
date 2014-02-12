@@ -3,6 +3,8 @@ from django.conf import settings
 
 from .models import Profile
 
+import waffle
+
 
 class SignupForm(forms.ModelForm):
     class Meta:
@@ -19,6 +21,6 @@ class SignupForm(forms.ModelForm):
         user.profile.phone_number = self.cleaned_data['phone_number']
         user.profile.save()
 
-        if settings.ACCOUNT_MODERATION_REQUIRED:
+        if waffle.switch_is_active('user-moderation'):
             user.is_active = False
             user.save()
