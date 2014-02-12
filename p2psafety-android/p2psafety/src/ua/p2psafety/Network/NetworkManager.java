@@ -497,12 +497,12 @@ public class NetworkManager {
                     JSONArray arr = new JSONArray();
                     for (Role role: roles)
                         if (role.checked)
-                            arr.put(Integer.valueOf(role.id));
+                            arr.put(role.id);
 
-//                    JSONObject json = new JSONObject();
-//                    json.put("role_id", arr);
+                    JSONObject json = new JSONObject();
+                    json.put("role_id", arr);
 
-                    StringEntity se = new StringEntity(arr.toString());
+                    StringEntity se = new StringEntity(json.toString());
                     httpPost.setEntity(se);
 
                     Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
