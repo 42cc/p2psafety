@@ -96,10 +96,11 @@ class EventResource(ModelResource):
         TODO: replace ``user_id`` with ``request.user``.
         ***
 
-        For POST method, marks current user as "supporter".
+        Marks user as "supporter" for a given event.
+        Accepts args as json object.
 
-        POST params:
-          * user_id: current user's id.
+        * For **POST** method, adds user with given ``user_id`` param to list
+          of event's supporters.
 
         Raises 400 if ``used_id`` param is not a number.
         Raises 404 if user with given ``user_id`` or given event pk is not found.
@@ -107,11 +108,17 @@ class EventResource(ModelResource):
         self.method_check(request, allowed=['post'])
         self.throttle_check(request)
 
-        user_id = request.POST.get('user_id')
-        if user_id is None:
-            return http.HttpNotFound()
+        try:
+            args_dict = self.deserialize(request, request.body)
+        except ValueError:
+            return http.HttpBadRequest()
 
-        if user_id.isdigit() is False:
+        if not isinstance(args_dict, dict):
+            return http.HttpBadRequest()
+
+        try:
+            user_id = int(args_dict.get('user_id'))
+        except ValueError:
             return http.HttpBadRequest()
 
         try:
