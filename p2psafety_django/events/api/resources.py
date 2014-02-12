@@ -13,7 +13,8 @@ from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.resources import ModelResource
 from tastypie.utils import trailing_slash
 from tastypie.validation import Validation
-
+from schematics.models import Model as SchemaModel
+from schematics.types import IntType
 from social.backends.utils import get_backend
 from social.apps.django_app.utils import load_strategy
 
@@ -21,6 +22,7 @@ from .fields import GeoPointField
 from .authentication import PostFreeSessionAuthentication
 from .authorization import CreateFreeDjangoAuthorization
 from ..models import Event, EventUpdate
+from core.api.decorators import api_method, json_body
 from users.api.resources import UserResource
 
 
@@ -90,7 +92,8 @@ class EventResource(ModelResource):
                 self.wrap_view('support'), name='api_events_support'),
         ]
 
-    def support(self, request, pk=None, **kwargs):
+    @api_method
+    def support(self):
         """
         ***
         TODO: replace ``user_id`` with ``request.user``.
@@ -105,36 +108,20 @@ class EventResource(ModelResource):
         Raises 400 if ``used_id`` param is not a number.
         Raises 404 if user with given ``user_id`` or given event pk is not found.
         """
-        self.method_check(request, allowed=['post'])
-        self.throttle_check(request)
+        class PostParams(SchemaModel):
+            user_id = IntType(required=True)
 
-        try:
-            args_dict = self.deserialize(request, request.body)
-        except ValueError:
-            return http.HttpBadRequest()
+        @json_body(PostParams)
+        def post(self, request, pk=None, body_params=None, **kwargs):
+            try:
+                user = User.objects.get(id=body_params.user_id)
+            except User.DoesNotExist:
+                return http.HttpBadRequest()
+            else:
+                target_event = get_object_or_404(Event, id=pk)
+                target_event.support_by_user(user)
 
-        if not isinstance(args_dict, dict):
-            return http.HttpBadRequest()
-
-        try:
-            user_id = int(args_dict.get('user_id'))
-        except ValueError:
-            return http.HttpBadRequest()
-
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return http.HttpBadRequest()
-
-        try:
-            target_event = Event.objects.get(id=pk)
-        except Event.DoesNotExist:
-            return http.HttpNotFound()
-
-        self.log_throttled_access(request)
-        target_event.support_by_user(user)
-
-        return HttpResponse()
+        return post
 
     def hydrate(self, bundle):
         access_token = bundle.data.get('access_token')

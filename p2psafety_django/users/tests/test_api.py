@@ -70,30 +70,27 @@ class UsersTestCase(ModelsMixin, ResourceTestCase):
         url = self.users_roles_url(user.id)
         
         # Setting 0110
-        data = {'role_id': [role1.id, role2.id]}
+        data = {'role_ids': [role1.id, role2.id]}
         
         # Results in 0110
         resp = self.api_client.post(url, data=data)
         self.assertEqual(resp.status_code, 202)
-        self.assertEqual(data['role_id'], [r.id for r in user.roles.all()])
+        self.assertEqual(data['role_ids'], [r.id for r in user.roles.all()])
 
     def test_role_errors(self):
         user = UserFactory()
         role = RoleFactory()
         existing_user = self.users_roles_url(user.id)
         not_existing_user = self.users_roles_url(user.id + 1)
-
+        
         # User does not exist
-        self.assertHttpNotFound(self.api_client.post(not_existing_user))
+        data = dict(role_ids=[])
+        self.assertHttpNotFound(self.api_client.post(not_existing_user, data=data))
 
-        # No ``role_id`` supplied
+        # No ``role_ids`` supplied
         resp = self.api_client.post(existing_user, data={})
         self.assertEqual(resp.status_code, 400)
 
         # Invalid body
         resp = self.api_client.post(existing_user, data='invalid data')
-        self.assertEqual(resp.status_code, 400)
-
-        # Invalid ``role_id`` param
-        resp = self.api_client.post(existing_user, data={'role_id': '1'})
-        self.assertEqual(resp.status_code, 400)        
+        self.assertEqual(resp.status_code, 400)      
