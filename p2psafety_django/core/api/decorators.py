@@ -31,7 +31,7 @@ def api_method(func):
     return decorated
 
 
-def json_body(ParamsClass):
+def body_params(ParamsClass):
     def decorator(func):
         @wraps(func)
         def decorated(self, request, *args, **kwargs):
@@ -42,7 +42,7 @@ def json_body(ParamsClass):
             except (ValueError, ValidationError, ModelConversionError):
                 return tastypie_http.HttpBadRequest('Validation error')
             else:
-                kwargs['body_params'] = params
+                kwargs['params'] = params
                 return func(self, request, *args, **kwargs)
         return decorated
     return decorator

@@ -10,7 +10,7 @@ from schematics.models import Model as SchemaModel
 from schematics.types import IntType
 from schematics.types.compound import ListType
 
-from core.api.decorators import api_method, json_body
+from core.api.decorators import api_method, body_params
 from ..models import Role
 
 
@@ -67,10 +67,10 @@ class UserResource(ModelResource):
         class PostParams(SchemaModel):
             role_ids = ListType(IntType(), required=True)
 
-        @json_body(PostParams)
-        def post(self, request, pk=None, body_params=None, **kwargs):
+        @body_params(PostParams)
+        def post(self, request, pk=None, params=None, **kwargs):
             user = get_object_or_404(User, pk=pk)
-            roles = Role.objects.filter(id__in=body_params.role_ids)
+            roles = Role.objects.filter(id__in=params.role_ids)
             user.roles.clear()
             user.roles.add(*roles)
             return http.HttpAccepted()

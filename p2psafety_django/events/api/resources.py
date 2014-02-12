@@ -22,7 +22,7 @@ from .fields import GeoPointField
 from .authentication import PostFreeSessionAuthentication
 from .authorization import CreateFreeDjangoAuthorization
 from ..models import Event, EventUpdate
-from core.api.decorators import api_method, json_body
+from core.api.decorators import api_method, body_params
 from users.api.resources import UserResource
 
 
@@ -111,10 +111,10 @@ class EventResource(ModelResource):
         class PostParams(SchemaModel):
             user_id = IntType(required=True)
 
-        @json_body(PostParams)
-        def post(self, request, pk=None, body_params=None, **kwargs):
+        @body_params(PostParams)
+        def post(self, request, pk=None, params=None, **kwargs):
             try:
-                user = User.objects.get(id=body_params.user_id)
+                user = User.objects.get(id=params.user_id)
             except User.DoesNotExist:
                 return http.HttpBadRequest()
             else:
