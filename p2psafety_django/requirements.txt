@@ -3,6 +3,7 @@ django-allauth==0.15.0
 django-annoying==0.7.9
 django-bootstrap3==2.5.6
 django-tastypie==0.9.16
+django-waffle==0.9.2
 south==0.8
 Sphinx==1.2.1
 simplejson==3.3.2

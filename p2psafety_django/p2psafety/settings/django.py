@@ -64,6 +64,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'waffle.middleware.WaffleMiddleware',
 )
 
 INSTALLED_APPS = (
@@ -80,14 +82,15 @@ INSTALLED_APPS = (
     'users',
     'tastydoc',
 
-    'tastypie',
-    'south',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
     'bootstrap3',
+    'south',
+    'tastypie',
+    'waffle',
 )
 
 SITE_ID = 1
@@ -119,11 +122,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
+    'django.core.context_processors.request',
     'django.core.context_processors.static',
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
-
-    'django.core.context_processors.request',
 
     # django-allauth
     'allauth.account.context_processors.account',
