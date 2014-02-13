@@ -18,7 +18,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_SIGNUP_FORM_CLASS = 'users.forms.SignupForm'
 
-#
+# Force user to supply additional fields after social signup
 SOCIALACCOUNT_AUTO_SIGNUP = False
 
 #
