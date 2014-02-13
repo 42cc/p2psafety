@@ -78,6 +78,9 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.staticfiles',
 
+    'waffle',
+    'south',
+
     'events',
     'users',
     'tastydoc',
@@ -88,9 +91,7 @@ INSTALLED_APPS = (
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
     'bootstrap3',
-    'south',
     'tastypie',
-    'waffle',
 )
 
 SITE_ID = 1
