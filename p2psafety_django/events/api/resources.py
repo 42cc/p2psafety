@@ -22,7 +22,8 @@ from .fields import GeoPointField
 from .authentication import PostFreeSessionAuthentication
 from .authorization import CreateFreeDjangoAuthorization
 from ..models import Event, EventUpdate
-from core.api.decorators import api_method, body_params
+from core.api.mixins import ApiMethodsMixin, api_method
+from core.api.decorators import body_params
 from users.api.resources import UserResource
 
 
@@ -62,7 +63,7 @@ class EventValidation(Validation):
         return errors
 
 
-class EventResource(ModelResource):
+class EventResource(ApiMethodsMixin, ModelResource):
     class Meta:
         queryset = Event.objects.all()
         resource_name = 'events'
@@ -85,14 +86,7 @@ class EventResource(ModelResource):
                                       'latest_update',
                                       full=True, null=True, readonly=True)
 
-    def prepend_urls(self):
-        return [
-            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/support%s$' % 
-                (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('support'), name='api_events_support'),
-        ]
-
-    @api_method
+    @api_method(r'/(?P<pk>\d+)/support', name='api_events_support')
     def support(self):
         """
         ***

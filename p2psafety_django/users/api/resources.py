@@ -4,17 +4,18 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from tastypie import fields, http
-from tastypie.resources import ModelResource
 from tastypie.utils import trailing_slash
+from tastypie.resources import ModelResource
 from schematics.models import Model as SchemaModel
 from schematics.types import IntType
 from schematics.types.compound import ListType
 
-from core.api.decorators import api_method, body_params
+from core.api.mixins import ApiMethodsMixin, api_method
+from core.api.decorators import body_params
 from ..models import Role
 
 
-class UserResource(ModelResource):
+class UserResource(ApiMethodsMixin, ModelResource):
     class Meta:
         queryset = User.objects.all()
         resource_name = 'users'
@@ -33,14 +34,7 @@ class UserResource(ModelResource):
         value = bundle.data['full_name']
         return value if value else bundle.obj.username
 
-    def prepend_urls(self):
-        return [
-            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/roles%s$' %
-                (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('roles'), name='api_users_roles'),
-        ]
-
-    @api_method
+    @api_method(r'/(?P<pk>\d+)/roles', name='api_users_roles')
     def roles(self):
         """
         ***
@@ -48,18 +42,16 @@ class UserResource(ModelResource):
         ***
 
         Manages user's roles.
-        Accepts args as json object.
-
-        * For **GET** method, returns user's roles as list of ids.
-        * For **POST** method, sets user's roles to given list of ids as ``role_id`` param.
 
         Raises:
 
-        * **403** if ``role_id`` is not found within params dict or it is not a list of valid ids.
         * **404** if user is not found.
         """
 
         def get(self, request, pk=None, **kwargs):
+            """
+            Returns user's roles as list of ids.
+            """
             user = get_object_or_404(User, pk=pk)
             objects = [role.id for role in user.roles.all()]
             return self.create_response(request, objects)
@@ -69,6 +61,9 @@ class UserResource(ModelResource):
 
         @body_params(PostParams)
         def post(self, request, pk=None, params=None, **kwargs):
+            """
+            Sets user's roles to given list of ids as ``role_id`` param.
+            """
             user = get_object_or_404(User, pk=pk)
             roles = Role.objects.filter(id__in=params.role_ids)
             user.roles.clear()
