@@ -73,6 +73,9 @@
 
     <string name="login_with_FB">Войти через Facebook</string>
 
+    <string name="location_services_not_active">Определение местоположения не включено</string>
+    <string name="please_enable_location_services">Пожалуйста, включите определение местоположения и GPS</string>
+
     <string-array name="media_types">
         <item>Нет</item>
         <item>Аудио</item>

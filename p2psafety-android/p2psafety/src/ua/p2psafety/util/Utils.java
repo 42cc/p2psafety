@@ -11,6 +11,7 @@ import android.content.pm.Signature;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Base64;
@@ -22,6 +23,7 @@ import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import ua.p2psafety.AsyncTaskExecutionHelper;
 import ua.p2psafety.R;
 import ua.p2psafety.data.ServersDatasourse;
 import ua.p2psafety.sms.MessageResolver;
@@ -107,7 +109,16 @@ public class Utils {
         };
 
         // Vibrate for 2000 milliseconds
-        vibration.execute(2000);
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                AsyncTaskExecutionHelper.executeParallel(vibration, 2000);
+            }
+            else
+            {
+                vibration.execute(2000);
+            }
+        } catch (Exception e) {
+        }
     }
 
     public static void sendMailsWithAttachments(final Context context, final int mediaId, final File file) {
@@ -124,8 +135,15 @@ public class Utils {
             }
         };
         try {
-            ast.execute();
-        } catch (Exception e) {}
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                AsyncTaskExecutionHelper.executeParallel(ast);
+            }
+            else
+            {
+                ast.execute();
+            }
+        } catch (Exception e) {
+        }
     }
 
     public static boolean isFbAuthenticated(Context context) {

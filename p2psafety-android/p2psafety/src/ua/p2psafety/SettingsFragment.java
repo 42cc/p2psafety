@@ -2,11 +2,15 @@ package ua.p2psafety;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -152,6 +156,17 @@ public class SettingsFragment extends Fragment {
             }
 
         });
+
+        LocationManager lm = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+
+        boolean no_providers = true;
+        for (String provider: lm.getAllProviders()) {
+            no_providers = no_providers && lm.isProviderEnabled(provider);
+        }
+
+        if (no_providers)
+            showLocationSourceSettingsDialog();
+
         return rootView;
     }
 
@@ -160,6 +175,22 @@ public class SettingsFragment extends Fragment {
         super.onResume();
 
         getView().bringToFront();
+    }
+
+    private void showLocationSourceSettingsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        builder.setTitle(getString(R.string.location_services_not_active));
+        builder.setMessage(getString(R.string.please_enable_location_services));
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // Show location settings when the user acknowledges the alert dialog
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        });
+        Dialog alertDialog = builder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
     }
 
     public void logout() {
