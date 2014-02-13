@@ -39,7 +39,7 @@ testone:
 
 clean:
 	@echo Cleaning up...
-	find ./survey | grep '\.pyc$$' | xargs -I {} rm {}
+	find . -name "*.pyc" -exec rm -rf {} \;
 	@echo Done
 
 migrate:
