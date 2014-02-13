@@ -1,3 +1,14 @@
+# Email settings:
+
+# For local development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# For staging & production
+# EMAIL_HOST = 'localhost'
+# EMAIL_PORT = 25
+# EMAIL_HOST_USER = 'user'
+# EMAIL_HOST_PASSWORD = 'password'
+
 # Please, specify secret key for your application. Check link below for details
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 
