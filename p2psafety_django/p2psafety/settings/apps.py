@@ -19,6 +19,9 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_SIGNUP_FORM_CLASS = 'users.forms.SignupForm'
 
 #
+SOCIALACCOUNT_AUTO_SIGNUP = False
+
+#
 # PostGIS settings
 #
 SRID = {
