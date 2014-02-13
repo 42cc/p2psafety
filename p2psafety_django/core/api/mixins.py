@@ -52,9 +52,7 @@ class ApiMethodsMixin(object):
 
     def __wrap_view(self, view_name, wrapped):
         wrapper = self.wrap_view(view_name)
-        wrapper.view_url = wrapped.view_url
-        wrapper.view_name = wrapped.view_name
-        wrapper.view_methods = wrapped.view_methods
+        functools.update_wrapper(wrapper, wrapped)
         return wrapper
 
     def prepend_urls(self):

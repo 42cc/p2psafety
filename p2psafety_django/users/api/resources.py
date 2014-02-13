@@ -22,11 +22,6 @@ class UserResource(ApiMethodsMixin, ModelResource):
         fields = ['id']
         detail_allowed_methods = []
         list_allowed_methods = []
-        extra_actions = {
-            'roles': {
-                'url': '/{userpk}/roles/',
-            }
-        }
 
     full_name = fields.CharField('get_full_name')
 

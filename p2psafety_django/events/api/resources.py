@@ -94,19 +94,19 @@ class EventResource(ApiMethodsMixin, ModelResource):
         ***
 
         Marks user as "supporter" for a given event.
-        Accepts args as json object.
-
-        * For **POST** method, adds user with given ``user_id`` param to list
-          of event's supporters.
-
-        Raises 400 if ``used_id`` param is not a number.
-        Raises 404 if user with given ``user_id`` or given event pk is not found.
         """
         class PostParams(SchemaModel):
             user_id = IntType(required=True)
 
         @body_params(PostParams)
         def post(self, request, pk=None, params=None, **kwargs):
+            """
+            Adds user with given ``user_id`` param to list of event's supporters.
+
+            Raises:
+
+            * **404** if user with given ``user_id`` or given event pk is not found.
+            """
             try:
                 user = User.objects.get(id=params.user_id)
             except User.DoesNotExist:
