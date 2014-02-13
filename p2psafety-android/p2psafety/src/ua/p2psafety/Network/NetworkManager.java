@@ -500,7 +500,7 @@ public class NetworkManager {
                             arr.put(role.id);
 
                     JSONObject json = new JSONObject();
-                    json.put("role_id", arr);
+                    json.put("role_ids", arr);
 
                     StringEntity se = new StringEntity(json.toString());
                     httpPost.setEntity(se);
