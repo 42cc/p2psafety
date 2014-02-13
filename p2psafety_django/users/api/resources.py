@@ -6,7 +6,11 @@ from django.shortcuts import get_object_or_404
 from tastypie import fields, http
 from tastypie.resources import ModelResource
 from tastypie.utils import trailing_slash
+from schematics.models import Model as SchemaModel
+from schematics.types import IntType
+from schematics.types.compound import ListType
 
+from core.api.decorators import api_method, body_params
 from ..models import Role
 
 
@@ -36,47 +40,42 @@ class UserResource(ModelResource):
                 self.wrap_view('roles'), name='api_users_roles'),
         ]
 
-    def roles(self, request, pk=None, **kwargs):
+    @api_method
+    def roles(self):
         """
         ***
         TODO: replace user with request.user.
         ***
 
-        Manages user's roles:
+        Manages user's roles.
+        Accepts args as json object.
 
         * For **GET** method, returns user's roles as list of ids.
-        * For **POST** method, sets user's roles to given list of ids as ``role_id`` POST param.
+        * For **POST** method, sets user's roles to given list of ids as ``role_id`` param.
 
         Raises:
 
-        * **403** if ``role_id`` is not found within POST params dict or it is not a list of valid ids.
+        * **403** if ``role_id`` is not found within params dict or it is not a list of valid ids.
         * **404** if user is not found.
         """
-        self.method_check(request, allowed=['get', 'post'])
-        self.throttle_check(request)
 
-        try:
+        def get(self, request, pk=None, **kwargs):
             user = get_object_or_404(User, pk=pk)
-        except django_http.Http404:
-            return http.HttpNotFound()
-        else:
-            self.log_throttled_access(request)
-            if request.method == 'POST':
-                if 'role_id' not in request.POST:
-                    return http.HttpBadRequest()
+            objects = [role.id for role in user.roles.all()]
+            return self.create_response(request, objects)
 
-                try:
-                    role_ids = map(int, request.POST.getlist('role_id'))
-                except ValueError:
-                    return http.HttpBadRequest()
+        class PostParams(SchemaModel):
+            role_ids = ListType(IntType(), required=True)
 
-                roles = Role.objects.filter(id__in=role_ids)
-                user.roles.clear()
-                user.roles.add(*roles)
-                return http.HttpAccepted()
-            else:
-                objects = [role.id for role in user.roles.all()]
-                return self.create_response(request, objects)
+        @body_params(PostParams)
+        def post(self, request, pk=None, params=None, **kwargs):
+            user = get_object_or_404(User, pk=pk)
+            roles = Role.objects.filter(id__in=params.role_ids)
+            user.roles.clear()
+            user.roles.add(*roles)
+            return http.HttpAccepted()
+
+        return get, post
 
 
 class RoleResource(ModelResource):
