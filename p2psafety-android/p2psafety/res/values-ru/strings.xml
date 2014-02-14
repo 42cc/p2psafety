@@ -47,6 +47,7 @@
     <string name="emails">E-mail\'ы</string>
     <string name="servers">Адреса серверов</string>
     <string name="media">Аудио/видео</string>
+    <string name="roles">Хочу помочь</string>
     <string name="media_type">Запись инцидента:</string>
     <string name="media_length">Продолжительность записи:</string>
     <string name="no_account_message">Укажите ваш google-аккаунт в настройках телефона</string>

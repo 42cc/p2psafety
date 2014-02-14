@@ -49,6 +49,7 @@
     <string name="emails">E-mails</string>
     <string name="servers">Servers</string>
     <string name="media">Audio/video</string>
+    <string name="roles">Wanna help</string>
     <string name="media_type">Media record:</string>
     <string name="media_length">Record length</string>
     <string name="no_account_message">Point your google-account in the phone settings</string>

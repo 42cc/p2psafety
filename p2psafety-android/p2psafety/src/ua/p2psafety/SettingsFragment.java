@@ -57,14 +57,14 @@ public class SettingsFragment extends Fragment {
 
         final ListView settingsList = (ListView) vParent.findViewById(R.id.settings_list);
         final String[] values = new String[]{
-                getResources().getString(R.string.add_phone),
-                getResources().getString(R.string.edit_message),
-                getResources().getString(R.string.emails),
-                getResources().getString(R.string.servers),
-                getResources().getString(R.string.password),
-                getResources().getString(R.string.media),
-                "Wanna help",
-                getResources().getString(R.string.logout)
+                getString(R.string.add_phone),
+                getString(R.string.edit_message),
+                getString(R.string.emails),
+                getString(R.string.servers),
+                getString(R.string.password),
+                getString(R.string.media),
+                getString(R.string.roles),
+                getString(R.string.logout)
         };
 
         final ArrayList<String> list = new ArrayList<String>();
