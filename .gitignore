@@ -38,7 +38,6 @@ nosetests.xml
 .DS_Store
 
 .classpath
-.project
 lint.xml
 project.properties
 
@@ -49,7 +48,6 @@ proguard-project.txt
 
 # android
 gen
-bin
 test/bin
 test/gen
 
@@ -62,7 +60,6 @@ out
 *.iml
 
 #gradle
-build
 .gradle
 
 # android apk-signing files
@@ -82,3 +79,4 @@ p2psafety_django/static_media
 # Sphinx docs build
 p2psafety_django/docs/build/
 
+/.env/

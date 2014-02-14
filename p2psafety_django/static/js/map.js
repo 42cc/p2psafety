@@ -9,7 +9,7 @@ mapApp.constant('ICONS', {
 mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
   $scope.initGoogleMap = function(rootElement) {
     var mapOptions = {
-      zoom: 11,
+      zoom: 10,
       center: new google.maps.LatLng(50.444, 390.56),
       zoomControl: true,
       zoomControlOptions: {position: google.maps.ControlPosition.RIGHT_CENTER},
@@ -46,10 +46,19 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
     };
   };
   $scope.update = function() {
+    var fullBounds = new google.maps.LatLngBounds();
     var params = {status: 'A'};
     $http.get(urls.events, {params: params}).success(function(data) {
-      for (i in data.objects) {
+      for (var i = 0; i < data.objects.length; i++) {
         var event = data.objects[i];
+        var lat=event.latest_location.latitude;
+        console.log(lat)
+        var long=event.latest_location.longitude;
+        console.log(long)
+        var point=new google.maps.LatLng(lat, long);
+        console.log(point)
+        fullBounds.extend(point)
+        console.log(fullBounds)
         // TODO: display it manually
         if (event.latest_location != null) {
           var existingEvent = $scope.events[event.id];
@@ -66,6 +75,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
         }
       };
     });
+    $scope.gmap.fitBounds(fullBounds);
   };
   $scope.focus = function(location) {
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
@@ -109,7 +119,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
       marker.setMap(scope.$parent.gmap);
 
       if (attrs.click) {
-        google.maps.event.addListener(marker, 'click', function() {          
+        google.maps.event.addListener(marker, 'click', function() {
           scope.$eval(attrs.click);
         });
       }

@@ -4,7 +4,8 @@ import random
 from django.core.management.base import BaseCommand
 from django.contrib.gis import geos
 
-from events.tests.helpers import EventFactory, EventUpdateFactory, UserFactory
+from events.tests.helpers.factories import EventFactory, EventUpdateFactory
+from users.tests.helpers import UserFactory
 
 
 class Command(BaseCommand):

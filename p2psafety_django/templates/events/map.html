@@ -87,6 +87,16 @@
               </div>
             </div>
           </div>
+          <div class="selected-event panel panel-primary" 
+                ng-if="selectedEvent == null">
+            <div class="panel-body event-menu-list" 
+                ng-repeat="event in events">
+                <a class="btn btn-success"
+                    ng-click="focus(event.latest_location)">
+                        <span class="glyphicon glyphicon-map-marker"></span></a>
+                <div class="event-name" ng-click="select(event)">{{event.user.full_name}}</div>
+            </div>
+          </div>
         </div>
       </div>
       {% endverbatim %}
