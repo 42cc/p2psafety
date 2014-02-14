@@ -8,7 +8,6 @@ from django.contrib.gis.geos import Point
 from tastypie.test import ResourceTestCase
 
 from ..models import Event, EventUpdate
-from .helpers import mock_get_backend
 from .helpers.factories import EventFactory, EventUpdateFactory, UserFactory
 from .helpers.mixins import ModelsMixin, UsersMixin
 
@@ -20,14 +19,14 @@ class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
     def login_as_granted_user(self):
         self.login_as(self.events_granted_user)
 
-    @mock_get_backend(module_path='events.api.resources')
     def test_create_events(self):
         """
         Event creation should be public.
         """
-        url = self.events_list_url
-        data = dict(provider='facebook', access_token='test')
-        self.assertHttpCreated(self.api_client.post(url, data=data))
+        #
+        # TODO (dep ticket 52) : test with api key
+        #
+        pass
 
     def test_create_eventupdates(self):
         """
@@ -67,44 +66,35 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
     required_model_fields = [u'id', u'user', u'type', u'status', u'resource_uri',
                              u'latest_location', u'latest_update']
 
-    @mock_get_backend(module_path='events.api.resources')
     def test_create(self):
         url = self.events_list_url
+        self.login_as_user()
 
-        # no params
-        self.assertHttpBadRequest(self.api_client.post(url))
-
-        data = dict(provider='bad_provider', access_token='some_token')
-
-        # bad params
-        self.assertHttpBadRequest(self.api_client.post(url, data=data))
-
-        data['provider'] = 'facebook'
-        self.assertHttpCreated(self.api_client.post(url, data=data))
+        self.assertHttpCreated(self.api_client.post(url))
 
         event = Event.objects.latest('id')
         self.assertEqual(event.status, Event.STATUS_PASSIVE)
-        self.assertEqual(event.user, self.auth_user)
+        self.assertEqual(event.user, self.user)
 
-        response = self.api_client.post(url, data=data)
+        response = self.api_client.post(url)
         self.assertHttpCreated(response)
         self.assertIn('key', json.loads(response.content))
         new_event = Event.objects.latest('id')
         self.assertEqual(new_event.status, Event.STATUS_PASSIVE)
         self.assertEqual(new_event.type, Event.TYPE_VICTIM)
         self.assertEqual(Event.objects.get(id=event.id).status, Event.STATUS_FINISHED)
-        self.assertEqual(new_event.user, self.auth_user)
+        self.assertEqual(new_event.user, self.user)
         self.assertNotEqual(new_event.PIN, event.PIN)
 
         user2 = UserFactory()
-        self.mocked_get_backend()().do_auth.return_value = user2
-        self.assertHttpCreated(self.api_client.post(url, data=data))
+        self.logout()
+        self.login_as(user2)
+        self.assertHttpCreated(self.api_client.post(url))
         event = Event.objects.latest('id')
         self.assertEqual(event.status, Event.STATUS_PASSIVE)
         self.assertEqual(event.user, user2)
         self.assertEqual(Event.objects.filter(status=Event.STATUS_PASSIVE).count(), 2)
 
-    @mock_get_backend(module_path='events.api.resources')
     def test_get_list(self):
         event, event_location = EventFactory(), EventFactory()
         event_updates = [EventUpdateFactory(event=event, location=None),
