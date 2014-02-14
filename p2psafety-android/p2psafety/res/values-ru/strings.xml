@@ -47,6 +47,7 @@
     <string name="emails">E-mail\'ы</string>
     <string name="servers">Адреса серверов</string>
     <string name="media">Аудио/видео</string>
+    <string name="roles">Хочу помочь</string>
     <string name="media_type">Запись инцидента:</string>
     <string name="media_length">Продолжительность записи:</string>
     <string name="no_account_message">Укажите ваш google-аккаунт в настройках телефона</string>
@@ -72,6 +73,9 @@
     <string name="audio">аудио</string>
 
     <string name="login_with_FB">Войти через Facebook</string>
+
+    <string name="location_services_not_active">Определение местоположения не включено</string>
+    <string name="please_enable_location_services">Пожалуйста, включите определение местоположения и GPS</string>
 
     <string-array name="media_types">
         <item>Нет</item>

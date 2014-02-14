@@ -76,5 +76,9 @@ build
 p2psafety_django/p2psafety/settings/local.py
 Makefile.def
 
-# Media, uploaded files
-p2psafety_django/p2psafety/static_media/
+# Media, uploaded files, collected static
+p2psafety_django/static_media
+
+# Sphinx docs build
+p2psafety_django/docs/build/
+

@@ -1,0 +1,135 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <alekzvik@gmail.com>, 2014.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-02-10 21:40+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: templates/base.html:7 templates/site/index.html:13
+#: templates/site/index.html.py:64 templates/site/index.html:80
+msgid "P2P Safety"
+msgstr "Колективна безпека"
+
+#: templates/site/index.html:19
+msgid "What is it?"
+msgstr "Що це?"
+
+#: templates/site/index.html:25
+msgid ""
+"P2P Safety is decentralized system to quickly react on emergencies. Think "
+"911, but protection is provided by other users, not third-parties"
+msgstr ""
+"Колективна безпека - розподілена система швидкого реагування на екстренні "
+"події. Це як 911, тільки захист учасників забезпечують інші учасники, а не "
+"третя сторона."
+
+#: templates/site/index.html:32
+msgid "How does it work?"
+msgstr "Як це працює?"
+
+#: templates/site/index.html:37
+msgid "I need protection"
+msgstr "Мені потрібен захист"
+
+#: templates/site/index.html:39 templates/site/index.html.py:60
+msgid "Download the app"
+msgstr "Завантажте додаток"
+
+#: templates/site/index.html:40
+msgid "Register, fill in all the required data"
+msgstr "Зареєструйтеся, введіть необхідні дані"
+
+#: templates/site/index.html:41
+msgid ""
+"In case of emergency hold the SOS button or activate it by 3 clicks on "
+"hardware block button - wait for vibro response - another 3 clicks"
+msgstr ""
+"В разі небезпеки натисніть кнопку СОС у додатку, або активуйте тривогу "
+"потрійним нажаттям на кнопку блоку - вібро фідбек - ще три нажаття"
+
+#: templates/site/index.html:45
+msgid "I want to protect"
+msgstr "Я хочу бути корисним"
+
+#: templates/site/index.html:47
+msgid "Keep in touch, we are working on this part"
+msgstr "Будьте на зв’язку, ми працюємо над цим"
+
+#: templates/site/index.html:48
+msgid "Join the discussion group on facebook"
+msgstr "Долучайтесь до дискусії у фейсбук групі"
+
+#: templates/site/index.html:55
+msgid "How can I help?"
+msgstr "Як допомогти проекту?"
+
+#: templates/site/index.html:76
+msgid "Join the discussion"
+msgstr "Долучайтесь до дискусії"
+
+#: templates/site/index.html:84
+msgid "Track our progress"
+msgstr "Cлідкуйте за прогресом"
+
+#: templates/site/index.html:95
+msgid "Why?"
+msgstr "Навіщо?"
+
+#: templates/site/index.html:101
+msgid ""
+"We believe in decentralised systems, where everyone can take responsibility."
+msgstr ""
+"Ми віримо в розподілені системи, де кожен може брати на себе "
+"відповідальність."
+
+#: templates/site/index.html:104
+msgid ""
+"We think that the best way to provide safety is to teach people how to "
+"protect themselves."
+msgstr ""
+"Ми вважаємо, що якщо громаді потрібен захист, то найкращий спосіб його "
+"надати - дозволити та навчити людей захищати самих себе."
+
+#: templates/site/index.html:107
+msgid ""
+"We are certain that in 21st century we should use the full potential of "
+"technologies, especially in such fields as protection."
+msgstr ""
+"Ми вважаємо, що в 21 столітті варто використовувати потенціал технологій, "
+"особливо, в таких сферах, як безпека."
+
+#: templates/site/index.html:116
+msgid "What else should I know?"
+msgstr ""
+
+#: templates/site/index.html:122
+msgid ""
+"The main language of our facebook group is Ukrainian. Don't be scared, you "
+"can ask your question in English and we will provide answers for you"
+msgstr ""
+
+#: users/models.py:8
+msgid "Role"
+msgstr ""
+
+#: users/models.py:9
+msgid "Roles"
+msgstr ""
+
+#: users/models.py:11
+msgid "name"
+msgstr ""

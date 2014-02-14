@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_weight="1"
+              android:focusable="true"
+              android:focusableInTouchMode="true"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/frame_indent"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+    <!-- android:scaleType="fitXY" -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/SOSRed">
+
+        <TextView
+            android:id="@+id/textView"
+            style="@style/TextButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingBottom="@dimen/st_padding"
+            android:paddingTop="@dimen/st_padding"
+            android:text="Set your roles:"
+            android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="2dp"
+        android:background="@android:drawable/divider_horizontal_textfield"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
+
+    <ListView
+        android:id="@+id/roles_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="5dp" />
+
+    <Button
+        android:id="@+id/btn_save"
+        style="@style/TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_sel"
+        android:padding="@dimen/st_padding"
+        android:singleLine="true"
+        android:text="@string/btn_save" />
+
+</LinearLayout>
