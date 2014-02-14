@@ -99,10 +99,10 @@ public class MessageResolver {
                                             .append(formatTimeAndDay(location.getTime(), false))
                                             .append(" https://maps.google.com/maps?q=")
                                             .append(lat).append(",").append(lon).toString();
-
-                                    sendMessage(message);
-                                    Log.d("Message", "Message sent" + message);
                                 }
+
+                                sendMessage(message);
+                                Log.d("Message", "Message sent" + message);
                             }
                         };
                         MyLocation myLocation = new MyLocation();
