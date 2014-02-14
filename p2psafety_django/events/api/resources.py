@@ -15,8 +15,6 @@ from tastypie.utils import trailing_slash
 from tastypie.validation import Validation
 from schematics.models import Model as SchemaModel
 from schematics.types import IntType
-from social.backends.utils import get_backend
-from social.apps.django_app.utils import load_strategy
 
 from .fields import GeoPointField
 from .authentication import PostFreeSessionAuthentication
