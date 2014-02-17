@@ -6,7 +6,7 @@ mapApp.constant('ICONS', {
   BLUE: 'http://maps.google.com/mapfiles/ms/micons/blue-dot.png',
 });
 
-mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
+mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapSettings) {
   $scope.initGoogleMap = function(rootElement) {
 
     var fullBounds = new google.maps.LatLngBounds();
@@ -56,6 +56,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
         event.updates = data.objects;
         $scope.zoomIn();
         $scope.selectedEvent = event;
+        event['class'] = ''
       });
     };
   };
@@ -64,6 +65,19 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
     $http.get(urls.events, {params: params}).success(function(data) {
       for (i in data.objects) {
         var event = data.objects[i];
+        if ($scope.events[event.id]==null){
+            if (mapSettings.highlight){
+                event['class'] = 'highlight'
+                $scope.events[event.id] = event
+                document.getElementById('audiotag').play()
+            } else{
+                $scope.events[event.id] = event
+            }
+        } else{
+            if (mapSettings.highlight){
+            event['class'] = ''
+            }
+        }
         // TODO: display it manually
         if (event.latest_location != null) {
           var existingEvent = $scope.events[event.id];

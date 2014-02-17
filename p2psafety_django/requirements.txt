@@ -8,3 +8,4 @@ python-social-auth==0.1.20
 psycopg2==2.5
 mock==1.0.1
 git+git://github.com/alekzvik/factory_boy.git
+django-waffle==0.9.2

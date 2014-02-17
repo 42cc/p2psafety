@@ -58,6 +58,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'waffle.middleware.WaffleMiddleware',
 )
 
 INSTALLED_APPS = (
@@ -76,6 +77,7 @@ INSTALLED_APPS = (
     'tastypie',
     'social.apps.django_app.default',
     'south',
+    'waffle',
 )
 
 ROOT_URLCONF = 'p2psafety.urls'

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load staticfiles %}
+{% load waffle_tags %}
 
 {% block styles %}
   {{ block.super }}
@@ -17,10 +18,16 @@
       events: "{% url 'api_dispatch_list' resource_name='events' api_name='v1' %}",
       eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
     });
+    mapApp.constant('mapSettings', {
+        highlight: '{% switch new_event_highlight %} true {% else %} false {% endswitch %}',
+        sound: '{% switch new_event_sound %} true {% else %} false {% endswitch %}',
+    });
   </script>
 {% endblock %}
 
 {% block content %}
+<audio id="audiotag" src="{% static 'audio/beep.mp3' %}" preload="auto"></audio>
+
   <div class="page-header">
     <h3>Events map</h3>
   </div>
@@ -91,10 +98,12 @@
                 ng-if="selectedEvent == null">
             <div class="panel-body event-menu-list" 
                 ng-repeat="event in events">
+                <div class="{{event['class']}}">
                 <a class="btn btn-success"
                     ng-click="focus(event.latest_location)">
                         <span class="glyphicon glyphicon-map-marker"></span></a>
-                <div class="event-name" ng-click="select(event)">{{event.user.full_name}}</div>
+                <div class="event-name" ng-click="select(event)" ng-bind="event.user.full_name"></div>
+                </div>
             </div>
           </div>
         </div>

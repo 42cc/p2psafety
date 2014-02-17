@@ -12,3 +12,6 @@
     cursor: pointer;
     display: inline;
 }
+.highlight{
+    background-color: #87CEEB;
+}
