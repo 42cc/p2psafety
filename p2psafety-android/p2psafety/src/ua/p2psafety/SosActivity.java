@@ -21,6 +21,7 @@ import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.GmailOAuth2Sender;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -30,11 +31,14 @@ public class SosActivity extends ActionBarActivity {
     public static final String FRAGMENT_KEY = "fragmentKey";
 
     private UiLifecycleHelper mUiHelper;
+    public static Logs LOGS;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_sosmain);
         setSupportActionBar();
+
+        LOGS = new Logs(this);
 
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
@@ -89,6 +93,7 @@ public class SosActivity extends ActionBarActivity {
     public void onDestroy() {
         super.onDestroy();
         mUiHelper.onDestroy();
+        LOGS.close();
     }
 
     @Override
@@ -136,8 +141,6 @@ public class SosActivity extends ActionBarActivity {
         FrameLayout.LayoutParams iconLp = (FrameLayout.LayoutParams) icon.getLayoutParams();
         iconLp.topMargin = iconLp.bottomMargin = 0;
         icon.setLayoutParams(iconLp);
-
-
     }
 
     @Override
