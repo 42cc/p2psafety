@@ -20,7 +20,8 @@ from .fields import GeoPointField
 from .authentication import PostFreeSessionAuthentication
 from .authorization import CreateFreeDjangoAuthorization
 from ..models import Event, EventUpdate
-from core.api.decorators import api_method, body_params
+from core.api.mixins import ApiMethodsMixin, api_method
+from core.api.decorators import body_params
 from users.api.resources import UserResource
 
 
@@ -45,7 +46,7 @@ class MultipartResource(object):
         return super(MultipartResource, self).deserialize(request, data, format)
 
 
-class EventResource(ModelResource):
+class EventResource(ApiMethodsMixin, ModelResource):
     class Meta:
         queryset = Event.objects.all()
         resource_name = 'events'
@@ -67,14 +68,7 @@ class EventResource(ModelResource):
                                       'latest_update',
                                       full=True, null=True, readonly=True)
 
-    def prepend_urls(self):
-        return [
-            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/support%s$' % 
-                (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('support'), name='api_events_support'),
-        ]
-
-    @api_method
+    @api_method(r'/(?P<pk>\d+)/support', name='api_events_support')
     def support(self):
         """
         ***
@@ -82,19 +76,19 @@ class EventResource(ModelResource):
         ***
 
         Marks user as "supporter" for a given event.
-        Accepts args as json object.
-
-        * For **POST** method, adds user with given ``user_id`` param to list
-          of event's supporters.
-
-        Raises 400 if ``used_id`` param is not a number.
-        Raises 404 if user with given ``user_id`` or given event pk is not found.
         """
         class PostParams(SchemaModel):
             user_id = IntType(required=True)
 
         @body_params(PostParams)
         def post(self, request, pk=None, params=None, **kwargs):
+            """
+            Adds user with given ``user_id`` param to list of event's supporters.
+
+            Raises:
+
+            * **404** if user with given ``user_id`` or given event pk is not found.
+            """
             try:
                 user = User.objects.get(id=params.user_id)
             except User.DoesNotExist:
