@@ -49,6 +49,7 @@
     <string name="emails">E-mails</string>
     <string name="servers">Servers</string>
     <string name="media">Audio/video</string>
+    <string name="roles">Wanna help</string>
     <string name="media_type">Media record:</string>
     <string name="media_length">Record length</string>
     <string name="no_account_message">Point your google-account in the phone settings</string>
@@ -74,6 +75,9 @@
     <string name="audio">audio</string>
 
     <string name="login_with_FB">Login with Facebook</string>
+
+    <string name="location_services_not_active">Location Services are not active</string>
+    <string name="please_enable_location_services">Please enable Location Services and GPS</string>
 
     <string-array name="media_types">
         <item>No</item>

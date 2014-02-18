@@ -16,25 +16,48 @@ except ImportError:
     sha1 = sha.sha
 
 
+from .managers import EventManager
+
+
 class Event(models.Model):
     """
     Event class.
+
+    Event that receives at least one :class:`EventUpdate` becomes active. User
+    can has only one active event at the same time.
+
+    As some events can "support" other events, there are ``supported`` and
+    ``supporters`` fields.
     """
+    STATUS_ACTIVE = 'A'
+    STATUS_PASSIVE = 'P'
+    STATUS_FINISHED = 'F'
+    STATUS = (
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_PASSIVE, 'Passive'),
+        (STATUS_FINISHED, 'Finished'),
+    )
+    TYPE_VICTIM = 0
+    TYPE_SUPPORT = 1
+    EVENT_TYPE = (
+        (TYPE_VICTIM, 'victim'),
+        (TYPE_SUPPORT, 'support'),
+    )
+
     class Meta:
         permissions = (
             ("view_event", "Can view event"),
         )
 
-    STATUS_CHOICES = (
-        ('P', 'Passive'),
-        ('A', 'Active'),
-        ('F', 'Finished'),
-    )
+    objects = EventManager()
 
     user = models.ForeignKey(User, related_name='events')
+
     PIN = models.IntegerField(default=0)
     key = models.CharField(max_length=128, blank=True, default='', db_index=True)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='P')
+    status = models.CharField(max_length=1, choices=STATUS, default=STATUS_PASSIVE)
+    type = models.IntegerField(choices=EVENT_TYPE, default=TYPE_VICTIM)
+    supported = models.ManyToManyField('self', symmetrical=False, related_name='supporters')
 
     def __unicode__(self):
         return "{} event by {}".format(self.status, self.user)
@@ -62,10 +85,23 @@ class Event(models.Model):
             bad_key = True
             while bad_key:
                 self.PIN, self.key = self.generate_keys()
-                bad_key = Event.objects.filter(PIN=self.PIN).exclude(
-                    status='F').exists()
+                bad_key = (Event.objects.filter(PIN=self.PIN)
+                                        .exclude(status=self.STATUS_FINISHED)
+                                        .exists())
+        super(Event, self).save(*args, **kwargs)
 
-        return super(Event, self).save(*args, **kwargs)
+    def support_by_user(self, user):
+        """
+        Binds provided user to this event as "supporter".
+
+        Raises: ``DoesNotExist`` if user has no current event.
+        """
+        supports_event = Event.objects.get_current_of(user)
+        if supports_event.type != self.TYPE_SUPPORT:
+            supports_event.type = self.TYPE_SUPPORT
+            supports_event.save()
+
+        self.supporters.add(supports_event)
 
     def generate_keys(self):
         """
@@ -83,16 +119,16 @@ def mark_old_events_as_finished(sender, **kwargs):
     Every user has only one active or passive event. Design decision.
     """
     if kwargs.get('created'):
-        instance = kwargs.get('instance')
-        Event.objects.filter(
-            user=instance.user, status__in=['A', 'P']).exclude(
-            id=getattr(instance, 'id')).update(status='F')
+        event = kwargs['instance']
+        (Event.objects.filter(user=event.user)
+                      .exclude(status=Event.STATUS_FINISHED)
+                      .exclude(id=event.id)
+                      .update(status=Event.STATUS_FINISHED))
 
 
 class EventUpdate(models.Model):
     """
-    Event Update. Stores any kind of additional information for event.
-    Event that receives at least one eventupdate becomes active.
+    Event update. Stores any kind of additional information for event.
     """
     class Meta:
         permissions = (
@@ -101,11 +137,10 @@ class EventUpdate(models.Model):
         get_latest_by = 'timestamp'
 
     event = models.ForeignKey(Event, related_name='updates')
-    timestamp = models.DateTimeField(default=timezone.now())
+    timestamp = models.DateTimeField(default=timezone.now)
 
     text = models.TextField(blank=True)
-    location = geomodels.PointField(srid=settings.SRID['default'], blank=True,
-        null=True)
+    location = geomodels.PointField(srid=settings.SRID['default'], blank=True, null=True)
     audio = models.FileField(upload_to='audio', blank=True, null=True)
     video = models.FileField(upload_to='video', blank=True, null=True)
 
@@ -115,6 +150,9 @@ class EventUpdate(models.Model):
         """
         Event that received an update becomes active.
         """
-        self.event.status = 'A'
-        self.event.save()
+        all_events_are_finished = not self.event.user.events.filter(
+            status__in=[Event.STATUS_PASSIVE, Event.STATUS_ACTIVE]).exists()
+        if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
+            self.event.status = Event.STATUS_ACTIVE
+            self.event.save()
         return super(EventUpdate, self).save(*args, **kwargs)

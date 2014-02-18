@@ -38,6 +38,10 @@ class UserResource(ModelResource):
 
     def roles(self, request, pk=None, **kwargs):
         """
+        ***
+        TODO: replace user with request.user.
+        ***
+
         Manages user's roles:
 
         * For **GET** method, returns user's roles as list of ids.

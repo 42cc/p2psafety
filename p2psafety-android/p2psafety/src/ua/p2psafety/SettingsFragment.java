@@ -26,6 +26,7 @@ import java.util.Collections;
 import ua.p2psafety.media.SetMediaFragment;
 import ua.p2psafety.message.MessageFragment;
 import ua.p2psafety.password.PasswordFragment;
+import ua.p2psafety.roles.SetRolesFragment;
 import ua.p2psafety.setemails.SetEmailsFragment;
 import ua.p2psafety.setphones.SetPhoneFragment;
 import ua.p2psafety.setservers.SetServersFragment;
@@ -56,13 +57,14 @@ public class SettingsFragment extends Fragment {
 
         final ListView settingsList = (ListView) vParent.findViewById(R.id.settings_list);
         final String[] values = new String[]{
-                getResources().getString(R.string.add_phone),
-                getResources().getString(R.string.edit_message),
-                getResources().getString(R.string.emails),
-                getResources().getString(R.string.servers),
-                getResources().getString(R.string.password),
-                getResources().getString(R.string.media),
-                getResources().getString(R.string.logout)
+                getString(R.string.add_phone),
+                getString(R.string.edit_message),
+                getString(R.string.emails),
+                getString(R.string.servers),
+                getString(R.string.password),
+                getString(R.string.media),
+                getString(R.string.roles),
+                getString(R.string.logout)
         };
 
         final ArrayList<String> list = new ArrayList<String>();
@@ -139,13 +141,28 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 6:
+                        mfragment[0] = new SetRolesFragment();
+                        fragmentTransaction.addToBackStack(SetRolesFragment.TAG);
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
+                        break;
+                    case 7:
                         logout();
                         break;
                 }
             }
 
         });
+
+        Utils.checkForLocationServices(mActivity);
+
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        getView().bringToFront();
     }
 
     public void logout() {

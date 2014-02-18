@@ -20,8 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.facebook.Session;
-
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
@@ -74,6 +72,7 @@ public class SendMessageFragment extends Fragment {
         mSosBtn.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                Utils.checkForLocationServices(mActivity);
                 SosManager sosManager = SosManager.getInstance(mActivity);
                 if (sosManager.isSosStarted()) {
                     if (!Prefs.getUsePassword(mActivity)) {

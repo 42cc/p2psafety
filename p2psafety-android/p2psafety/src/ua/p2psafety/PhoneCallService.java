@@ -9,13 +9,12 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.KeyEvent;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import ua.p2psafety.data.PhonesDatasourse;
@@ -59,7 +58,7 @@ public class PhoneCallService extends Service {
         public void onReceive(final Context context, Intent intent) {
             Log.i("OutgoingBroadcastReceiver", "onReceive: " + intent.getAction());
             if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
-                new AsyncTask() {
+                AsyncTask ast = new AsyncTask() {
                     @Override
                     protected Object doInBackground(Object[] params) {
                         Log.i("AsyncTask", "doInBackground");
@@ -83,7 +82,17 @@ public class PhoneCallService extends Service {
 
                         return null;
                     }
-                }.execute();
+                };
+                try {
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        AsyncTaskExecutionHelper.executeParallel(ast);
+                    }
+                    else
+                    {
+                        ast.execute();
+                    }
+                } catch (Exception e) {
+                }
             }
         }
     }

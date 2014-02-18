@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-10 21:40+0000\n"
-"PO-Revision-Date: 2014-02-10 15:30+0100\n"
+"PO-Revision-Date: 2014-02-11 10:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: pl\n"
@@ -114,13 +114,16 @@ msgstr ""
 
 #: templates/site/index.html:116
 msgid "What else should I know?"
-msgstr ""
+msgstr "Co jeszcze powinienem wiedzieć?"
 
 #: templates/site/index.html:122
 msgid ""
 "The main language of our facebook group is Ukrainian. Don't be scared, you "
 "can ask your question in English and we will provide answers for you"
 msgstr ""
+"Głównym językiem naszej grupy na Facebooku jest ukraiński. Jednak można "
+"także zadać pytanie w języku angielskim (preferowany) lub polskim, a my "
+"dostarczymy odpowiedzi do Ciebie"
 
 #: users/models.py:8
 msgid "Role"
