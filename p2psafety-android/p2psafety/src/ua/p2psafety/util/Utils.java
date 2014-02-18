@@ -15,7 +15,6 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -60,7 +59,7 @@ public class Utils {
     }
 
     // checks if network connection is available and connected
-    public static boolean isNetworkConnected(Context context) {
+    public static boolean isNetworkConnected(Context context, Logs logs) {
         boolean result = false;
 
         try {
@@ -76,13 +75,14 @@ public class Utils {
                     result = true;
             }
         } catch (Exception e) {
+            logs.error("Can't check for network connection", e);
             return false;
         }
 
         return result;
     }
 
-    public static boolean isWiFiConnected(Context context) {
+    public static boolean isWiFiConnected(Context context, Logs logs) {
         boolean result = false;
 
         try {
@@ -96,6 +96,7 @@ public class Utils {
                 return false;
             }
         } catch (Exception e) {
+            logs.error("Can't check wifi connection", e);
             return false;
         }
     }
@@ -114,16 +115,7 @@ public class Utils {
         };
 
         // Vibrate for 2000 milliseconds
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                AsyncTaskExecutionHelper.executeParallel(vibration, 2000);
-            }
-            else
-            {
-                vibration.execute(2000);
-            }
-        } catch (Exception e) {
-        }
+        AsyncTaskExecutionHelper.executeParallel(vibration, 2000);
     }
 
     public static void sendMailsWithAttachments(final Context context, final int mediaId, final File file) {
@@ -139,16 +131,7 @@ public class Utils {
                 return null;
             }
         };
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                AsyncTaskExecutionHelper.executeParallel(ast);
-            }
-            else
-            {
-                ast.execute();
-            }
-        } catch (Exception e) {
-        }
+        AsyncTaskExecutionHelper.executeParallel(ast);
     }
 
     public static void checkForLocationServices(Context context)
@@ -194,7 +177,7 @@ public class Utils {
 //                .setVisibility(visible ? View.VISIBLE : View.GONE);
 //    }
 
-    public static void logKeyHash(Context context) {
+    public static void logKeyHash(Context context, Logs logs) {
         final String TAG = "logKeyHash()";
         try {
             PackageInfo info = context.getPackageManager().getPackageInfo(
@@ -208,12 +191,15 @@ public class Utils {
             }
         }
         catch (PackageManager.NameNotFoundException e) {
+            logs.error("Can't get key hash", e);
             Log.i("KeyHash:", "NameNotFound");
         }
         catch (NoSuchAlgorithmException e) {
+            logs.error("Can't get key hash", e);
             Log.i("KeyHash:", "NoAlgo");
         }
         catch (NullPointerException e) {
+            logs.error("Can't get key hash", e);
             Log.i(TAG, "NullPonterException  " +
                     "SHOULD HAPPEN ONLY UNDER ROBOLECTRIC");
         }

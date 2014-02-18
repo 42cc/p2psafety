@@ -78,6 +78,11 @@
 
     <string name="location_services_not_active">Location Services are not active</string>
     <string name="please_enable_location_services">Please enable Location Services and GPS</string>
+    <string name="send_logs">Send logs</string>
+    <string name="bad_logs_files">Files with logs do not exist</string>
+    <string name="logs_successfully_sent">Files with logs successfully sent</string>
+    <string name="please_write_a_description_of_issue">Please write a description of issue</string>
+    <string name="email_for_logs">talk@mail.khavr.com</string>
 
     <string-array name="media_types">
         <item>No</item>

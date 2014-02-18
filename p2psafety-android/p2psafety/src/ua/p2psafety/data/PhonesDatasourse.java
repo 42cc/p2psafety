@@ -9,6 +9,8 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ua.p2psafety.util.Logs;
+
 /**
  * User: Ihor
  * Date: 10.10.12
@@ -18,10 +20,21 @@ public class PhonesDatasourse {
     //old android api doesn't work with sets of strings
 
     private static String Pipe_Key_PREF = "Phones_key";
+    private static Logs LOGS;
     private Context context;
 
     public PhonesDatasourse(Context context) {
         this.context = context;
+
+        LOGS = new Logs(context);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+
+        if (LOGS != null)
+            LOGS.close();
     }
 
     private JSONArray getPhonesArr()
@@ -34,6 +47,8 @@ public class PhonesDatasourse {
             arr = new JSONArray(s);
         } catch (JSONException e) {
             e.printStackTrace();
+
+            LOGS.error("Can't create JSON array", e);
         }
         return arr;
     }
@@ -58,6 +73,8 @@ public class PhonesDatasourse {
                 s = arr.getString(i);
             } catch (JSONException e) {
                 e.printStackTrace();
+
+                LOGS.error("Can't get string from JSON array", e);
             }
             if (!phone.equals(s))
                 arr2.put(s);
@@ -74,6 +91,8 @@ public class PhonesDatasourse {
                 phones.add(arr.getString(i));
             } catch (JSONException e) {
                 e.printStackTrace();
+
+                LOGS.error("Can't get string from JSON array", e);
             }
         return phones;
     }

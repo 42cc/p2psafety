@@ -76,6 +76,10 @@
 
     <string name="location_services_not_active">Определение местоположения не включено</string>
     <string name="please_enable_location_services">Пожалуйста, включите определение местоположения и GPS</string>
+    <string name="send_logs">Отправить логи</string>
+    <string name="bad_logs_files">Файлов с логами не существует</string>
+    <string name="logs_successfully_sent">Файлы с логами успешно отправлены</string>
+    <string name="please_write_a_description_of_issue">Пожалуйста, опишите проблему</string>
 
     <string-array name="media_types">
         <item>Нет</item>

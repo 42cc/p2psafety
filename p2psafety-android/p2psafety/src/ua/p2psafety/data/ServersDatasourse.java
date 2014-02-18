@@ -9,14 +9,27 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ua.p2psafety.util.Logs;
+
 public class ServersDatasourse {
 
     //old android api doesn't work with sets of strings
     private static String Pipe_Key_PREF = "Servers_key";
+    private static Logs LOGS;
     private Context context;
 
     public ServersDatasourse(Context context) {
         this.context = context;
+
+        LOGS = new Logs(context);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+
+        if (LOGS != null)
+            LOGS.close();
     }
 
     private JSONArray getServersArr() {
@@ -28,6 +41,7 @@ public class ServersDatasourse {
             arr = new JSONArray(s);
         } catch (JSONException e) {
             e.printStackTrace();
+            LOGS.error("Can't create JSON array", e);
         }
         return arr;
     }
@@ -52,6 +66,7 @@ public class ServersDatasourse {
                 s = arr.getString(i);
             } catch (JSONException e) {
                 e.printStackTrace();
+                LOGS.error("Can't get string from JSON array", e);
             }
             if (!address.equals(s))
                 arr2.put(s);
@@ -68,6 +83,7 @@ public class ServersDatasourse {
                 servers.add(arr.getString(i));
             } catch (JSONException e) {
                 e.printStackTrace();
+                LOGS.error("Can't get string from JSON array", e);
             }
         return servers;
     }

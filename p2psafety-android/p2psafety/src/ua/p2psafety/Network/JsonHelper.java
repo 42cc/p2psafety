@@ -32,7 +32,9 @@ public class JsonHelper {
             Log.i(TAG, "key: "       + event.getKey());
             Log.i(TAG, "uri: "      + event.getUri());
             Log.i(TAG, "status: "   + event.getStatus());
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            NetworkManager.LOGS.error("Can't get object from data", e);
+        }
 
         return event;
     }
@@ -55,7 +57,9 @@ public class JsonHelper {
             Log.i(TAG, "fullName: "     + user.getFullName());
             Log.i(TAG, "uri: "          + user.getUri());
 
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            NetworkManager.LOGS.error("Can't get object from data", e);
+        }
 
         return user;
     }
@@ -76,6 +80,7 @@ public class JsonHelper {
             objects.clear();
         } catch (Exception e) {
             // ignore
+            NetworkManager.LOGS.error("Can't get object from data", e);
         }
 
         return roles;
@@ -93,7 +98,9 @@ public class JsonHelper {
             Log.i(TAG, "id: "           + role.id);
             Log.i(TAG, "fullName: "     + role.name);
 
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            NetworkManager.LOGS.error("Can't get object from data", e);
+        }
 
         return role;
     }
