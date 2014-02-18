@@ -28,7 +28,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -38,10 +37,12 @@ import ua.p2psafety.Event;
 import ua.p2psafety.SosManager;
 import ua.p2psafety.User;
 import ua.p2psafety.roles.Role;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 public class NetworkManager {
     private static final String SERVER_URL = "http://p2psafety.staging.42cc.co";
+    public static Logs LOGS;
 
     private static final int CODE_SUCCESS = 201;
 
@@ -59,6 +60,16 @@ public class NetworkManager {
         HttpConnectionParams.setConnectionTimeout(httpParams, 0);
         HttpConnectionParams.setSoTimeout(httpParams, 0);
         httpClient = new DefaultHttpClient(httpParams);
+
+        LOGS = new Logs(c);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+
+        if (LOGS != null)
+            LOGS.close();
     }
 
     public static void createEvent(final Context context,
@@ -68,7 +79,7 @@ public class NetworkManager {
             public void run() {
                 final String TAG = "createEvent";
 
-                if (!Utils.isNetworkConnected(context)) {
+                if (!Utils.isNetworkConnected(context, LOGS)) {
 //                    errorDialog(context, DIALOG_NO_CONNECTION);
                     if (postRunnable != null) {
                         postRunnable.setResult(null);
@@ -99,6 +110,7 @@ public class NetworkManager {
                     try {
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute post request", e);
                         //errorDialog(context, DIALOG_NETWORK_ERROR);
                         if (postRunnable != null) {
                             postRunnable.setResult(null);
@@ -126,6 +138,7 @@ public class NetworkManager {
                         postRunnable.run();
                     }
                 } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't create event", e);
                     //errorDialog(context, DIALOG_NETWORK_ERROR);
                     if (postRunnable != null) {
                         postRunnable.setResult(null);
@@ -170,6 +183,7 @@ public class NetworkManager {
                     try {
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute post request", e);
                         errorDialog(context, DIALOG_NETWORK_ERROR);
                         return;
                     }
@@ -187,6 +201,7 @@ public class NetworkManager {
 
                     postRunnable.run();
                 } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't update event with attachments", e);
                     errorDialog(context, DIALOG_NETWORK_ERROR);
                 }
             }
@@ -224,7 +239,9 @@ public class NetworkManager {
                         jsonLocation.put("latitude",  loc.getLatitude());
                         jsonLocation.put("longitude", loc.getLongitude());
                         json.put("location", jsonLocation);
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't get object from data", e);
+                    }
 
                     StringEntity se = new StringEntity(json.toString(), "UTF-8");
                     httpPost.setEntity(se);
@@ -236,6 +253,7 @@ public class NetworkManager {
                     try {
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute post request", e);
                         errorDialog(context, DIALOG_NETWORK_ERROR);
                         return;
                     }
@@ -253,6 +271,7 @@ public class NetworkManager {
 
                     postRunnable.run();
                 } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't update event", e);
                     errorDialog(context, DIALOG_NETWORK_ERROR);
                 }
             }
@@ -288,6 +307,7 @@ public class NetworkManager {
                     try {
                         response = httpClient.execute(httpGet);
                     } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute get request", e);
                         errorDialog(context, DIALOG_NETWORK_ERROR);
                         return;
                     }
@@ -311,6 +331,7 @@ public class NetworkManager {
                         postRunnable.run();
                     }
                 } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't get events", e);
                     errorDialog(context, DIALOG_NETWORK_ERROR);
                 }
             }
@@ -351,6 +372,7 @@ public class NetworkManager {
                     try {
                         response = httpClient.execute(httpGet);
                     } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute get request", e);
                         errorDialog(context, DIALOG_NETWORK_ERROR);
                         return;
                     }
@@ -387,6 +409,7 @@ public class NetworkManager {
                         postRunnable.run();
                     }
                 } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't get roles", e);
                     errorDialog(context, DIALOG_NETWORK_ERROR);
                 }
             }
@@ -401,6 +424,7 @@ public class NetworkManager {
         try {
             activity = (Activity) context;
         } catch (Exception e) {
+            NetworkManager.LOGS.error("Context is not a activity", e);
             return;
         }
         activity.runOnUiThread(new Runnable() {
@@ -475,7 +499,7 @@ public class NetworkManager {
             public void run() {
                 final String TAG = "setRoles";
 
-                if (!Utils.isNetworkConnected(context)) {
+                if (!Utils.isNetworkConnected(context, LOGS)) {
 //                    errorDialog(context, DIALOG_NO_CONNECTION);
                     if (postRunnable != null) {
                         postRunnable.setResult(null);
@@ -512,6 +536,7 @@ public class NetworkManager {
                     try {
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute post request", e);
                         //errorDialog(context, DIALOG_NETWORK_ERROR);
                         if (postRunnable != null) {
                             postRunnable.setResult(null);
@@ -539,6 +564,7 @@ public class NetworkManager {
                         postRunnable.run();
                     }
                 } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't create roles", e);
                     //errorDialog(context, DIALOG_NETWORK_ERROR);
                     if (postRunnable != null) {
                         postRunnable.setResult(null);

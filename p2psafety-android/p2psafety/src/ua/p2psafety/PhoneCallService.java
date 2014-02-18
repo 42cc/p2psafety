@@ -9,7 +9,6 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -18,8 +17,19 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import ua.p2psafety.data.PhonesDatasourse;
+import ua.p2psafety.util.Logs;
 
 public class PhoneCallService extends Service {
+
+    public static Logs LOGS;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        LOGS = new Logs(this);
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Context context = getApplicationContext();
@@ -49,7 +59,9 @@ public class PhoneCallService extends Service {
             phoneCallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {
                 context.startActivity(phoneCallIntent);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                LOGS.error("Can't start phone call intent", e);
+            }
         }
     }
 
@@ -66,6 +78,7 @@ public class PhoneCallService extends Service {
                             Thread.sleep(3000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                            LOGS.error("Thread.sleep error", e);
                         }
                         // hide call screen
                         Intent startMain = new Intent(Intent.ACTION_MAIN);
@@ -83,16 +96,8 @@ public class PhoneCallService extends Service {
                         return null;
                     }
                 };
-                try {
-                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        AsyncTaskExecutionHelper.executeParallel(ast);
-                    }
-                    else
-                    {
-                        ast.execute();
-                    }
-                } catch (Exception e) {
-                }
+
+                AsyncTaskExecutionHelper.executeParallel(ast);
             }
         }
     }
@@ -150,12 +155,17 @@ public class PhoneCallService extends Service {
 
         } catch (Exception e) {
             e.printStackTrace();
+            LOGS.error("Stop phone call error", e);
         }
     }
 
     @Override
     public void onDestroy() {
         stopPhoneCall();
+
+        if (LOGS != null)
+            LOGS.close();
+
         super.onDestroy();
     }
 

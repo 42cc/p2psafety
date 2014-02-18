@@ -14,6 +14,8 @@ public class SMSSender {
             SmsManager smsManager = SmsManager.getDefault();
             ArrayList<String> msgStringArray = smsManager.divideMessage(message);
             smsManager.sendMultipartTextMessage(number, null, msgStringArray, null, null);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            MessageResolver.LOGS.error("Can't send sms", e);
+        }
     }
 }
