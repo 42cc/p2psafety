@@ -134,7 +134,7 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.login_as_superuser()
         url = self.events_support_url(event_victim.id)
         data = dict(user_id=user_supporter.id)
-        resp = self.api_client.client.post(url, data=data)
+        resp = self.api_client.post(url, data=data)
         self.assertEqual(resp.status_code, 200)
         support_by_user_mock.assert_called_once_with(user_supporter)
 
@@ -148,9 +148,12 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         # Invalid method
         self.assertHttpMethodNotAllowed(self.api_client.get(url))
 
+        # Invalid body
+        self.assertHttpBadRequest(self.api_client.post(url, data='invalid'))
+
         # Invalid params
-        data = dict(user_id='wtf')
-        self.assertHttpBadRequest(self.api_client.client.post(url, data=data))
+        data = dict(user_id='invalid')
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
 
         # Event does not exists
         data = dict(user_id=user_supporter.id)
@@ -159,7 +162,7 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
         # User does not exists
         data = dict(user_id=123)
-        self.assertHttpBadRequest(self.api_client.client.post(url, data=data))
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
 
 
 class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):

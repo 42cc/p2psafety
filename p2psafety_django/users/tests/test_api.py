@@ -70,27 +70,44 @@ class UsersTestCase(ModelsMixin, ResourceTestCase):
         url = self.users_roles_url(user.id)
         
         # Setting 0110
-        data = {'role_id': [role1.id, role2.id]}
+        data = {'role_ids': [role1.id, role2.id]}
         
         # Results in 0110
-        resp = self.api_client.client.post(url, data=data)
+        resp = self.api_client.post(url, data=data)
         self.assertEqual(resp.status_code, 202)
-        self.assertEqual(data['role_id'], [r.id for r in user.roles.all()])
+        self.assertEqual(data['role_ids'], [r.id for r in user.roles.all()])
+
+    def test_set_single_role(self):
+        user, role = UserFactory(), RoleFactory()
+        url = self.users_roles_url(user.id)
+
+        resp = self.api_client.post(url, data=dict(role_ids=role.id))
+        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(list(user.roles.all()), [role])
+
+    def test_clear_roles(self):
+        user, role = UserFactory(), RoleFactory()
+        url = self.users_roles_url(user.id)
+        user.roles.add(role)
+
+        resp = self.api_client.post(url, data=dict(role_ids=[]))
+        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(user.roles.count(), 0)
 
     def test_role_errors(self):
         user = UserFactory()
         role = RoleFactory()
         existing_user = self.users_roles_url(user.id)
         not_existing_user = self.users_roles_url(user.id + 1)
-
+        
         # User does not exist
-        self.assertHttpNotFound(self.api_client.post(not_existing_user))
+        data = dict(role_ids=[])
+        self.assertHttpNotFound(self.api_client.post(not_existing_user, data=data))
 
-        # No ``role_id`` supplied
-        resp = self.api_client.client.post(existing_user, data={})
+        # No ``role_ids`` supplied
+        resp = self.api_client.post(existing_user, data={})
         self.assertEqual(resp.status_code, 400)
 
-        # Invalid ``role_id`` param
-        data = {'role_id': '[]'}
-        resp = self.api_client.client.post(existing_user, data=data)
-        self.assertEqual(resp.status_code, 400)
+        # Invalid body
+        resp = self.api_client.post(existing_user, data='invalid data')
+        self.assertEqual(resp.status_code, 400)      
