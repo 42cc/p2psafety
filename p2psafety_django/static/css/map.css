@@ -15,3 +15,9 @@
 .highlight{
     background-color: #87CEEB;
 }
+.event-panel{
+    padding: 5px 5px 5px 10px;
+}
+.event-heading{
+    margin-bottom: 0;
+}

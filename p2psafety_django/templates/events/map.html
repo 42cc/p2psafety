@@ -19,8 +19,8 @@
       eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
     });
     mapApp.constant('mapSettings', {
-        highlight: '{% switch new_event_highlight %} true {% else %} false {% endswitch %}',
-        sound: '{% switch new_event_sound %} true {% else %} false {% endswitch %}',
+        highlight: '{% switch events_map_new_event_highlight %} true {% else %} false {% endswitch %}',
+        sound: '{% switch events_map_new_event_sound %} true {% else %} false {% endswitch %}',
     });
   </script>
 {% endblock %}
@@ -94,11 +94,12 @@
               </div>
             </div>
           </div>
-          <div class="selected-event panel panel-primary" 
+          <div class="selected-event panel panel-primary " 
                 ng-if="selectedEvent == null">
-            <div class="panel-body event-menu-list" 
+            <h4 class="panel-heading event-heading">Dispatcher panel</h4>
+            <div class="panel-body event-menu-list event-panel"  ng-class="{highlight: event.isNew}"
                 ng-repeat="event in events">
-                <div class="{{event['class']}}">
+                <div  ng-click="event.isNew = false">
                 <a class="btn btn-success"
                     ng-click="focus(event.latest_location)">
                         <span class="glyphicon glyphicon-map-marker"></span></a>

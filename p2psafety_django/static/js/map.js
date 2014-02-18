@@ -12,12 +12,12 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     var fullBounds = new google.maps.LatLngBounds();
     var params = {status: 'A'};
     $http.get(urls.events, {params: params}).success(function(data) {
-    for (i in data.objects) {
-    var event = data.objects[i];
-    var lat=event.latest_location.latitude;
-    var long=event.latest_location.longitude;
-    var point=new google.maps.LatLng(lat, long);
-    fullBounds.extend(point)
+        for (i in data.objects) {
+            var event = data.objects[i];
+            var lat=event.latest_location.latitude;
+            var long=event.latest_location.longitude;
+            var point=new google.maps.LatLng(lat, long);
+        fullBounds.extend(point)
         };
     });
 
@@ -63,36 +63,31 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.update = function() {
     var params = {status: 'A'};
     $http.get(urls.events, {params: params}).success(function(data) {
-      for (i in data.objects) {
-        var event = data.objects[i];
-        if ($scope.events[event.id]==null){
-            if (mapSettings.highlight){
-                event['class'] = 'highlight'
-                $scope.events[event.id] = event
-                document.getElementById('audiotag').play()
-            } else{
-                $scope.events[event.id] = event
-            }
-        } else{
-            if (mapSettings.highlight){
-            event['class'] = ''
-            }
-        }
-        // TODO: display it manually
-        if (event.latest_location != null) {
-          var existingEvent = $scope.events[event.id];
-          if (existingEvent == null) {
-            $scope.events[event.id] = event;
-          } else {
-            for (key in event) {
-              var eventProperty = event[key];
-              if (existingEvent[key] != eventProperty) {
-                existingEvent[key] = eventProperty;
-              }
+        var eventsAppeared = false, newEvents = {};
+          for (i in data.objects) {
+            var event = data.objects[i];
+            newEvents[event.id] = event;
+          }
+          // Deleting old events
+          for (oldEventId in $scope.events) {
+            if (newEvents[oldEventId] == null) {
+              delete $scope.events[oldEventId];
             }
           }
-        }
-      };
+          // Adding new events
+          for (newEventId in newEvents) {
+            if ($scope.events[newEventId] == null) {
+                var new_event =  newEvents[newEventId]
+                if (mapSettings.highlight){
+                    new_event.isNew = true
+                } else {
+                    new_event.isNew = false
+                }
+              $scope.events[newEventId] = new_event;
+              eventsAppeared = true;
+            }
+    }
+    if (eventsAppeared && mapSettings.sound) document.getElementById('audiotag').play();
     });
   };
   $scope.focus = function(location) {
