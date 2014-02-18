@@ -54,7 +54,7 @@ class TastyDirective(Directive):
             method_name = method.__name__
             if hasattr(method, 'view_methods'):
                 method_cfg = {
-                    'url': method.view_url,
+                    'url': self.join_urls(list_endpoint, method.view_url),
                     'description': method.__doc__,
                     'methods': []
                 }
@@ -66,3 +66,8 @@ class TastyDirective(Directive):
                     })
                 result[method_name] = method_cfg
         return result
+
+    def join_urls(self, *urls):
+        urls = map(lambda s: s.strip('/'), urls)
+        urls.insert(0, ''), urls.append('')
+        return '/'.join(urls)
