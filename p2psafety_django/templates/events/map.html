@@ -95,7 +95,7 @@
             <div class="panel-body">
                 <div class="list-group">
                     <div class="list-group-item"
-                         ng-class="{highlight: event.isNew}"
+                         ng-class="{'list-group-item-warning': event.isNew}"
                          ng-click="event.isNew = false"
                          ng-repeat="event in events">
                       <a class="btn btn-success" ng-click="focus(event.latest_location)">
