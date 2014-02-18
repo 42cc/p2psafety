@@ -15,6 +15,7 @@ import com.sun.mail.smtp.SMTPTransport;
 import com.sun.mail.util.BASE64EncoderStream;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -211,5 +212,62 @@ public class GmailOAuth2Sender {
             initToken();
             sendMail(subject, body, user, recipients, file);
         }
+    }
+
+    public synchronized void sendMail(String subject, String body, String user, String email, List<File> files) {
+
+        if (!Utils.isNetworkConnected(context)) {
+            return;
+        }
+        SMTPTransport smtpTransport = null;
+        try {
+            smtpTransport = connectToSmtp("smtp.gmail.com",
+                    587,
+                    user,
+                    token,
+                    true);
+
+            MimeMessage message = new MimeMessage(session);
+            message.setSender(new InternetAddress(user));
+            message.setSubject(subject);
+            //message.setContent(body, "text/html; charset=utf-8");
+            // Create the message part
+            BodyPart messageBodyPart = new MimeBodyPart();
+
+            // Fill the message
+            messageBodyPart.setText(body);
+
+            // Create a multipar message
+            Multipart multipart = new MimeMultipart();
+
+            // Set text message part
+            multipart.addBodyPart(messageBodyPart);
+
+            // Part two is attachments
+            for (File file: files)
+            {
+                messageBodyPart = new MimeBodyPart();
+                DataSource source = new FileDataSource(file);
+                messageBodyPart.setDataHandler(new DataHandler(source));
+                messageBodyPart.setFileName(file.getName());
+                multipart.addBodyPart(messageBodyPart);
+            }
+
+            // Send the complete message parts
+            message.setContent(multipart);
+
+            try {
+                message.setRecipient(Message.RecipientType.TO,
+                            new InternetAddress(email));
+                smtpTransport.sendMessage(message, message.getAllRecipients());
+            } finally {
+                smtpTransport.close();
+            }
+        } catch (MessagingException e) {
+            mAccountManager.invalidateAuthToken("com.google", token);
+            initToken();
+            sendMail(subject, body, user, email, files);
+        }
+
     }
 }

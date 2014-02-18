@@ -9,8 +9,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Taras Melon on 17.02.14.
@@ -30,6 +34,50 @@ public class Logs {
         mContext = context;
 
         open();
+
+        checkLogsFiles();
+    }
+
+    private void checkLogsFiles() {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
+        boolean shouldWork = true;
+        //one week
+        int i=-7;
+
+        File mediaDir = checkForSdCard();
+
+        while (shouldWork)
+        {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, i);
+            String date = dateFormat.format(cal.getTime());
+
+            String filename = FILENAME+date+FILE_EXTENSION;
+
+            mFullFileName = mediaDir+filename;
+
+            File file = new File(mFullFileName);
+            if(file.exists())
+            {
+                file.delete();
+            }
+            else
+            {
+                shouldWork = false;
+            }
+
+            i--;
+        }
+    }
+
+    private File checkForSdCard() {
+        File mediaDir;
+        String state = Environment.getExternalStorageState();
+        if(state.equals(Environment.MEDIA_MOUNTED))
+            mediaDir = Environment.getExternalStorageDirectory();
+        else
+            mediaDir = mContext.getFilesDir();
+        return mediaDir;
     }
 
     public synchronized void debug(String message)
@@ -148,12 +196,7 @@ public class Logs {
 
     private synchronized File getLogFile()
     {
-        File mediaDir;
-        String state = Environment.getExternalStorageState();
-        if(state.equals(Environment.MEDIA_MOUNTED))
-            mediaDir = Environment.getExternalStorageDirectory();
-        else
-            mediaDir = mContext.getFilesDir();
+        File mediaDir = checkForSdCard();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd");
         String currentDate = sdf.format(new Date());
@@ -188,5 +231,41 @@ public class Logs {
     public String getFullFileName()
     {
         return mFullFileName;
+    }
+
+    public List<File> getFiles() {
+        List<File> files = new ArrayList<File>();
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
+        boolean shouldWork = true;
+        //today
+        int i=0;
+
+        File mediaDir = checkForSdCard();
+
+        while (shouldWork)
+        {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, i);
+            String date = dateFormat.format(cal.getTime());
+
+            String filename = FILENAME+date+FILE_EXTENSION;
+
+            mFullFileName = mediaDir+filename;
+
+            File file = new File(mFullFileName);
+            if(file.exists())
+            {
+                files.add(file);
+            }
+            else
+            {
+                shouldWork = false;
+            }
+
+            i--;
+        }
+
+        return files;
     }
 }

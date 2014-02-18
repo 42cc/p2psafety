@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -154,21 +153,9 @@ public class SettingsFragment extends Fragment {
                         logout();
                         break;
                     case 8:
-                        File file = new File(SosActivity.LOGS.getFullFileName());
-                        if (file != null) {
-                            SendReportAsyncTask ast = new SendReportAsyncTask(file);
-                            try {
-                                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                                    AsyncTaskExecutionHelper.executeParallel(ast);
-                                } else {
-                                    ast.execute();
-                                }
-                            } catch (Exception e) {
-                            }
-                        } else {
-                            Toast.makeText(mActivity, R.string.bad_logs_files, Toast.LENGTH_SHORT).show();
-                        }
-
+                        mfragment[0] = new SendLogsFragment();
+                        fragmentTransaction.addToBackStack(SendLogsFragment.TAG);
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                 }
             }
