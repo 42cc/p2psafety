@@ -3,6 +3,7 @@ package ua.p2psafety.sms;
 import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Looper;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -10,8 +11,8 @@ import android.util.Log;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 
+import ua.p2psafety.AsyncTaskExecutionHelper;
 import ua.p2psafety.data.EmailsDatasourse;
 import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.data.Prefs;
@@ -98,10 +99,10 @@ public class MessageResolver {
                                             .append(formatTimeAndDay(location.getTime(), false))
                                             .append(" https://maps.google.com/maps?q=")
                                             .append(lat).append(",").append(lon).toString();
-
-                                    sendMessage(message);
-                                    Log.d("Message", "Message sent" + message);
                                 }
+
+                                sendMessage(message);
+                                Log.d("Message", "Message sent" + message);
                             }
                         };
                         MyLocation myLocation = new MyLocation();
@@ -119,7 +120,14 @@ public class MessageResolver {
             }
         };
         try {
-            ast.execute();
-        } catch (Exception e) {}
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                AsyncTaskExecutionHelper.executeParallel(ast);
+            }
+            else
+            {
+                ast.execute();
+            }
+        } catch (Exception e) {
+        }
     }
 }
