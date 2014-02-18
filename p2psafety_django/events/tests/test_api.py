@@ -6,6 +6,7 @@ from operator import itemgetter
 from django.contrib.gis.geos import Point
 from django.core.urlresolvers import reverse
 
+from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
 from ..models import Event, EventUpdate
@@ -267,3 +268,27 @@ class AuthTestCase(ResourceTestCase):
                     password=self.user.real_password)
         resp = self.api_client.post(url, data=data, format='json')
         self.assertHttpOK(resp)
+
+    def test_login_with_social_facebook(self):
+        kwargs = dict(resource_name='auth', api_name='v1', provider='facebook')
+        url = reverse('api_auth_login_social', kwargs=kwargs)
+
+        # Wrong method
+        self.assertHttpMethodNotAllowed(self.api_client.get(url))
+
+        # Invalid data
+        data = dict()
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
+        
+        # Invalid token
+        data = dict(auth_token='invalid')
+        resp = self.api_client.post(url, data=data)
+        self.assertHttpBadRequest(resp)
+        self.assertContains(resp.content.lower(), 'invalid tocket')
+
+        # Valid token
+        data = dict(auth_token='mocked token')
+        resp = self.api_client.post(url, data=data)
+        self.assertValidJsonResponse(resp)
+        key = self.deserialize(resp).get('api_key')
+        self.assertEqual(key, ApiKey.objects.get(user=self.user))
