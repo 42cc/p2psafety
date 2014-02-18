@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 import com.facebook.Session;
 import com.facebook.SessionState;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -30,6 +32,7 @@ import ua.p2psafety.roles.SetRolesFragment;
 import ua.p2psafety.setemails.SetEmailsFragment;
 import ua.p2psafety.setphones.SetPhoneFragment;
 import ua.p2psafety.setservers.SetServersFragment;
+import ua.p2psafety.sms.MessageResolver;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -64,7 +67,8 @@ public class SettingsFragment extends Fragment {
                 getString(R.string.password),
                 getString(R.string.media),
                 getString(R.string.roles),
-                getString(R.string.logout)
+                getString(R.string.logout),
+                getString(R.string.send_logs)
         };
 
         final ArrayList<String> list = new ArrayList<String>();
@@ -148,6 +152,11 @@ public class SettingsFragment extends Fragment {
                     case 7:
                         logout();
                         break;
+                    case 8:
+                        mfragment[0] = new SendLogsFragment();
+                        fragmentTransaction.addToBackStack(SendLogsFragment.TAG);
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
+                        break;
                 }
             }
 
@@ -180,11 +189,35 @@ public class SettingsFragment extends Fragment {
         startActivity(i);
 
         Toast.makeText(mActivity, "Готово", Toast.LENGTH_SHORT)
-             .show();
+                .show();
 
         //mActivity.finish();
 
         return;
+    }
+
+    private class SendReportAsyncTask extends AsyncTask {
+
+        private File file;
+
+        public SendReportAsyncTask(File file)
+        {
+            this.file = file;
+        }
+
+        @Override
+        protected Object doInBackground(Object[] params) {
+            MessageResolver resolver = new MessageResolver(mActivity);
+            resolver.sendEmails("Error", file);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+
+            Toast.makeText(mActivity, R.string.logs_successfully_sent, Toast.LENGTH_SHORT).show();
+        }
     }
 
 }
