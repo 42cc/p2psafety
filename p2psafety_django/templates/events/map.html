@@ -37,13 +37,9 @@
       <div ng-app="mapApp">
         <div id="map-canvas"></div>
         <div ng-controller="EventListCtrl">
-          <event-marker mode="event"
-                        type="{{ event.type }}"
-                        location="event.latest_location"
-                        click="select(event)"
+          <event-marker click="select(event)"
                         ng-repeat="event in events"
-                        ng-if="event.id != selectedEvent.id"
-                        bouncing="{{event.isNew}}">
+                        ng-if="event.id != selectedEvent.id">
             <div>
               <p ng-if="event.user.full_name != null">
                 <span class="glyphicon glyphicon-exclamation-sign"
@@ -72,11 +68,9 @@
               <div class="list-group">
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
-                  <event-marker mode="eventupdate"
-                                location="update.location"
-                                click="focus(update.location)">
+                  <eventupdate-marker click="focus(update.location)">
                     <p>{{ update.timestamp | date:'dd.MM HH:mm' }}</p>
-                  </event-marker>
+                  </eventupdate-marker>
                   <p class="list-group-item-heading">
                     <span class="badge">{{ update.timestamp | date:'dd.MM HH:mm' }}</span>
                     {{ update.text || "..." }}
@@ -100,11 +94,16 @@
             <h4 class="panel-heading event-heading">Dispatcher panel</h4>
             <div class="panel-body">
                 <div class="list-group">
-                    <div class="list-group-item" ng-class="{highlight: event.isNew}" ng-click="event.isNew = false" ng-repeat="event in events">
-                    <a class="btn btn-success"
-                        ng-click="focus(event.latest_location)">
-                            <span class="glyphicon glyphicon-map-marker"></span></a>
-                    <div class="event-name" ng-click="select(event)" ng-bind="event.user.full_name"></div>
+                    <div class="list-group-item"
+                         ng-class="{highlight: event.isNew}"
+                         ng-click="event.isNew = false"
+                         ng-repeat="event in events">
+                      <a class="btn btn-success" ng-click="focus(event.latest_location)">
+                        <span class="glyphicon glyphicon-map-marker"></span>
+                      </a>
+                      <div class="event-name"
+                           ng-click="select(event)"
+                           ng-bind="event.user.full_name"></div>
                     </div>
                 </div>
             </div>
