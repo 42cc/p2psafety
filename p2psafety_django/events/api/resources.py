@@ -22,8 +22,8 @@ from .fields import GeoPointField
 from .authentication import PostFreeSessionAuthentication
 from .authorization import CreateFreeDjangoAuthorization
 from ..models import Event, EventUpdate
-from core.api.mixins import ApiMethodsMixin, api_method
-from core.api.decorators import body_params
+from core.api.mixins import ApiMethodsMixin
+from core.api.decorators import body_params, api_method
 from users.api.resources import UserResource
 
 

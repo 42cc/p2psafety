@@ -9,42 +9,11 @@ from tastypie import http as tastypie_http
 from tastypie.utils import trailing_slash
 
 
-class api_method(object):
-    def __init__(self, url, name=None):
-        self.url = url
-        self.name = name
-        self.methods = {}
-    
-    def __call__(self, func):
-        methods_funcs = func(None)
-        if not isinstance(methods_funcs, (list, tuple)):
-            methods_funcs = (methods_funcs,)
-
-        methods_names = [x.func_name.lower() for x in methods_funcs]
-        methods = dict(zip(methods_names, methods_funcs))
-
-        @functools.wraps(func)
-        def decorated(self, request, *args, **kwargs):
-            self.method_check(request, allowed=methods_names)
-            self.throttle_check(request)
-
-            method = methods[request.method.lower()]
-            try:
-                response = method(self, request, *args, **kwargs)
-            except django_http.Http404:
-                return tastypie_http.HttpNotFound()
-            else:
-                self.log_throttled_access(request)
-                return tastypie_http.HttpResponse() if response is None else response
-
-        decorated.view_url = self.url
-        decorated.view_name = self.name
-        decorated.view_methods = methods
-        return decorated
-
-
 class ApiMethodsMixin(object):
-
+    """
+    Add this mixin to :class:`tastypie.resources.Resource` class if you need
+    :func:`core.api.decorators.api_method` decorator.
+    """
     def __get_methods(self):
         resource_methods = inspect.getmembers(type(self), inspect.ismethod)
         resource_names = map(itemgetter(0), resource_methods)
@@ -66,5 +35,3 @@ class ApiMethodsMixin(object):
                 django_url = url(full_url, wrapped , name=method.view_name)
                 result.append(django_url)
         return result
-
-

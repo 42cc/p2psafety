@@ -10,8 +10,8 @@ from schematics.models import Model as SchemaModel
 from schematics.types import IntType
 from schematics.types.compound import ListType
 
-from core.api.mixins import ApiMethodsMixin, api_method
-from core.api.decorators import body_params
+from core.api.mixins import ApiMethodsMixin
+from core.api.decorators import body_params, api_method
 from ..models import Role
 
 
