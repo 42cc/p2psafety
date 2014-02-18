@@ -61,7 +61,7 @@ public class SosActivity extends ActionBarActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-        if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this) && Prefs.getGmailToken(this) == null)
+        if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, LOGS) && Prefs.getGmailToken(this) == null)
         {
             GmailOAuth2Sender sender = new GmailOAuth2Sender(this);
             sender.initToken();
@@ -112,7 +112,7 @@ public class SosActivity extends ActionBarActivity {
     }
 
     public void loginToFacebook(Activity activity, Session.StatusCallback callback) {
-        if (!Utils.isNetworkConnected(activity)) {
+        if (!Utils.isNetworkConnected(activity, LOGS)) {
             //errorDialog(activity, DIALOG_NO_CONNECTION);
             return;
         }

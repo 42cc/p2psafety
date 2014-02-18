@@ -3,7 +3,6 @@ package ua.p2psafety.sms;
 import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Looper;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -16,6 +15,7 @@ import ua.p2psafety.AsyncTaskExecutionHelper;
 import ua.p2psafety.data.EmailsDatasourse;
 import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -26,6 +26,7 @@ public class MessageResolver {
     private String message;
     private List<String> phones;
     private List<String> emails;
+    public static Logs LOGS;
 
     public MessageResolver(Context context) {
         this.context = context;
@@ -35,6 +36,16 @@ public class MessageResolver {
         phones = new ArrayList<String>();
         phones = phonesDatasourse.getAllPhones();
         emails = emailsDatasourse.getAllEmails();
+
+        LOGS = new Logs(context);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+
+        if (LOGS != null)
+            LOGS.close();
     }
 
     /**
@@ -105,7 +116,7 @@ public class MessageResolver {
                                 Log.d("Message", "Message sent" + message);
                             }
                         };
-                        MyLocation myLocation = new MyLocation();
+                        MyLocation myLocation = new MyLocation(LOGS);
                         myLocation.getLocation(context, locationResult);
                         Looper.loop();
                     } else {
@@ -113,21 +124,14 @@ public class MessageResolver {
                         Log.d("Message", "Message sent" + message);
                     }
                 } catch (Exception e) {
+                    LOGS.error("Can't send messages", e);
                     e.printStackTrace();
                     Log.e("Error", "while sending messages ", e);
                 }
                 return null;
             }
         };
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                AsyncTaskExecutionHelper.executeParallel(ast);
-            }
-            else
-            {
-                ast.execute();
-            }
-        } catch (Exception e) {
-        }
+
+        AsyncTaskExecutionHelper.executeParallel(ast);
     }
 }

@@ -2,7 +2,6 @@ package ua.p2psafety;
 
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -51,15 +50,7 @@ public class SendLogsFragment extends Fragment {
                 if (!text.equals(""))
                 {
                     List<File> files = SosActivity.LOGS.getFiles();
-                    SendReportAsyncTask ast = new SendReportAsyncTask(files, text);
-                    try {
-                        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                            AsyncTaskExecutionHelper.executeParallel(ast);
-                        } else {
-                            ast.execute();
-                        }
-                    } catch (Exception e) {
-                    }
+                    AsyncTaskExecutionHelper.executeParallel(new SendReportAsyncTask(files, text));
                     //return to settings
                     mActivity.onBackPressed();
                 }

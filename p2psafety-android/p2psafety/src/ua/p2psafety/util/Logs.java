@@ -228,11 +228,6 @@ public class Logs {
             mWriter.close();
     }
 
-    public String getFullFileName()
-    {
-        return mFullFileName;
-    }
-
     public List<File> getFiles() {
         List<File> files = new ArrayList<File>();
 

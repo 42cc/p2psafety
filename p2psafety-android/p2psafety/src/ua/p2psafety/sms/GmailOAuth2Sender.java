@@ -33,6 +33,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -44,12 +45,23 @@ public class GmailOAuth2Sender {
     private String token;
     private AccountManager mAccountManager;
     private Context context;
+    private static Logs LOGS;
 
     public GmailOAuth2Sender(Context ctx) {
         super();
         context = ctx;
         token = Prefs.getGmailToken(context);
         mAccountManager = AccountManager.get(context);
+
+        LOGS = new Logs(context);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+
+        if (LOGS != null)
+            LOGS.close();
     }
 
     private SMTPTransport connectToSmtp(String host, int port, String userEmail,
@@ -119,12 +131,12 @@ public class GmailOAuth2Sender {
                 Prefs.setGmailToken(context, token);
             }
         } catch (Exception e) {
-            Log.d("test", e.getMessage());
+            LOGS.error("Can't save gmail token", e);
         }
     }
 
     public synchronized void sendMail(String subject, String body, String user, String recipients) {
-        if (!Utils.isNetworkConnected(context)) {
+        if (!Utils.isNetworkConnected(context, LOGS)) {
             return;
         }
         SMTPTransport smtpTransport = null;
@@ -152,6 +164,7 @@ public class GmailOAuth2Sender {
                 smtpTransport.close();
             }
         } catch (MessagingException e) {
+            LOGS.error("Can't send mail", e);
             mAccountManager.invalidateAuthToken("com.google", token);
             initToken();
             sendMail(subject, body, user, recipients);
@@ -159,7 +172,7 @@ public class GmailOAuth2Sender {
     }
 
     public synchronized void sendMail(String subject, String body, String user, String recipients, File file) {
-        if (!Utils.isNetworkConnected(context)) {
+        if (!Utils.isNetworkConnected(context, LOGS)) {
             return;
         }
         SMTPTransport smtpTransport = null;
@@ -208,6 +221,7 @@ public class GmailOAuth2Sender {
                 smtpTransport.close();
             }
         } catch (MessagingException e) {
+            LOGS.error("Can't send mail with attachment", e);
             mAccountManager.invalidateAuthToken("com.google", token);
             initToken();
             sendMail(subject, body, user, recipients, file);
@@ -216,7 +230,7 @@ public class GmailOAuth2Sender {
 
     public synchronized void sendMail(String subject, String body, String user, String email, List<File> files) {
 
-        if (!Utils.isNetworkConnected(context)) {
+        if (!Utils.isNetworkConnected(context, LOGS)) {
             return;
         }
         SMTPTransport smtpTransport = null;
@@ -264,6 +278,7 @@ public class GmailOAuth2Sender {
                 smtpTransport.close();
             }
         } catch (MessagingException e) {
+            LOGS.error("Can't send mail with attachments", e);
             mAccountManager.invalidateAuthToken("com.google", token);
             initToken();
             sendMail(subject, body, user, email, files);
