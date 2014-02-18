@@ -7,7 +7,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from tastypie.api import Api
 
 from events.api import EventResource, EventUpdateResource
-from users.api import UserResource, RoleResource
+from users.api import UserResource, RoleResource, AuthResource
 
 
 admin.autodiscover()
@@ -18,6 +18,7 @@ api_v1.register(EventResource())
 api_v1.register(EventUpdateResource())
 api_v1.register(UserResource())
 api_v1.register(RoleResource())
+api_v1.register(AuthResource())
 
 
 urlpatterns = patterns('',

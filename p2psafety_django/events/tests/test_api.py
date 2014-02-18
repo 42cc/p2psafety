@@ -4,6 +4,7 @@ import tempfile
 from operator import itemgetter
 
 from django.contrib.gis.geos import Point
+from django.core.urlresolvers import reverse
 
 from tastypie.test import ResourceTestCase
 
@@ -240,3 +241,29 @@ class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertEqual(len(objects), 3)
         self.assertEqual(objects[1]['text'], 'Text')
         self.assertEqual(objects[2]['location'], dict(longitude=1, latitude=1))
+
+
+class AuthTestCase(ResourceTestCase):
+
+    def setUp(self):
+        super(AuthTestCase, self).setUp()
+        self.user = UserFactory()
+
+    def test_login_with_site(self):
+        url = reverse('api_auth_login_site', kwargs={'resource_name': 'auth',
+                                                     'api_name': 'v1'})
+        # Wrong method
+        self.assertHttpMethodNotAllowed(self.api_client.get(url))
+
+        # Invalid data
+        self.assertHttpBadRequest(self.api_client.post(url))
+        
+        # Didnt pass validation
+        data = dict(username=None, password=None)
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
+
+        # Valid data
+        data = dict(username=self.user.username,
+                    password=self.user.real_password)
+        resp = self.api_client.post(url, data=data, format='json')
+        self.assertHttpOK(resp)

@@ -1,13 +1,16 @@
 from django import http as django_http
 from django.conf.urls import url
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from tastypie import fields, http
+from tastypie.authentication import Authentication
+from tastypie.models import ApiKey
+from tastypie.resources import Resource, ModelResource
 from tastypie.utils import trailing_slash
-from tastypie.resources import ModelResource
 from schematics.models import Model as SchemaModel
-from schematics.types import IntType
+from schematics.types import IntType, StringType
 from schematics.types.compound import ListType
 
 from core.api.mixins import ApiMethodsMixin
@@ -74,3 +77,46 @@ class RoleResource(ModelResource):
         resource_name = 'roles'
         detail_allowed_methods = []
         include_resource_uri = False
+
+
+class AuthResource(ApiMethodsMixin, Resource):
+    class Meta:
+        resource_name = 'auth'
+        authentication = Authentication()
+        detail_allowed_methods = []
+        list_allowed_methods = []
+
+    @api_method(r'/login/site', name='api_auth_login_site')
+    def login_with_site(self):
+        class SiteLoginParams(SchemaModel):
+            username = StringType(required=True)
+            password = StringType(required=True)
+
+        @body_params(SiteLoginParams)
+        def post(self, request, params=None, **kwargs):
+            user = authenticate(username=params.username,
+                                password=params.password)
+            if user is None:
+                return http.HttpUnauthorized('Invalid credentials')
+            else:
+                try:
+                    key = ApiKey.objects.filter(user=user)[0]
+                except IndexError:
+                    key = ApiKey.objects.create(user=user)
+
+                return {'api_key': key.key}
+
+        return post
+
+    @api_method(r'/login/(?P<provider>\w+)', name='api_auth_login_social')
+    def login_with_social(self):
+        class SocialLoginParams(SchemaModel):
+            auth_token = StringType(required=True)
+
+        @body_params(SocialLoginParams)
+        def post(self, request, **kwargs):
+            pass
+
+        return post
+
+

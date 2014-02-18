@@ -49,7 +49,7 @@ class MultipartResource(object):
         return super(MultipartResource, self).deserialize(request, data, format)
 
 
-class EventResource(ModelResource):
+class EventResource(ApiMethodsMixin, ModelResource):
     class Meta:
         queryset = Event.objects.all()
         resource_name = 'events'

@@ -57,7 +57,12 @@ class api_method(object):
                 return tastypie_http.HttpNotFound()
             else:
                 self.log_throttled_access(request)
-                return tastypie_http.HttpResponse() if response is None else response
+                if isinstance(response, tastypie_http.HttpResponse):
+                    return response
+                
+                data = '' if response is None else response
+                data = self.serialize(request, data, 'application/json')
+                return tastypie_http.HttpResponse(data)
 
         decorated.view_url = self.url
         decorated.view_name = self.name
