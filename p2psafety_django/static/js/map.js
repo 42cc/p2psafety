@@ -56,7 +56,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
         event.updates = data.objects;
         $scope.zoomIn();
         $scope.selectedEvent = event;
-        event['class'] = ''
       });
     };
   };
@@ -111,9 +110,9 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     var loc = scope.$eval(attrs.location);
     var markersWindow = null;
 
-    if (loc != null) {      
+    if (loc != null) {
       var markerArgs = {
-        position: new google.maps.LatLng(loc.latitude, loc.longitude)
+        position: new google.maps.LatLng(loc.latitude, loc.longitude),
       };
 
       var mode = (attrs.mode == null) ? 'event' : attrs.mode;
@@ -131,9 +130,17 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       var marker = new google.maps.Marker(markerArgs);
       marker.setMap(scope.$parent.gmap);
 
+      if (attrs.bouncing=="true"){
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+    } else {
+        marker.setAnimation(null);
+    }
+
+
       if (attrs.click) {
         google.maps.event.addListener(marker, 'click', function() {
           scope.$eval(attrs.click);
+          marker.setAnimation(null);
         });
       }
 
@@ -145,6 +152,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
         google.maps.event.addListener(marker, 'mouseover', function() {
           markersWindow.setContent(hoverContent);
           markersWindow.open(scope.$parent.gmap, marker);
+          marker.setAnimation(null);
         });
         google.maps.event.addListener(marker, 'mouseout', function() {
           if (markersWindow != null) markersWindow.close();
