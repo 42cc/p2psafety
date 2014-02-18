@@ -82,7 +82,7 @@
     <string name="bad_logs_files">Files with logs do not exist</string>
     <string name="logs_successfully_sent">Files with logs successfully sent</string>
     <string name="please_write_a_description_of_issue">Please write a description of issue</string>
-    <string name="email_for_logs">praca.taras@gmail.com</string>
+    <string name="email_for_logs">talk@mail.khavr.com</string>
 
     <string-array name="media_types">
         <item>No</item>
