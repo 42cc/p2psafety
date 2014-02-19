@@ -1,0 +1,22 @@
+body {
+    background-color: #eee;
+}
+
+.container {
+    padding-top: 20px;
+}
+
+.accounts {
+    max-width: 500px;
+    padding: 15px;
+    margin: 0 auto;
+    border-radius: 5px;
+    border: 1px solid lightgrey;
+    background-color: white;
+}
+.accounts .form-actions {
+    text-align: center;
+}
+.signin .button-signin {
+    width: 120px;
+}

@@ -74,6 +74,7 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
     def test_create(self):
         url = self.events_list_url
         self.login_as_user()
+
         self.assertHttpCreated(self.api_client.post(url))
 
         event = Event.objects.latest('id')
