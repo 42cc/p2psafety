@@ -24,6 +24,7 @@ public class Prefs {
     private static final String MEDIA_RECORD_LENGTH = "MEDIA_RECORD_LENGTH";
 
     private static final String GMAIL_TOKEN = "GMAIL_TOKEN";
+    private static final String API_KEY = "API_KEY";
 
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
@@ -59,6 +60,10 @@ public class Prefs {
 
     public static void putSosStarted(Context context, boolean val) {
         getPrefs(context).edit().putBoolean(SOS_STARTED_KEY, val).commit();
+    }
+
+    public static void putApiKey(Context context, String val) {
+        getPrefs(context).edit().putString(API_KEY, val).commit();
     }
 
     public static boolean getIsLoc(Context context) {
@@ -108,6 +113,10 @@ public class Prefs {
 
     public static boolean getSosStarted(Context context) {
         return getPrefs(context).getBoolean(SOS_STARTED_KEY, false);
+    }
+
+    public static String getApiKey(Context context) {
+        return getPrefs(context).getString(API_KEY, null);
     }
 
 

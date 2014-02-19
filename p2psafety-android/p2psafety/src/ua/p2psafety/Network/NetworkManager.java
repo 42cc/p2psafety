@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -29,6 +31,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -37,10 +40,14 @@ import java.util.concurrent.Executors;
 import ua.p2psafety.Event;
 import ua.p2psafety.SosManager;
 import ua.p2psafety.User;
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.roles.Role;
 import ua.p2psafety.util.Utils;
 
 public class NetworkManager {
+    public static final int SITE = 0;
+    public static final int FACEBOOK = 1;
+
     private static final String SERVER_URL = "http://p2psafety.staging.42cc.co";
 
     private static final int CODE_SUCCESS = 201;
@@ -48,17 +55,18 @@ public class NetworkManager {
     private static int DIALOG_NETWORK_ERROR = 10;
     private static int DIALOG_NO_CONNECTION = 100;
 
-    private static HttpClient httpClient;
+    private static DefaultHttpClient httpClient;
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private static ObjectMapper mapper = new ObjectMapper();
 
-    public static void init(Context c) {
+    public static void init(Context context) {
         HttpParams httpParams = new BasicHttpParams();
         HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1);
-        //HttpProtocolParams.setContentCharset(httpParams, "unicode");
         HttpConnectionParams.setConnectionTimeout(httpParams, 0);
         HttpConnectionParams.setSoTimeout(httpParams, 0);
         httpClient = new DefaultHttpClient(httpParams);
+
+        setAuthData(context);
     }
 
     public static void createEvent(final Context context,
@@ -495,7 +503,7 @@ public class NetworkManager {
                     httpPost.setHeader("Content-type", "application/json");
 
                     JSONArray arr = new JSONArray();
-                    for (Role role: roles)
+                    for (Role role : roles)
                         if (role.checked)
                             arr.put(role.id);
 
@@ -549,6 +557,111 @@ public class NetworkManager {
         });
     }
 
+    public static void loginAtServer(final Context context, String login, String password,
+                                     final DeliverResultRunnable<Boolean> postRunnable) {
+        Map credentials = new HashMap();
+        credentials.put("login", login);
+        credentials.put("password", password);
+        credentials.put("provider", SITE);
+
+        loginAtServer(context, credentials, postRunnable);
+    }
+
+    public static void loginAtServer(final Context context, String token, int provider,
+                                     final DeliverResultRunnable<Boolean> postRunnable) {
+        Map credentials = new HashMap();
+        credentials.put("access_token", token);
+        credentials.put("provider", provider);
+
+        loginAtServer(context, credentials, postRunnable);
+    }
+
+    public static void loginAtServer(final Context context, final Map credentials,
+                                final DeliverResultRunnable<Boolean> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final String TAG = "loginAtServer";
+
+                if (!Utils.isNetworkConnected(context)) {
+//                    errorDialog(context, DIALOG_NO_CONNECTION);
+                    if (postRunnable != null) {
+                        postRunnable.setResult(false);
+                        postRunnable.run();
+                    }
+                    return;
+                }
+
+                try {
+                    StringBuilder url = new StringBuilder(SERVER_URL)
+                            .append("/api/v1/auth/login/");
+
+                    JSONObject json = new JSONObject();
+                    int provider = (Integer) credentials.get("provider");
+                    switch (provider) {
+                        case SITE:
+                            url = url.append("site/");
+                            json.put("login", credentials.get("login"));
+                            json.put("password", credentials.get("password"));
+                            break;
+                        case FACEBOOK:
+                            url = url.append("facebook/");
+                            json.put("access_token", credentials.get("access_token"));
+                            break;
+                    }
+                    StringEntity se = new StringEntity(json.toString());
+
+                    HttpPost httpPost = new HttpPost(url.toString());
+                    httpPost.setEntity(se);
+                    httpPost.setHeader("Accept", "application/json");
+                    httpPost.setHeader("Content-type", "application/json");
+
+
+                    Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
+                    Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpPost);
+                    } catch (Exception e) {
+                        //errorDialog(context, DIALOG_NETWORK_ERROR);
+                        if (postRunnable != null) {
+                            postRunnable.setResult(false);
+                            postRunnable.run();
+                        }
+                        return;
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    responseCode = CODE_SUCCESS; // TODO: delete after debug
+
+                    if (responseCode == CODE_SUCCESS) {
+                        //Map<String, Object> data = mapper.readValue(responseContent, Map.class);
+                        //String api_key = String.valueOf(data.get("key"));
+                        String api_key = "very cool api key";
+
+                        Prefs.putApiKey(context, api_key);
+                        setAuthData(context);
+
+                        postRunnable.setResult(true);
+                    } else {
+                        postRunnable.setResult(false);
+                    }
+                } catch (Exception e) {
+                    //errorDialog(context, DIALOG_NETWORK_ERROR);
+                    if (postRunnable != null) {
+                        postRunnable.setResult(false);
+                        postRunnable.run();
+                    }
+                }
+            }
+        });
+    }
+
     public static abstract class DeliverResultRunnable<Result> implements Runnable {
 
         private Result result;
@@ -577,6 +690,17 @@ public class NetworkManager {
 
         public void onError(int errorCode) { }
 
+    }
+
+    private static void setAuthData(Context context) {
+        String api_key = String.valueOf(Prefs.getApiKey(context));
+        Log.i("setAuthData", "apikey: " + api_key);
+
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
+                api_key, "");
+        httpClient.getCredentialsProvider().setCredentials(
+                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+                credentials);
     }
 
 }

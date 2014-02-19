@@ -124,7 +124,7 @@ public class AudioRecordService extends Service {
             mTimerOn = false;
 
         Utils.sendMailsWithAttachments(this, R.string.audio, mRecordFile);
-        if (Utils.isFbAuthenticated(this))
+        if (Utils.isServerAuthenticated(this))
         {
             NetworkManager.updateEventWithAttachment(this, mRecordFile, true, new NetworkManager.DeliverResultRunnable<Boolean>() {
                 @Override
