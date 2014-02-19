@@ -69,7 +69,7 @@ public class NetworkManager {
         HttpConnectionParams.setSoTimeout(httpParams, 0);
         httpClient = new DefaultHttpClient(httpParams);
 
-        LOGS = new Logs(c);
+        LOGS = new Logs(context);
     }
 
     @Override
@@ -617,7 +617,7 @@ public class NetworkManager {
                 final int CODE_SUCCESS = 200;
                 final String TAG = "loginAtServer";
 
-                if (!Utils.isNetworkConnected(context)) {
+                if (!Utils.isNetworkConnected(context, LOGS)) {
 //                    errorDialog(context, DIALOG_NO_CONNECTION);
                     if (postRunnable != null) {
                         postRunnable.setResult(false);
