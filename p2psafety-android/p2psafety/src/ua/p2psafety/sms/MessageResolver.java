@@ -10,11 +10,12 @@ import android.util.Log;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 
+import ua.p2psafety.AsyncTaskExecutionHelper;
 import ua.p2psafety.data.EmailsDatasourse;
 import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -25,6 +26,7 @@ public class MessageResolver {
     private String message;
     private List<String> phones;
     private List<String> emails;
+    public static Logs LOGS;
 
     public MessageResolver(Context context) {
         this.context = context;
@@ -34,6 +36,16 @@ public class MessageResolver {
         phones = new ArrayList<String>();
         phones = phonesDatasourse.getAllPhones();
         emails = emailsDatasourse.getAllEmails();
+
+        LOGS = new Logs(context);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+
+        if (LOGS != null)
+            LOGS.close();
     }
 
     /**
@@ -98,13 +110,13 @@ public class MessageResolver {
                                             .append(formatTimeAndDay(location.getTime(), false))
                                             .append(" https://maps.google.com/maps?q=")
                                             .append(lat).append(",").append(lon).toString();
-
-                                    sendMessage(message);
-                                    Log.d("Message", "Message sent" + message);
                                 }
+
+                                sendMessage(message);
+                                Log.d("Message", "Message sent" + message);
                             }
                         };
-                        MyLocation myLocation = new MyLocation();
+                        MyLocation myLocation = new MyLocation(LOGS);
                         myLocation.getLocation(context, locationResult);
                         Looper.loop();
                     } else {
@@ -112,14 +124,14 @@ public class MessageResolver {
                         Log.d("Message", "Message sent" + message);
                     }
                 } catch (Exception e) {
+                    LOGS.error("Can't send messages", e);
                     e.printStackTrace();
                     Log.e("Error", "while sending messages ", e);
                 }
                 return null;
             }
         };
-        try {
-            ast.execute();
-        } catch (Exception e) {}
+
+        AsyncTaskExecutionHelper.executeParallel(ast);
     }
 }

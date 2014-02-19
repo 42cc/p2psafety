@@ -43,4 +43,11 @@
     <string name="recorded_media">Запис #media# знаходиться в вкладеннях.</string>
     <string name="video">відео</string>
     <string name="audio">аудіо</string>
+
+    <string name="location_services_not_active">Визначення місцезнаходження не включене</string>
+    <string name="please_enable_location_services">Будь ласка, включіть визначення місцeзнаходження і GPS</string>
+    <string name="send_logs">Вислати логи</string>
+    <string name="bad_logs_files">Файлів з логами не існує</string>
+    <string name="logs_successfully_sent">Файли з логами успішно відправлені</string>
+    <string name="please_write_a_description_of_issue">Будь ласка, опишіть проблему</string>
 </resources>

@@ -21,6 +21,7 @@ import java.io.File;
 
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 public class VideoRecordService extends Service implements SurfaceHolder.Callback {
@@ -32,6 +33,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
     private static Boolean mTimerOn = false;
     private static long mDuration;
     private static long mTimeLeft = 0;
+    public static Logs LOGS;
 
     private static VideoRecordTimer mTimer = null;
 
@@ -46,10 +48,14 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
     @Override
     public void onCreate() {
         super.onCreate();
+
+        LOGS = new Logs(this);
     }
 
     public void onCreate(Context context) {
         super.onCreate();
+
+        LOGS = new Logs(context);
     }
 
     @Override
@@ -121,6 +127,8 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         } catch (Exception e) {
             e.printStackTrace();
 
+            LOGS.error("Can't start recording video", e);
+
             mRecorder.reset();
             mRecorder.release();
 
@@ -148,6 +156,8 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
             mCamera.unlock();
         } catch (Exception e) {
             e.printStackTrace();
+
+            LOGS.error("Can't unlock camera", e);
         }
 
         mRecorder = new MediaRecorder();
@@ -176,6 +186,8 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
             camera = Camera.open();
         } catch (Exception e) {
             e.printStackTrace();
+
+            LOGS.error("Can't open camera");
         }
         return camera;
     }
@@ -215,6 +227,10 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         if (mTimerOn) {
             stopRecording(true);
         }
+
+        if (LOGS != null)
+            LOGS.close();
+
         super.onDestroy();
     }
 
@@ -227,7 +243,9 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         if (mCamera != null){
             try {
                 mCamera.unlock();
-            } catch ( Exception e) {}
+            } catch ( Exception e) {
+                LOGS.error("Can't unlock camera", e);
+            }
             //mCamera.stopPreview();
             mCamera.release();
             mCamera = null;
@@ -272,7 +290,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
     private void detectQuality() {
         int duration = (int) mDuration / 60000; // in minutes
         boolean hasWiFi = false;
-        if (Utils.isWiFiConnected(getApplicationContext()))
+        if (Utils.isWiFiConnected(getApplicationContext(), LOGS))
             hasWiFi = true;
 
         Log.i("detectQuality", "hasWifi: " + true);

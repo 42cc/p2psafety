@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -16,6 +15,7 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 
 import ua.p2psafety.Network.NetworkManager;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -23,6 +23,7 @@ import ua.p2psafety.util.Utils;
  */
 public class LoginActivity extends ActionBarActivity {
     private final String TAG = "LoginActivity";
+    private Logs logs;
 
     private UiLifecycleHelper mUiHelper;
     private Button mLoginBtn;
@@ -44,6 +45,8 @@ public class LoginActivity extends ActionBarActivity {
         mLoginBtn = (Button) findViewById(R.id.loginBtn);
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
+
+        logs = new Logs(this);
     }
 
     @Override
@@ -52,7 +55,7 @@ public class LoginActivity extends ActionBarActivity {
         mUiHelper.onResume();
 
         NetworkManager.init(this);
-        Utils.logKeyHash(this);
+        Utils.logKeyHash(this, logs);
 
         //if (Utils.isFbAuthenticated(this)) {
             startSosActivity();
@@ -83,6 +86,8 @@ public class LoginActivity extends ActionBarActivity {
     public void onDestroy() {
         super.onDestroy();
         mUiHelper.onDestroy();
+        if (logs != null)
+            logs.close();
     }
 
     @Override
@@ -136,7 +141,7 @@ public class LoginActivity extends ActionBarActivity {
     }
 
     private void loginToFacebook(Activity activity, Session.StatusCallback callback) {
-        if (!Utils.isNetworkConnected(activity)) {
+        if (!Utils.isNetworkConnected(activity, logs)) {
             //errorDialog(activity, DIALOG_NO_CONNECTION);
             return;
         }

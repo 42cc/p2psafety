@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 public class AudioRecordService extends Service {
@@ -23,20 +24,27 @@ public class AudioRecordService extends Service {
 
     private static AudioRecordTimer mTimer;
 
+    public static Logs LOGS;
+
     private static MediaRecorder mRecorder;
     File mRecordFile = null;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        LOGS = new Logs(this);
     }
 
     public void onCreate(Context context) {
         super.onCreate();
+
+        LOGS = new Logs(context);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        LOGS.info("AudioRecordService started");
         if (!mTimerOn) {
             startRecording();
         }
@@ -69,6 +77,7 @@ public class AudioRecordService extends Service {
 
             prepareRecorder();
             mRecorder.start();
+            LOGS.info("Start recording audio");
 
             mTimeLeft = mDuration;
             mTimer = new AudioRecordTimer(mDuration, 1000);
@@ -79,16 +88,24 @@ public class AudioRecordService extends Service {
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Can't start audio recording", Toast.LENGTH_LONG)
                  .show();
+            LOGS.error("Can't start audio recording", e);
         }
     }
 
     private void prepareRecorder() throws IOException {
+        LOGS.info("Prepare recording audio");
         File mediaDir;
         String state = Environment.getExternalStorageState();
         if(state.equals(Environment.MEDIA_MOUNTED))
+        {
             mediaDir = Environment.getExternalStorageDirectory();
+            LOGS.info("Use external storage");
+        }
         else
+        {
             mediaDir = getFilesDir();
+            LOGS.info("Use internal storage");
+        }
         mRecordFile = File.createTempFile("sound", ".mp4", mediaDir);
 
         mRecorder = new MediaRecorder();
@@ -98,8 +115,11 @@ public class AudioRecordService extends Service {
 
         int duration = (int) mDuration / 60000;
         boolean lowQuality = false;
-        if (!Utils.isWiFiConnected(getApplicationContext()))
+        if (!Utils.isWiFiConnected(getApplicationContext(), LOGS))
+        {
             lowQuality = true;
+            LOGS.info("Low quality selected");
+        }
 
         if (duration < 2 && !lowQuality) {
             mRecorder.setAudioEncodingBitRate(256000);
@@ -116,6 +136,7 @@ public class AudioRecordService extends Service {
     }
 
     public void stopRecording(boolean isAlarmStop) {
+        LOGS.info("Stop recording audio");
         mRecorder.stop();
         mRecorder.release();
 
@@ -130,6 +151,7 @@ public class AudioRecordService extends Service {
                 @Override
                 public void deliver(Boolean aBoolean) {
                     //good
+                    LOGS.info("Update event with attachment with result: " + aBoolean);
                 }
             });
         }
@@ -146,6 +168,11 @@ public class AudioRecordService extends Service {
         if (mTimerOn) {
             stopRecording(true);
         }
+        if (LOGS != null)
+            LOGS.close();
+
+        LOGS.info("Destroy AudioRecordService");
+
         super.onDestroy();
     }
 

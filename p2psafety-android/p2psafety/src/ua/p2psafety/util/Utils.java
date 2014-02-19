@@ -3,16 +3,21 @@ package ua.p2psafety.util;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 
@@ -22,6 +27,7 @@ import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import ua.p2psafety.AsyncTaskExecutionHelper;
 import ua.p2psafety.R;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
@@ -54,7 +60,7 @@ public class Utils {
     }
 
     // checks if network connection is available and connected
-    public static boolean isNetworkConnected(Context context) {
+    public static boolean isNetworkConnected(Context context, Logs logs) {
         boolean result = false;
 
         try {
@@ -70,13 +76,14 @@ public class Utils {
                     result = true;
             }
         } catch (Exception e) {
+            logs.error("Can't check for network connection", e);
             return false;
         }
 
         return result;
     }
 
-    public static boolean isWiFiConnected(Context context) {
+    public static boolean isWiFiConnected(Context context, Logs logs) {
         boolean result = false;
 
         try {
@@ -90,6 +97,7 @@ public class Utils {
                 return false;
             }
         } catch (Exception e) {
+            logs.error("Can't check wifi connection", e);
             return false;
         }
     }
@@ -108,7 +116,7 @@ public class Utils {
         };
 
         // Vibrate for 2000 milliseconds
-        vibration.execute(2000);
+        AsyncTaskExecutionHelper.executeParallel(vibration, 2000);
     }
 
     public static void sendMailsWithAttachments(final Context context, final int mediaId, final File file) {
@@ -124,9 +132,32 @@ public class Utils {
                 return null;
             }
         };
-        try {
-            ast.execute();
-        } catch (Exception e) {}
+        AsyncTaskExecutionHelper.executeParallel(ast);
+    }
+
+    public static void checkForLocationServices(Context context)
+    {
+        LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+            showLocationSourceSettingsDialog(context);
+    }
+
+    private static void showLocationSourceSettingsDialog(final Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(context.getString(R.string.location_services_not_active));
+        builder.setMessage(context.getString(R.string.please_enable_location_services));
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // Show location settings when the user acknowledges the alert dialog
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                context.startActivity(intent);
+            }
+        });
+        Dialog alertDialog = builder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
     }
 
     public static boolean isFbAuthenticated(Context context) {
@@ -151,7 +182,7 @@ public class Utils {
 //                .setVisibility(visible ? View.VISIBLE : View.GONE);
 //    }
 
-    public static void logKeyHash(Context context) {
+    public static void logKeyHash(Context context, Logs logs) {
         final String TAG = "logKeyHash()";
         try {
             PackageInfo info = context.getPackageManager().getPackageInfo(
@@ -165,12 +196,15 @@ public class Utils {
             }
         }
         catch (PackageManager.NameNotFoundException e) {
+            logs.error("Can't get key hash", e);
             Log.i("KeyHash:", "NameNotFound");
         }
         catch (NoSuchAlgorithmException e) {
+            logs.error("Can't get key hash", e);
             Log.i("KeyHash:", "NoAlgo");
         }
         catch (NullPointerException e) {
+            logs.error("Can't get key hash", e);
             Log.i(TAG, "NullPonterException  " +
                     "SHOULD HAPPEN ONLY UNDER ROBOLECTRIC");
         }
