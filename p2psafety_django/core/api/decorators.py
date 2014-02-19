@@ -36,7 +36,7 @@ class api_method(object):
         self.url = url
         self.name = name
         self.methods = {}
-    
+
     def __call__(self, func):
         methods_funcs = func(None)
         if not isinstance(methods_funcs, (list, tuple)):
@@ -67,9 +67,9 @@ class api_method(object):
 
 def body_params(ParamsClass):
     """
-    Parses request body with json decoder, validates output against given 
+    Parses request body with json decoder, validates output against given
     schematics model and passes result to handler.
-    
+
     :param ParamsClass: validation schema.
     :type ParamsClass: :class:`schematics.models.Model` instance.
     :return: HttpBadRequest  on json or validation errors or handler response.

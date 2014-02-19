@@ -1,10 +1,7 @@
-from django import http as django_http
-from django.conf.urls import url
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from tastypie import fields, http
-from tastypie.utils import trailing_slash
 from tastypie.resources import ModelResource
 from schematics.models import Model as SchemaModel
 from schematics.types import IntType
