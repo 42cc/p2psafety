@@ -7,14 +7,14 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import ua.p2psafety.util.Logs;
 
 public class MyLocation {
     LocationManager lm;
     LocationResult locationResult;
     boolean gps_enabled = false;
     boolean network_enabled = false;
+    private Logs logs;
     LocationListener locationListenerGps = new LocationListener() {
         public void onLocationChanged(Location location) {
            /* timer1.cancel();
@@ -50,6 +50,11 @@ public class MyLocation {
         }
     };
 
+    public MyLocation(Logs logs)
+    {
+        this.logs = logs;
+    }
+
     public boolean getLocation(Context context, LocationResult result) {
         //I use LocationResult callback class to pass location value from MyLocation to user code.
         locationResult = result;
@@ -59,14 +64,20 @@ public class MyLocation {
         //exceptions will be thrown if provider is not permitted.
         try {
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch (Exception ex) {}
+        } catch (Exception ex) {
+            logs.error("Can't get info about gps provider", ex);
+        }
         try {
             network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch (Exception ex) {}
+        } catch (Exception ex) {
+            logs.error("Can't get info about network provider", ex);
+        }
 
         //don't start listeners if no provider is enabled
-        if (!gps_enabled && !network_enabled)
+        if (!gps_enabled && !network_enabled) {
+            locationResult.gotLocation(null);
             return false;
+        }
 
         if (gps_enabled)
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListenerGps);

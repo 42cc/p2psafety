@@ -11,16 +11,25 @@ import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.KeyEvent;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import ua.p2psafety.data.PhonesDatasourse;
+import ua.p2psafety.util.Logs;
 
 public class PhoneCallService extends Service {
+
+    public static Logs LOGS;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        LOGS = new Logs(this);
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Context context = getApplicationContext();
@@ -50,7 +59,9 @@ public class PhoneCallService extends Service {
             phoneCallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {
                 context.startActivity(phoneCallIntent);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                LOGS.error("Can't start phone call intent", e);
+            }
         }
     }
 
@@ -59,7 +70,7 @@ public class PhoneCallService extends Service {
         public void onReceive(final Context context, Intent intent) {
             Log.i("OutgoingBroadcastReceiver", "onReceive: " + intent.getAction());
             if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
-                new AsyncTask() {
+                AsyncTask ast = new AsyncTask() {
                     @Override
                     protected Object doInBackground(Object[] params) {
                         Log.i("AsyncTask", "doInBackground");
@@ -67,6 +78,7 @@ public class PhoneCallService extends Service {
                             Thread.sleep(3000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                            LOGS.error("Thread.sleep error", e);
                         }
                         // hide call screen
                         Intent startMain = new Intent(Intent.ACTION_MAIN);
@@ -83,7 +95,9 @@ public class PhoneCallService extends Service {
 
                         return null;
                     }
-                }.execute();
+                };
+
+                AsyncTaskExecutionHelper.executeParallel(ast);
             }
         }
     }
@@ -141,12 +155,17 @@ public class PhoneCallService extends Service {
 
         } catch (Exception e) {
             e.printStackTrace();
+            LOGS.error("Stop phone call error", e);
         }
     }
 
     @Override
     public void onDestroy() {
         stopPhoneCall();
+
+        if (LOGS != null)
+            LOGS.close();
+
         super.onDestroy();
     }
 
