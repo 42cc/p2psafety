@@ -226,5 +226,6 @@ class AuthTestCase(SocialTestCase):
 
             resp = self.api_client.post(url, data=data)
             self.assertValidJSONResponse(resp)
-            key = self.deserialize(resp).get('api_key')
-            self.assertEqual(key, ApiKey.objects.get(user=user).key)
+            expected_key = ApiKey.objects.get(user=user).key
+            self.assertEqual(self.deserialize(resp),
+                             dict(api_key=expected_key, username=user.username))

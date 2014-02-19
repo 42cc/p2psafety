@@ -93,6 +93,10 @@ class AuthResource(ApiMethodsMixin, Resource):
         except IndexError:
             return ApiKey.objects.create(user=user).key
 
+    def _construct_login_response(self, user):
+        return {'username': user.username,
+                'api_key': self._get_api_token(user)}
+
     @api_method(r'/login/site', name='api_auth_login_site')
     def login_with_site(self):
         class SiteLoginParams(SchemaModel):
@@ -106,7 +110,7 @@ class AuthResource(ApiMethodsMixin, Resource):
             if user is None:
                 return http.HttpUnauthorized('Invalid credentials')
 
-            return {'api_key': self._get_api_token(user)}
+            return self._construct_login_response(user)
 
         return post
 
@@ -138,9 +142,7 @@ class AuthResource(ApiMethodsMixin, Resource):
                     if login.account.user.id is None:
                         return http.HttpBadRequest('Not registered')
 
-                    return {'api_key': self._get_api_token(login.account.user)}
+                    return self._construct_login_response(login.account.user)
     
             return http.HttpBadRequest('Invalid provider')
         return post
-
-
