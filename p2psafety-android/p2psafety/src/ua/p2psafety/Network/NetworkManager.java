@@ -21,6 +21,8 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.AbstractHttpMessage;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -55,7 +57,7 @@ public class NetworkManager {
     private static int DIALOG_NETWORK_ERROR = 10;
     private static int DIALOG_NO_CONNECTION = 100;
 
-    private static DefaultHttpClient httpClient;
+    private static HttpClient httpClient;
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private static ObjectMapper mapper = new ObjectMapper();
 
@@ -65,8 +67,6 @@ public class NetworkManager {
         HttpConnectionParams.setConnectionTimeout(httpParams, 0);
         HttpConnectionParams.setSoTimeout(httpParams, 0);
         httpClient = new DefaultHttpClient(httpParams);
-
-        setAuthData(context);
     }
 
     public static void createEvent(final Context context,
@@ -91,6 +91,7 @@ public class NetworkManager {
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/events/").toString());
 
+                    addAuthHeader(context, httpPost);
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
@@ -163,6 +164,8 @@ public class NetworkManager {
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/eventupdates/").toString());
 
+                    addAuthHeader(context, httpPost);
+
                     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
                     builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
                     if (isAudio)
@@ -220,6 +223,7 @@ public class NetworkManager {
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/eventupdates/").toString());
 
+                    addAuthHeader(context, httpPost);
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
@@ -287,6 +291,7 @@ public class NetworkManager {
                             .append(SosManager.getInstance(context).getEvent().getUser().getId())
                             .toString());
 
+                    addAuthHeader(context, httpGet);
                     httpGet.setHeader("Accept", "application/json");
                     //httpGet.setHeader("Content-type", "application/json");
 
@@ -350,6 +355,7 @@ public class NetworkManager {
                            .append("/roles/");
 
                     HttpGet httpGet = new HttpGet(url.toString());
+                    addAuthHeader(context, httpGet);
                     httpGet.setHeader("Accept", "application/json");
                     httpGet.setHeader("Content-type", "application/json");
 
@@ -499,6 +505,7 @@ public class NetworkManager {
                             .append("/roles/")
                             .toString());
 
+                    addAuthHeader(context, httpPost);
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
@@ -581,6 +588,7 @@ public class NetworkManager {
         executor.execute(new Runnable() {
             @Override
             public void run() {
+                final int CODE_SUCCESS = 200;
                 final String TAG = "loginAtServer";
 
                 if (!Utils.isNetworkConnected(context)) {
@@ -637,19 +645,20 @@ public class NetworkManager {
                     Log.i(TAG, "responseCode: " + responseCode);
                     Log.i(TAG, "responseContent: " + responseContent);
 
-                    responseCode = CODE_SUCCESS; // TODO: delete after debug
-
                     if (responseCode == CODE_SUCCESS) {
-                        //Map<String, Object> data = mapper.readValue(responseContent, Map.class);
-                        //String api_key = String.valueOf(data.get("key"));
-                        String api_key = "very cool api key";
+                        Map<String, Object> data = mapper.readValue(responseContent, Map.class);
+                        String api_username = String.valueOf(data.get("username"));
+                        String api_key = String.valueOf(data.get("key"));
 
-                        Prefs.putApiKey(context, api_key);
-                        setAuthData(context);
+                        saveAuthData(context, api_username, api_key);
 
                         postRunnable.setResult(true);
                     } else {
                         postRunnable.setResult(false);
+                    }
+
+                    if (postRunnable != null) {
+                        postRunnable.run();
                     }
                 } catch (Exception e) {
                     //errorDialog(context, DIALOG_NETWORK_ERROR);
@@ -689,18 +698,17 @@ public class NetworkManager {
         public abstract void deliver(Result result);
 
         public void onError(int errorCode) { }
-
     }
 
-    private static void setAuthData(Context context) {
-        String api_key = String.valueOf(Prefs.getApiKey(context));
-        Log.i("setAuthData", "apikey: " + api_key);
-
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
-                api_key, "");
-        httpClient.getCredentialsProvider().setCredentials(
-                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-                credentials);
+    private static AbstractHttpMessage addAuthHeader(Context context, AbstractHttpMessage request) {
+        request.addHeader(new BasicHeader("Authorization", new StringBuilder().append("ApiKey ")
+                .append(Prefs.getApiUsername(context)).append(":")
+                .append(Prefs.getApiKey(context)).toString()));
+        return request;
     }
 
+    private static void saveAuthData(Context context, String api_username, String api_key) {
+        Prefs.putApiUsername(context, api_username);
+        Prefs.putApiKey(context, api_key);
+    }
 }

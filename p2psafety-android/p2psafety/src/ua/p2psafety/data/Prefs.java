@@ -25,6 +25,7 @@ public class Prefs {
 
     private static final String GMAIL_TOKEN = "GMAIL_TOKEN";
     private static final String API_KEY = "API_KEY";
+    private static final String API_USERNAME = "API_USERNAME";
 
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
@@ -64,6 +65,10 @@ public class Prefs {
 
     public static void putApiKey(Context context, String val) {
         getPrefs(context).edit().putString(API_KEY, val).commit();
+    }
+
+    public static void putApiUsername(Context context, String val) {
+        getPrefs(context).edit().putString(API_USERNAME, val).commit();
     }
 
     public static boolean getIsLoc(Context context) {
@@ -117,6 +122,10 @@ public class Prefs {
 
     public static String getApiKey(Context context) {
         return getPrefs(context).getString(API_KEY, null);
+    }
+
+    public static String getApiUsername(Context context) {
+        return getPrefs(context).getString(API_USERNAME, null);
     }
 
 

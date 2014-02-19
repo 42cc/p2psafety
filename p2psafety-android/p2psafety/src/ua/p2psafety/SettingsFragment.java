@@ -168,6 +168,7 @@ public class SettingsFragment extends Fragment {
         final EditText userLogin = (EditText) promptsView.findViewById(R.id.ld_login_edit);
         final EditText userPassword = (EditText) promptsView.findViewById(R.id.ld_password_edit);
 
+        final AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialogBuilder
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok,
@@ -198,13 +199,13 @@ public class SettingsFragment extends Fragment {
                                             }
                                         }
                                     };
-
+                 alertDialog.dismiss();
                                     ((SosActivity) mActivity)
                                             .loginToFacebook(mActivity, mStatusCallback);
             }
         });
 
-        final AlertDialog alertDialog = alertDialogBuilder.create();
+
         alertDialog.show();
         alertDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
