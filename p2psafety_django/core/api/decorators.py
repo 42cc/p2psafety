@@ -61,8 +61,7 @@ class api_method(object):
                     return response
                 
                 data = '' if response is None else response
-                data = self.serialize(request, data, 'application/json')
-                return tastypie_http.HttpResponse(data)
+                return self.create_response(request, data)
 
         decorated.view_url = self.url
         decorated.view_name = self.name

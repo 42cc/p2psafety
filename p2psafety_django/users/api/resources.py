@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
+from allauth.socialaccount.providers.facebook.views import fb_complete_login
 from tastypie import fields, http
 from tastypie.authentication import Authentication
 from tastypie.models import ApiKey
@@ -86,6 +87,12 @@ class AuthResource(ApiMethodsMixin, Resource):
         detail_allowed_methods = []
         list_allowed_methods = []
 
+    def _get_api_token(self, user):
+        try:
+            return ApiKey.objects.filter(user=user)[0].key
+        except IndexError:
+            return ApiKey.objects.create(user=user).key
+
     @api_method(r'/login/site', name='api_auth_login_site')
     def login_with_site(self):
         class SiteLoginParams(SchemaModel):
@@ -98,25 +105,42 @@ class AuthResource(ApiMethodsMixin, Resource):
                                 password=params.password)
             if user is None:
                 return http.HttpUnauthorized('Invalid credentials')
-            else:
-                try:
-                    key = ApiKey.objects.filter(user=user)[0]
-                except IndexError:
-                    key = ApiKey.objects.create(user=user)
 
-                return {'api_key': key.key}
+            return {'api_key': self._get_api_token(user)}
 
         return post
 
     @api_method(r'/login/(?P<provider>\w+)', name='api_auth_login_social')
     def login_with_social(self):
         class SocialLoginParams(SchemaModel):
-            auth_token = StringType(required=True)
+            access_token = StringType(required=True)
 
         @body_params(SocialLoginParams)
-        def post(self, request, **kwargs):
-            pass
+        def post(self, request, provider=None, params=None, **kwargs):
+            from requests import RequestException
+            from allauth.socialaccount import providers
+            from allauth.socialaccount.helpers import complete_social_login
+            from allauth.socialaccount.models import SocialLogin, SocialToken
+            from allauth.socialaccount.providers.facebook.provider import FacebookProvider
 
+            if provider == 'facebook':
+                try:
+                    app = providers.registry.by_id(FacebookProvider.id).get_app(request)
+                    token = SocialToken(app=app, token=params.access_token)
+                    login = fb_complete_login(request, app, token)
+                    login.token = token
+                    login.state = SocialLogin.state_from_request(request)
+                    ret = complete_social_login(request, login)
+                except RequestException:
+                    return http.HttpBadRequest('Error accessing FB user profile')
+                else:
+                    # If user does not exist
+                    if login.account.user.id is None:
+                        return http.HttpBadRequest('Not registered')
+
+                    return {'api_key': self._get_api_token(login.account.user)}
+    
+            return http.HttpBadRequest('Invalid provider')
         return post
 
 
