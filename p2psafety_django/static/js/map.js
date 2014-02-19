@@ -71,6 +71,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
                                              location.longitude));
   };
+
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;
   $scope.zoomedIn = false;
@@ -144,4 +145,13 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
     restrict: 'E',
     link: linker,
   };
+});
+.directive('support', function() {
+    var get_support = function(scope, element, attrs) {
+        for (i in event.supported){
+            var support = event.supported[i]
+            if (support.id == $scope.selectedEvent.id){
+            }
+            }
+     }
 });

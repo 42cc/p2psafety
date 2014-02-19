@@ -62,6 +62,9 @@
             </h4>
             <div class="panel-body">
               <div class="list-group">
+              <p ng-repeat="event in events" ng-if="event.type == 'support'" >
+                {{event.id}}
+              </p>
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
                   <event-marker mode="eventupdate"
@@ -84,7 +87,6 @@
                      ng-click="focus(update.location)">
                     <span class="glyphicon glyphicon-map-marker"></span></a>
                 </div>
-              </div>
             </div>
           </div>
         </div>

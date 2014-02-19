@@ -85,6 +85,7 @@ class EventResource(ApiMethodsMixin, ModelResource):
     latest_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
                                       'latest_update',
                                       full=True, null=True, readonly=True)
+    supported = fields.ManyToManyField('events.api.resources.EventResource', 'supported', full=True, readonly=True)
 
     @api_method(r'/(?P<pk>\d+)/support', name='api_events_support')
     def support(self):
