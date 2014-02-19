@@ -228,4 +228,4 @@ class AuthTestCase(SocialTestCase):
             self.assertValidJSONResponse(resp)
             expected_key = ApiKey.objects.get(user=user).key
             self.assertEqual(self.deserialize(resp),
-                             dict(api_key=expected_key, username=user.username))
+                             dict(key=expected_key, username=user.username))

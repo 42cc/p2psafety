@@ -95,7 +95,7 @@ class AuthResource(ApiMethodsMixin, Resource):
 
     def _construct_login_response(self, user):
         return {'username': user.username,
-                'api_key': self._get_api_token(user)}
+                'key': self._get_api_token(user)}
 
     @api_method(r'/login/site', name='api_auth_login_site')
     def login_with_site(self):
