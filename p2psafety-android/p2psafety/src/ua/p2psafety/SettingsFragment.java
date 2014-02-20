@@ -11,11 +11,17 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.Session;
@@ -25,6 +31,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import ua.p2psafety.Network.NetworkManager;
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.media.SetMediaFragment;
 import ua.p2psafety.message.MessageFragment;
 import ua.p2psafety.password.PasswordFragment;
@@ -104,35 +112,10 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 3:
-                        if (Utils.isFbAuthenticated(mActivity)) {
-                            mfragment[0] = new SetServersFragment();
-                            fragmentTransaction.addToBackStack(SetServersFragment.TAG);
-                            fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
-                        } else {
-                            // ask user if he wants to login via FB
-                            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                            builder.setTitle("Авторизоваться через Facebook?");
-                            builder.setNegativeButton(android.R.string.cancel, null);
-                            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Session.StatusCallback mStatusCallback = new Session.StatusCallback() {
-                                        @Override
-                                        public void call(final Session session, SessionState state, Exception exception) {
-                                            if (state.isOpened()) {
-                                                mfragment[0] = new SetServersFragment();
-                                                fragmentTransaction.addToBackStack(SetServersFragment.TAG);
-                                                fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
-                                            }
-                                        }
-                                    };
-
-                                    ((SosActivity) mActivity)
-                                            .loginToFacebook(mActivity, mStatusCallback);
-                                }
-                            });
-                            builder.create().show();
-                        }
+                        if (Prefs.getApiKey(mActivity) != null)
+                            openServersScreen();
+                        else
+                            askLoginAndOpenServers();
                         break;
                     case 4:
                         mfragment[0] = new PasswordFragment();
@@ -179,24 +162,104 @@ public class SettingsFragment extends Fragment {
             Session.getActiveSession().closeAndClearTokenInformation();
         Session.setActiveSession(null);
 
-        SharedPreferences sharedPref = PreferenceManager
-                .getDefaultSharedPreferences(mActivity);
-        sharedPref.edit().putString("MYSELF_KEY", "").commit();
-
-        Intent i = new Intent(mActivity, LoginActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(i);
+        Prefs.putApiKey(mActivity, null);
 
         Toast.makeText(mActivity, "Готово", Toast.LENGTH_SHORT)
                 .show();
 
-        //mActivity.finish();
-
         return;
     }
 
-    private class SendReportAsyncTask extends AsyncTask {
+    // builds dialog with password prompt
+    private void askLoginAndOpenServers() {
+        LayoutInflater li = LayoutInflater.from(mActivity);
+        View promptsView = li.inflate(R.layout.login_dialog, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
+        alertDialogBuilder.setView(promptsView);
+
+        final EditText userLogin = (EditText) promptsView.findViewById(R.id.ld_login_edit);
+        final EditText userPassword = (EditText) promptsView.findViewById(R.id.ld_password_edit);
+
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                NetworkManager.loginAtServer(mActivity,                                       userLogin.getText().toString(),
+                                        userPassword.getText().toString(), postRunnable);
+                            }
+                        })
+                .setNegativeButton(android.R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+
+        final Button loginBtn = (Button) promptsView.findViewById(R.id.loginBtn);
+        loginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Session.StatusCallback mStatusCallback = new Session.StatusCallback() {
+                                        @Override
+                                        public void call(final Session session, SessionState state, Exception exception) {
+                                            if (state.isOpened()) {
+                                                NetworkManager.loginAtServer(mActivity,
+                                                        Session.getActiveSession().getAccessToken(),
+                                                        NetworkManager.FACEBOOK, postRunnable);
+                                            }
+                                        }
+                                    };
+                 alertDialog.dismiss();
+                                    ((SosActivity) mActivity)
+                                            .loginToFacebook(mActivity, mStatusCallback);
+            }
+        });
+
+
+        alertDialog.show();
+        alertDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+    }
+
+    // if login completed sucessfully, open Servers screen;
+    // otherwise build new dialog with retry/cancel buttons
+    private NetworkManager.DeliverResultRunnable<Boolean> postRunnable = new NetworkManager.DeliverResultRunnable<Boolean>() {
+        @Override
+        public void deliver(final Boolean success) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (success) {
+                        openServersScreen();
+                    }
+                    else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                        builder.setTitle("Cannot login to server");
+                        builder.setNegativeButton(android.R.string.cancel, null);
+                        builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                askLoginAndOpenServers();
+                            }
+                        });
+                        builder.create().show();
+                    }
+                }
+            });
+
+        }
+    };
+
+    private void openServersScreen() {
+        FragmentManager mfragmentManager = getFragmentManager();
+        final FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
+        Fragment fragment = new SetServersFragment();
+        fragmentTransaction.addToBackStack(SetServersFragment.TAG);
+        fragmentTransaction.replace(R.id.content_frame, fragment).commit();
+    }
+
+     private class SendReportAsyncTask extends AsyncTask {
 
         private File file;
 

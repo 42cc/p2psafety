@@ -29,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 
 import ua.p2psafety.AsyncTaskExecutionHelper;
 import ua.p2psafety.R;
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
 import ua.p2psafety.sms.MessageResolver;
 
@@ -169,6 +170,10 @@ public class Utils {
         }
 
         return currentSession != null && currentSession.getState().isOpened();
+    }
+
+    public static boolean isServerAuthenticated(Context context) {
+        return (Prefs.getApiKey(context) != null);
     }
 
 //    public static void setLoading(Activity activity, boolean visible) {
