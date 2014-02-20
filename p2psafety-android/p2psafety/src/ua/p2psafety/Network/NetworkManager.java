@@ -16,12 +16,19 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
@@ -38,6 +45,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 
 import ua.p2psafety.Event;
 import ua.p2psafety.SosManager;
@@ -68,7 +78,18 @@ public class NetworkManager {
         HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1);
         HttpConnectionParams.setConnectionTimeout(httpParams, 0);
         HttpConnectionParams.setSoTimeout(httpParams, 0);
-        httpClient = new DefaultHttpClient(httpParams);
+
+        // https
+        HostnameVerifier hostnameVerifier = SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
+        SchemeRegistry schReg = new SchemeRegistry();
+        SSLSocketFactory socketFactory = SSLSocketFactory.getSocketFactory();
+        socketFactory.setHostnameVerifier((X509HostnameVerifier) hostnameVerifier);
+        schReg.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+        schReg.register(new Scheme("https", socketFactory, 443));
+        ClientConnectionManager conMgr = new ThreadSafeClientConnManager(httpParams, schReg);
+
+        httpClient = new DefaultHttpClient(conMgr, httpParams);
+        HttpsURLConnection.setDefaultHostnameVerifier(hostnameVerifier);
 
         LOGS = new Logs(context);
     }
