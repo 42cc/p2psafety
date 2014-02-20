@@ -36,6 +36,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
     if (event == null) {
       $scope.zoomOut();
       $scope.selectedEvent = null;
+      $scope.selectedEventsupport = [];
     } else {
       var params = {event__id: event.id};
       $http.get(urls.eventupdates, {params: params}).success(function(data) {
@@ -43,6 +44,21 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
         $scope.zoomIn();
         $scope.selectedEvent = event;
       });
+        var params = {status: 'A'};
+        $scope.selectedEventsupport = [];
+        $http.get(urls.events, {params: params}).success(function(data) {
+            for (i in data.objects) {
+                var event_support = data.objects[i];
+                if(event_support.type=="support"){
+                    for (i in event_support.supported){
+                        var support = event_support.supported[i]
+                        if(support.id==$scope.selectedEvent.id){
+                            $scope.selectedEventsupport.push(event_support)
+                        }
+                    }
+                }
+            }
+        });
     };
   };
   $scope.update = function() {
@@ -145,13 +161,4 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
     restrict: 'E',
     link: linker,
   };
-});
-.directive('support', function() {
-    var get_support = function(scope, element, attrs) {
-        for (i in event.supported){
-            var support = event.supported[i]
-            if (support.id == $scope.selectedEvent.id){
-            }
-            }
-     }
 });

@@ -62,9 +62,14 @@
             </h4>
             <div class="panel-body">
               <div class="list-group">
-              <p ng-repeat="event in events" ng-if="event.type == 'support'" >
-                {{event.id}}
-              </p>
+              <div class="list-group-item" ng-repeat="support in selectedEventsupport">
+                    <a class="btn btn-success" ng-click="focus(support.latest_location)">
+                        <span class="glyphicon glyphicon-map-marker"></span>
+                    </a>
+                <div class="event-name"
+                           ng-click="select(support)"
+                           ng-bind="support.user.full_name"></div>
+              </div>
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
                   <event-marker mode="eventupdate"
