@@ -2,6 +2,7 @@ package ua.p2psafety.Network;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.util.Log;
 
@@ -103,6 +104,7 @@ public class NetworkManager {
                             .append("/api/v1/events/").toString());
 
                     addAuthHeader(context, httpPost);
+                    addUserAgentHeader(context, httpPost);
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
@@ -178,6 +180,7 @@ public class NetworkManager {
                             .append("/api/v1/eventupdates/").toString());
 
                     addAuthHeader(context, httpPost);
+                    addUserAgentHeader(context, httpPost);
 
                     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
                     builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
@@ -239,6 +242,7 @@ public class NetworkManager {
                             .append("/api/v1/eventupdates/").toString());
 
                     addAuthHeader(context, httpPost);
+                    addUserAgentHeader(context, httpPost);
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
@@ -311,6 +315,7 @@ public class NetworkManager {
                             .toString());
 
                     addAuthHeader(context, httpGet);
+                    addUserAgentHeader(context, httpGet);
                     httpGet.setHeader("Accept", "application/json");
                     //httpGet.setHeader("Content-type", "application/json");
 
@@ -377,6 +382,7 @@ public class NetworkManager {
 
                     HttpGet httpGet = new HttpGet(url.toString());
                     addAuthHeader(context, httpGet);
+                    addUserAgentHeader(context, httpGet);
                     httpGet.setHeader("Accept", "application/json");
                     httpGet.setHeader("Content-type", "application/json");
 
@@ -530,6 +536,7 @@ public class NetworkManager {
                             .toString());
 
                     addAuthHeader(context, httpPost);
+                    addUserAgentHeader(context, httpPost);
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
@@ -647,6 +654,7 @@ public class NetworkManager {
 
                     HttpPost httpPost = new HttpPost(url.toString());
                     httpPost.setEntity(se);
+                    addUserAgentHeader(context, httpPost);
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
@@ -736,5 +744,23 @@ public class NetworkManager {
     private static void saveAuthData(Context context, String api_username, String api_key) {
         Prefs.putApiUsername(context, api_username);
         Prefs.putApiKey(context, api_key);
+    }
+
+    public static void addUserAgentHeader(Context context, AbstractHttpMessage request) {
+        String systemUserAgent = System.getProperty("http.agent");
+        String customUserAgent = "";
+        try {
+            customUserAgent = new StringBuilder().append("p2psafety/")
+                    // add app version
+                    .append(context.getPackageManager()
+                            .getPackageInfo(context.getPackageName(), 0).versionName).append(" ")
+                            // split davlik machine version
+                    .append(systemUserAgent.substring(systemUserAgent.indexOf('(', 0),
+                            systemUserAgent.length())).toString();
+            request.addHeader(new BasicHeader("User-Agent", customUserAgent));
+            Log.i("getUserAgent", customUserAgent);
+        } catch (PackageManager.NameNotFoundException e) {
+            request.addHeader(new BasicHeader("User-Agent", systemUserAgent));
+        }
     }
 }
