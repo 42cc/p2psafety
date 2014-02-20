@@ -2,6 +2,7 @@ package ua.p2psafety.Network;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.util.Log;
 
@@ -10,6 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -19,6 +22,8 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.AbstractHttpMessage;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -28,6 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -36,12 +42,16 @@ import java.util.concurrent.Executors;
 import ua.p2psafety.Event;
 import ua.p2psafety.SosManager;
 import ua.p2psafety.User;
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.roles.Role;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 public class NetworkManager {
     private static final String SERVER_URL = "http://p2psafety.net";
+    public static final int SITE = 0;
+    public static final int FACEBOOK = 1;
+
     public static Logs LOGS;
 
     private static final int CODE_SUCCESS = 201;
@@ -53,15 +63,14 @@ public class NetworkManager {
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private static ObjectMapper mapper = new ObjectMapper();
 
-    public static void init(Context c) {
+    public static void init(Context context) {
         HttpParams httpParams = new BasicHttpParams();
         HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1);
-        //HttpProtocolParams.setContentCharset(httpParams, "unicode");
         HttpConnectionParams.setConnectionTimeout(httpParams, 0);
         HttpConnectionParams.setSoTimeout(httpParams, 0);
         httpClient = new DefaultHttpClient(httpParams);
 
-        LOGS = new Logs(c);
+        LOGS = new Logs(context);
     }
 
     @Override
@@ -94,6 +103,8 @@ public class NetworkManager {
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/events/").toString());
 
+                    addAuthHeader(context, httpPost);
+                    addUserAgentHeader(context, httpPost);
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
@@ -168,6 +179,9 @@ public class NetworkManager {
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/eventupdates/").toString());
 
+                    addAuthHeader(context, httpPost);
+                    addUserAgentHeader(context, httpPost);
+
                     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
                     builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
                     if (isAudio)
@@ -227,6 +241,8 @@ public class NetworkManager {
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/eventupdates/").toString());
 
+                    addAuthHeader(context, httpPost);
+                    addUserAgentHeader(context, httpPost);
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
@@ -298,6 +314,8 @@ public class NetworkManager {
                             .append(SosManager.getInstance(context).getEvent().getUser().getId())
                             .toString());
 
+                    addAuthHeader(context, httpGet);
+                    addUserAgentHeader(context, httpGet);
                     httpGet.setHeader("Accept", "application/json");
                     //httpGet.setHeader("Content-type", "application/json");
 
@@ -363,6 +381,8 @@ public class NetworkManager {
                            .append("/roles/");
 
                     HttpGet httpGet = new HttpGet(url.toString());
+                    addAuthHeader(context, httpGet);
+                    addUserAgentHeader(context, httpGet);
                     httpGet.setHeader("Accept", "application/json");
                     httpGet.setHeader("Content-type", "application/json");
 
@@ -515,11 +535,13 @@ public class NetworkManager {
                             .append("/roles/")
                             .toString());
 
+                    addAuthHeader(context, httpPost);
+                    addUserAgentHeader(context, httpPost);
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
                     JSONArray arr = new JSONArray();
-                    for (Role role: roles)
+                    for (Role role : roles)
                         if (role.checked)
                             arr.put(role.id);
 
@@ -575,6 +597,114 @@ public class NetworkManager {
         });
     }
 
+    public static void loginAtServer(final Context context, String login, String password,
+                                     final DeliverResultRunnable<Boolean> postRunnable) {
+        Map credentials = new HashMap();
+        credentials.put("username", login);
+        credentials.put("password", password);
+        credentials.put("provider", SITE);
+
+        loginAtServer(context, credentials, postRunnable);
+    }
+
+    public static void loginAtServer(final Context context, String token, int provider,
+                                     final DeliverResultRunnable<Boolean> postRunnable) {
+        Map credentials = new HashMap();
+        credentials.put("access_token", token);
+        credentials.put("provider", provider);
+
+        loginAtServer(context, credentials, postRunnable);
+    }
+
+    public static void loginAtServer(final Context context, final Map credentials,
+                                final DeliverResultRunnable<Boolean> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final int CODE_SUCCESS = 200;
+                final String TAG = "loginAtServer";
+
+                if (!Utils.isNetworkConnected(context, LOGS)) {
+//                    errorDialog(context, DIALOG_NO_CONNECTION);
+                    if (postRunnable != null) {
+                        postRunnable.setResult(false);
+                        postRunnable.run();
+                    }
+                    return;
+                }
+
+                try {
+                    StringBuilder url = new StringBuilder(SERVER_URL)
+                            .append("/api/v1/auth/login/");
+
+                    JSONObject json = new JSONObject();
+                    int provider = (Integer) credentials.get("provider");
+                    switch (provider) {
+                        case SITE:
+                            url = url.append("site/");
+                            json.put("username", credentials.get("username"));
+                            json.put("password", credentials.get("password"));
+                            break;
+                        case FACEBOOK:
+                            url = url.append("facebook/");
+                            json.put("access_token", credentials.get("access_token"));
+                            break;
+                    }
+                    StringEntity se = new StringEntity(json.toString());
+
+                    HttpPost httpPost = new HttpPost(url.toString());
+                    httpPost.setEntity(se);
+                    addUserAgentHeader(context, httpPost);
+                    httpPost.setHeader("Accept", "application/json");
+                    httpPost.setHeader("Content-type", "application/json");
+
+
+                    Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
+                    Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpPost);
+                    } catch (Exception e) {
+                        //errorDialog(context, DIALOG_NETWORK_ERROR);
+                        if (postRunnable != null) {
+                            postRunnable.setResult(false);
+                            postRunnable.run();
+                        }
+                        return;
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        Map<String, Object> data = mapper.readValue(responseContent, Map.class);
+                        String api_username = String.valueOf(data.get("username"));
+                        String api_key = String.valueOf(data.get("key"));
+
+                        saveAuthData(context, api_username, api_key);
+
+                        postRunnable.setResult(true);
+                    } else {
+                        postRunnable.setResult(false);
+                    }
+
+                    if (postRunnable != null) {
+                        postRunnable.run();
+                    }
+                } catch (Exception e) {
+                    //errorDialog(context, DIALOG_NETWORK_ERROR);
+                    if (postRunnable != null) {
+                        postRunnable.setResult(false);
+                        postRunnable.run();
+                    }
+                }
+            }
+        });
+    }
+
     public static abstract class DeliverResultRunnable<Result> implements Runnable {
 
         private Result result;
@@ -602,7 +732,35 @@ public class NetworkManager {
         public abstract void deliver(Result result);
 
         public void onError(int errorCode) { }
-
     }
 
+    private static AbstractHttpMessage addAuthHeader(Context context, AbstractHttpMessage request) {
+        request.addHeader(new BasicHeader("Authorization", new StringBuilder().append("ApiKey ")
+                .append(Prefs.getApiUsername(context)).append(":")
+                .append(Prefs.getApiKey(context)).toString()));
+        return request;
+    }
+
+    private static void saveAuthData(Context context, String api_username, String api_key) {
+        Prefs.putApiUsername(context, api_username);
+        Prefs.putApiKey(context, api_key);
+    }
+
+    public static void addUserAgentHeader(Context context, AbstractHttpMessage request) {
+        String systemUserAgent = System.getProperty("http.agent");
+        String customUserAgent = "";
+        try {
+            customUserAgent = new StringBuilder().append("p2psafety/")
+                    // add app version
+                    .append(context.getPackageManager()
+                            .getPackageInfo(context.getPackageName(), 0).versionName).append(" ")
+                            // split davlik machine version
+                    .append(systemUserAgent.substring(systemUserAgent.indexOf('(', 0),
+                            systemUserAgent.length())).toString();
+            request.addHeader(new BasicHeader("User-Agent", customUserAgent));
+            Log.i("getUserAgent", customUserAgent);
+        } catch (PackageManager.NameNotFoundException e) {
+            request.addHeader(new BasicHeader("User-Agent", systemUserAgent));
+        }
+    }
 }

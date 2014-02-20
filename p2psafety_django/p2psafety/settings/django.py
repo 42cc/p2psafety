@@ -69,6 +69,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.gis',
 
+    'core',
     'events',
     'users',
     'tastydoc',
