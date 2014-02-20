@@ -4,24 +4,24 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from tastypie import fields, http
-from tastypie.resources import ModelResource
 from tastypie.utils import trailing_slash
+from tastypie.resources import ModelResource
+from schematics.models import Model as SchemaModel
+from schematics.types import IntType
+from schematics.types.compound import ListType
 
+from core.api.mixins import ApiMethodsMixin
+from core.api.decorators import body_params, api_method
 from ..models import Role
 
 
-class UserResource(ModelResource):
+class UserResource(ApiMethodsMixin, ModelResource):
     class Meta:
         queryset = User.objects.all()
         resource_name = 'users'
         fields = ['id']
         detail_allowed_methods = []
         list_allowed_methods = []
-        extra_actions = {
-            'roles': {
-                'url': '/{userpk}/roles/',
-            }
-        }
 
     full_name = fields.CharField('get_full_name')
 
@@ -29,54 +29,43 @@ class UserResource(ModelResource):
         value = bundle.data['full_name']
         return value if value else bundle.obj.username
 
-    def prepend_urls(self):
-        return [
-            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/roles%s$' %
-                (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('roles'), name='api_users_roles'),
-        ]
-
-    def roles(self, request, pk=None, **kwargs):
+    @api_method(r'/(?P<pk>\d+)/roles', name='api_users_roles')
+    def roles(self):
         """
         ***
         TODO: replace user with request.user.
         ***
 
-        Manages user's roles:
-
-        * For **GET** method, returns user's roles as list of ids.
-        * For **POST** method, sets user's roles to given list of ids as ``role_id`` POST param.
+        Manages user's roles.
 
         Raises:
 
-        * **403** if ``role_id`` is not found within POST params dict or it is not a list of valid ids.
         * **404** if user is not found.
         """
-        self.method_check(request, allowed=['get', 'post'])
-        self.throttle_check(request)
 
-        try:
+        def get(self, request, pk=None, **kwargs):
+            """
+            Returns user's roles as list of ids.
+            """
             user = get_object_or_404(User, pk=pk)
-        except django_http.Http404:
-            return http.HttpNotFound()
-        else:
-            self.log_throttled_access(request)
-            if request.method == 'POST':
-                if 'role_id' not in request.POST:
-                    return http.HttpBadRequest()
+            objects = [role.id for role in user.roles.all()]
+            return self.create_response(request, objects)
 
-                try:
-                    role_ids = map(int, request.POST.getlist('role_id'))
-                except ValueError:
-                    return http.HttpBadRequest()
+        class PostParams(SchemaModel):
+            role_ids = ListType(IntType(), required=True)
 
-                roles = Role.objects.filter(id__in=role_ids)
-                user.roles.clear()
-                user.roles.add(*roles)
-                return http.HttpAccepted()
-            else:
-                objects = [role.id for role in user.roles.all()]
-                return self.create_response(request, objects)
+        @body_params(PostParams)
+        def post(self, request, pk=None, params=None, **kwargs):
+            """
+            Sets user's roles to given list of ids as ``role_id`` param.
+            """
+            user = get_object_or_404(User, pk=pk)
+            roles = Role.objects.filter(id__in=params.role_ids)
+            user.roles.clear()
+            user.roles.add(*roles)
+            return http.HttpAccepted()
+
+        return get, post
 
 
 class RoleResource(ModelResource):
