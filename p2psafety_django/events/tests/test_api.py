@@ -4,7 +4,9 @@ import tempfile
 from operator import itemgetter
 
 from django.contrib.gis.geos import Point
+from django.core.urlresolvers import reverse
 
+from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
 from ..models import Event, EventUpdate
@@ -19,14 +21,16 @@ class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
     def login_as_granted_user(self):
         self.login_as(self.events_granted_user)
 
+    def login_as_simple_user(self):
+        self.login_as(self.user)
+
     def test_create_events(self):
         """
         Event creation should be public.
         """
-        #
-        # TODO (dep ticket 52) : test with api key
-        #
-        pass
+        url = self.events_list_url
+        self.login_as_simple_user()
+        self.assertHttpCreated(self.api_client.post(url))
 
     def test_create_eventupdates(self):
         """
@@ -34,6 +38,7 @@ class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
         """
         url = self.eventupdates_list_url
         data = dict(key='notexistingkey')
+        self.login_as_simple_user()
         self.assertHttpNotFound(self.api_client.post(url, data=data))
 
     def test_get_list_events(self):
@@ -87,7 +92,6 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertNotEqual(new_event.PIN, event.PIN)
 
         user2 = UserFactory()
-        self.logout()
         self.login_as(user2)
         self.assertHttpCreated(self.api_client.post(url))
         event = Event.objects.latest('id')
@@ -168,6 +172,7 @@ class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
     def test_create(self):
         url = self.eventupdates_list_url
+        self.login_as_user()
 
         # no params
         self.assertHttpBadRequest(self.api_client.post(url))

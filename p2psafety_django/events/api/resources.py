@@ -8,6 +8,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from tastypie import http, fields
+from tastypie.authentication import MultiAuthentication, ApiKeyAuthentication, \
+                                    SessionAuthentication
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.resources import ModelResource
@@ -17,7 +19,6 @@ from schematics.models import Model as SchemaModel
 from schematics.types import IntType
 
 from .fields import GeoPointField
-from .authentication import PostFreeSessionAuthentication
 from .authorization import CreateFreeDjangoAuthorization
 from ..models import Event, EventUpdate
 from core.api.mixins import ApiMethodsMixin
@@ -50,7 +51,8 @@ class EventResource(ApiMethodsMixin, ModelResource):
     class Meta:
         queryset = Event.objects.all()
         resource_name = 'events'
-        authentication = PostFreeSessionAuthentication()
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             SessionAuthentication())
         authorization = CreateFreeDjangoAuthorization()
         list_allowed_methods = ['post', 'get']
         fields = ['id', 'user', 'type', 'status']
@@ -135,7 +137,8 @@ class EventUpdateResource(MultipartResource, ModelResource):
         detail_allowed_methods = []
         filtering = {'event': ALL_WITH_RELATIONS}
         validation = EventUpdateValidation()
-        authentication = PostFreeSessionAuthentication()
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             SessionAuthentication())
         authorization = CreateFreeDjangoAuthorization()
 
     location = GeoPointField('location', null=True)

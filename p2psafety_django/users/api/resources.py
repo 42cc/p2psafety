@@ -1,13 +1,17 @@
 from django import http as django_http
 from django.conf.urls import url
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
+from allauth.socialaccount.providers.facebook.views import fb_complete_login
 from tastypie import fields, http
+from tastypie.authentication import Authentication
+from tastypie.models import ApiKey
+from tastypie.resources import Resource, ModelResource
 from tastypie.utils import trailing_slash
-from tastypie.resources import ModelResource
 from schematics.models import Model as SchemaModel
-from schematics.types import IntType
+from schematics.types import IntType, StringType
 from schematics.types.compound import ListType
 
 from core.api.mixins import ApiMethodsMixin
@@ -74,3 +78,71 @@ class RoleResource(ModelResource):
         resource_name = 'roles'
         detail_allowed_methods = []
         include_resource_uri = False
+
+
+class AuthResource(ApiMethodsMixin, Resource):
+    class Meta:
+        resource_name = 'auth'
+        authentication = Authentication()
+        detail_allowed_methods = []
+        list_allowed_methods = []
+
+    def _get_api_token(self, user):
+        try:
+            return ApiKey.objects.filter(user=user)[0].key
+        except IndexError:
+            return ApiKey.objects.create(user=user).key
+
+    def _construct_login_response(self, user):
+        return {'username': user.username,
+                'key': self._get_api_token(user)}
+
+    @api_method(r'/login/site', name='api_auth_login_site')
+    def login_with_site(self):
+        class SiteLoginParams(SchemaModel):
+            username = StringType(required=True)
+            password = StringType(required=True)
+
+        @body_params(SiteLoginParams)
+        def post(self, request, params=None, **kwargs):
+            user = authenticate(username=params.username,
+                                password=params.password)
+            if user is None:
+                return http.HttpUnauthorized('Invalid credentials')
+
+            return self._construct_login_response(user)
+
+        return post
+
+    @api_method(r'/login/(?P<provider>\w+)', name='api_auth_login_social')
+    def login_with_social(self):
+        class SocialLoginParams(SchemaModel):
+            access_token = StringType(required=True)
+
+        @body_params(SocialLoginParams)
+        def post(self, request, provider=None, params=None, **kwargs):
+            from requests import RequestException
+            from allauth.socialaccount import providers
+            from allauth.socialaccount.helpers import complete_social_login
+            from allauth.socialaccount.models import SocialLogin, SocialToken
+            from allauth.socialaccount.providers.facebook.provider import FacebookProvider
+
+            if provider == 'facebook':
+                try:
+                    app = providers.registry.by_id(FacebookProvider.id).get_app(request)
+                    token = SocialToken(app=app, token=params.access_token)
+                    login = fb_complete_login(request, app, token)
+                    login.token = token
+                    login.state = SocialLogin.state_from_request(request)
+                    ret = complete_social_login(request, login)
+                except RequestException:
+                    return http.HttpBadRequest('Error accessing FB user profile')
+                else:
+                    # If user does not exist
+                    if login.account.user.id is None:
+                        return http.HttpBadRequest('Not registered')
+
+                    return self._construct_login_response(login.account.user)
+    
+            return http.HttpBadRequest('Invalid provider')
+        return post

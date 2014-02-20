@@ -1,7 +1,7 @@
 #
 # Tastypie settings
 #
-TASTYPIE_ABSTRACT_APIKEY = True
+TASTYPIE_ABSTRACT_APIKEY = False
 API_LIMIT_PER_PAGE = 0
 
 #
