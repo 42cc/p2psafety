@@ -8,19 +8,21 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from tastypie import http, fields
+from tastypie.authentication import MultiAuthentication, ApiKeyAuthentication, \
+                                    SessionAuthentication
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.resources import ModelResource
 from tastypie.utils import trailing_slash
 from tastypie.validation import Validation
-
-from social.backends.utils import get_backend
-from social.apps.django_app.utils import load_strategy
+from schematics.models import Model as SchemaModel
+from schematics.types import IntType
 
 from .fields import GeoPointField
-from .authentication import PostFreeSessionAuthentication
 from .authorization import CreateFreeDjangoAuthorization
 from ..models import Event, EventUpdate
+from core.api.mixins import ApiMethodsMixin
+from core.api.decorators import body_params, api_method
 from users.api.resources import UserResource
 
 
@@ -45,28 +47,13 @@ class MultipartResource(object):
         return super(MultipartResource, self).deserialize(request, data, format)
 
 
-class EventValidation(Validation):
-    def is_valid(self, bundle, request=None):
-        if not bundle.data:
-            return {'__all__': 'Please add provider and access_token arguments'}
-
-        errors = {}
-
-        provider = bundle.data.get('provider')
-        backend = get_backend(settings.AUTHENTICATION_BACKENDS, provider)
-        if not backend:
-            errors['provider'] = 'This provider is not supported'
-
-        return errors
-
-
-class EventResource(ModelResource):
+class EventResource(ApiMethodsMixin, ModelResource):
     class Meta:
         queryset = Event.objects.all()
         resource_name = 'events'
-        authentication = PostFreeSessionAuthentication()
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             SessionAuthentication())
         authorization = CreateFreeDjangoAuthorization()
-        validation = EventValidation()
         list_allowed_methods = ['post', 'get']
         fields = ['id', 'user', 'type', 'status']
         filtering = {
@@ -83,78 +70,42 @@ class EventResource(ModelResource):
                                       'latest_update',
                                       full=True, null=True, readonly=True)
 
-    def prepend_urls(self):
-        return [
-            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/support%s$' % 
-                (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('support'), name='api_events_support'),
-        ]
-
-    def support(self, request, pk=None, **kwargs):
+    @api_method(r'/(?P<pk>\d+)/support', name='api_events_support')
+    def support(self):
         """
         ***
         TODO: replace ``user_id`` with ``request.user``.
         ***
 
-        For POST method, marks current user as "supporter".
-
-        POST params:
-          * user_id: current user's id.
-
-        Raises 400 if ``used_id`` param is not a number.
-        Raises 404 if user with given ``user_id`` or given event pk is not found.
+        Marks user as "supporter" for a given event.
         """
-        self.method_check(request, allowed=['post'])
-        self.throttle_check(request)
+        class PostParams(SchemaModel):
+            user_id = IntType(required=True)
 
-        user_id = request.POST.get('user_id')
-        if user_id is None:
-            return http.HttpNotFound()
+        @body_params(PostParams)
+        def post(self, request, pk=None, params=None, **kwargs):
+            """
+            Adds user with given ``user_id`` param to list of event's supporters.
 
-        if user_id.isdigit() is False:
-            return http.HttpBadRequest()
+            Raises:
 
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return http.HttpBadRequest()
+            * **404** if user with given ``user_id`` or given event pk is not found.
+            """
+            try:
+                user = User.objects.get(id=params.user_id)
+            except User.DoesNotExist:
+                return http.HttpBadRequest()
+            else:
+                target_event = get_object_or_404(Event, id=pk)
+                target_event.support_by_user(user)
 
-        try:
-            target_event = Event.objects.get(id=pk)
-        except Event.DoesNotExist:
-            return http.HttpNotFound()
-
-        self.log_throttled_access(request)
-        target_event.support_by_user(user)
-
-        return HttpResponse()
+        return post
 
     def hydrate(self, bundle):
-        access_token = bundle.data.get('access_token')
-        provider = bundle.data.get('provider')
-
-        social_auth_backend = get_backend(settings.AUTHENTICATION_BACKENDS, provider)
-
-        if social_auth_backend and access_token:
-            try:
-                social_auth = social_auth_backend(strategy=load_strategy(
-                    request=bundle.request,
-                    backend=provider,
-                ))
-                user = social_auth.do_auth(access_token)
-                bundle.obj.user = user
-            except Exception as e:
-                logger.exception(e)
-                raise ImmediateHttpResponse(
-                    response=http.HttpBadRequest('Invalid access token'))
+        bundle.obj.user = bundle.request.user
         return bundle
 
     def dehydrate(self, bundle):
-        if 'access_token' in bundle.data:
-            del bundle.data['access_token']
-        if 'provider' in bundle.data:
-            del bundle.data['provider']
-
         if bundle.request.META['REQUEST_METHOD'] == 'POST':
             bundle.data['key'] = bundle.obj.key
 
@@ -186,7 +137,8 @@ class EventUpdateResource(MultipartResource, ModelResource):
         detail_allowed_methods = []
         filtering = {'event': ALL_WITH_RELATIONS}
         validation = EventUpdateValidation()
-        authentication = PostFreeSessionAuthentication()
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             SessionAuthentication())
         authorization = CreateFreeDjangoAuthorization()
 
     location = GeoPointField('location', null=True)

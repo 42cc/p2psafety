@@ -4,11 +4,12 @@ import tempfile
 from operator import itemgetter
 
 from django.contrib.gis.geos import Point
+from django.core.urlresolvers import reverse
 
+from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
 from ..models import Event, EventUpdate
-from .helpers import mock_get_backend
 from .helpers.factories import EventFactory, EventUpdateFactory, UserFactory
 from .helpers.mixins import ModelsMixin, UsersMixin
 
@@ -20,14 +21,16 @@ class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
     def login_as_granted_user(self):
         self.login_as(self.events_granted_user)
 
-    @mock_get_backend(module_path='events.api.resources')
+    def login_as_simple_user(self):
+        self.login_as(self.user)
+
     def test_create_events(self):
         """
         Event creation should be public.
         """
         url = self.events_list_url
-        data = dict(provider='facebook', access_token='test')
-        self.assertHttpCreated(self.api_client.post(url, data=data))
+        self.login_as_simple_user()
+        self.assertHttpCreated(self.api_client.post(url))
 
     def test_create_eventupdates(self):
         """
@@ -35,6 +38,7 @@ class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
         """
         url = self.eventupdates_list_url
         data = dict(key='notexistingkey')
+        self.login_as_simple_user()
         self.assertHttpNotFound(self.api_client.post(url, data=data))
 
     def test_get_list_events(self):
@@ -67,44 +71,34 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
     required_model_fields = [u'id', u'user', u'type', u'status', u'resource_uri',
                              u'latest_location', u'latest_update']
 
-    @mock_get_backend(module_path='events.api.resources')
     def test_create(self):
         url = self.events_list_url
+        self.login_as_user()
 
-        # no params
-        self.assertHttpBadRequest(self.api_client.post(url))
-
-        data = dict(provider='bad_provider', access_token='some_token')
-
-        # bad params
-        self.assertHttpBadRequest(self.api_client.post(url, data=data))
-
-        data['provider'] = 'facebook'
-        self.assertHttpCreated(self.api_client.post(url, data=data))
+        self.assertHttpCreated(self.api_client.post(url))
 
         event = Event.objects.latest('id')
         self.assertEqual(event.status, Event.STATUS_PASSIVE)
-        self.assertEqual(event.user, self.auth_user)
+        self.assertEqual(event.user, self.user)
 
-        response = self.api_client.post(url, data=data)
+        response = self.api_client.post(url)
         self.assertHttpCreated(response)
         self.assertIn('key', json.loads(response.content))
         new_event = Event.objects.latest('id')
         self.assertEqual(new_event.status, Event.STATUS_PASSIVE)
         self.assertEqual(new_event.type, Event.TYPE_VICTIM)
         self.assertEqual(Event.objects.get(id=event.id).status, Event.STATUS_FINISHED)
-        self.assertEqual(new_event.user, self.auth_user)
+        self.assertEqual(new_event.user, self.user)
         self.assertNotEqual(new_event.PIN, event.PIN)
 
         user2 = UserFactory()
-        self.mocked_get_backend()().do_auth.return_value = user2
-        self.assertHttpCreated(self.api_client.post(url, data=data))
+        self.login_as(user2)
+        self.assertHttpCreated(self.api_client.post(url))
         event = Event.objects.latest('id')
         self.assertEqual(event.status, Event.STATUS_PASSIVE)
         self.assertEqual(event.user, user2)
         self.assertEqual(Event.objects.filter(status=Event.STATUS_PASSIVE).count(), 2)
 
-    @mock_get_backend(module_path='events.api.resources')
     def test_get_list(self):
         event, event_location = EventFactory(), EventFactory()
         event_updates = [EventUpdateFactory(event=event, location=None),
@@ -143,7 +137,7 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.login_as_superuser()
         url = self.events_support_url(event_victim.id)
         data = dict(user_id=user_supporter.id)
-        resp = self.api_client.client.post(url, data=data)
+        resp = self.api_client.post(url, data=data)
         self.assertEqual(resp.status_code, 200)
         support_by_user_mock.assert_called_once_with(user_supporter)
 
@@ -157,9 +151,12 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         # Invalid method
         self.assertHttpMethodNotAllowed(self.api_client.get(url))
 
+        # Invalid body
+        self.assertHttpBadRequest(self.api_client.post(url, data='invalid'))
+
         # Invalid params
-        data = dict(user_id='wtf')
-        self.assertHttpBadRequest(self.api_client.client.post(url, data=data))
+        data = dict(user_id='invalid')
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
 
         # Event does not exists
         data = dict(user_id=user_supporter.id)
@@ -168,13 +165,14 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
         # User does not exists
         data = dict(user_id=123)
-        self.assertHttpBadRequest(self.api_client.client.post(url, data=data))
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
 
 
 class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
     def test_create(self):
         url = self.eventupdates_list_url
+        self.login_as_user()
 
         # no params
         self.assertHttpBadRequest(self.api_client.post(url))
