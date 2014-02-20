@@ -130,8 +130,6 @@ public class NetworkManager {
                     httpPost.setHeader("Content-type", "application/json");
 
                     JSONObject json = new JSONObject();
-                    json.put("provider", "facebook");
-                    json.put("access_token", access_token);
                     StringEntity se = new StringEntity(json.toString());
                     httpPost.setEntity(se);
 
