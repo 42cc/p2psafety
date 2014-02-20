@@ -67,7 +67,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
     $http.get(urls.events, {params: params}).success(function(data) {
       for (i in data.objects) {
         var event = data.objects[i];
-        if ($scope.$location!=""){
+        if ($scope.$location.hash!=""){
             var id = parseFloat($scope.$location.hash.split('#')[1])
             if(event.type=="support"){
                 for (i in event.supported){
