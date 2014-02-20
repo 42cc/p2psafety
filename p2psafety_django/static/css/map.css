@@ -2,9 +2,19 @@
   height: 500px;
 }
 .selected-event {
-  position: absolute;
   top: 0;
-  height: 100%;
-  width: 25%;
+  height: 500px;
+  width: 300px;
   overflow-y: auto;
+  float: left;
+}
+.event-name{
+    cursor: pointer;
+    display: inline;
+}
+.event-panel{
+    padding:0;
+}
+.event-heading{
+    margin-bottom: 0;
 }
