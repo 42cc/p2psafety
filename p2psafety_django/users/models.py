@@ -14,13 +14,17 @@ class Profile(models.Model):
     phone_number = PhoneNumberField(null=True, blank=True)
 
     def __unicode__(self):
-        return u"%s' profile" % self.user.username 
-    
+        return u"%s' profile" % self.user.username
+
 
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
 
 
 class Role(models.Model):
+    """
+    Model to define user roles. It can be lawyer, medic, fighter,
+    journalist, etc.
+    """
     class Meta:
         verbose_name = _('Role')
         verbose_name_plural = _('Roles')
@@ -30,3 +34,21 @@ class Role(models.Model):
 
     def __unicode__(self):
         return unicode(self.name)
+
+
+class MovementType(models.Model):
+    """
+    Model to define user movement types. It can be car, bike, on foot,
+    etc. Feature is defined for map operators to build some expectation
+    on activist speed.
+    """
+    class Meta:
+        verbose_name = _('Movement Type')
+        verbose_name_plural = _('Movement Types')
+
+    name = models.CharField(_('name'), max_length=30, unique=True)
+    users = models.ManyToManyField(User, related_name='movement_types')
+
+    def __unicode__(self):
+        return unicode(self.name)
+
