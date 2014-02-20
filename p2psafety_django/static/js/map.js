@@ -60,34 +60,35 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       });
     };
   };
-  $scope.update = function() {
+  $scope.update = function(highightNew, playSoundForNew) {
     var params = {status: 'A'};
     $http.get(urls.events, {params: params}).success(function(data) {
-        var eventsAppeared = false, newEvents = {};
-          for (i in data.objects) {
-            var event = data.objects[i];
-            newEvents[event.id] = event;
-          }
-          // Deleting old events
-          for (oldEventId in $scope.events) {
-            if (newEvents[oldEventId] == null) {
-              delete $scope.events[oldEventId];
+      var eventsAppeared = false, newEvents = {};
+      for (i in data.objects) {
+        var event = data.objects[i];
+        newEvents[event.id] = event;
+      }
+      // Deleting old events
+      for (oldEventId in $scope.events) {
+        if (newEvents[oldEventId] == null) {
+          delete $scope.events[oldEventId];
+        }
+      }
+      // Adding new events
+      for (newEventId in newEvents) {
+        if ($scope.events[newEventId] == null) {
+            var new_event =  newEvents[newEventId]
+            if (highightNew){
+                new_event.isNew = true
+            } else {
+                new_event.isNew = false
             }
-          }
-          // Adding new events
-          for (newEventId in newEvents) {
-            if ($scope.events[newEventId] == null) {
-                var new_event =  newEvents[newEventId]
-                if (mapSettings.highlight){
-                    new_event.isNew = true
-                } else {
-                    new_event.isNew = false
-                }
-              $scope.events[newEventId] = new_event;
-              eventsAppeared = true;
-            }
-    }
-    if (eventsAppeared && mapSettings.sound) document.getElementById('audiotag').play();
+          $scope.events[newEventId] = new_event;
+          eventsAppeared = true;
+        }
+      }
+      if (eventsAppeared && playSoundForNew)
+        document.getElementById('audiotag').play();
     });
   };
   $scope.focus = function(location) {
@@ -101,9 +102,10 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.initGoogleMap(document.getElementById("map-canvas"));
   $scope.events = {};
   
-  $scope.update();
+  $scope.update(false, false);
+
   $interval(function() {
-    $scope.update();
+    $scope.update(mapSettings.highlight, mapSettings.sound);
   }, $scope.updatePerSeconds * 1000);
 })
 .factory('markerFactory', function() {
