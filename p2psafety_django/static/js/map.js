@@ -7,6 +7,7 @@ mapApp.constant('ICONS', {
 });
 
 mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
+  $scope.$location = window.location
   $scope.initGoogleMap = function(rootElement) {
     var mapOptions = {
       zoom: 11,
@@ -36,7 +37,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
     if (event == null) {
       $scope.zoomOut();
       $scope.selectedEvent = null;
-      $scope.selectedEventsupport = [];
+      $scope.selectedEventsupport = null;
     } else {
       var params = {event__id: event.id};
       $http.get(urls.eventupdates, {params: params}).success(function(data) {
@@ -66,6 +67,20 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
     $http.get(urls.events, {params: params}).success(function(data) {
       for (i in data.objects) {
         var event = data.objects[i];
+        if ($scope.$location!=""){
+            var id = parseFloat($scope.$location.hash.split('#')[1])
+            if(event.type=="support"){
+                for (i in event.supported){
+                    var support = event.supported[i]
+                    if(support.id==id){
+                        $scope.events[event.id] = event;
+                    }
+                }
+            }
+            if(event.id == id){
+                $scope.events[event.id] = event;
+            }
+        } else{
         // TODO: display it manually
         if (event.latest_location != null) {
           var existingEvent = $scope.events[event.id];
@@ -79,6 +94,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
               }
             }
           }
+        }
         }
       };
     });

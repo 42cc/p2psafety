@@ -65,7 +65,7 @@ class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
 class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
     required_model_fields = [u'id', u'user', u'type', u'status', u'resource_uri',
-                             u'latest_location', u'latest_update']
+                             u'latest_location', u'latest_update', u'supported',]
 
     @mock_get_backend(module_path='events.api.resources')
     def test_create(self):

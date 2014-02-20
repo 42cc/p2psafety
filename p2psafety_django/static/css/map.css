@@ -8,3 +8,7 @@
   width: 25%;
   overflow-y: auto;
 }
+.event-name{
+    cursor: pointer;
+    display: inline;
+}

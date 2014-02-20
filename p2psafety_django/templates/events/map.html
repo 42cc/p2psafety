@@ -67,8 +67,8 @@
                         <span class="glyphicon glyphicon-map-marker"></span>
                     </a>
                 <div class="event-name"
-                           ng-click="select(support)"
-                           ng-bind="support.user.full_name"></div>
+                           ng-click="select(support)">
+                           {{support.user.full_name}} - {{support.type}}</div>
               </div>
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
