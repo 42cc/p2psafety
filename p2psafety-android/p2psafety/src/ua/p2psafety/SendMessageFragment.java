@@ -135,7 +135,7 @@ public class SendMessageFragment extends Fragment {
             mSosBtn.setText(getString(R.string.sos));
 
         if (SosManager.getInstance(mActivity).getEvent() == null
-            && Utils.isFbAuthenticated(mActivity))
+            && Utils.isServerAuthenticated(mActivity))
         {
             // TODO: refactor this with Utils.setLoading() like we did in AW
             final ProgressDialog progressDialog = new ProgressDialog(mActivity);

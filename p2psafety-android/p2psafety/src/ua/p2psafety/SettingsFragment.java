@@ -185,7 +185,8 @@ public class SettingsFragment extends Fragment {
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                NetworkManager.loginAtServer(mActivity,                                       userLogin.getText().toString(),
+                                NetworkManager.loginAtServer(mActivity,
+                                        userLogin.getText().toString(),
                                         userPassword.getText().toString(), postRunnable);
                             }
                         })
@@ -202,18 +203,17 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Session.StatusCallback mStatusCallback = new Session.StatusCallback() {
-                                        @Override
-                                        public void call(final Session session, SessionState state, Exception exception) {
-                                            if (state.isOpened()) {
-                                                NetworkManager.loginAtServer(mActivity,
-                                                        Session.getActiveSession().getAccessToken(),
-                                                        NetworkManager.FACEBOOK, postRunnable);
-                                            }
-                                        }
-                                    };
-                 alertDialog.dismiss();
-                                    ((SosActivity) mActivity)
-                                            .loginToFacebook(mActivity, mStatusCallback);
+                    @Override
+                    public void call(final Session session, SessionState state, Exception exception) {
+                        if (state.isOpened()) {
+                            NetworkManager.loginAtServer(mActivity,
+                                    Session.getActiveSession().getAccessToken(),
+                                    NetworkManager.FACEBOOK, postRunnable);
+                        }
+                    }
+                };
+                alertDialog.dismiss();
+                ((SosActivity) mActivity).loginToFacebook(mActivity, mStatusCallback);
             }
         });
 
@@ -230,24 +230,37 @@ public class SettingsFragment extends Fragment {
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (success) {
-                        openServersScreen();
-                    }
-                    else {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                        builder.setTitle("Cannot login to server");
-                        builder.setNegativeButton(android.R.string.cancel, null);
-                        builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                askLoginAndOpenServers();
-                            }
-                        });
-                        builder.create().show();
-                    }
+                    openServersScreen();
                 }
             });
+        }
 
+        @Override
+        public void onError(final int errorCode) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+
+                    switch (errorCode) {
+                        case 401:
+                            builder.setTitle("Неверный логин или пароль.");
+                            break;
+                        default:
+                            builder.setTitle("Не получилось авторизоваться.");
+                            break;
+                    }
+
+                    builder.setNegativeButton(android.R.string.cancel, null);
+                    builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            askLoginAndOpenServers();
+                        }
+                    });
+                    builder.create().show();
+                }
+            });
         }
     };
 

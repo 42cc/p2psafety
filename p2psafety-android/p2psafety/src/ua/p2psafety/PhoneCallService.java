@@ -20,8 +20,9 @@ import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.util.Logs;
 
 public class PhoneCallService extends Service {
-
     public static Logs LOGS;
+
+    private BroadcastReceiver mPhoneCallReceiver;
 
     @Override
     public void onCreate() {
@@ -32,24 +33,24 @@ public class PhoneCallService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Context context = getApplicationContext();
-
         // execute call
-        startPhoneCall(context);
+        startPhoneCall();
 
         // set lowest sound volume
-        AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         am.setStreamVolume(AudioManager.STREAM_VOICE_CALL, 0, 0);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.intent.action.NEW_OUTGOING_CALL");
-        context.registerReceiver(new OutgoingBroadcastReceiver(), filter);
+
+        mPhoneCallReceiver = new OutgoingBroadcastReceiver();
+        registerReceiver(mPhoneCallReceiver, filter);
 
         return START_STICKY;
     }
 
-    private static void startPhoneCall(Context context) {
-        PhonesDatasourse phonesDatasourse = new PhonesDatasourse(context);
+    private void startPhoneCall() {
+        PhonesDatasourse phonesDatasourse = new PhonesDatasourse(this);
         List<String> phones = phonesDatasourse.getAllPhones();
         if (phones.size() > 0) {
             String phone_num = phones.get(0);
@@ -58,7 +59,7 @@ public class PhoneCallService extends Service {
             phoneCallIntent.setData(Uri.parse(phoneCallUri));
             phoneCallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {
-                context.startActivity(phoneCallIntent);
+                startActivity(phoneCallIntent);
             } catch (Exception e) {
                 LOGS.error("Can't start phone call intent", e);
             }
@@ -162,6 +163,7 @@ public class PhoneCallService extends Service {
     @Override
     public void onDestroy() {
         stopPhoneCall();
+        unregisterReceiver(mPhoneCallReceiver);
 
         if (LOGS != null)
             LOGS.close();

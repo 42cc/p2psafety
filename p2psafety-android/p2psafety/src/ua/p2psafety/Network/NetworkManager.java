@@ -16,12 +16,19 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
@@ -38,6 +45,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 
 import ua.p2psafety.Event;
 import ua.p2psafety.SosManager;
@@ -68,7 +78,18 @@ public class NetworkManager {
         HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1);
         HttpConnectionParams.setConnectionTimeout(httpParams, 0);
         HttpConnectionParams.setSoTimeout(httpParams, 0);
-        httpClient = new DefaultHttpClient(httpParams);
+
+        // https
+        HostnameVerifier hostnameVerifier = SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
+        SchemeRegistry schReg = new SchemeRegistry();
+        SSLSocketFactory socketFactory = SSLSocketFactory.getSocketFactory();
+        socketFactory.setHostnameVerifier((X509HostnameVerifier) hostnameVerifier);
+        schReg.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+        schReg.register(new Scheme("https", socketFactory, 443));
+        ClientConnectionManager conMgr = new ThreadSafeClientConnManager(httpParams, schReg);
+
+        httpClient = new DefaultHttpClient(conMgr, httpParams);
+        HttpsURLConnection.setDefaultHostnameVerifier(hostnameVerifier);
 
         LOGS = new Logs(context);
     }
@@ -109,8 +130,6 @@ public class NetworkManager {
                     httpPost.setHeader("Content-type", "application/json");
 
                     JSONObject json = new JSONObject();
-                    json.put("provider", "facebook");
-                    json.put("access_token", access_token);
                     StringEntity se = new StringEntity(json.toString());
                     httpPost.setEntity(se);
 
@@ -627,7 +646,7 @@ public class NetworkManager {
                 if (!Utils.isNetworkConnected(context, LOGS)) {
 //                    errorDialog(context, DIALOG_NO_CONNECTION);
                     if (postRunnable != null) {
-                        postRunnable.setResult(false);
+                        postRunnable.setUnsuccessful(0);
                         postRunnable.run();
                     }
                     return;
@@ -668,7 +687,7 @@ public class NetworkManager {
                     } catch (Exception e) {
                         //errorDialog(context, DIALOG_NETWORK_ERROR);
                         if (postRunnable != null) {
-                            postRunnable.setResult(false);
+                            postRunnable.setUnsuccessful(0);
                             postRunnable.run();
                         }
                         return;
@@ -688,16 +707,13 @@ public class NetworkManager {
 
                         postRunnable.setResult(true);
                     } else {
-                        postRunnable.setResult(false);
+                        postRunnable.setUnsuccessful(responseCode);
                     }
-
-                    if (postRunnable != null) {
-                        postRunnable.run();
-                    }
+                    postRunnable.run();
                 } catch (Exception e) {
                     //errorDialog(context, DIALOG_NETWORK_ERROR);
                     if (postRunnable != null) {
-                        postRunnable.setResult(false);
+                        postRunnable.setUnsuccessful(0);
                         postRunnable.run();
                     }
                 }
