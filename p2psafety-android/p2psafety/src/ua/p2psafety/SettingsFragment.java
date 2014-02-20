@@ -180,7 +180,6 @@ public class SettingsFragment extends Fragment {
         final EditText userLogin = (EditText) promptsView.findViewById(R.id.ld_login_edit);
         final EditText userPassword = (EditText) promptsView.findViewById(R.id.ld_password_edit);
 
-        final AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialogBuilder
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok,
@@ -196,6 +195,7 @@ public class SettingsFragment extends Fragment {
                                 dialog.cancel();
                             }
                         });
+        final AlertDialog alertDialog = alertDialogBuilder.create();
 
         final Button loginBtn = (Button) promptsView.findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(new View.OnClickListener() {

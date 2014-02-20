@@ -593,7 +593,7 @@ public class NetworkManager {
     public static void loginAtServer(final Context context, String login, String password,
                                      final DeliverResultRunnable<Boolean> postRunnable) {
         Map credentials = new HashMap();
-        credentials.put("login", login);
+        credentials.put("username", login);
         credentials.put("password", password);
         credentials.put("provider", SITE);
 
@@ -635,7 +635,7 @@ public class NetworkManager {
                     switch (provider) {
                         case SITE:
                             url = url.append("site/");
-                            json.put("login", credentials.get("login"));
+                            json.put("username", credentials.get("username"));
                             json.put("password", credentials.get("password"));
                             break;
                         case FACEBOOK:
