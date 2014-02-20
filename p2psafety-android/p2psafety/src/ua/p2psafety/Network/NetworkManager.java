@@ -646,7 +646,7 @@ public class NetworkManager {
                 if (!Utils.isNetworkConnected(context, LOGS)) {
 //                    errorDialog(context, DIALOG_NO_CONNECTION);
                     if (postRunnable != null) {
-                        postRunnable.setResult(false);
+                        postRunnable.setUnsuccessful(0);
                         postRunnable.run();
                     }
                     return;
@@ -687,7 +687,7 @@ public class NetworkManager {
                     } catch (Exception e) {
                         //errorDialog(context, DIALOG_NETWORK_ERROR);
                         if (postRunnable != null) {
-                            postRunnable.setResult(false);
+                            postRunnable.setUnsuccessful(0);
                             postRunnable.run();
                         }
                         return;
@@ -707,16 +707,13 @@ public class NetworkManager {
 
                         postRunnable.setResult(true);
                     } else {
-                        postRunnable.setResult(false);
+                        postRunnable.setUnsuccessful(responseCode);
                     }
-
-                    if (postRunnable != null) {
-                        postRunnable.run();
-                    }
+                    postRunnable.run();
                 } catch (Exception e) {
                     //errorDialog(context, DIALOG_NETWORK_ERROR);
                     if (postRunnable != null) {
-                        postRunnable.setResult(false);
+                        postRunnable.setUnsuccessful(0);
                         postRunnable.run();
                     }
                 }
