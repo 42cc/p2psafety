@@ -8,6 +8,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from tastypie import http, fields
+from tastypie.authentication import MultiAuthentication, ApiKeyAuthentication, \
+                                    SessionAuthentication
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.resources import ModelResource
@@ -15,11 +17,8 @@ from tastypie.utils import trailing_slash
 from tastypie.validation import Validation
 from schematics.models import Model as SchemaModel
 from schematics.types import IntType
-from social.backends.utils import get_backend
-from social.apps.django_app.utils import load_strategy
 
 from .fields import GeoPointField
-from .authentication import PostFreeSessionAuthentication
 from .authorization import CreateFreeDjangoAuthorization
 from ..models import Event, EventUpdate
 from core.api.mixins import ApiMethodsMixin
@@ -48,28 +47,13 @@ class MultipartResource(object):
         return super(MultipartResource, self).deserialize(request, data, format)
 
 
-class EventValidation(Validation):
-    def is_valid(self, bundle, request=None):
-        if not bundle.data:
-            return {'__all__': 'Please add provider and access_token arguments'}
-
-        errors = {}
-
-        provider = bundle.data.get('provider')
-        backend = get_backend(settings.AUTHENTICATION_BACKENDS, provider)
-        if not backend:
-            errors['provider'] = 'This provider is not supported'
-
-        return errors
-
-
 class EventResource(ApiMethodsMixin, ModelResource):
     class Meta:
         queryset = Event.objects.all()
         resource_name = 'events'
-        authentication = PostFreeSessionAuthentication()
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             SessionAuthentication())
         authorization = CreateFreeDjangoAuthorization()
-        validation = EventValidation()
         list_allowed_methods = ['post', 'get']
         fields = ['id', 'user', 'type', 'status']
         filtering = {
@@ -118,31 +102,10 @@ class EventResource(ApiMethodsMixin, ModelResource):
         return post
 
     def hydrate(self, bundle):
-        access_token = bundle.data.get('access_token')
-        provider = bundle.data.get('provider')
-
-        social_auth_backend = get_backend(settings.AUTHENTICATION_BACKENDS, provider)
-
-        if social_auth_backend and access_token:
-            try:
-                social_auth = social_auth_backend(strategy=load_strategy(
-                    request=bundle.request,
-                    backend=provider,
-                ))
-                user = social_auth.do_auth(access_token)
-                bundle.obj.user = user
-            except Exception as e:
-                logger.exception(e)
-                raise ImmediateHttpResponse(
-                    response=http.HttpBadRequest('Invalid access token'))
+        bundle.obj.user = bundle.request.user
         return bundle
 
     def dehydrate(self, bundle):
-        if 'access_token' in bundle.data:
-            del bundle.data['access_token']
-        if 'provider' in bundle.data:
-            del bundle.data['provider']
-
         if bundle.request.META['REQUEST_METHOD'] == 'POST':
             bundle.data['key'] = bundle.obj.key
 
@@ -174,7 +137,8 @@ class EventUpdateResource(MultipartResource, ModelResource):
         detail_allowed_methods = []
         filtering = {'event': ALL_WITH_RELATIONS}
         validation = EventUpdateValidation()
-        authentication = PostFreeSessionAuthentication()
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             SessionAuthentication())
         authorization = CreateFreeDjangoAuthorization()
 
     location = GeoPointField('location', null=True)

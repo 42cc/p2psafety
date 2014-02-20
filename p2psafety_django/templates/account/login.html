@@ -1,0 +1,36 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load account %}
+{% load bootstrap3 %}
+
+{% block content %}
+<div class="accounts signin">
+  <h2>Колективна безпека</h2>
+  <p class="lead">Вхід в систему</p>
+  <p>Для того щоб увійти в систему необхідно спочатку <a href="{{ signup_url }}">зареєструватись</a>.</p>
+  <p>Ви можете увійти за допомогою::</p>
+  {% if socialaccount.providers %}
+    <div class="socialaccount_ballot">
+      <ul class="socialaccount_providers">
+        {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+      </ul>        
+    </div>
+    {% include "socialaccount/snippets/login_extra.html" %}
+  {% endif %}
+  <p>Або увійти через сайт:</p>
+  <form class="login" method="POST" action="{% url 'account_login' %}">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+
+    {% if redirect_field_value %}
+      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    {% endif %}
+    
+    <div class="form-actions">
+      <button  class="btn btn-primary button-signin" type="submit">Увійти</button>
+      <a class="btn btn-warning" href="{% url 'account_reset_password' %}">Забули пароль?</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

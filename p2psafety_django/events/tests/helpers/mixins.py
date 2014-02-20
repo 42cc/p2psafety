@@ -48,6 +48,7 @@ class UsersMixin(object):
 
     def login_as(self, user):
         client = self._get_client()
+        client.logout()
         success = client.login(username=user.username,
                                password=user.real_password)
         self.assertTrue(success)
