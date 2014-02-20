@@ -130,8 +130,6 @@ public class NetworkManager {
                     httpPost.setHeader("Content-type", "application/json");
 
                     JSONObject json = new JSONObject();
-                    json.put("provider", "facebook");
-                    json.put("access_token", access_token);
                     StringEntity se = new StringEntity(json.toString());
                     httpPost.setEntity(se);
 
@@ -648,7 +646,7 @@ public class NetworkManager {
                 if (!Utils.isNetworkConnected(context, LOGS)) {
 //                    errorDialog(context, DIALOG_NO_CONNECTION);
                     if (postRunnable != null) {
-                        postRunnable.setResult(false);
+                        postRunnable.setUnsuccessful(0);
                         postRunnable.run();
                     }
                     return;
@@ -689,7 +687,7 @@ public class NetworkManager {
                     } catch (Exception e) {
                         //errorDialog(context, DIALOG_NETWORK_ERROR);
                         if (postRunnable != null) {
-                            postRunnable.setResult(false);
+                            postRunnable.setUnsuccessful(0);
                             postRunnable.run();
                         }
                         return;
@@ -709,16 +707,13 @@ public class NetworkManager {
 
                         postRunnable.setResult(true);
                     } else {
-                        postRunnable.setResult(false);
+                        postRunnable.setUnsuccessful(responseCode);
                     }
-
-                    if (postRunnable != null) {
-                        postRunnable.run();
-                    }
+                    postRunnable.run();
                 } catch (Exception e) {
                     //errorDialog(context, DIALOG_NETWORK_ERROR);
                     if (postRunnable != null) {
-                        postRunnable.setResult(false);
+                        postRunnable.setUnsuccessful(0);
                         postRunnable.run();
                     }
                 }
