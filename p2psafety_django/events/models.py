@@ -103,6 +103,9 @@ class Event(models.Model):
 
         self.supporters.add(supports_event)
 
+    def notify_supporters(self):
+        return Event.objects.notify_supporters(self)
+
     def generate_keys(self):
         """
         Generates uuid, and PIN.
@@ -147,12 +150,14 @@ class EventUpdate(models.Model):
     objects = geomodels.GeoManager()
 
     def save(self, *args, **kwargs):
-        """
-        Event that received an update becomes active.
-        """
+        #
+        # Event that received an update becomes active.
+        #
         all_events_are_finished = not self.event.user.events.filter(
             status__in=[Event.STATUS_PASSIVE, Event.STATUS_ACTIVE]).exists()
         if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
             self.event.status = Event.STATUS_ACTIVE
             self.event.save()
-        return super(EventUpdate, self).save(*args, **kwargs)
+
+        self.event.notify_supporters()
+        super(EventUpdate, self).save(*args, **kwargs)
