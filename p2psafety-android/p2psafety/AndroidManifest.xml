@@ -78,6 +78,7 @@
         <service android:name=".VideoRecordService" />
         <service android:name=".PowerButtonService" />
         <service android:name=".PhoneCallService"/>
+        <service android:name=".XmppService"/>
 
         <activity
             android:name=".LoginActivity"

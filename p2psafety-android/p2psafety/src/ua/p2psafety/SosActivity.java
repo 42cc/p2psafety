@@ -44,8 +44,7 @@ public class SosActivity extends ActionBarActivity {
         mUiHelper.onCreate(savedInstanceState);
 
         NetworkManager.init(this);
-
-        // SOS launcher with power button press
+        startService(new Intent(this, XmppService.class));
         startService(new Intent(this, PowerButtonService.class));
 
         Fragment fragment;
