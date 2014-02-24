@@ -138,7 +138,7 @@ public class XmppService extends Service {
 //                Log.i("xmpp nodes", "Node name: " + n.getNode());
 //            }
 
-            mNode = pbManager.getNode("test123");
+            mNode = pbManager.getNode("Uvs");
             mNode.addItemEventListener(new ItemEventListener() {
                 @Override
                 public void handlePublishedItems(ItemPublishEvent items) {

@@ -65,6 +65,10 @@ public class SosActivity extends ActionBarActivity {
             // normal start
             fragment = new SendMessageFragment();
         }
+
+        // TODO: DELETE AFTER DEBUG
+        //fragment = new SupporterFragment();
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().addToBackStack(null).replace(R.id.content_frame, fragment).commit();
 

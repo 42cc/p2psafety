@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -62,7 +64,6 @@ public class AcceptEventFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 acceptEvent();
-                mActivity.finish();
             }
         });
 
@@ -77,8 +78,12 @@ public class AcceptEventFragment extends Fragment {
 
     private void acceptEvent() {
         mAccepted = true;
-        Toast.makeText(mActivity, "Event accepted. Go and help this guy.", Toast.LENGTH_LONG)
-                .show();
+
+        // open Supporter screen
+        Fragment fragment = new SupporterFragment();
+        getFragmentManager().beginTransaction()
+                            .addToBackStack(null)
+                            .replace(R.id.content_frame, fragment).commit();
     }
 
     private void ignoreEvent() {
