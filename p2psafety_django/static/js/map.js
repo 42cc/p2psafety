@@ -38,12 +38,14 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls) {
       $scope.zoomOut();
       $scope.selectedEvent = null;
       $scope.selectedEventsupport = null;
+      window.location.hash = ''
     } else {
       var params = {event__id: event.id};
       $http.get(urls.eventupdates, {params: params}).success(function(data) {
         event.updates = data.objects;
         $scope.zoomIn();
         $scope.selectedEvent = event;
+        window.location.hash = event.id
       });
         var params = {status: 'A'};
         $scope.selectedEventsupport = [];
