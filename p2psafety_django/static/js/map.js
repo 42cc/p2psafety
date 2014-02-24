@@ -85,33 +85,22 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       var eventsAppeared = false, newEvents = {};
       for (i in data.objects) {
         var event = data.objects[i];
-<<<<<<< HEAD
-        if ($scope.$location.hash!=""){
+         if ($scope.$location.hash!=""){
             var id = parseFloat($scope.$location.hash.split('#')[1])
             if(event.type=="support"){
                 for (i in event.supported){
                     var support = event.supported[i]
                     if(support.id==id){
-                        $scope.events[event.id] = event;
+                        newEvents[event.id] = event;
                     }
                 }
             }
             if(event.id == id){
-                $scope.events[event.id] = event;
+                newEvents[event.id] = event;
             }
         } else{
-        // TODO: display it manually
-        if (event.latest_location != null) {
-          var existingEvent = $scope.events[event.id];
-          if (existingEvent == null) {
-            $scope.events[event.id] = event;
-          } else {
-            for (key in event) {
-              var eventProperty = event[key];
-              if (existingEvent[key] != eventProperty) {
-                existingEvent[key] = eventProperty;
-              }
-        newEvents[event.id] = event;
+            newEvents[event.id] = event;
+        }
       }
       // Deleting old events
       for (oldEventId in $scope.events) {
@@ -131,8 +120,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
           $scope.events[newEventId] = new_event;
           eventsAppeared = true;
         }
-        }
-      };
       }
       if (eventsAppeared && playSoundForNew)
         document.getElementById('audiotag').play();
