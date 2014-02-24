@@ -25,6 +25,7 @@ import android.widget.Toast;
 import java.util.concurrent.TimeUnit;
 
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Logs;
 
 public class AcceptEventFragment extends Fragment {
     TextView mEventInfo;
@@ -32,6 +33,8 @@ public class AcceptEventFragment extends Fragment {
     Activity mActivity;
 
     Boolean mAccepted = false;
+
+    Logs mLogs;
 
     public AcceptEventFragment() {
         super();
@@ -41,6 +44,8 @@ public class AcceptEventFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mActivity = getActivity();
+        mLogs = new Logs(mActivity);
+
         ((SosActivity) mActivity).getSupportActionBar().setHomeButtonEnabled(false);
         ((SosActivity) mActivity).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         Typeface font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/RobotoCondensed-Bold.ttf");
@@ -61,6 +66,7 @@ public class AcceptEventFragment extends Fragment {
         mAcceptBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mLogs.info("Accept button clicked");
                 acceptEvent();
                 mActivity.finish();
             }
@@ -69,19 +75,22 @@ public class AcceptEventFragment extends Fragment {
         mIgnoreBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mLogs.info("Ignore button clicked");
                 ignoreEvent();
-                mActivity.finish();
+                mActivity.onBackPressed();
             }
         });
     }
 
     private void acceptEvent() {
+        mLogs.info("accepting event");
         mAccepted = true;
         Toast.makeText(mActivity, "Event accepted. Go and help this guy.", Toast.LENGTH_LONG)
                 .show();
     }
 
     private void ignoreEvent() {
+        mLogs.info("ignoring event");
         mAccepted = false;
         Toast.makeText(mActivity, "You decided to abandon that poor guy. He's in trouble :(", Toast.LENGTH_LONG)
                 .show();
@@ -89,14 +98,17 @@ public class AcceptEventFragment extends Fragment {
 
     @Override
     public void onResume() {
+        mLogs.info("AcceptEvent screen opened");
         super.onResume();
     }
 
     @Override
     public void onPause() {
         Log.i("AcceptEventFragment", "onPause");
-        //if (!mAccepted)
-        //    ignoreEvent();
+        mLogs.info("closing AcceptEventScreen...");
+        if (!mAccepted)
+            ignoreEvent();
+        mLogs.info("AcceptEventScreen closed");
         super.onPause();
     }
 }

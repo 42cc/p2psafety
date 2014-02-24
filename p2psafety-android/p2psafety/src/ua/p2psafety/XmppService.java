@@ -63,10 +63,12 @@ public class XmppService extends Service {
     }
 
     private void connectToServer() {
+        logs.info("Getting xmpp connection configuration");
         SmackAndroid.init(this);
         mConnection = getConfiguredConnection(HOST);
 
         try {
+            logs.info("Connecting to xmpp server");
             mConnection.connect();
             mConnection.login("Uvs", "RandomPassword");
         } catch (Exception e) {
@@ -114,6 +116,7 @@ public class XmppService extends Service {
                 try {
                     Message mes = (Message) packet;
                     Log.i("got personal message", "xml: " + mes.toXML());
+                    logs.info("Got personal xmpp message: " + mes.toXML());
                 } catch (Exception e) {}
 
                 openAcceptEventScreen();
@@ -138,6 +141,7 @@ public class XmppService extends Service {
 //                Log.i("xmpp nodes", "Node name: " + n.getNode());
 //            }
 
+            logs.info("getting xmpp pubsub node");
             mNode = pbManager.getNode("test123");
             mNode.addItemEventListener(new ItemEventListener() {
                 @Override
@@ -149,6 +153,7 @@ public class XmppService extends Service {
                     Log.i("===================", items.toString());
                     Log.i("===================", items.getItems().get(0).toString());
                     Log.i("===================", "===================================");
+                    logs.info("got xmpp pubsub message");
                     try {
                         Log.i("===================", "xml: " + mNode.getItems(1).get(0).toXML());
                     } catch (XMPPException e) {}
@@ -160,6 +165,7 @@ public class XmppService extends Service {
 
             if (!isSubscribed(mNode, "Uvs@p2psafety.net")) {
                 Log.i(TAG, "making new subscription");
+                logs.info("subscribing to xmpp pubsub node. Node name: " + mNode.getId());
                 mNode.subscribe("Uvs@p2psafety.net");
             }
 
@@ -174,6 +180,7 @@ public class XmppService extends Service {
 
         } catch (Exception e) {
             Log.i("xmpp pubsub", "Shit happened");
+            logs.info("got error with xmpp pubsub");
             e.printStackTrace();
         }
     }
@@ -191,10 +198,12 @@ public class XmppService extends Service {
             }
         } catch (Exception e) {}
 
+        logs.info("checking if user subscribet to xmpp pubsub node: " + String.valueOf(result));
         return result;
     }
 
     public void openAcceptEventScreen() {
+        logs.info("opening AcceptEvent screen");
         Intent i = new Intent(this, SosActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.putExtra(SosActivity.FRAGMENT_KEY, AcceptEventFragment.class.getName());
@@ -207,6 +216,7 @@ public class XmppService extends Service {
         mNode.removeItemEventListener(mItemEventListener);
         mConnection.disconnect();
 
+        logs.info("XmppService stopped");
         if (logs != null)
             logs.close();
     }
