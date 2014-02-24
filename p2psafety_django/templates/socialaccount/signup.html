@@ -1,0 +1,22 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load url from future %}
+{% load bootstrap3 %}
+
+{% block content %}
+<div class="accounts signup">
+  <h2>Колективна безпека</h2>
+  <p>Для продовження реєстрації заповніть додаткові поля</p>
+  <form method="post" action="{% url 'socialaccount_signup' %}">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {% if redirect_field_value %}
+      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    {% endif %}
+    <div class="form-actions">
+      <button class="btn btn-block btn-primary center-block" type="submit">Зареєструватись</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

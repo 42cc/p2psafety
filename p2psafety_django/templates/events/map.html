@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load staticfiles %}
+{% load waffle_tags %}
 
 {% block styles %}
   {{ block.super }}
@@ -17,23 +18,26 @@
       events: "{% url 'api_dispatch_list' resource_name='events' api_name='v1' %}",
       eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
     });
+    mapApp.constant('mapSettings', {
+        highlight: {% switch events_map_new_event_highlight %} true {% else %} false {% endswitch %},
+        sound: {% switch events_map_new_event_sound %} true {% else %} false {% endswitch %},
+    });
   </script>
 {% endblock %}
 
 {% block content %}
+<audio id="audiotag" src="{% static 'audio/beep.mp3' %}" preload="auto"></audio>
+
   <div class="page-header">
+    {% include "account/login_button_block.html" %}
     <h3>Events map</h3>
   </div>
   <div class="row">
     <div class="col-md-12">
       {% verbatim %}
-      <div ng-app="mapApp">
-        <div id="map-canvas"></div>
+      <div ng-app="mapApp">       
         <div ng-controller="EventListCtrl">
-          <event-marker mode="event"
-                        type="{{ event.type }}"
-                        location="event.latest_location"
-                        click="select(event)"
+          <event-marker click="select(event)"
                         ng-repeat="event in events"
                         ng-if="event.id != selectedEvent.id">
             <div>
@@ -72,11 +76,9 @@
               </div>
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
-                  <event-marker mode="eventupdate"
-                                location="update.location"
-                                click="focus(update.location)">
+                  <eventupdate-marker click="focus(update.location)">
                     <p>{{ update.timestamp | date:'dd.MM HH:mm' }}</p>
-                  </event-marker>
+                  </eventupdate-marker>
                   <p class="list-group-item-heading">
                     <span class="badge">{{ update.timestamp | date:'dd.MM HH:mm' }}</span>
                     {{ update.text || "..." }}
@@ -94,7 +96,27 @@
                 </div>
             </div>
           </div>
+          <div class="selected-event panel panel-primary " 
+                ng-if="selectedEvent == null">
+            <h4 class="panel-heading event-heading">Dispatcher panel</h4>
+            <div class="panel-body">
+                <div class="list-group">
+                    <div class="list-group-item"
+                         ng-class="{'list-group-item-warning': event.isNew}"
+                         ng-click="event.isNew = false"
+                         ng-repeat="event in events">
+                      <a class="btn btn-success" ng-click="focus(event.latest_location)">
+                        <span class="glyphicon glyphicon-map-marker"></span>
+                      </a>
+                      <div class="event-name"
+                           ng-click="select(event)"
+                           ng-bind="event.user.full_name"></div>
+                    </div>
+                </div>
+            </div>
+          </div>
         </div>
+         <div id="map-canvas"></div>
       </div>
       {% endverbatim %}
     </div>
