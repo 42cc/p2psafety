@@ -2,6 +2,7 @@ package ua.p2psafety.util;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -195,18 +196,19 @@ public class Utils {
                         Base64.encodeToString(md.digest(), Base64.DEFAULT));
             }
         }
-        catch (PackageManager.NameNotFoundException e) {
+        catch (Exception e) {
             logs.error("Can't get key hash", e);
-            Log.i("KeyHash:", "NameNotFound");
         }
-        catch (NoSuchAlgorithmException e) {
-            logs.error("Can't get key hash", e);
-            Log.i("KeyHash:", "NoAlgo");
+    }
+
+    public static boolean isServiceRunning(Context context, Class service) {
+        String service_name = service.getName();
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo running_service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            String running_service_name = running_service.service.getClassName();
+            if (running_service_name.equals(service_name))
+                return true;
         }
-        catch (NullPointerException e) {
-            logs.error("Can't get key hash", e);
-            Log.i(TAG, "NullPonterException  " +
-                    "SHOULD HAPPEN ONLY UNDER ROBOLECTRIC");
-        }
+        return false;
     }
 }

@@ -102,10 +102,9 @@ public class SendMessageFragment extends Fragment {
                 Fragment mFragment = new SettingsFragment();
                 FragmentManager mFragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-                for (int i = 0; i < mFragmentManager.getBackStackEntryCount(); ++i) {
-                    mFragmentManager.popBackStack();
-                }
-                //fragmentTransaction.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_right_out, R.anim.slide_left_in, R.anim.slide_left_out);
+//                for (int i = 0; i < mFragmentManager.getBackStackEntryCount(); ++i) {
+//                    mFragmentManager.popBackStack();
+//                }
                 fragmentTransaction.addToBackStack("SettingsFragment");
                 fragmentTransaction.replace(R.id.content_frame, mFragment).commit();
             }

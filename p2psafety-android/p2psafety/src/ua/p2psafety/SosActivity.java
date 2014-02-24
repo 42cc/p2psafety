@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -38,27 +39,34 @@ public class SosActivity extends ActionBarActivity {
         setContentView(R.layout.act_sosmain);
         setSupportActionBar();
 
-        LOGS = new Logs(this);
-
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
+        LOGS = new Logs(this);
         NetworkManager.init(this);
-        startService(new Intent(this, XmppService.class));
         startService(new Intent(this, PowerButtonService.class));
+        if (!Utils.isServiceRunning(this, XmppService.class))
+            startService(new Intent(this, XmppService.class));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mUiHelper.onResume();
 
         Fragment fragment;
 
         String fragmentClass = getIntent().getStringExtra(FRAGMENT_KEY);
         if (fragmentClass != null)
-            // activity started by widget
+            // activity started from outside
+            // and requested to show specific fragment
             fragment = Fragment.instantiate(this, fragmentClass);
         else {
             // normal start
             fragment = new SendMessageFragment();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        fragmentManager.beginTransaction().addToBackStack(null).replace(R.id.content_frame, fragment).commit();
 
         if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, LOGS) && Prefs.getGmailToken(this) == null)
         {
@@ -70,9 +78,10 @@ public class SosActivity extends ActionBarActivity {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        mUiHelper.onResume();
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.i("onNewIntent", "NEW INTENT!");
+        setIntent(intent);
     }
 
     @Override
@@ -100,6 +109,11 @@ public class SosActivity extends ActionBarActivity {
         Session currentSession = Session.getActiveSession();
         if (currentSession == null || currentSession.getState() != SessionState.OPENING)
             super.onBackPressed();
+
+        FragmentManager fm = getSupportFragmentManager();
+        if (fm.getBackStackEntryCount() == 0) {
+            finish();
+        }
     }
 
     @Override

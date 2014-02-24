@@ -19,21 +19,34 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.MessageTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smackx.packet.DiscoverItems;
+import org.jivesoftware.smackx.pubsub.EventElement;
 import org.jivesoftware.smackx.pubsub.ItemPublishEvent;
+import org.jivesoftware.smackx.pubsub.ItemsExtension;
 import org.jivesoftware.smackx.pubsub.LeafNode;
 import org.jivesoftware.smackx.pubsub.Node;
+import org.jivesoftware.smackx.pubsub.PayloadItem;
 import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jivesoftware.smackx.pubsub.Subscription;
 import org.jivesoftware.smackx.pubsub.listener.ItemEventListener;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Iterator;
+
+import ua.p2psafety.util.Logs;
 
 public class XmppService extends Service {
     private static final String TAG = "XmppService";
-
     private static final String HOST = "p2psafety.net";
+
+    XMPPConnection mConnection;
+    PacketListener mPacketListener;
+    ItemEventListener mItemEventListener;
+    LeafNode mNode;
+
+    Logs logs;
 
     @Override
     public void onCreate() {
@@ -42,25 +55,28 @@ public class XmppService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        logs = new Logs(this);
+        logs.info("XmppService started");
+
         connectToServer();
         return Service.START_STICKY;
     }
 
     private void connectToServer() {
         SmackAndroid.init(this);
-        XMPPConnection connection = getConfiguredConnection(HOST);
+        mConnection = getConfiguredConnection(HOST);
 
         try {
-            connection.connect();
-            connection.login("Uvs", "RandomPassword");
+            mConnection.connect();
+            mConnection.login("Uvs", "RandomPassword");
         } catch (Exception e) {
             Log.i(TAG, "Error during connection");
             e.printStackTrace();
             return;
         }
 
-        setMessageListener(connection);
-        setPubsubListener(connection);
+        setMessageListener(mConnection);
+        setPubsubListener(mConnection);
     }
 
     private XMPPConnection getConfiguredConnection(String host) {
@@ -92,13 +108,19 @@ public class XmppService extends Service {
     }
 
     // this is the listener for normal (personal) messages
-    private void setMessageListener(Connection connection) {
-        connection.addPacketListener(new PacketListener() {
+    private void setMessageListener(final Connection connection) {
+        mPacketListener = new PacketListener() {
             public void processPacket(Packet packet) {
-                Message mes = (Message) packet;
-                Log.i("got personal message", mes.toXML());
+                try {
+                    Message mes = (Message) packet;
+                    Log.i("got personal message", "xml: " + mes.toXML());
+                } catch (Exception e) {}
+
+                openAcceptEventScreen();
             }
-        }, null); // new MessageTypeFilter(Message.Type.chat)
+        };
+        connection.addPacketListener(mPacketListener,
+                new MessageTypeFilter(Message.Type.chat));
 
         // TODO look at 'accept()' method
     }
@@ -116,19 +138,29 @@ public class XmppService extends Service {
 //                Log.i("xmpp nodes", "Node name: " + n.getNode());
 //            }
 
-            LeafNode testNode = pbManager.getNode("Uvs");
-            testNode.addItemEventListener(new ItemEventListener() {
+            mNode = pbManager.getNode("test123");
+            mNode.addItemEventListener(new ItemEventListener() {
                 @Override
                 public void handlePublishedItems(ItemPublishEvent items) {
+                    if (items.isDelayed())
+                        return; // old event
+
                     Log.i("got pubsub message", "Item count: " + items.getItems().size());
-                    Log.i("got pubsub message", items.toString());
-                    Log.i("got pubsub message", items.getItems().get(0).toString());
+                    Log.i("===================", items.toString());
+                    Log.i("===================", items.getItems().get(0).toString());
+                    Log.i("===================", "===================================");
+                    try {
+                        Log.i("===================", "xml: " + mNode.getItems(1).get(0).toXML());
+                    } catch (XMPPException e) {}
+                    Log.i("===================", "===================================");
+
+                    openAcceptEventScreen();
                 }
             });
 
-            if (!isSubscribed(testNode, "Uvs@p2psafety.net")) {
+            if (!isSubscribed(mNode, "Uvs@p2psafety.net")) {
                 Log.i(TAG, "making new subscription");
-                testNode.subscribe("Uvs@p2psafety.net");
+                mNode.subscribe("Uvs@p2psafety.net");
             }
 
             // TODO: delete after debug
@@ -151,7 +183,8 @@ public class XmppService extends Service {
         try {
             for (Subscription s: node.getSubscriptions()) {
                 Log.i(TAG, "subscription: " + s.getJid());
-                if (s.getJid().toLowerCase().equals(user_jid.toLowerCase()) && s.getState().equals(Subscription.State.subscribed)) {
+                if (s.getJid().equalsIgnoreCase(user_jid) && s.getState().equals(Subscription.State.subscribed)) {
+                    node.unsubscribe("Uvs@p2psafety.net");
                     result = true;
                     break;
                 }
@@ -161,8 +194,21 @@ public class XmppService extends Service {
         return result;
     }
 
+    public void openAcceptEventScreen() {
+        Intent i = new Intent(this, SosActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtra(SosActivity.FRAGMENT_KEY, AcceptEventFragment.class.getName());
+        startActivity(i);
+    }
+
     @Override
     public void onDestroy() {
+        mConnection.removePacketListener(mPacketListener);
+        mNode.removeItemEventListener(mItemEventListener);
+        mConnection.disconnect();
+
+        if (logs != null)
+            logs.close();
     }
 
     @Override
