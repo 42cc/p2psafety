@@ -51,9 +51,11 @@ public class SupporterFragment extends Fragment {
         mAudioBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Utils.isServiceRunning(mActivity, AudioRecordService.class))
-                    mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
-                else
+                // stop all record services
+                mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
+                mActivity.stopService(new Intent(mActivity, VideoRecordService.class));
+                // start audio record if we that's what user wants
+                if (!Utils.isServiceRunning(mActivity, AudioRecordService.class))
                     mActivity.startService(new Intent(mActivity, AudioRecordService.class));
                 setupMediaButtons();
             }
@@ -62,9 +64,11 @@ public class SupporterFragment extends Fragment {
         mVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Utils.isServiceRunning(mActivity, VideoRecordService.class))
-                    mActivity.stopService(new Intent(mActivity, VideoRecordService.class));
-                else
+                // stop all record services
+                mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
+                mActivity.stopService(new Intent(mActivity, VideoRecordService.class));
+                // start audio record if we that's what user whants
+                if (!Utils.isServiceRunning(mActivity, VideoRecordService.class))
                     mActivity.startService(new Intent(mActivity, VideoRecordService.class));
                 setupMediaButtons();
             }
