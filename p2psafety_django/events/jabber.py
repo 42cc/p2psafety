@@ -7,6 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from sleekxmpp import ClientXMPP
 from sleekxmpp.xmlstream import ET
+from lxml import etree
 
 
 logger = logging.getLogger('events.jabber')
@@ -62,10 +63,14 @@ class PubsubClient(object):
             raise exc_value
 
     def publish(self, payload):
-        logger.debug('sending publish message with payload:\n%s ...', payload)
         if isinstance(payload, basestring):
             payload = ET.fromstring(payload)
-        
+
+        if logger.level is logging.DEBUG:
+            lxml_payload = etree.fromstring(ET.tostring(payload))
+            str_payload = etree.tostring(lxml_payload, pretty_print=True)
+            logger.debug('sending publish message with payload:\n%s', str_payload)
+
         self._pubsub.publish(self.config.pubsub_server,
                              self.config.node_name,
                              payload=payload)
