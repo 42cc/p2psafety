@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 
+from livesettings import config_value
+
 from annoying.decorators import render_to
 
 
@@ -10,5 +12,6 @@ from annoying.decorators import render_to
 @render_to('events/map.html')
 def map(request):
     return {
-        'GOOGLE_API_KEY': getattr(settings, 'GOOGLE_API_KEY')
+        'GOOGLE_API_KEY': getattr(settings, 'GOOGLE_API_KEY'),
+        "TIME_ALERT": config_value('Events', 'operator_wake_up_alert_interval')
     }

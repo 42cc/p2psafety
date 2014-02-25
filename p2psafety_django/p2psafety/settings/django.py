@@ -80,6 +80,7 @@ INSTALLED_APPS = (
 
     'waffle',
     'south',
+    'livesettings',
 
     'core',
     'events',

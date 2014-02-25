@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
 from django.utils import timezone
 
+ImportError
+
 try:
     from hashlib import sha1
 except ImportError:
@@ -136,6 +138,7 @@ class EventUpdate(models.Model):
         )
         get_latest_by = 'timestamp'
 
+    user = models.ForeignKey(User)
     event = models.ForeignKey(Event, related_name='updates')
     timestamp = models.DateTimeField(default=timezone.now)
 

@@ -12,3 +12,5 @@ psycopg2==2.5
 mock==1.0.1
 git+git://github.com/alekzvik/factory_boy.git
 git+git://github.com/stefanfoulis/django-phonenumber-field.git
+hg+https://bitbucket.org/bkroeze/django-livesettings
+hg+https://bitbucket.org/bkroeze/django-keyedcache

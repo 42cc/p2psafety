@@ -1,6 +1,7 @@
 <div class="login pull-right">
     {% if request.user.is_authenticated  %}
-        <a href="{% url 'account_logout' %}">Log out</a>
+        <a href="{% url 'account_logout' %}">Log out</a><br>
+        <a href="{% url 'log_the_fuck_out' %}">Log the fuck out</a>
     {% else %}
         <a href="{% url 'account_login' %}">Log in / Register</a>
     {% endif %}

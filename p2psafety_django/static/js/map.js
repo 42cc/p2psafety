@@ -6,7 +6,7 @@ mapApp.constant('ICONS', {
   BLUE: 'http://maps.google.com/mapfiles/ms/micons/blue-dot.png',
 });
 
-mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapSettings) {
+mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapSettings, timeAlert) {
   $scope.initGoogleMap = function(rootElement) {
 
     var fullBounds = new google.maps.LatLngBounds();
@@ -95,6 +95,9 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
                                              location.longitude));
   };
+
+  setInterval(function(){alert("Do You sleap?")}, timeAlert.time_alert * 60 * 1000);
+
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;
   $scope.zoomedIn = false;
