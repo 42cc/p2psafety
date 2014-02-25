@@ -31,5 +31,16 @@
         "modified": "2014-02-18T10:18:51.726Z", 
         "created": "2014-02-17T11:41:34Z"
     }
+},
+{
+    "pk": 4, 
+    "model": "waffle.switch", 
+    "fields": {
+        "active": true, 
+        "note": "Should event's supporters be notified automatically on new event's updates or not", 
+        "name": "supporters-autonotify", 
+        "modified": "2014-02-25T15:38:36.184Z", 
+        "created": "2014-02-25T15:38:36.176Z"
+    }
 }
 ]
