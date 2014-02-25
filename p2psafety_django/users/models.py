@@ -1,8 +1,12 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from phonenumber_field.modelfields import PhoneNumberField
+
+import events.jabber
 
 
 class Profile(models.Model):
@@ -18,6 +22,12 @@ class Profile(models.Model):
     
 
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
+
+
+@receiver(post_save, sender=User)
+def on_user_save(sender, instance, created, **kwargs):
+    if created:
+        events.jabber.on_user_created(instance)
 
 
 class Role(models.Model):
