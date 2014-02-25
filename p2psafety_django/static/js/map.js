@@ -8,6 +8,7 @@ mapApp.constant('ICONS', {
 
 mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapSettings) {
   $scope.$location = window.location
+  $scope.selectedEventsupport = {}
   $scope.initGoogleMap = function(rootElement) {
 
     var fullBounds = new google.maps.LatLngBounds();
@@ -51,30 +52,33 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     if (event == null) {
       $scope.zoomOut();
       $scope.selectedEvent = null;
-      $scope.selectedEventsupport = null;
+      $scope.selectedEventsupport = {};
       window.location.hash = ''
     } else {
       var params = {event__id: event.id};
       $http.get(urls.eventupdates, {params: params}).success(function(data) {
-        event.updates = data.objects;
-        $scope.zoomIn();
-        $scope.selectedEvent = event;
-        window.location.hash = event.id
-        $scope.selectedEvent.isNew = false;
+      event.updates = data.objects;
+      $scope.zoomIn();
+      $scope.selectedEvent = event;
+      window.location.hash = event.id
+      $scope.selectedEvent.isNew = false;
       });
         var params = {status: 'A'};
-        $scope.selectedEventsupport = [];
         $http.get(urls.events, {params: params}).success(function(data) {
-            for (i in data.objects) {
-                var event_support = data.objects[i];
-                if(event_support.type=="support"){
-                    for (i in event_support.supported){
-                        var support = event_support.supported[i]
-                        if(support.id==$scope.selectedEvent.id){
-                            $scope.selectedEventsupport.push(event_support)
-                        }
+          for (i in data.objects) {
+              var event_support = data.objects[i];
+              if(event_support.type=="support"){
+                  for (i in event_support.supported){
+                    var support = event_support.supported[i]
+                    if(support.id==$scope.selectedEvent.id){
+                      if ($scope.selectedEventsuppor == null){
+                        $scope.selectedEventsupport[event_support.id] = event_support;
+                      }else if ($scope.selectedEventsupport[event_support.id] == null){
+                        $scope.selectedEventsupport[event_support.id] = event_support;
+                      }
                     }
-                }
+                  }
+              }
             }
         });
     };
@@ -85,22 +89,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       var eventsAppeared = false, newEvents = {};
       for (i in data.objects) {
         var event = data.objects[i];
-         if ($scope.$location.hash!=""){
-            var id = parseFloat($scope.$location.hash.split('#')[1])
-            if(event.type=="support"){
-                for (i in event.supported){
-                    var support = event.supported[i]
-                    if(support.id==id){
-                        newEvents[event.id] = event;
-                    }
-                }
-            }
-            if(event.id == id){
-                newEvents[event.id] = event;
-            }
-        } else{
-            newEvents[event.id] = event;
-        }
+        newEvents[event.id] = event;
       }
       // Deleting old events
       for (oldEventId in $scope.events) {
@@ -111,16 +100,20 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       // Adding new events
       for (newEventId in newEvents) {
         if ($scope.events[newEventId] == null) {
-            var new_event =  newEvents[newEventId]
+          var new_event =  newEvents[newEventId]
             if (highightNew){
-                new_event.isNew = true
+              new_event.isNew = true
             } else {
-                new_event.isNew = false
+              new_event.isNew = false
             }
           $scope.events[newEventId] = new_event;
           eventsAppeared = true;
         }
       }
+      if ($scope.$location.hash!=""){
+          var id = parseFloat($scope.$location.hash.split('#')[1])
+          $scope.select( $scope.events[id])
+        }
       if (eventsAppeared && playSoundForNew)
         document.getElementById('audiotag').play();
     });
