@@ -67,7 +67,7 @@ public class SosManager {
         Notifications.notifSosStarted(mContext);
 
         // report event to the server
-        if (Utils.isFbAuthenticated(mContext))
+        if (Utils.isServerAuthenticated(mContext))
             serverStartSos();
 
         // make phone call

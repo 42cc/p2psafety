@@ -205,7 +205,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
             mTimerOn = false;
 
         Utils.sendMailsWithAttachments(this, R.string.video, mRecordFile);
-        if (Utils.isFbAuthenticated(this))
+        if (Utils.isServerAuthenticated(this))
         {
             NetworkManager.updateEventWithAttachment(this, mRecordFile, false, new NetworkManager.DeliverResultRunnable<Boolean>() {
                 @Override
