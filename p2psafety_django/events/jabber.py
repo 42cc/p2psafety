@@ -1,76 +1,92 @@
+import functools
+import logging
 from contextlib import contextmanager
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 from sleekxmpp import ClientXMPP
 from sleekxmpp.xmlstream import ET
 
 
-class MyClient(object):
+logger = logging.getLogger('events.jabber')
 
-    def __init__(self, jid, password):
-        self.client = ClientXMPP(jid, password)
-        self.client.register_plugin('xep_0030')
-        self.client.register_plugin('xep_0059')
-        self.client.register_plugin('xep_0060')
 
-    @contextmanager
-    def connect(self):
-        self.client.connect()
-        self.client.process(block=False)
+class PubsubClient(object):
+
+    class Config(object):
+        __slots__ = ('jid', 'password', 'pubsub_server', 'node_name')
+
+    @classmethod
+    def _parse_config_dict(cls, config_dict):
+        config = cls.Config()
         try:
-            yield
-        except Exception, e:
-            print e
-        finally:
-            self.client.disconnect()
-
-    def publish(self, pubsub_server, node, payload):
-        self.client['xep_0060'].publish(pubsub_server, node, payload=payload)
-
-
-class EventsNotifier(object):
-
-    class Config(dict):
-        __getattr__ = dict.__getitem__
-        __setattr__ = dict.__setitem__
-
-    def __init__(self):
-        self.cfg = self.__get_config()
-        self.client = MyClient(self.cfg.jid, self.cfg.password)
-
-    def __get_config(self):
-        cfg = EventsNotifier.Config()
-        notifier_settings = getattr(settings, 'EVENTS_NOTIFIER', {})
-        cfg.jid = notifier_settings.get('JID')
-        cfg.password = notifier_settings.get('PASSWORD')
-        cfg.node = notifier_settings.get('NODE')
-        cfg.pubsub_server = notifier_settings.get('PUBSUB_SERVER')
-
-        if all(cfg.values()):
-            return cfg
+            config.jid = config_dict['JID']
+            config.password = config_dict['PASSWORD']
+            config.pubsub_server = config_dict['PUBSUB_SERVER']
+            config.node_name = config_dict['NODE_NAME']
+        except KeyError, e:
+            message = 'Key %s not found within client config' % e.args[1]
+            raise ImproperlyConfigured(message)
         else:
-            raise NotImplementedError("Specify event's notifier settings")
+            return config
 
-    def notify_supporters(self, event):
-        """
-        :type event: :class:`events.models.Event`
-        """
-        payload = self._construct_payload(event)
-        with self.client.connect():
-            self.client.publish(self.cfg.pubsub_server, self.cfg.node, payload=payload)
+    def __init__(self, config_dict):
+        self.config = self._parse_config_dict(config_dict)
+        self._client = ClientXMPP(self.config.jid, self.config.password)
+        # Service discovery
+        self._client.register_plugin('xep_0030')
+        # Result Set Management
+        self._client.register_plugin('xep_0059')
+        # Publish-subscribe
+        self._client.register_plugin('xep_0060')
+        self._callback = lambda: None
 
-    def notify_supporter(self, event, supporter_user):
-        raise NotImplementedError
+    @property
+    def _pubsub(self):
+        return self._client['xep_0060']
 
-    def get_jid(self, user):
-        return user.username
+    def __enter__(self):
+        logger.debug('connecting as %s', self.config.jid)
+        if self._client.connect():
+            logger.debug('connected succesfully')
+            self._client.process(block=False)
+        else:
+            logger.error('failed to connect')
+        return self
 
-    def _construct_payload(self, event):
-        from events.api.resources import EventResource
-        resource = EventResource()
-        bundle = resource.build_bundle(obj=event)
-        dehydrated = resource.full_dehydrate(bundle)
-        xml = resource.serialize(None, dehydrated, 'application/xml')
-        payload = ET.fromstring(xml)
-        return payload
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._client.disconnect()
+        logger.debug('disconnected')
+        if exc_value:
+            raise exc_value
+
+    def publish(self, payload):
+        logger.debug('sending publish message with payload:\n%s ...', payload)
+        if isinstance(payload, basestring):
+            payload = ET.fromstring(payload)
+        
+        self._pubsub.publish(self.config.pubsub_server,
+                             self.config.node_name,
+                             payload=payload)
+
+
+def notify_supporters(event):
+    """
+    Sends notifications to event's supporters via jabber node.
+
+    :type event: :class:`events.models.Event`
+    """
+    from events.api.resources import EventResource
+
+    # Constructing payload
+    resource = EventResource()
+    event_dict = resource.full_dehydrate(resource.build_bundle(obj=event))
+    payload = resource.serialize(None, event_dict, 'application/xml')
+
+    with PubsubClient(settings.EVENTS_NOTIFIER) as client:
+        client.publish(payload)
+
+
+def notify_supporter(event, supporter):
+    raise NotImplementedError

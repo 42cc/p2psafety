@@ -16,6 +16,7 @@ except ImportError:
     sha1 = sha.sha
 
 
+from . import jabber
 from .managers import EventManager
 
 
@@ -104,7 +105,7 @@ class Event(models.Model):
         self.supporters.add(supports_event)
 
     def notify_supporters(self):
-        return Event.objects.notify_supporters(self)
+        return jabber.notify_supporters(self)
 
     def generate_keys(self):
         """
