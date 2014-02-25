@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404
 from allauth.socialaccount.providers.facebook.views import fb_complete_login
 from tastypie import fields, http
 from tastypie.authentication import Authentication
-from tastypie.models import ApiKey
 from tastypie.resources import Resource, ModelResource
 from tastypie.utils import trailing_slash
 from schematics.models import Model as SchemaModel
@@ -16,6 +15,7 @@ from schematics.types.compound import ListType
 
 from core.api.mixins import ApiMethodsMixin
 from core.api.decorators import body_params, api_method
+from .. import utils
 from ..models import Role
 
 
@@ -87,15 +87,9 @@ class AuthResource(ApiMethodsMixin, Resource):
         detail_allowed_methods = []
         list_allowed_methods = []
 
-    def _get_api_token(self, user):
-        try:
-            return ApiKey.objects.filter(user=user)[0].key
-        except IndexError:
-            return ApiKey.objects.create(user=user).key
-
     def _construct_login_response(self, user):
         return {'username': user.username,
-                'key': self._get_api_token(user)}
+                'key': utils.get_api_key(user).key}
 
     @api_method(r'/login/site', name='api_auth_login_site')
     def login_with_site(self):
