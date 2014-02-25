@@ -2,9 +2,11 @@ import datetime
 import random
 
 from django.core.management.base import BaseCommand
+from django.contrib.auth.models import User
 from django.contrib.gis import geos
 
-from events.tests.helpers import EventFactory, EventUpdateFactory, UserFactory
+from events.tests.helpers.factories import EventFactory, EventUpdateFactory
+from users.tests.helpers import UserFactory
 
 
 class Command(BaseCommand):
@@ -15,7 +17,7 @@ class Command(BaseCommand):
 
     def setup(self):
         data = {
-            'main_user': UserFactory(username="devdata_user"),
+            'main_user': User.objects.get_or_create(username="devdata_user")[0],
             'timestamp_start': datetime.datetime.now(),
             'location_start': geos.Point(390.56, 50.43),
         }
