@@ -138,7 +138,7 @@ class EventUpdate(models.Model):
         )
         get_latest_by = 'timestamp'
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='event_owner')
     event = models.ForeignKey(Event, related_name='updates')
     timestamp = models.DateTimeField(default=timezone.now)
 
