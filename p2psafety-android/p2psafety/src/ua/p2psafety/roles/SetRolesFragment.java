@@ -67,6 +67,11 @@ public class SetRolesFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        if (!Utils.isServerAuthenticated(mActivity)) {
+            Toast.makeText(mActivity, "Please auth at server", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         mSaveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
