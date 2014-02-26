@@ -21,6 +21,12 @@ ACCOUNT_SIGNUP_FORM_CLASS = 'users.forms.SignupForm'
 # Force user to supply additional fields after social signup
 SOCIALACCOUNT_AUTO_SIGNUP = False
 
+# Generate urls to https://
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
+
+# Redirect to main after email confirmation
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/'
+
 #
 # PostGIS settings
 #
