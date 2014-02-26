@@ -5,6 +5,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 
 import ua.p2psafety.util.Logs;
@@ -80,9 +81,9 @@ public class MyLocation {
         }
 
         if (gps_enabled)
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListenerGps);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListenerGps, Looper.getMainLooper());
         if (network_enabled)
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerNetwork);
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerNetwork, Looper.getMainLooper());
 
         getLastLocation();
 
@@ -95,14 +96,11 @@ public class MyLocation {
 
         lm.removeUpdates(locationListenerGps);
         lm.removeUpdates(locationListenerNetwork);
-        Log.d("Timer", "Executing");
         Location net_loc = null, gps_loc = null;
         if (gps_enabled)
             gps_loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (network_enabled)
             net_loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        Log.d("message11", net_loc + "");
-        Log.d("message12", gps_loc + "");
 
         //if there are both values use the latest one
         if (gps_loc != null && net_loc != null) {
