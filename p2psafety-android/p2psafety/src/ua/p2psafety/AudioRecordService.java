@@ -145,15 +145,8 @@ public class AudioRecordService extends Service {
             mTimerOn = false;
 
         Utils.sendMailsWithAttachments(this, R.string.audio, mRecordFile);
-        if (Utils.isServerAuthenticated(this))
-        {
-            NetworkManager.updateEventWithAttachment(this, mRecordFile, true, new NetworkManager.DeliverResultRunnable<Boolean>() {
-                @Override
-                public void deliver(Boolean aBoolean) {
-                    //good
-                    LOGS.info("Update event with attachment with result: " + aBoolean);
-                }
-            });
+        if (Utils.isServerAuthenticated(this)) {
+            NetworkManager.updateEventWithAttachment(this, mRecordFile, true);
         }
 
         Notifications.removeNotification(getApplicationContext(), Notifications.NOTIF_AUDIO_RECORD_CODE);

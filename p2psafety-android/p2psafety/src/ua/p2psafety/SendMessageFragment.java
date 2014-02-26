@@ -76,6 +76,7 @@ public class SendMessageFragment extends Fragment {
                 SosManager sosManager = SosManager.getInstance(mActivity);
                 if (sosManager.isSosStarted()) {
                     if (!Prefs.getUsePassword(mActivity)) {
+                        Utils.setLoading(mActivity, true);
                         sosManager.stopSos();
                         mSosBtn.setText(getString(R.string.sos));
                     } else {
@@ -87,6 +88,7 @@ public class SendMessageFragment extends Fragment {
                         mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
                     }
                     // start normal sos
+                    Utils.setLoading(mActivity, true);
                     sosManager.startSos();
                     mSosBtn.setText(getResources().getString(R.string.sos_cancel));
                 }
@@ -137,18 +139,13 @@ public class SendMessageFragment extends Fragment {
         if (SosManager.getInstance(mActivity).getEvent() == null
             && Utils.isServerAuthenticated(mActivity))
         {
-            // TODO: refactor this with Utils.setLoading() like we did in AW
-            final ProgressDialog progressDialog = new ProgressDialog(mActivity);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-            progressDialog.setContentView(R.layout.loading_progressbar);
-
+            Utils.setLoading(mActivity, true);
             NetworkManager.createEvent(mActivity,
                     new NetworkManager.DeliverResultRunnable<Event>() {
                         @Override
                         public void deliver(Event event) {
                             SosManager.getInstance(mActivity).setEvent(event);
-                            progressDialog.dismiss();
+                            Utils.setLoading(mActivity, false);
                         }
                     });
 
@@ -199,6 +196,7 @@ public class SendMessageFragment extends Fragment {
     // cancels sos or builds dialog with retry/cancel buttons
     private void checkPasswordAndCancelSos(String password) {
         if (password.equals(Prefs.getPassword(mActivity))) {
+            Utils.setLoading(mActivity, true);
             SosManager.getInstance(mActivity).stopSos();
             mSosBtn.setText(getString(R.string.sos));
         }
