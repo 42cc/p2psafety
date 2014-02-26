@@ -11,7 +11,7 @@ from factory import Sequence
 from factory.django import DjangoModelFactory
 from tastypie.test import ResourceTestCase
 
-from ..models import Role
+from ..models import Role, MovementType
 
 
 class UserFactory(DjangoModelFactory):
@@ -36,9 +36,9 @@ class RoleFactory(DjangoModelFactory):
 
 
 class MovementTypeFactory(DjangoModelFactory):
-    FACTORY_FOR = Role
+    FACTORY_FOR = MovementType
 
-    name = Sequence(lambda n: 'role%d' % n)
+    name = Sequence(lambda n: 'movement-type#%d' % n)
 
 
 class ModelsMixin(object):
