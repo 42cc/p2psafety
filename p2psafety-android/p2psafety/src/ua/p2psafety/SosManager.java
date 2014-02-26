@@ -177,7 +177,7 @@ public class SosManager {
                     @Override
                     public void deliver(Event event) {
                         setEvent(event);
-                        Utils.setLoading((SosActivity) mContext, false);
+                        Utils.setLoading(mContext, false);
                     }
                 });
     }
