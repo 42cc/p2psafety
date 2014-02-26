@@ -4,7 +4,7 @@ from django.contrib.sites.models import Site
 from django.test.utils import override_settings
 
 from allauth.account import app_settings as account_settings
-from allauth.socialaccount.models import SocialApp, SocialAccount, SocialLogin
+from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.providers.facebook.provider import FacebookProvider
 from allauth.socialaccount.providers.google.provider import GoogleProvider
 from factory import Sequence
@@ -30,6 +30,12 @@ class UserFactory(DjangoModelFactory):
 
 
 class RoleFactory(DjangoModelFactory):
+    FACTORY_FOR = Role
+
+    name = Sequence(lambda n: 'role%d' % n)
+
+
+class MovementTypeFactory(DjangoModelFactory):
     FACTORY_FOR = Role
 
     name = Sequence(lambda n: 'role%d' % n)

@@ -1,22 +1,19 @@
-from django import http as django_http
-from django.conf.urls import url
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from allauth.socialaccount.providers.facebook.views import fb_complete_login
 from tastypie import fields, http
-from tastypie.authentication import Authentication
+from tastypie.authentication import Authentication, ApiKeyAuthentication
 from tastypie.models import ApiKey
 from tastypie.resources import Resource, ModelResource
-from tastypie.utils import trailing_slash
 from schematics.models import Model as SchemaModel
 from schematics.types import IntType, StringType
 from schematics.types.compound import ListType
 
 from core.api.mixins import ApiMethodsMixin
 from core.api.decorators import body_params, api_method
-from ..models import Role
+from ..models import Role, MovementType
 
 
 class UserResource(ApiMethodsMixin, ModelResource):
@@ -78,6 +75,15 @@ class RoleResource(ModelResource):
         resource_name = 'roles'
         detail_allowed_methods = []
         include_resource_uri = False
+
+
+class MovementTypeResource(ModelResource):
+    class Meta:
+        queryset = MovementType.objects.all()
+        resource_name = 'movementtype'
+        detail_allowed_methods = []
+        include_resource_uri = False
+        authentication = ApiKeyAuthentication()
 
 
 class AuthResource(ApiMethodsMixin, Resource):
@@ -143,6 +149,6 @@ class AuthResource(ApiMethodsMixin, Resource):
                         return http.HttpBadRequest('Not registered')
 
                     return self._construct_login_response(login.account.user)
-    
+
             return http.HttpBadRequest('Invalid provider')
         return post
