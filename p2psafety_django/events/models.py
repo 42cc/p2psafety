@@ -60,7 +60,7 @@ class Event(models.Model):
     supported = models.ManyToManyField('self', symmetrical=False, related_name='supporters')
 
     def __unicode__(self):
-        return "{} event by {}".format(self.status, self.user)
+        return u"{} event by {}".format(self.status, self.user)
 
     @property
     def latest_update(self):
