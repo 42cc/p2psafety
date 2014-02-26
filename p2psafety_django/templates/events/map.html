@@ -39,7 +39,7 @@
         <div ng-controller="EventListCtrl">
           <event-marker click="select(event)"
                         ng-repeat="event in events"
-                        ng-if="event.id != selectedEvent.id">
+                        ng-if="event.id != selectedEvent.id && event.type == 'victim'">
             <div>
               <p ng-if="event.user.full_name != null">
                 <span class="glyphicon glyphicon-exclamation-sign"
@@ -52,6 +52,17 @@
               {{ event.latest_update.text || "..." }}
             </div>
           </event-marker>
+          <support-marker ng-repeat="support in selectedEventsupport"
+                            click="select(support)">
+             <div>
+              <p ng-if="support.user.full_name != null">
+                <span class="glyphicon glyphicon-user"></span>
+                      {{ support.user.full_name }}
+              </p>
+              <span class="badge">{{ support.latest_update.timestamp | date:'HH:mm' }}</span>
+              {{ support.latest_update.text || "..." }}
+            </div>
+            </support-marker>
           <div class="selected-event panel panel-primary"
                ng-if="selectedEvent != null">
             <h4 class="panel-heading">Status:
@@ -66,14 +77,6 @@
             </h4>
             <div class="panel-body">
               <div class="list-group">
-              <div class="list-group-item" ng-repeat="support in selectedEventsupport">
-                    <a class="btn btn-success" ng-click="focus(support.latest_location)">
-                        <span class="glyphicon glyphicon-map-marker"></span>
-                    </a>
-                <div class="event-name"
-                           ng-click="select(support)">
-                           {{support.user.full_name}} - {{support.type}}</div>
-              </div>
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
                   <eventupdate-marker click="focus(update.location)">
@@ -105,7 +108,8 @@
                     <div class="list-group-item"
                          ng-class="{'list-group-item-warning': event.isNew}"
                          ng-click="event.isNew = false"
-                         ng-repeat="event in events">
+                         ng-repeat="event in events"
+                         ng-if="event.type == 'victim'">
                       <a class="btn btn-success" ng-click="focus(event.latest_location)">
                         <span class="glyphicon glyphicon-map-marker"></span>
                       </a>

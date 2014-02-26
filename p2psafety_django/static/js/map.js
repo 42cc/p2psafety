@@ -8,7 +8,7 @@ mapApp.constant('ICONS', {
 
 mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapSettings) {
   $scope.$location = window.location
-  $scope.selectedEventsupport = {}
+  $scope.selectedEventsupport = {};
   $scope.initGoogleMap = function(rootElement) {
 
     var fullBounds = new google.maps.LatLngBounds();
@@ -63,14 +63,12 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       window.location.hash = event.id
       $scope.selectedEvent.isNew = false;
       });
-        var params = {status: 'A'};
-        $http.get(urls.events, {params: params}).success(function(data) {
-          for (i in data.objects) {
-              var event_support = data.objects[i];
+          for (i in $scope.events) {
+              var event_support = $scope.events[i];
               if(event_support.type=="support"){
                   for (i in event_support.supported){
                     var support = event_support.supported[i]
-                    if(support.id==$scope.selectedEvent.id){
+                    if(support.id == event.id){
                       if ($scope.selectedEventsuppor == null){
                         $scope.selectedEventsupport[event_support.id] = event_support;
                       }else if ($scope.selectedEventsupport[event_support.id] == null){
@@ -80,7 +78,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
                   }
               }
             }
-        });
     };
   };
   $scope.update = function(highightNew, playSoundForNew) {
