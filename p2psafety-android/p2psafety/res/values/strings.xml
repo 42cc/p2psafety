@@ -84,6 +84,11 @@
     <string name="please_write_a_description_of_issue">Please write a description of issue</string>
     <string name="email_for_logs">talk@mail.khavr.com</string>
 
+    <string name="network_error">Something went wrong. Check your network connection.</string>
+    <string name="connection">Connection</string>
+    <string name="connection_is_out">Internet connection is not available, check the settings</string>
+    <string name="connection_settings">Settings</string>
+
     <string-array name="media_types">
         <item>No</item>
         <item>Audio</item>

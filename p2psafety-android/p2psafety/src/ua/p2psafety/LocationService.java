@@ -89,12 +89,7 @@ public class LocationService extends Service {
         if (mCurrentLoc != null)
             data.put("loc", mCurrentLoc);
         data.put("text", "");
-        NetworkManager.updateEvent(this, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
-            @Override
-            public void deliver(Boolean aBoolean) {
-                // event updated
-            }
-        });
+        NetworkManager.updateEvent(this, data);
     }
 
 

@@ -75,6 +75,7 @@ public class SetRolesFragment extends Fragment {
         mSaveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Utils.setLoading(mActivity, true);
                 NetworkManager.setRoles(mActivity,
                         SosManager.getInstance(mActivity).getEvent().getUser(),
                         mRoles, new NetworkManager.DeliverResultRunnable<Boolean>() {
@@ -82,6 +83,7 @@ public class SetRolesFragment extends Fragment {
                     public void deliver(Boolean success) {
                         if (success)
                             Toast.makeText(mActivity, getString(R.string.save), Toast.LENGTH_LONG).show();
+                        Utils.setLoading(mActivity, false);
                     }
                 });
             }
@@ -99,54 +101,42 @@ public class SetRolesFragment extends Fragment {
     }
 
     private void fetchAndFillAdapter() {
-        //Utils.setLoading(mActivity, true);
-
+        Utils.setLoading(mActivity, true);
         // get all possible roles
-        NetworkManager.getRoles(mActivity, null, new NetworkManager.DeliverResultRunnable<List<Role>>() {
+        NetworkManager.getRoles(mActivity, new NetworkManager.DeliverResultRunnable<List<Role>>() {
             @Override
             public void deliver(final List<Role> all_roles) {
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!isAdded() || all_roles == null)
-                            return;
+                if (!isAdded() || all_roles == null)
+                    return;
 
-                        mRolesAdapter.clear();
-                        mRoles.clear();
+                mRolesAdapter.clear();
+                mRoles.clear();
 
-                        for (Role role : all_roles)
-                            mRoles.add(role);
+                for (Role role : all_roles)
+                    mRoles.add(role);
 
-                        all_roles.clear();
+                all_roles.clear();
 
-                        // get user picked roles
-                        NetworkManager.getRoles(mActivity,
-                                SosManager.getInstance(mActivity).getEvent().getUser(),
-                                new NetworkManager.DeliverResultRunnable<List<Role>>() {
-                                    @Override
-                                    public void deliver(final List<Role> picked_roles) {
-                                        mActivity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (!isAdded() || picked_roles == null)
-                                                    return;
+                // get user roles
+                NetworkManager.getUserRoles(mActivity,
+                        SosManager.getInstance(mActivity).getEvent().getUser(),
+                        new NetworkManager.DeliverResultRunnable<List<String>>() {
+                            @Override
+                            public void deliver(final List<String> user_roles) {
+                                if (!isAdded() || user_roles == null)
+                                    return;
 
-                                                for (Role picked_role: picked_roles)
-                                                    for (Role role: mRoles)
-                                                        if (role.id == picked_role.id)
-                                                            role.checked = true;
+                                for (String user_role: user_roles)
+                                    for (Role role: mRoles)
+                                        if (role.id.equals(user_role))
+                                            role.checked = true;
 
-                                                for (Role role: mRoles)
-                                                    mRolesAdapter.add(role);
+                                for (Role role: mRoles)
+                                    mRolesAdapter.add(role);
 
-                                                picked_roles.clear();
-                                                //Utils.setLoading(mActivity, false);
-                                            }
-                                        });
-                                    }
-                                });
-                    }
-                });
+                                Utils.setLoading(mActivity, false);
+                            }
+                        });
             }
         });
     }
