@@ -95,8 +95,13 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
                                              location.longitude));
   };
+  $scope.add_eventupdate = function(event_id, text){
+    $http.post("/operator_add_eventupdate/", {"event_id":event_id, "text":text}).success(function(data) {
+        $scope.add_eventupdate_text = ""
+    })
+  }
 
-  setInterval(function(){alert("Do You sleap?")}, timeAlert.time_alert * 60 * 1000);
+  setInterval(function(){alert("Do You sleep?")}, timeAlert.time_alert * 60 * 1000);
 
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;
