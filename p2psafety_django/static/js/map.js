@@ -196,6 +196,24 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     link: linker,
   };
 })
+.directive('supportMarker', function(markerFactory, ICONS) {
+  var linker = function(scope, element, attrs) {
+    var location = scope.support.latest_location;
+
+    if (location) {
+      var map = scope.$parent.gmap;
+      var content = element.children().detach()[0];
+      var marker = markerFactory(scope, element, content, ICONS.GREEN, location,
+                                 map, attrs.click);
+    }
+  };
+  return {
+    replace: true,
+    template: '',
+    restrict: 'E',
+    link: linker,
+  };
+})
 .directive('eventupdateMarker', function(markerFactory, ICONS) {
   var linker = function(scope, element, attrs) {
     if (scope.update.location != null) {
