@@ -1,7 +1,10 @@
+import json
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+
+from events.models import EventUpdate, Event
 
 from livesettings import config_value
 
@@ -24,5 +27,9 @@ def map(request):
 @require_POST
 @ajax_request
 def operator_add_eventupdate(request):
-    import pdb; pdb.set_trace()
-    pass
+    text = json.loads(request.body)['text']
+    event_id = json.loads(request.body)['event_id']
+
+    event = Event.objects.get(id=event_id)
+    EventUpdate.objects.create(user=event.user, text=text)
+    return {'success': True}

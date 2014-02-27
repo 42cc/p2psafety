@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'EventUpdate.user'
         db.add_column(u'events_eventupdate', 'user',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default=True, related_name='event_owner', to=orm['auth.User']),
+                      self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='event_owner', null=True, to=orm['auth.User']),
                       keep_default=False)
 
 
@@ -74,7 +74,7 @@ class Migration(SchemaMigration):
             'location': ('django.contrib.gis.db.models.fields.PointField', [], {'null': 'True', 'blank': 'True'}),
             'text': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'event_owner'", 'to': u"orm['auth.User']"}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'event_owner'", 'null': 'True', 'to': u"orm['auth.User']"}),
             'video': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
         }
     }
