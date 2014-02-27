@@ -77,8 +77,6 @@ public class SosActivity extends ActionBarActivity {
             GmailOAuth2Sender sender = new GmailOAuth2Sender(this);
             sender.initToken();
         }
-
-        Utils.checkForLocationServices(this);
     }
 
     @Override
