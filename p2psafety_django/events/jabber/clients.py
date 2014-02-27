@@ -211,7 +211,7 @@ class EventsNotifierClient(BaseClient):
     def _pubsub(self): return self.get_plugin(60)
 
     def publish(self, event):
-        from events.api.resources import EventResource
+        from events.api.resources.jabber import EventResource
 
         resource = EventResource()
         event_dict = resource.full_dehydrate(resource.build_bundle(obj=event))
