@@ -44,8 +44,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'p2psafety',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'USER': 'vagrant',
+        'PASSWORD': 'vagrant',
         'HOST': '127.0.0.1',
         'PORT': '',
     }

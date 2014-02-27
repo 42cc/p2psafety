@@ -1,18 +1,18 @@
 [uwsgi]
 # Define variables
 project = %n
-base_dir = /home/vagrant/virtualenvs/<%= @project %>
+
 
 # Config
 uid = <%= @uwsgi_user %>
 gid = <%= @uwsgi_group %>
 
-socket = <%= @sock_dir %>/%(project).sock
+socket = /tmp/%(project).sock
 master = true
 no-orphans = true
 
-chdir = %(base_dir)/%(project)
+chdir = /home/vagrant/<%= @django_path %> 
 module = %(project).wsgi:application
-virtualenv = %(base_dir)
+virtualenv = /home/vagrant/virtualenvs/<%= @project %>/
 
 logto = /var/log/uwsgi/%(project).log

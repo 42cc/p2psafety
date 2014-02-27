@@ -72,6 +72,9 @@ build
 *.swp
 *.swo
 
+#vagrant
+.vagrant
+
 # ************* #
 # Project files #
 # ************* #

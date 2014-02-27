@@ -4,6 +4,8 @@ Exec { path => '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin' }
 $inc_file_path = '/vagrant/manifests/files' # Absolute path to the files directory (If you're using vagrant, you can leave it alone.)
 $tz = 'Europe/Kiev' # Timezone
 $project = 'p2psafety' # Used in nginx and uwsgi
+$django_path = "${project}/p2psafety_django"
+
 $db_name = 'p2psafety' # Mysql database name to create
 $db_user = 'vagrant' # Mysql username to create
 $db_password = 'vagrant' # Mysql password for $db_user
@@ -13,7 +15,6 @@ include user
 include apt
 include nginx
 include uwsgi
-#include mysql
 include postgis
 include python
 include virtualenv
@@ -37,9 +38,9 @@ class user {
 
   # Prepare user's project directories
   file { ["/home/vagrant/virtualenvs",
-          "/home/vagrant/www",
-          "/home/vagrant/www/${project}",
-          "/home/vagrant/www/${project}/static"
+          "/home/vagrant/${project}",
+          "/home/vagrant/${django_path}",
+          "/home/vagrant/${django_path}/static"
           ]:
     ensure => directory,
     owner => 'vagrant',
@@ -47,7 +48,7 @@ class user {
   }
 
   file { 'media dir':
-    path => "/home/vagrant/www/${project}/media",
+    path => "/home/vagrant/${django_path}/static_media",
     ensure => directory,
     mode => 0777,
   }
@@ -63,10 +64,10 @@ class apt {
     require => Exec['apt-get update']
   }
 
-  #exec { 'add-apt-repository ppa:nginx/stable':
-    #require => Package['python-software-properties'],
-    #before => Exec['last ppa']
-  #}
+  exec { 'add-apt-repository ppa:nginx/stable':
+    require => Package['python-software-properties'],
+    before => Exec['last ppa']
+  }
 
   exec { 'add-apt-repository ppa:ubuntugis/ubuntugis-unstable':
     before => Exec['last ppa']
@@ -93,7 +94,8 @@ class nginx {
   service { 'nginx':
     ensure => running,
     enable => true,
-    require => Package['nginx']
+    require => Package['nginx'],
+    subscribe => File['sites-available config']
   }
 
   file { '/etc/nginx/sites-enabled/default':
@@ -117,7 +119,6 @@ class nginx {
 }
 
 class uwsgi {
-  $sock_dir = '/tmp/uwsgi' # Without a trailing slash
   $uwsgi_user = 'www-data'
   $uwsgi_group = 'www-data'
 
@@ -140,13 +141,6 @@ class uwsgi {
     before => File['apps-available config']
   }
 
-  # Prepare a directory for sock file
-  file { [$sock_dir]:
-    ensure => directory,
-    owner => "${uwsgi_user}",
-    require => Package['uwsgi']
-  }
-
   # Upstart file
   file { '/etc/init/uwsgi.conf':
     ensure => file,
@@ -166,34 +160,6 @@ class uwsgi {
     ensure => link,
     target => "/etc/uwsgi/apps-available/${project}.ini",
     require => File['apps-available config']
-  }
-}
-
-class mysql {
-  $create_db_cmd = "CREATE DATABASE ${db_name} CHARACTER SET utf8;"
-  $create_user_cmd = "CREATE USER '${db_user}'@localhost IDENTIFIED BY '${db_password}';"
-  $grant_db_cmd = "GRANT ALL PRIVILEGES ON ${db_name}.* TO '${db_user}'@localhost;"
-
-  package { 'mysql-server':
-    ensure => latest,
-    require => Class['apt']
-  }
-
-  package { 'libmysqlclient-dev':
-    ensure => latest,
-    require => Class['apt']
-  }
-
-  service { 'mysql':
-    ensure => running,
-    enable => true,
-    require => Package['mysql-server']
-  }
-
-  exec { 'grant user db':
-    command => "mysql -u root -e \"${create_db_cmd}${create_user_cmd}${grant_db_cmd}\"",
-    unless => "mysqlshow -u${db_user} -p${db_password} ${db_name}",
-    require => Service['mysql']
   }
 }
 
@@ -300,6 +266,13 @@ class virtualenv {
     require => Package['virtualenv']
   }
 
+  exec {'install requirements':
+    command => "/home/vagrant/virtualenvs/${project}/bin/pip install -r requirements.txt",
+    cwd => "/home/vagrant/${django_path}",
+    user => 'vagrant',
+    require => Exec['create virtualenv']
+  }
+
   file {"/home/vagrant/.bashrc":
     ensure => file,
     mode => 0644,
@@ -348,7 +321,7 @@ class locale{
         ensure => latest,
     }
     file { "/var/lib/locales/supported.d/local":
-        content=> "en_US.UTF-8 UTF-8\nen_GB.UTF-8 UTF-8\nuk_UA.UTF-8 UTF-8",
+        content=> "en_US.UTF-8 UTF-8\nen_GB.UTF-8 UTF-8\nuk_UA.UTF-8 UTF-8\npl.UTF-8 UTF-8",
         owner => "root",
         group => "root",
         mode => 644,

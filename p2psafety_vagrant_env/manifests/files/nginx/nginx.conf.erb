@@ -4,15 +4,15 @@ server {
         server_name <%= @project %>;
 
         location / {
-                uwsgi_pass unix:/tmp/uwsgi/<%= @project %>.sock;
+                uwsgi_pass unix:/tmp/<%= @project %>.sock;
                 include uwsgi_params;
         }
 
         location /static/ {
-                alias /home/vagrant/www/<%= @project %>/static/;
+        alias /home/vagrant/<%= @django_path %>/static_media/;
         }
 
         location /media/ {
-                alias /home/vagrant/www/<%= @project %>/media/;
+        alias /home/vagrant/<%= @django_path %>/static_media/;
         }
 }
