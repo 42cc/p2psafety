@@ -6,8 +6,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from phonenumber_field.modelfields import PhoneNumberField
 
-from  events.jabber.queries import on_user_created
-
 
 class Profile(models.Model):
     class Meta:
@@ -26,6 +24,7 @@ User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
 
 @receiver(post_save, sender=User)
 def on_user_save(sender, instance, created, **kwargs):
+    from events.jabber.queries import on_user_created
     if created:
         on_user_created(instance)
 

@@ -144,7 +144,8 @@ class UsersClient(BaseClient):
                                if name not in registered_jids]
             if users_to_create:
                 logger.debug('%d jabber profiles are missing', len(users_to_create))
-                map(self.create_account, users_to_create)
+                created_count = sum(map(self.create_account, users_to_create))
+                logger.info('created %d accounts', created_count)
             else:
                 logger.debug('no need to create additional accounts')
         logger.info('synchronize completed')
@@ -153,14 +154,20 @@ class UsersClient(BaseClient):
         """
         Creates jabber account for given user.
         Uses `user.username` as jid and user's api pkey as password.
+        Returns True if account was created successfully and False otherwise.
 
         :type user: `django.contrib.auth.models.User`
-        """
-        on_done_event = threading.Event()
+        :rtype: True or False
+        """        
         jabber_username = user.username + '@p2psafety.net'
         jabber_password = get_api_key(user).key
         logger.debug('creating account for "%s" with jid=%s passsword=%s',
                      user.username, jabber_username, jabber_password)
+
+        # Both current and process loop threads have access to this variable
+        shared_result = dict(result=False)
+        # We use event to be able to return result within current thread
+        on_done_event = threading.Event()
 
         def process_form(iq, session):
             form = iq['command']['form']
@@ -178,8 +185,9 @@ class UsersClient(BaseClient):
 
             self._adhoc.complete_command(session)
 
-        def command_success(iq, session):
+        def command_success(iq, session):            
             logger.debug('success')
+            shared_result['result'] = True
             on_done_event.set()
 
         def command_error(iq, session):
@@ -191,7 +199,7 @@ class UsersClient(BaseClient):
         session = dict(next=process_form, error=command_error)
         self._admin.add_user(session=session)
         on_done_event.wait()
-
+        return shared_result['result']
 
 class EventsNotifierClient(BaseClient):
 
