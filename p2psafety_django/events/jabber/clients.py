@@ -48,8 +48,7 @@ class BaseClient(object):
 
         required_plugins = set(self.base_required_plugins + self.required_plugins)
         for plugin_num in required_plugins:
-            plugin_name = 'xep_' + str(plugin_num).rjust(4, '0')
-            self._client.register_plugin(plugin_name)
+            self._client.register_plugin(self._get_plugin_name(plugin_num))
 
         self._client.add_event_handler('session_start', self._on_start, threaded=True)
         self._on_start_event = threading.Event()
@@ -68,9 +67,14 @@ class BaseClient(object):
         logger.debug('session has been started')
         self._on_start_event.set()
 
+    def _get_plugin_name(self, plugin_num):
+        return 'xep_' + str(plugin_num).rjust(4, '0')
+
+    def get_plugin(self, plugin_num):
+        return self._client[self._get_plugin_name(plugin_num)]
+
     @property
-    def discovery(self):
-        return self._client['xep_0030']
+    def discovery(self): return self.get_plugin(30)
 
     @property
     def is_connected(self):
@@ -92,7 +96,13 @@ class BaseClient(object):
 
 class UsersClient(BaseClient):
 
-    required_plugins = tuple()
+    required_plugins = 133, # Administration service
+
+    @property
+    def _admin(self): return self.get_plugin(133)
+
+    @property
+    def _adhoc(self): return self.get_plugin(50)
 
     def synchronize_accounts(self):
         node, jid = 'all users', self._client.boundjid.server
@@ -112,9 +122,50 @@ class UsersClient(BaseClient):
                                if name not in registered_jids]
             if users_to_create:
                 logger.debug('%d jabber profiles are missing', len(users_to_create))
+                map(self.create_jabber_account, users_to_create)
             else:
-                logger.info('no need to create additional accounts')
-                
+                logger.debug('no need to create additional accounts')
+        logger.info('synchronize completed')
+
+    def create_jabber_account(self, user):
+        """
+        :type user: `django.contrib.auth.models.User`
+        """
+        on_done_event = threading.Event()
+        jabber_username = user.username + '@p2psafety.net'
+        jabber_password = get_api_key(user).key
+        logger.debug('creating account for "%s" with jid=%s passsword=%s',
+                     user.username, jabber_username, jabber_password)
+
+        def process_form(iq, session):
+            form = iq['command']['form']
+            answers = {
+                'accountjid': jabber_username,
+                'password': jabber_password,
+                'password-verify': jabber_password,
+                'FORM_TYPE': form['fields']['FORM_TYPE']['value']
+            }
+            form['type'] = 'submit'
+            form['values'] = answers
+
+            session['next'] = command_success
+            session['payload'] = form
+
+            self._adhoc.complete_command(session)
+
+        def command_success(iq, session):
+            logger.debug('success')
+            on_done_event.set()
+
+        def command_error(iq, session):
+            code, text = iq['error']['code'], iq['error']['text']
+            logger.error('could not create account: %s %s', code, text)
+            self._adhoc.terminate_command(session)
+            on_done_event.set()
+
+        session = dict(next=process_form, error=command_error)
+        self._admin.add_user(session=session)
+        on_done_event.wait()
 
 class PubsubClient(BaseClient):
 

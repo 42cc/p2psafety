@@ -16,7 +16,8 @@ def on_user_created(new_user):
 
     :type new_user: `django.contrib.auth.models.User`
     """
-    _create_account(new_user)
+    with get_client('UsersClient') as client:
+        client.create_user(new_user)
 
 
 def notify_supporters(event):
