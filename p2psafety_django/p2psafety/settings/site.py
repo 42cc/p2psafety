@@ -1,5 +1,5 @@
-# Set to False to disable jabber calls
-JABBER_ENABLED = True
+# Set to False to enable jabber calls
+JABBER_DRY_RUN = True
 
 EVENTS_NOTIFIER_CLIENT = {
     'JID': 'publisher@p2psafety.net',

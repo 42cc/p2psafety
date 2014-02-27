@@ -107,8 +107,7 @@ class Event(models.Model):
         self.supporters.add(supports_event)
 
     def notify_supporters(self):
-        if self.supporters.exists():
-            return jabber.notify_supporters(self)
+        jabber.notify_supporters(self)
 
     def generate_keys(self):
         """

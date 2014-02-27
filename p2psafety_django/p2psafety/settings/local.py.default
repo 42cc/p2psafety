@@ -17,5 +17,5 @@ SECRET_KEY = 'scmfn9lw^^t99ybk%-7lsy$5)sl_u&3pcnnp@6q-p70pwmo0fw'
 
 GOOGLE_API_KEY = 'AIzaSyDgDO4OE5pBLiFfm2yG4AgRLAPdSFtM-nU'
 
-# Set to True if you have local jabber server
-JABBER_ENABLED = False
+# Set to False to enable jabber calls
+JABBER_DRY_RUN = True
