@@ -34,7 +34,6 @@ urlpatterns = patterns('',
     url(r'^accounts/', include('allauth.urls')),
 )
 
-
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()
     urlpatterns += static(

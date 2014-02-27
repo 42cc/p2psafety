@@ -3,25 +3,11 @@ import logging
 from django.conf import settings
 from django.contrib.auth.models import User
 
-import users.utils
 from . import logger
-from .clients import PubsubClient
+from .clients import get_client
 
 
-__all__ = ['on_startup', 'on_user_created', 'notify_supporters', 'notify_supporter']
-
-
-def _get_registered_users():
-    """
-    Returns registered users as list of jid-s.
-    """
-    return []
-
-
-def _create_account(user):
-    jabber_username = '%s@p2psafety.net' % user.username
-    jabber_password = users.utils.get_api_key(user).key
-    return jabber_username
+__all__ = ['on_user_created', 'notify_supporters', 'notify_supporter']
 
 
 def on_user_created(new_user):
@@ -31,19 +17,6 @@ def on_user_created(new_user):
     :type new_user: `django.contrib.auth.models.User`
     """
     _create_account(new_user)
-
-
-def on_startup():
-    """
-    This function should be called on server start.
-    """
-    logger.info('jabber account synchronization started')
-    jabber_users = _get_registered_users()
-    jabber_usernames = [jid.split('@')[0] for jid in jabber_users]
-    site_users = User.objects.only('id', 'username')
-    created_jids = [_create_account(u) for u in site_users
-                    if u.username not in jabber_usernames]
-    logger.info('created %d accounts for: %s', len(created_jids), created_jids)
 
 
 def notify_supporters(event):
@@ -59,7 +32,7 @@ def notify_supporters(event):
     event_dict = resource.full_dehydrate(resource.build_bundle(obj=event))
     payload = resource.serialize(None, event_dict, 'application/xml')
 
-    with PubsubClient(settings.EVENTS_NOTIFIER) as client:
+    with get_client('PubsubClient') as client:
         client.publish(payload)
 
 
