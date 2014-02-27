@@ -15,11 +15,16 @@ from sleekxmpp.xmlstream import ET
 from lxml import etree
 
 from . import logger
+from events.api.resources import EventResource
 from users.utils import get_api_key
 
 
 class BaseConfig(object):
-
+    """
+    Base class for jabber clients configurations.
+    Extend and add new fields to __slots__ class variable, so the only these
+    fields can be set on an config object.
+    """
     __slots__ = ('jid', 'password')
 
     @contextmanager
@@ -37,9 +42,22 @@ class BaseConfig(object):
 
 
 class BaseClient(object):
+    """
+    Lightweight wrapper for :class:`sleekxmpp.ClientXMPP` client.
+        
+    Example of usage::
 
+        with BaseClient({...}) as client:            
+            client.my_method(...)
+    or::
+
+        client = BaseClient({...})
+        client.connect()
+        client.my_method(...)
+        client.disconnect()
+
+    """
     base_required_plugins = 30, # Service discovery
-
     Config = BaseConfig
 
     def __init__(self, config_dict):
@@ -105,6 +123,9 @@ class UsersClient(BaseClient):
     def _adhoc(self): return self.get_plugin(50)
 
     def synchronize_accounts(self):
+        """
+        Creates jabber accounts for registered users.
+        """
         node, jid = 'all users', self._client.boundjid.server
         
         try:
@@ -129,6 +150,9 @@ class UsersClient(BaseClient):
 
     def create_jabber_account(self, user):
         """
+        Creates jabber account for given user.
+        Uses `user.username` as jid and user's api pkey as password.
+
         :type user: `django.contrib.auth.models.User`
         """
         on_done_event = threading.Event()
@@ -167,7 +191,8 @@ class UsersClient(BaseClient):
         self._admin.add_user(session=session)
         on_done_event.wait()
 
-class PubsubClient(BaseClient):
+
+class EventsNotifierClient(BaseClient):
 
     required_plugins = (59, # Result Set Management
                         60) # Publish-subscribe
@@ -182,12 +207,13 @@ class PubsubClient(BaseClient):
                 self.node_name = config_dict['NODE_NAME']
 
     @property
-    def _pubsub(self):
-        return self._client['xep_0060']
+    def _pubsub(self): return self.get_plugin(60)
 
-    def publish(self, payload):
-        if isinstance(payload, basestring):
-            payload = ET.fromstring(payload)
+    def publish(self, event):
+        resource = EventResource()
+        event_dict = resource.full_dehydrate(resource.build_bundle(obj=event))
+        str_payload = resource.serialize(None, event_dict, 'application/xml')
+        payload = ET.fromstring(str_payload)
 
         if logger.level is logging.DEBUG:
             lxml_payload = etree.fromstring(ET.tostring(payload))
@@ -200,6 +226,12 @@ class PubsubClient(BaseClient):
 
 
 def get_client(ClientClassOrName):
+    """
+    Constructs client object using proper settings by given class object or name.
+
+    :type ClientClassOrName: type or basestring
+    :rtype: BaseClient
+    """
     if isinstance(ClientClassOrName, basestring):
         ClientClass = globals()[ClientClassOrName]
     elif isinstance(ClientClassOrName, type):

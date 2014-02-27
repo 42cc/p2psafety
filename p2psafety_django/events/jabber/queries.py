@@ -26,15 +26,8 @@ def notify_supporters(event):
 
     :type event: :class:`events.models.Event`
     """
-    from events.api.resources import EventResource
-
-    # Constructing payload
-    resource = EventResource()
-    event_dict = resource.full_dehydrate(resource.build_bundle(obj=event))
-    payload = resource.serialize(None, event_dict, 'application/xml')
-
-    with get_client('PubsubClient') as client:
-        client.publish(payload)
+    with get_client('EventsNotifierClient') as client:
+        client.publish(event)
 
 
 def notify_supporter(event, supporter):
