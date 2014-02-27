@@ -7,8 +7,8 @@ from django.views.generic import TemplateView
 
 from tastypie.api import Api
 
-from events.api import EventResource, EventUpdateResource
-from users.api import UserResource, RoleResource, AuthResource
+from events.api.resources import EventResource, EventUpdateResource
+from users.api.resources import UserResource, RoleResource, AuthResource
 
 
 admin.autodiscover()

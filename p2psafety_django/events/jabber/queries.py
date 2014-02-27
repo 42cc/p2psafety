@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from .clients import get_client
 
 
@@ -10,8 +12,9 @@ def on_user_created(new_user):
 
     :type new_user: `django.contrib.auth.models.User`
     """
-    with get_client('UsersClient') as client:
-        client.create_user(new_user)
+    if settings.JABBER_ENABLED:
+        with get_client('UsersClient') as client:
+            client.create_account(new_user)
 
 
 def notify_supporters(event):
@@ -20,8 +23,9 @@ def notify_supporters(event):
 
     :type event: :class:`events.models.Event`
     """
-    with get_client('EventsNotifierClient') as client:
-        client.publish(event)
+    if settings.JABBER_ENABLED:
+        with get_client('EventsNotifierClient') as client:
+            client.publish(event)
 
 
 def notify_supporter(event, supporter):

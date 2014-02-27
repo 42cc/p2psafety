@@ -14,7 +14,6 @@ from sleekxmpp.jid import JID
 from sleekxmpp.xmlstream import ET
 from lxml import etree
 
-from events.api.resources import EventResource
 from users.utils import get_api_key
 
 
@@ -145,12 +144,12 @@ class UsersClient(BaseClient):
                                if name not in registered_jids]
             if users_to_create:
                 logger.debug('%d jabber profiles are missing', len(users_to_create))
-                map(self.create_jabber_account, users_to_create)
+                map(self.create_account, users_to_create)
             else:
                 logger.debug('no need to create additional accounts')
         logger.info('synchronize completed')
 
-    def create_jabber_account(self, user):
+    def create_account(self, user):
         """
         Creates jabber account for given user.
         Uses `user.username` as jid and user's api pkey as password.
@@ -212,6 +211,8 @@ class EventsNotifierClient(BaseClient):
     def _pubsub(self): return self.get_plugin(60)
 
     def publish(self, event):
+        from events.api.resources import EventResource
+
         resource = EventResource()
         event_dict = resource.full_dehydrate(resource.build_bundle(obj=event))
         str_payload = resource.serialize(None, event_dict, 'application/xml')

@@ -15,8 +15,7 @@ from schematics.types.compound import ListType
 
 from core.api.mixins import ApiMethodsMixin
 from core.api.decorators import body_params, api_method
-from .. import utils
-from ..models import Role
+from .. import utils, models
 
 
 class UserResource(ApiMethodsMixin, ModelResource):
@@ -64,7 +63,7 @@ class UserResource(ApiMethodsMixin, ModelResource):
             Sets user's roles to given list of ids as ``role_id`` param.
             """
             user = get_object_or_404(User, pk=pk)
-            roles = Role.objects.filter(id__in=params.role_ids)
+            roles = models.Role.objects.filter(id__in=params.role_ids)
             user.roles.clear()
             user.roles.add(*roles)
             return http.HttpAccepted()
@@ -74,7 +73,7 @@ class UserResource(ApiMethodsMixin, ModelResource):
 
 class RoleResource(ModelResource):
     class Meta:
-        queryset = Role.objects.all()
+        queryset = models.Role.objects.all()
         resource_name = 'roles'
         detail_allowed_methods = []
         include_resource_uri = False
