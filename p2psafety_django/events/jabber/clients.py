@@ -14,9 +14,11 @@ from sleekxmpp.jid import JID
 from sleekxmpp.xmlstream import ET
 from lxml import etree
 
-from . import logger
 from events.api.resources import EventResource
 from users.utils import get_api_key
+
+
+logger = logging.getLogger('events.jabber')
 
 
 class BaseConfig(object):
@@ -239,10 +241,10 @@ def get_client(ClientClassOrName):
     else:
         raise TypeError(ClientClassOrName)
 
-    if ClientClass is PubsubClient:
-        config_dict = settings.EVENTS_NOTIFIER
+    if ClientClass is EventsNotifierClient:
+        config_dict = settings.EVENTS_NOTIFIER_CLIENT
     elif ClientClass is UsersClient:
-        config_dict = settings.JABBER_ADMIN_CLIENT
+        config_dict = settings.USERS_CLIENT
     else:
         raise Exception('No such client')
 
