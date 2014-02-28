@@ -40,20 +40,26 @@ public class LocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mLogs = new Logs(this);
+        mLogs.info("LocationService.onStartCommand()");
 
         initValues();
 
+        mLogs.info("LocationService. Sheduling location sending");
         mExecutor = Executors.newScheduledThreadPool(1);
         mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
+                mLogs.info("LocationService. Checking if we need to send new location");
                 getCurrentLoc();
                 if (System.currentTimeMillis() - mLastSendTime > TIME_INTERVAL ||
                     mLastLoc.distanceTo(mCurrentLoc) > DISTANCE_INTERVAL)
                 {
+                    mLogs.info("LocationService. Trying to send new location");
                     sendLocation();
                     mLastLoc = mCurrentLoc;
                     mLastSendTime = System.currentTimeMillis();
+                } else {
+                    mLogs.info("LocationService. No need");
                 }
             }
         }, 20*1000, 20*1000, TimeUnit.MILLISECONDS); // check every 20 sec if we need to send coords
@@ -74,6 +80,7 @@ public class LocationService extends Service {
     }
 
     private void getCurrentLoc() {
+        mLogs.info("LocationService. Getting current location");
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
@@ -86,8 +93,12 @@ public class LocationService extends Service {
 
     private void sendLocation() {
         Map data = new HashMap();
-        if (mCurrentLoc != null)
+        if (mCurrentLoc != null) {
+            mLogs.info("LocationService. We have location");
             data.put("loc", mCurrentLoc);
+        } else {
+            mLogs.info("LocationService. Location IS NULL");
+        }
         data.put("text", "");
         NetworkManager.updateEvent(this, data);
     }
@@ -100,6 +111,7 @@ public class LocationService extends Service {
 
     @Override
     public void onDestroy() {
+        mLogs.info("LocationService. Service shutdown");
         mExecutor.shutdown(); // stop sending locs
         if (mLogs != null)
             mLogs.close();

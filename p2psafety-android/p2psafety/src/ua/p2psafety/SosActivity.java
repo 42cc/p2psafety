@@ -31,54 +31,64 @@ public class SosActivity extends ActionBarActivity {
     public static final String FRAGMENT_KEY = "fragmentKey";
 
     private UiLifecycleHelper mUiHelper;
-    public static Logs LOGS;
+    public static Logs mLogs;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_sosmain);
         setSupportActionBar();
 
-        LOGS = new Logs(this);
+        mLogs = new Logs(this);
+        mLogs.info("\n\n\n==========================\n==============================");
+        mLogs.info("SosActiviy. onCreate()");
 
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
+        mLogs.info("SosActiviy. onCreate. Initiating NetworkManager");
         NetworkManager.init(this);
 
         // SOS launcher with power button press
+        mLogs.info("SosActiviy. onCreate. Starting PowerButtonService");
         startService(new Intent(this, PowerButtonService.class));
 
         Fragment fragment;
 
         String fragmentClass = getIntent().getStringExtra(FRAGMENT_KEY);
-        if (fragmentClass != null)
+        if (fragmentClass != null) {
             // activity started by widget
+            mLogs.info("SosActiviy. onCreate. Activity requested to open " + fragmentClass);
             fragment = Fragment.instantiate(this, fragmentClass);
-        else {
+        } else {
             // normal start
+            mLogs.info("SosActiviy. onCreate. Normal start. Opening SendMessageFragment");
             fragment = new SendMessageFragment();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-        if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, LOGS) && Prefs.getGmailToken(this) == null)
+        if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, mLogs) && Prefs.getGmailToken(this) == null)
         {
+            mLogs.info("SosActiviy. onCreate. Getting new GmailOAuth token");
             GmailOAuth2Sender sender = new GmailOAuth2Sender(this);
             sender.initToken();
         }
 
+        mLogs.info("SosActiviy. onCreate. Checking for location services");
         Utils.checkForLocationServices(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        mLogs.info("SosActiviy.onResume()");
         mUiHelper.onResume();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        mLogs.info("SosActiviy.onActivityResult()");
         mUiHelper.onActivityResult(requestCode, resultCode, data);
         Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
     }
@@ -86,50 +96,59 @@ public class SosActivity extends ActionBarActivity {
     @Override
     public void onPause() {
         super.onPause();
+        mLogs.info("SosActiviy.onPause");
         mUiHelper.onPause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mLogs.info("SosActiviy.onDestroy()");
+        mLogs.info("\n\n\n==========================\n==============================");
         mUiHelper.onDestroy();
-        LOGS.close();
+        mLogs.close();
     }
 
     @Override
     public void onBackPressed() {
+        mLogs.info("SosActivity.onBackPressed()");
         Session currentSession = Session.getActiveSession();
-        if (currentSession == null || currentSession.getState() != SessionState.OPENING)
+        if (currentSession == null || currentSession.getState() != SessionState.OPENING) {
             super.onBackPressed();
+        } else {
+            mLogs.info("SosActivity. onBackPressed. Ignoring");
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        mLogs.info("SosActivity.onSaveInstanceState()");
         mUiHelper.onSaveInstanceState(outState);
+        mLogs.info("SosActivity. onSaveInstanceState. Saving session");
         Session session = Session.getActiveSession();
         Session.saveSession(session, outState);
     }
 
     public void loginToFacebook(Activity activity, Session.StatusCallback callback) {
-        LOGS.info("SosActivity. loginToFacebook()");
-        if (!Utils.isNetworkConnected(activity, LOGS)) {
-            LOGS.info("SosActivity. loginToFacebook. No network");
+        mLogs.info("SosActivity. loginToFacebook()");
+        if (!Utils.isNetworkConnected(activity, mLogs)) {
+            mLogs.info("SosActivity. loginToFacebook. No network");
             Utils.errorDialog(activity, Utils.DIALOG_NO_CONNECTION);
             return;
         }
         Session session = Session.getActiveSession();
         if (session == null) {
-            LOGS.info("SosActivity. No FB session. Opening a new one");
+            mLogs.info("SosActivity. No FB session. Opening a new one");
             Session.openActiveSession(activity, true, callback);
         }
         else if (!session.getState().isOpened() && !session.getState().isClosed()) {
-            LOGS.info("SosActivity. loginToFacebook. FB session not opened AND not closed. Opening for read");
+            mLogs.info("SosActivity. loginToFacebook. FB session not opened AND not closed. Opening for read");
             session.openForRead(new Session.OpenRequest(activity)
                     //.setPermissions(Const.FB_PERMISSIONS_READ)
                     .setCallback(callback));
         } else {
-            LOGS.info("SosActivity. loginToFacebook. FB session opened or closed. Opening a new one");
+            mLogs.info("SosActivity. loginToFacebook. FB session opened or closed. Opening a new one");
             Session.openActiveSession(activity, true, callback);
         }
     }

@@ -50,7 +50,7 @@ public class SendLogsFragment extends Fragment {
                 if (!text.equals(""))
                 {
                     Utils.setLoading(mActivity, true);
-                    List<File> files = SosActivity.LOGS.getFiles();
+                    List<File> files = SosActivity.mLogs.getFiles();
                     AsyncTaskExecutionHelper.executeParallel(new SendReportAsyncTask(files, text));
                     //return to settings
                     mActivity.onBackPressed();
