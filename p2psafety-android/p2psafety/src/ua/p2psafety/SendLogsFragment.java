@@ -103,8 +103,12 @@ public class SendLogsFragment extends Fragment {
         protected void onPostExecute(Boolean o) {
             super.onPostExecute(o);
 
-            if (o)
+            if (o) {
+                // delete sent logs from device
+                for (File f: files)
+                    f.delete();
                 Toast.makeText(mActivity, R.string.logs_successfully_sent, Toast.LENGTH_SHORT).show();
+            }
             else
                 Toast.makeText(mActivity,
                         R.string.no_account_message,
