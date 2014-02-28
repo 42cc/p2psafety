@@ -266,7 +266,7 @@ public class SettingsFragment extends Fragment {
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Utils.setLoading(mActivity, true);
+                    Utils.setLoading(mActivity, false);
                     mLogs.info("SettingsFragment. Opening Servers screen");
                     openServersScreen();
                 }
