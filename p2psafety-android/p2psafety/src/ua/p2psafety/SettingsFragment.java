@@ -104,23 +104,25 @@ public class SettingsFragment extends Fragment {
 
                 switch (position) {
                     case 0:
+                        mLogs.info("SettingsFragment. User chose Phones settings");
                         mfragment[0] = new SetPhoneFragment();
                         fragmentTransaction.addToBackStack(SetPhoneFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
-
                     case 1:
+                        mLogs.info("SettingsFragment. User chose Message settings");
                         mfragment[0] = new MessageFragment();
                         fragmentTransaction.addToBackStack(MessageFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 2:
+                        mLogs.info("SettingsFragment. User chose Emails settings");
                         mfragment[0] = new SetEmailsFragment();
                         fragmentTransaction.addToBackStack(SetEmailsFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 3:
-                        mLogs.info("SettingsFragment. setServers");
+                        mLogs.info("SettingsFragment. User chose Servers settings");
                         if (Prefs.getApiKey(mActivity) != null) {
                             mLogs.info("SettingsFragment. We have ApiKey. Opening Servers screen");
                             openServersScreen();
@@ -130,24 +132,29 @@ public class SettingsFragment extends Fragment {
                         }
                         break;
                     case 4:
+                        mLogs.info("SettingsFragment. User chose Password settings");
                         mfragment[0] = new PasswordFragment();
                         fragmentTransaction.addToBackStack(PasswordFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 5:
+                        mLogs.info("SettingsFragment. User chose Media settings");
                         mfragment[0] = new SetMediaFragment();
                         fragmentTransaction.addToBackStack(SetMediaFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 6:
+                        mLogs.info("SettingsFragment. User chose Roles settings");
                         mfragment[0] = new SetRolesFragment();
                         fragmentTransaction.addToBackStack(SetRolesFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 7:
+                        mLogs.info("SettingsFragment. User chose Logout");
                         logout();
                         break;
                     case 8:
+                        mLogs.info("SettingsFragment. User chose Send Logs");
                         mfragment[0] = new SendLogsFragment();
                         fragmentTransaction.addToBackStack(SendLogsFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
@@ -157,6 +164,7 @@ public class SettingsFragment extends Fragment {
 
         });
 
+        mLogs.info("SettingsFragment. Checking location services");
         Utils.checkForLocationServices(mActivity);
 
         return rootView;
@@ -165,15 +173,19 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        mLogs.info("SettingsFragment.onResume()");
 
         getView().bringToFront();
     }
 
     public void logout() {
-        if (Session.getActiveSession() != null)
+        mLogs.info("SettingsFragment. Logging out");
+        if (Session.getActiveSession() != null) {
+            mLogs.info("SettingsFragment. Closing session, clearing token");
             Session.getActiveSession().closeAndClearTokenInformation();
+        }
         Session.setActiveSession(null);
-
+        mLogs.info("SettingsFragment. Clearing ApiKey");
         Prefs.putApiKey(mActivity, null);
 
         Toast.makeText(mActivity, "Готово", Toast.LENGTH_SHORT)
@@ -184,6 +196,7 @@ public class SettingsFragment extends Fragment {
 
     // builds dialog with password prompt
     private void askLoginAndOpenServers() {
+        mLogs.info("SettingsFragment. Building password dialog");
         LayoutInflater li = LayoutInflater.from(mActivity);
         View promptsView = li.inflate(R.layout.login_dialog, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
@@ -201,6 +214,7 @@ public class SettingsFragment extends Fragment {
                                     userLogin.getText().toString() + " " +
                                     userPassword.getText().toString() + "  " +
                                     "Sending request");
+                                Utils.setLoading(mActivity, true);
                                 NetworkManager.loginAtServer(mActivity,
                                         userLogin.getText().toString(),
                                         userPassword.getText().toString(), postRunnable);
@@ -225,7 +239,8 @@ public class SettingsFragment extends Fragment {
                     public void call(final Session session, SessionState state, Exception exception) {
                         mLogs.info("SettingsFragment. FB Session callback. state: " + state.toString());
                         if (state.isOpened()) {
-                            mLogs.info("SettingsFragment. FB session is opened. Loggin in at server");
+                            mLogs.info("SettingsFragment. FB session is opened. Login at server");
+                            Utils.setLoading(mActivity, true);
                             NetworkManager.loginAtServer(mActivity,
                                     Session.getActiveSession().getAccessToken(),
                                     NetworkManager.FACEBOOK, postRunnable);
@@ -247,9 +262,12 @@ public class SettingsFragment extends Fragment {
     private NetworkManager.DeliverResultRunnable<Boolean> postRunnable = new NetworkManager.DeliverResultRunnable<Boolean>() {
         @Override
         public void deliver(final Boolean success) {
+            mLogs.info("SettingsFragment. Login succeed");
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    Utils.setLoading(mActivity, false);
+                    mLogs.info("SettingsFragment. Opening Servers screen");
                     openServersScreen();
                 }
             });
@@ -260,13 +278,16 @@ public class SettingsFragment extends Fragment {
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    mLogs.info("SettingsFragment. Login failed");
                     AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
 
                     switch (errorCode) {
                         case 401:
+                            mLogs.info("SettingsFragment. error code: 401 wrong credentials");
                             builder.setTitle("Неверный логин или пароль.");
                             break;
                         default:
+                            mLogs.info("SettingsFragment. error code: " + errorCode);
                             builder.setTitle("Не получилось авторизоваться.");
                             break;
                     }
@@ -275,6 +296,7 @@ public class SettingsFragment extends Fragment {
                     builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            mLogs.info("SettingsFragment. User tries to login again");
                             askLoginAndOpenServers();
                         }
                     });
@@ -285,35 +307,11 @@ public class SettingsFragment extends Fragment {
     };
 
     private void openServersScreen() {
+        mLogs.info("SettingsFragment. Opening Servers screen");
         FragmentManager mfragmentManager = getFragmentManager();
         final FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
         Fragment fragment = new SetServersFragment();
         fragmentTransaction.addToBackStack(SetServersFragment.TAG);
         fragmentTransaction.replace(R.id.content_frame, fragment).commit();
     }
-
-     private class SendReportAsyncTask extends AsyncTask {
-
-        private File file;
-
-        public SendReportAsyncTask(File file)
-        {
-            this.file = file;
-        }
-
-        @Override
-        protected Object doInBackground(Object[] params) {
-            MessageResolver resolver = new MessageResolver(mActivity);
-            resolver.sendEmails("Error", file);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Object o) {
-            super.onPostExecute(o);
-
-            Toast.makeText(mActivity, R.string.logs_successfully_sent, Toast.LENGTH_SHORT).show();
-        }
-    }
-
 }
