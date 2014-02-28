@@ -22,9 +22,9 @@ class Profile(models.Model):
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
 
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=User, dispatch_uid='jabber')
 def on_user_save(sender, instance, created, **kwargs):
-    from events.jabber.queries import on_user_created
+    from events.jabber import on_user_created
     if created:
         on_user_created(instance)
 
