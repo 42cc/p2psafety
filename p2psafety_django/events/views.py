@@ -31,5 +31,5 @@ def operator_add_eventupdate(request):
     event_id = json.loads(request.body)['event_id']
 
     event = Event.objects.get(id=event_id)
-    EventUpdate.objects.create(user=event.user, text=text)
-    return {'success': True}
+    EventUpdate.objects.create(user=event.user, event=event, text=text)
+    return {'success': True, 'event': event}
