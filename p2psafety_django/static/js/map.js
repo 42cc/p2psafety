@@ -177,12 +177,12 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 })
 .directive('eventMarker', function(markerFactory, ICONS) {
   var linker = function(scope, element, attrs) {
+    var content = element.children().detach()[0];
     var location = scope.event.latest_location;
 
     if (location) {
       var map = scope.$parent.gmap;
       var icon = (scope.event.type == 'victim') ? ICONS.RED : ICONS.GREEN;
-      var content = element.children().detach()[0];
       var marker = markerFactory(scope, element, content, icon, location,
                                  map, attrs.click);
 

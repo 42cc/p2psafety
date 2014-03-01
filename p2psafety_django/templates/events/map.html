@@ -39,30 +39,29 @@
         <div ng-controller="EventListCtrl">
           <event-marker click="select(event)"
                         ng-repeat="event in events"
-                        ng-if="event.id != selectedEvent.id && event.type == 'victim'">
+                        ng-if="(event.id != selectedEvent.id) && (event.type == 'victim')">
             <div>
               <p ng-if="event.user.full_name != null">
                 <span class="glyphicon glyphicon-exclamation-sign"
                       ng-if="event.type == 'victim'"></span>
                 <span class="glyphicon glyphicon-user"
                       ng-if="event.type == 'support'"></span>
-                      {{ event.user.full_name }}
+                {{ event.user.full_name }}
               </p>
               <span class="badge">{{ event.latest_update.timestamp | date:'HH:mm' }}</span>
               {{ event.latest_update.text || "..." }}
             </div>
           </event-marker>
-          <support-marker ng-repeat="support in selectedEventsupport"
-                            click="select(support)">
-             <div>
+          <support-marker ng-repeat="support in selectedEventsupport" click="select(support)">
+            <div>
               <p ng-if="support.user.full_name != null">
                 <span class="glyphicon glyphicon-user"></span>
-                      {{ support.user.full_name }}
+                {{ support.user.full_name }}
               </p>
               <span class="badge">{{ support.latest_update.timestamp | date:'HH:mm' }}</span>
               {{ support.latest_update.text || "..." }}
             </div>
-            </support-marker>
+          </support-marker>
           <div class="selected-event panel panel-primary"
                ng-if="selectedEvent != null">
             <h4 class="panel-heading">Status:
