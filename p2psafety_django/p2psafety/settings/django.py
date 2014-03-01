@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from .utils import root
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -34,7 +35,7 @@ LANGUAGES = (
     ('pl', u'Polski'),
 )
 LOCALE_PATHS = (
-    os.path.join(BASE_DIR, 'locale'),
+    root('locale'),
 )
 
 # Database
@@ -105,18 +106,18 @@ WSGI_APPLICATION = 'p2psafety.wsgi.application'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'static_media', 'static'))
+STATIC_ROOT = root('static_media', 'static')
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
+    root('static'),
 )
 
 MEDIA_URL = '/media/uploads/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static_media', 'uploads')
+MEDIA_ROOT = root('static_media', 'uploads')
 
 TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'templates'),
+    root('templates'),
 )
 TEMPLATE_CONTEXT_PROCESSORS = (
     # Django defaults
