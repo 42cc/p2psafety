@@ -160,6 +160,12 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
+        'jabber': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '%s/jabber.log' % BASE_DIR,
+            'formatter': 'simple',
+        }
     },
     'loggers': {
         'django.request': {
@@ -167,8 +173,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
+        'events': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
         'events.jabber': {
-            'handlers': ['console', 'mail_admins'],
+            'handlers': ['console', 'jabber'],
             'level': 'DEBUG',
             'propagate': False,
         },
