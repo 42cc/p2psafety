@@ -24,6 +24,7 @@ class EventResource(ModelResource):
         return support_url
 
     def dehydrate_radius(self, bundle):
-        return 1000
+        # Should be set manually
+        return None
 
 

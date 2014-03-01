@@ -218,11 +218,12 @@ class EventsNotifierClient(BaseClient):
     @property
     def _pubsub(self): return self.get_plugin(60)
 
-    def publish(self, event):
+    def publish(self, event, radius):
         from events.api.resources.jabber import EventResource
 
         resource = EventResource()
         event_dict = resource.full_dehydrate(resource.build_bundle(obj=event))
+        event_dict.data['radius'] = radius
         str_payload = resource.serialize(None, event_dict, 'application/xml')
         payload = ET.fromstring(str_payload)
 

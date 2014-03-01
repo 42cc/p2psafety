@@ -1,11 +1,10 @@
-import numbers
-
 from django.contrib.gis.geos import Point
 
 from tastypie.test import ResourceTestCase
 
 from ..helpers.factories import EventFactory, EventUpdateFactory
 from ...api.resources.jabber import EventResource
+
 
 class EventTestCase(ResourceTestCase):
 
@@ -17,7 +16,7 @@ class EventTestCase(ResourceTestCase):
         bundle = resource.build_bundle(obj=event)
         data = resource.full_dehydrate(bundle).data
         self.assertIsInstance(data.get('support'), basestring)
-        self.assertIsInstance(data.get('radius'), numbers.Number)
+        self.assertEqual(data.get('radius'), None)
 
     def test_has_location(self):
         event = EventFactory()

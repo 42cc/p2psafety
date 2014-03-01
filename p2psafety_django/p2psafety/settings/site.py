@@ -1,6 +1,7 @@
 # Set to False to enable jabber calls
 JABBER_DRY_RUN = True
 
+EVENTS_NOTIFIER_DEFAULT_RADIUS = 1000
 EVENTS_NOTIFIER_CLIENT = {
     'JID': 'publisher@p2psafety.net',
     'PASSWORD': 'publisher',

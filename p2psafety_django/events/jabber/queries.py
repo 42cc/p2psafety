@@ -14,15 +14,19 @@ def on_user_created(new_user):
             client.create_account(new_user)
 
 
-def notify_supporters(event):
+def notify_supporters(event, radius=None):
     """
     Sends notifications to event's supporters via jabber node.
 
     :type event: :class:`events.models.Event`
     """
+    
+    if radius is None:
+        radius = settings.EVENTS_NOTIFIER_DEFAULT_RADIUS
+
     if not settings.JABBER_DRY_RUN:
         with get_client('EventsNotifierClient') as client:
-            client.publish(event)
+            client.publish(event, radius)
 
 
 def notify_supporter(event, supporter):
