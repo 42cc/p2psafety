@@ -14,13 +14,16 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     var fullBounds = new google.maps.LatLngBounds();
     var params = {status: 'A'};
     $http.get(urls.events, {params: params}).success(function(data) {
-        for (i in data.objects) {
-            var event = data.objects[i];
-            var lat=event.latest_location.latitude;
-            var long=event.latest_location.longitude;
-            var point=new google.maps.LatLng(lat, long);
-        fullBounds.extend(point)
-        };
+      for (i in data.objects) {
+        var event = data.objects[i];
+        if (event.latest_location != null) {
+          var point = new google.maps.LatLng(
+            event.latest_location.latitude,
+            event.latest_location.longitude
+          );
+          fullBounds.extend(point)
+        }
+      };
     });
 
     var mapOptions = {
@@ -57,27 +60,27 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     } else {
       var params = {event__id: event.id};
       $http.get(urls.eventupdates, {params: params}).success(function(data) {
-      event.updates = data.objects;
-      $scope.zoomIn();
-      $scope.selectedEvent = event;
-      window.location.hash = event.id
-      $scope.selectedEvent.isNew = false;
+        event.updates = data.objects;
+        $scope.zoomIn();
+        $scope.selectedEvent = event;
+        window.location.hash = event.id
+        $scope.selectedEvent.isNew = false;
       });
-          for (i in $scope.events) {
-              var event_support = $scope.events[i];
-              if(event_support.type=="support"){
-                  for (i in event_support.supported){
-                    var support = event_support.supported[i]
-                    if(support.id == event.id){
-                      if ($scope.selectedEventsuppor == null){
-                        $scope.selectedEventsupport[event_support.id] = event_support;
-                      }else if ($scope.selectedEventsupport[event_support.id] == null){
-                        $scope.selectedEventsupport[event_support.id] = event_support;
-                      }
-                    }
-                  }
+      for (i in $scope.events) {
+        var event_support = $scope.events[i];
+        if(event_support.type=="support"){
+          for (i in event_support.supported){
+            var support = event_support.supported[i]
+            if(support.id == event.id){
+              if ($scope.selectedEventsuppor == null){
+                $scope.selectedEventsupport[event_support.id] = event_support;
+              }else if ($scope.selectedEventsupport[event_support.id] == null){
+                $scope.selectedEventsupport[event_support.id] = event_support;
               }
             }
+          }
+        }
+      }
     };
   };
   $scope.update = function(highightNew, playSoundForNew) {
