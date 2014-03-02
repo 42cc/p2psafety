@@ -244,7 +244,8 @@ class EventsNotifierClient(BaseClient):
 
 def get_client(ClientClassOrName):
     """
-    Constructs client object using proper settings by given class object or name.
+    Constructs client object using proper settings by given class object
+     or name.
 
     :type ClientClassOrName: type or basestring
     :rtype: BaseClient
