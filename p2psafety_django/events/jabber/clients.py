@@ -257,7 +257,7 @@ def get_client(ClientClassOrName):
         raise TypeError(ClientClassOrName)
 
     config_dict = {
-        'JID': settings.XMPP_ADMIN_USERNAME,
+        'JID': settings.XMPP_ADMIN_JID,
         'PASSWORD': settings.XMPP_ADMIN_PASSWORD,
     }
 
