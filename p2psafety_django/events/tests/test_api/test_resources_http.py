@@ -9,9 +9,9 @@ from django.core.urlresolvers import reverse
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
-from ..models import Event, EventUpdate
-from .helpers.factories import EventFactory, EventUpdateFactory, UserFactory
-from .helpers.mixins import ModelsMixin, UsersMixin
+from ...models import Event, EventUpdate
+from ..helpers.factories import EventFactory, EventUpdateFactory, UserFactory
+from ..helpers.mixins import ModelsMixin, UsersMixin
 
 
 class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
