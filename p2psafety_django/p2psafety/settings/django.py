@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from .utils import root
+from .utils import root, proj
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -164,7 +164,7 @@ LOGGING = {
         'jabber': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '%s/jabber.log' % BASE_DIR,
+            'filename': proj('jabber.log'),
             'formatter': 'simple',
         }
     },

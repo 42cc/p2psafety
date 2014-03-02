@@ -1,15 +1,12 @@
 # Set to False to enable jabber calls
 JABBER_DRY_RUN = True
 
-EVENTS_NOTIFIER_DEFAULT_RADIUS = 1000
-EVENTS_NOTIFIER_CLIENT = {
-    'JID': 'publisher@p2psafety.net',
-    'PASSWORD': 'publisher',
-    'PUBSUB_SERVER': 'pubsub.p2psafety.net',
-    'NODE_NAME': 'test123',
-}
+XMPP_SERVER = 'p2psafety.net'
+XMPP_PUBSUB_SERVER = 'pubsub.p2psafety.net'
 
-USERS_CLIENT = {
-    'JID': 'publisher@p2psafety.net',
-    'PASSWORD': 'publisher',
-}
+XMPP_EVENTS_NOTIFICATION_NODE = 'events'
+XMPP_EVENTS_NOTIFICATION_RADIUS = 0  # 0 means "send to all"
+
+# Define next two in your local installations
+XMPP_ADMIN_USERNAME = NotImplemented
+XMPP_ADMIN_PASSWORD = NotImplemented

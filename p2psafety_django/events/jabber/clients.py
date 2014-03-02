@@ -1,4 +1,3 @@
-import functools
 import logging
 import traceback
 import threading
@@ -10,7 +9,6 @@ from django.core.exceptions import ImproperlyConfigured
 
 from sleekxmpp import ClientXMPP
 from sleekxmpp.exceptions import IqError, IqTimeout
-from sleekxmpp.jid import JID
 from sleekxmpp.xmlstream import ET
 from lxml import etree
 
@@ -45,10 +43,10 @@ class BaseConfig(object):
 class BaseClient(object):
     """
     Lightweight wrapper for :class:`sleekxmpp.ClientXMPP` client.
-        
+
     Example of usage::
 
-        with BaseClient({...}) as client:            
+        with BaseClient({...}) as client:
             client.my_method(...)
     or::
 
@@ -58,7 +56,7 @@ class BaseClient(object):
         client.disconnect()
 
     """
-    base_required_plugins = 30, # Service discovery
+    base_required_plugins = 30,  # Service discovery
     Config = BaseConfig
 
     def __init__(self, config_dict):
@@ -93,7 +91,8 @@ class BaseClient(object):
         return self._client[self._get_plugin_name(plugin_num)]
 
     @property
-    def discovery(self): return self.get_plugin(30)
+    def discovery(self):
+        return self.get_plugin(30)
 
     @property
     def is_connected(self):
@@ -115,20 +114,22 @@ class BaseClient(object):
 
 class UsersClient(BaseClient):
 
-    required_plugins = 133, # Administration service
+    required_plugins = 133,  # Administration service
 
     @property
-    def _admin(self): return self.get_plugin(133)
+    def _admin(self):
+        return self.get_plugin(133)
 
     @property
-    def _adhoc(self): return self.get_plugin(50)
+    def _adhoc(self):
+        return self.get_plugin(50)
 
     def synchronize_accounts(self):
         """
         Creates jabber accounts for registered users.
         """
         node, jid = 'all users', self._client.boundjid.server
-        
+
         try:
             logger.debug('sending "get items" to %s node %s', jid, node)
             items = self.discovery.get_items(jid=jid, node=node, block=True)
@@ -158,8 +159,8 @@ class UsersClient(BaseClient):
 
         :type user: `django.contrib.auth.models.User`
         :rtype: True or False
-        """        
-        jabber_username = user.username + '@p2psafety.net'
+        """
+        jabber_username = "{}@{}".format(user.username, settings.XMPP_SERVER)
         jabber_password = get_api_key(user).key
         logger.debug('creating account for "%s" with jid=%s passsword=%s',
                      user.username, jabber_username, jabber_password)
@@ -185,7 +186,7 @@ class UsersClient(BaseClient):
 
             self._adhoc.complete_command(session)
 
-        def command_success(iq, session):            
+        def command_success(iq, session):
             logger.debug('success')
             shared_result['result'] = True
             on_done_event.set()
@@ -201,10 +202,13 @@ class UsersClient(BaseClient):
         on_done_event.wait()
         return shared_result['result']
 
+
 class EventsNotifierClient(BaseClient):
 
-    required_plugins = (59, # Result Set Management
-                        60) # Publish-subscribe
+    required_plugins = (
+        59,  # Result Set Management
+        60,  # Publish-subscribe
+    )
 
     class Config(BaseConfig):
         __slots__ = ('pubsub_server', 'node_name')
@@ -216,7 +220,8 @@ class EventsNotifierClient(BaseClient):
                 self.node_name = config_dict['NODE_NAME']
 
     @property
-    def _pubsub(self): return self.get_plugin(60)
+    def _pubsub(self):
+        return self.get_plugin(60)
 
     def publish(self, event, radius):
         from events.api.resources.jabber import EventResource
@@ -251,10 +256,18 @@ def get_client(ClientClassOrName):
     else:
         raise TypeError(ClientClassOrName)
 
+    config_dict = {
+        'JID': settings.XMPP_ADMIN_USERNAME,
+        'PASSWORD': settings.XMPP_ADMIN_PASSWORD,
+    }
+
     if ClientClass is EventsNotifierClient:
-        config_dict = settings.EVENTS_NOTIFIER_CLIENT
+        config_dict.update({
+            'PUBSUB_SERVER': settings.XMPP_PUBSUB_SERVER,
+            'NODE_NAME': settings.XMPP_EVENTS_NOTIFICATION_NODE,
+        })
     elif ClientClass is UsersClient:
-        config_dict = settings.USERS_CLIENT
+        pass
     else:
         raise Exception('No such client')
 
