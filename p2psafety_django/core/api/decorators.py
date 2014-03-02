@@ -59,7 +59,7 @@ class api_method(object):
                 self.log_throttled_access(request)
                 if isinstance(response, tastypie_http.HttpResponse):
                     return response
-                
+
                 data = '' if response is None else response
                 return self.create_response(request, data)
 
