@@ -48,34 +48,46 @@ public class SosManager {
     }
 
     public void startSos() {
+        logs.info("SosManager. StartSos()");
+        logs.info("SosManager. StartSos. Start vibration");
         Utils.startVibration(mContext);
 
         // send SMS and email messages
+        logs.info("SosManager. StartSos. Send SMS and mail messages");
         MessageResolver resolver = new MessageResolver(mContext);
         resolver.sendMessages();
 
         // start media recording
+        logs.info("SosManager. StartSos. Check if we need to record media");
         switch (Prefs.getMediaRecordType(mContext)) {
             case 1:
                 // record audio
+                logs.info("SosManager. StartSos. Start Audio recording");
                 mContext.startService(new Intent(mContext, AudioRecordService.class));
                 break;
             case 2:
                 // record video
+                logs.info("SosManager. StartSos. Start Video recording");
                 mContext.startService(new Intent(mContext, VideoRecordService.class));
                 break;
         }
 
         // show hint in notifications panel
+        logs.info("SosManager. StartSos. Show notification");
         Notifications.notifSosStarted(mContext);
 
         // report event to the server
-        if (Utils.isServerAuthenticated(mContext))
+        if (Utils.isServerAuthenticated(mContext)) {
+            logs.info("SosManager. StartSos. User is authenticated at server. Sendng SOS request");
             serverStartSos();
-        else
+        }
+        else {
+            logs.info("SosManager. StartSos. User is NOT authenticated at server.");
             Utils.setLoading(mContext, false);
+        }
 
         // make phone call
+        logs.info("SosManager. StartSos. Making phone call");
         mContext.startService(new Intent(mContext, PhoneCallService.class));
 
         setSosStarted(true);
@@ -127,19 +139,25 @@ public class SosManager {
         // if you have no event try to create one on server
         // (you must have an event at this point though)
         if (mEvent == null) {
+            logs.info("SosManager. StartSos. We don't have event, trying to create one.");
             NetworkManager.createEvent(mContext,
                     new NetworkManager.DeliverResultRunnable<Event>() {
                         @Override
                         public void deliver(Event event) {
                             if (event != null) {
+                                logs.info("SosManager. StartSos. Event created: " +
+                                    event.getId());
                                 setEvent(event);
+                                logs.info("SosManager. StartSos. Activating event");
                                 serverActivateSos(); // make this event active
                             } else {
+                                logs.info("SosManager. StartSos. We were unable to create event");
                                 Utils.setLoading(mContext, false);
                             }
                         }
                     });
         } else {
+            logs.info("SosManager. StartSos. We have event, activating it");
             serverActivateSos();
         }
     }
@@ -149,15 +167,21 @@ public class SosManager {
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
+                logs.info("SosManager. StartSos. Got location");
                 Map data = new HashMap();
-                if (location != null)
+                if (location != null) {
+                    logs.info("SosManager. StartSos. Location is not null");
                     data.put("loc", location);
+                } else {
+                    logs.info("SosManager. StartSos. Location is NULL");
+                }
                 data.put("text", Prefs.getMessage(mContext));
 
                 NetworkManager.updateEvent(mContext, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
                     @Override
                     public void deliver(Boolean aBoolean) {
                         // start sending location updates
+                        logs.info("SosManager. StartSos. Event activated. Starting LocationService");
                         mContext.startService(new Intent(mContext, LocationService.class));
                         Utils.setLoading(mContext, false);
                     }

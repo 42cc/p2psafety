@@ -112,20 +112,24 @@ public class SosActivity extends ActionBarActivity {
     }
 
     public void loginToFacebook(Activity activity, Session.StatusCallback callback) {
+        LOGS.info("SosActivity. loginToFacebook()");
         if (!Utils.isNetworkConnected(activity, LOGS)) {
-            //errorDialog(activity, DIALOG_NO_CONNECTION);
+            LOGS.info("SosActivity. loginToFacebook. No network");
+            Utils.errorDialog(activity, Utils.DIALOG_NO_CONNECTION);
             return;
         }
         Session session = Session.getActiveSession();
-        if (session == null)
-        {
+        if (session == null) {
+            LOGS.info("SosActivity. No FB session. Opening a new one");
             Session.openActiveSession(activity, true, callback);
         }
         else if (!session.getState().isOpened() && !session.getState().isClosed()) {
+            LOGS.info("SosActivity. loginToFacebook. FB session not opened AND not closed. Opening for read");
             session.openForRead(new Session.OpenRequest(activity)
                     //.setPermissions(Const.FB_PERMISSIONS_READ)
                     .setCallback(callback));
         } else {
+            LOGS.info("SosActivity. loginToFacebook. FB session opened or closed. Opening a new one");
             Session.openActiveSession(activity, true, callback);
         }
     }

@@ -19,8 +19,8 @@
       eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
     });
     mapApp.constant('mapSettings', {
-        highlight: {% switch events_map_new_event_highlight %} true {% else %} false {% endswitch %},
-        sound: {% switch events_map_new_event_sound %} true {% else %} false {% endswitch %},
+        highlight: {% switch 'eventsmap-newevent-highlight' %}true{% else %}false{% endswitch %},
+        sound: {% switch 'eventsmap-newevent-sound' %}true{% else %}false{% endswitch %},
     });
   </script>
 {% endblock %}
