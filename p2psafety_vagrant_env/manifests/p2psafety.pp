@@ -232,7 +232,7 @@ class python {
     require => Class['apt']
   }
 
-  package { 'libssl-dev':
+  package { ['libssl-dev','libxml2-dev', 'libxslt-dev']:
     ensure => latest,
     require => Class['apt']
   }
