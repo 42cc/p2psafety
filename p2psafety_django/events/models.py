@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
 from django.utils import timezone
 
+import waffle
+
 try:
     from hashlib import sha1
 except ImportError:
@@ -16,6 +18,7 @@ except ImportError:
     sha1 = sha.sha
 
 
+import jabber
 from .managers import EventManager
 
 
@@ -60,7 +63,7 @@ class Event(models.Model):
     supported = models.ManyToManyField('self', symmetrical=False, related_name='supporters')
 
     def __unicode__(self):
-        return "{} event by {}".format(self.status, self.user)
+        return u"{} event by {}".format(self.status, self.user)
 
     @property
     def latest_update(self):
@@ -102,6 +105,9 @@ class Event(models.Model):
             supports_event.save()
 
         self.supporters.add(supports_event)
+
+    def notify_supporters(self):
+        jabber.notify_supporters(self)
 
     def generate_keys(self):
         """
@@ -147,12 +153,19 @@ class EventUpdate(models.Model):
     objects = geomodels.GeoManager()
 
     def save(self, *args, **kwargs):
-        """
-        Event that received an update becomes active.
-        """
-        all_events_are_finished = not self.event.user.events.filter(
-            status__in=[Event.STATUS_PASSIVE, Event.STATUS_ACTIVE]).exists()
-        if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
-            self.event.status = Event.STATUS_ACTIVE
-            self.event.save()
-        return super(EventUpdate, self).save(*args, **kwargs)
+        created = self.pk is None
+
+        if created:
+            #
+            # Event that received an update becomes active.
+            #
+            all_events_are_finished = not self.event.user.events.filter(
+                status__in=[Event.STATUS_PASSIVE, Event.STATUS_ACTIVE]).exists()
+            if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
+                self.event.status = Event.STATUS_ACTIVE
+                self.event.save()
+
+            super(EventUpdate, self).save(*args, **kwargs)
+
+            if waffle.switch_is_active('supporters-autonotify'):
+                self.event.notify_supporters()

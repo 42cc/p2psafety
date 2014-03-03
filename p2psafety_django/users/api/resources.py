@@ -1,5 +1,3 @@
-from django import http as django_http
-from django.conf.urls import url
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
@@ -7,16 +5,14 @@ from django.shortcuts import get_object_or_404
 from allauth.socialaccount.providers.facebook.views import fb_complete_login
 from tastypie import fields, http
 from tastypie.authentication import Authentication
-from tastypie.models import ApiKey
 from tastypie.resources import Resource, ModelResource
-from tastypie.utils import trailing_slash
 from schematics.models import Model as SchemaModel
 from schematics.types import IntType, StringType
 from schematics.types.compound import ListType
 
 from core.api.mixins import ApiMethodsMixin
 from core.api.decorators import body_params, api_method
-from ..models import Role
+from .. import utils, models
 
 
 class UserResource(ApiMethodsMixin, ModelResource):
@@ -64,7 +60,7 @@ class UserResource(ApiMethodsMixin, ModelResource):
             Sets user's roles to given list of ids as ``role_id`` param.
             """
             user = get_object_or_404(User, pk=pk)
-            roles = Role.objects.filter(id__in=params.role_ids)
+            roles = models.Role.objects.filter(id__in=params.role_ids)
             user.roles.clear()
             user.roles.add(*roles)
             return http.HttpAccepted()
@@ -74,7 +70,7 @@ class UserResource(ApiMethodsMixin, ModelResource):
 
 class RoleResource(ModelResource):
     class Meta:
-        queryset = Role.objects.all()
+        queryset = models.Role.objects.all()
         resource_name = 'roles'
         detail_allowed_methods = []
         include_resource_uri = False
@@ -87,15 +83,9 @@ class AuthResource(ApiMethodsMixin, Resource):
         detail_allowed_methods = []
         list_allowed_methods = []
 
-    def _get_api_token(self, user):
-        try:
-            return ApiKey.objects.filter(user=user)[0].key
-        except IndexError:
-            return ApiKey.objects.create(user=user).key
-
     def _construct_login_response(self, user):
         return {'username': user.username,
-                'key': self._get_api_token(user)}
+                'key': utils.get_api_key(user).key}
 
     @api_method(r'/login/site', name='api_auth_login_site')
     def login_with_site(self):
@@ -143,6 +133,6 @@ class AuthResource(ApiMethodsMixin, Resource):
                         return http.HttpBadRequest('Not registered')
 
                     return self._construct_login_response(login.account.user)
-    
+
             return http.HttpBadRequest('Invalid provider')
         return post

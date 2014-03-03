@@ -2,9 +2,7 @@
 import logging
 
 from django.conf import settings
-from django.conf.urls import url
 from django.contrib.auth.models import User
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from tastypie import http, fields
@@ -13,14 +11,13 @@ from tastypie.authentication import MultiAuthentication, ApiKeyAuthentication, \
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.resources import ModelResource
-from tastypie.utils import trailing_slash
 from tastypie.validation import Validation
 from schematics.models import Model as SchemaModel
 from schematics.types import IntType
 
-from .fields import GeoPointField
-from .authorization import CreateFreeDjangoAuthorization
-from ..models import Event, EventUpdate
+from ..fields import GeoPointField
+from ..authorization import CreateFreeDjangoAuthorization
+from ...models import Event, EventUpdate
 from core.api.mixins import ApiMethodsMixin
 from core.api.decorators import body_params, api_method
 from users.api.resources import UserResource
@@ -107,7 +104,7 @@ class EventResource(ApiMethodsMixin, ModelResource):
         return bundle
 
     def dehydrate(self, bundle):
-        if bundle.request.META['REQUEST_METHOD'] == 'POST':
+        if bundle.request and bundle.request.META.get('REQUEST_METHOD') == 'POST':
             bundle.data['key'] = bundle.obj.key
 
         return bundle

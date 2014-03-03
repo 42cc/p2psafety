@@ -37,7 +37,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     $scope.gmap = new google.maps.Map(rootElement, mapOptions);
     $scope.gwindow = new google.maps.InfoWindow({content: "Sup"});
     $scope.gwindow_opened = false;
-    $scope.gmap.fitBounds(fullBounds);
   };
   $scope.zoomIn = function() {
     if ($scope.zoomedIn == false) {
@@ -83,7 +82,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       }
     };
   };
-  $scope.update = function(highightNew, playSoundForNew) {
+  $scope.update = function(highightNew, playSoundForNew, centerMap) {
     var params = {status: 'A'};
     $http.get(urls.events, {params: params}).success(function(data) {
       var eventsAppeared = false, newEvents = {};
@@ -116,6 +115,19 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
         }
       if (eventsAppeared && playSoundForNew)
         document.getElementById('audiotag').play();
+
+      // Making map show all events
+      if (centerMap) {
+        var eventsBounds = new google.maps.LatLngBounds();
+        for (eventId in $scope.events) {
+          var event = $scope.events[eventId];
+          eventsBounds.extend(new google.maps.LatLng(
+            event.latest_location.latitude,
+            event.latest_location.longitude
+          ));
+        }
+        $scope.gmap.fitBounds(eventsBounds);
+      }
     });
   };
   $scope.focus = function(location) {
@@ -129,15 +141,15 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.zoomScale = 1;
   $scope.initGoogleMap(document.getElementById("map-canvas"));
   $scope.events = {};
-  
-  $scope.update(false, false);
+
+  $scope.update(false, false, true);
 
   $interval(function() {
     $scope.update(mapSettings.highlight, mapSettings.sound);
   }, $scope.updatePerSeconds * 1000);
 })
 .factory('markerFactory', function() {
-  return function(scope, element, content, icon, location, map, onclick) {    
+  return function(scope, element, content, icon, location, map, onclick) {
     var markerArgs = {
       icon: icon,
       position: new google.maps.LatLng(location.latitude, location.longitude),
@@ -154,7 +166,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       content = content.detach()[0];
     }
     var markersWindow = new google.maps.InfoWindow();
-      
+
     google.maps.event.addListener(marker, 'mouseover', function() {
       markersWindow.setContent(content);
       markersWindow.open(map, marker);
