@@ -11,8 +11,6 @@ from django.utils import timezone
 
 import config
 
-ImportError
-
 try:
     from hashlib import sha1
 except ImportError:
