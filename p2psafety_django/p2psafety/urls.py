@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     url(r'^', include('events.urls', namespace='events')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(api_v1.urls)),
+    url(r'^settings/', include('livesettings.urls')),
     url(r'^log_the_fuck_out/', 'users.views.log_the_fuck_out', name='log_the_fuck_out'),
 
     # Delete next line to allow logout confirmation

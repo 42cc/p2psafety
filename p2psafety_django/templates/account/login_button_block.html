@@ -1,8 +1,27 @@
 <div class="login pull-right">
     {% if request.user.is_authenticated  %}
-        <a href="{% url 'account_logout' %}">Log out</a><br>
-        <a href="{% url 'log_the_fuck_out' %}">Log the fuck out</a>
+        <a href="{% url 'account_logout' %}">Log out</a>&nbsp;&nbsp;
+        <a data-toggle="modal" data-target=".bs-modal-sm">Log the fuck out</a>
     {% else %}
         <a href="{% url 'account_login' %}">Log in / Register</a>
     {% endif %}
+</div>
+
+
+<div class="modal fade bs-modal-sm" tabindex="-1" role="dialog" aria-labelledby="Confirm log out" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Confirm log out</h4>
+      </div>
+      <div class="modal-body">
+        <p>Doy wsant log out and delete profile?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+        <a type="button" class="btn btn-danger" href="{% url 'log_the_fuck_out' %}">Yes</a>
+      </div>
+    </div>
+  </div>
 </div>
