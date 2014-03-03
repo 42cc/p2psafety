@@ -205,14 +205,8 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
             mTimerOn = false;
 
         Utils.sendMailsWithAttachments(this, R.string.video, mRecordFile);
-        if (Utils.isServerAuthenticated(this))
-        {
-            NetworkManager.updateEventWithAttachment(this, mRecordFile, false, new NetworkManager.DeliverResultRunnable<Boolean>() {
-                @Override
-                public void deliver(Boolean aBoolean) {
-                    //good
-                }
-            });
+        if (Utils.isServerAuthenticated(this)) {
+            NetworkManager.updateEventWithAttachment(this, mRecordFile, false);
         }
 
         Notifications.removeNotification(getApplicationContext(), Notifications.NOTIF_VIDEO_RECORD_CODE);

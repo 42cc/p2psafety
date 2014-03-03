@@ -3,8 +3,10 @@ package ua.p2psafety.util;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.ActivityManager;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +23,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
 
 import com.facebook.Session;
 
@@ -38,6 +41,11 @@ import ua.p2psafety.sms.MessageResolver;
  * Created by Taras Melon on 10.01.14.
  */
 public class Utils {
+    public static final int DIALOG_NETWORK_ERROR = 10;
+    public static final int DIALOG_NO_CONNECTION = 100;
+
+    static private ProgressDialog mProgressDialog;
+    static private AlertDialog mErrorDialog;
 
     public static String getEmail(Context context) {
         AccountManager manager = AccountManager.get(context);
@@ -177,11 +185,19 @@ public class Utils {
         return (Prefs.getApiKey(context) != null);
     }
 
-//    public static void setLoading(Activity activity, boolean visible) {
-//        if (activity != null)
-//            activity.findViewById(R.id.loading_view)
-//                .setVisibility(visible ? View.VISIBLE : View.GONE);
-//    }
+    public static void setLoading(Context context, boolean loading) {
+        try {
+            if (loading) {
+                Activity activity = (Activity) context;
+                mProgressDialog = new ProgressDialog(activity);
+                mProgressDialog.setCancelable(false);
+                mProgressDialog.show();
+                mProgressDialog.setContentView(R.layout.loading_progressbar);
+            } else {
+                mProgressDialog.dismiss();
+            }
+        } catch (Exception e) {};
+    }
 
     public static void logKeyHash(Context context, Logs logs) {
         final String TAG = "logKeyHash()";
@@ -210,5 +226,59 @@ public class Utils {
                 return true;
         }
         return false;
+    }
+
+    public static void errorDialog(final Context context, final int type) {
+        try {
+            final Activity activity = (Activity) context;
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mErrorDialog != null && mErrorDialog.isShowing())
+                        return;
+
+                    switch (type) {
+                        case DIALOG_NETWORK_ERROR:
+                            mErrorDialog = new AlertDialog.Builder(activity)
+                                    .setMessage(R.string.network_error)
+                                    .setNeutralButton(android.R.string.ok,
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.dismiss();
+                                                }
+                                            })
+                                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                        @Override
+                                        public void onCancel(DialogInterface dialog) {
+                                            dialog.dismiss();
+                                        }
+                                    }).show();
+                            break;
+                        case DIALOG_NO_CONNECTION:
+                            mErrorDialog = new AlertDialog.Builder(activity)
+                                    .setTitle(R.string.connection)
+                                    .setMessage(R.string.connection_is_out)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .setNeutralButton(R.string.connection_settings,
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.dismiss();
+                                                    // open wi-fi settings
+                                                    activity.startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
+                                                }
+                                            })
+                                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                        @Override
+                                        public void onCancel(DialogInterface dialog) {
+                                            dialog.dismiss();
+                                        }
+                                    }).show();
+                            break;
+                    }
+                }
+            });
+        } catch (Exception e) {}
     }
 }

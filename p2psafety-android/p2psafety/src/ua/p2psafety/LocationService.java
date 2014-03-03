@@ -21,8 +21,8 @@ import ua.p2psafety.sms.MyLocation;
 import ua.p2psafety.util.Logs;
 
 public class LocationService extends Service {
-    static final long TIME_INTERVAL = 5*60*1000; // 5 min
-    static final long DISTANCE_INTERVAL = 500; // 500 meters
+    static final long TIME_INTERVAL = 2*60*1000; // 2 min
+    static final long DISTANCE_INTERVAL = 50; // 50 meters
 
     Location mLastLoc = null;
     Location mCurrentLoc = null;
@@ -89,12 +89,7 @@ public class LocationService extends Service {
         if (mCurrentLoc != null)
             data.put("loc", mCurrentLoc);
         data.put("text", "");
-        NetworkManager.updateEvent(this, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
-            @Override
-            public void deliver(Boolean aBoolean) {
-                // event updated
-            }
-        });
+        NetworkManager.updateEvent(this, data);
     }
 
 

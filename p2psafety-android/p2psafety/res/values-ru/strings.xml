@@ -85,6 +85,11 @@
     <string name="accept">Принять</string>
     <string name="ignore">Отклонить</string>
 
+    <string name="network_error">Что-то пошло не так. Проверьте подключение к сети.</string>
+    <string name="connection">Соединение</string>
+    <string name="connection_is_out">Интернет соединение отсутствует, проверьте настройки</string>
+    <string name="connection_settings">Настройки</string>
+
     <string-array name="media_types">
         <item>Нет</item>
         <item>Аудио</item>

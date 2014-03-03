@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -31,6 +32,8 @@ public class SendMessageFragment extends Fragment {
     Button mDelayedSosBtn;
     Button mSosBtn;
     Activity mActivity;
+
+    Logs mLogs;
 
     private View.OnClickListener lsnr = new View.OnClickListener() {
         @Override
@@ -58,6 +61,8 @@ public class SendMessageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mActivity = getActivity();
+        mLogs = new Logs(mActivity);
+        mLogs.info("SendMessageFragment.onCreateView()");
 
         ((SosActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(false);
         ((SosActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -72,21 +77,30 @@ public class SendMessageFragment extends Fragment {
         mSosBtn.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                mLogs.info("SendMessageFragment. SOS button clicked");
                 Utils.checkForLocationServices(mActivity);
                 SosManager sosManager = SosManager.getInstance(mActivity);
                 if (sosManager.isSosStarted()) {
+                    mLogs.info("SendMessageFragment. SOS active");
                     if (!Prefs.getUsePassword(mActivity)) {
+                        mLogs.info("SendMessageFragment. No password required. Stoping SOS");
+                        Utils.setLoading(mActivity, true);
                         sosManager.stopSos();
                         mSosBtn.setText(getString(R.string.sos));
                     } else {
+                        mLogs.info("SendMessageFragment. Password required. Asking it");
                         askPasswordAndCancelSos();
                     }
                 } else {
+                    mLogs.info("SendMessageFragment. SOS not active");
                     // stop delayed SOS if it is on
                     if (DelayedSosService.isTimerOn()) {
+                        mLogs.info("SendMessageFragment. Delayed SOS active. Stoping it");
                         mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
                     }
                     // start normal sos
+                    Utils.setLoading(mActivity, true);
+                    mLogs.info("SendMessageFragment. Starting SOS");
                     sosManager.startSos();
                     mSosBtn.setText(getResources().getString(R.string.sos_cancel));
                 }
@@ -128,26 +142,29 @@ public class SendMessageFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if (SosManager.getInstance(mActivity).isSosStarted())
+        mLogs.info("SendMessageFragment.onResume())");
+
+        if (SosManager.getInstance(mActivity).isSosStarted()) {
+            mLogs.info("SendMessageFragment.onResume() SOS active");
             mSosBtn.setText(getString(R.string.sos_cancel));
-        else
+        } else {
+            mLogs.info("SendMessageFragment.onResume() SOS not active");
             mSosBtn.setText(getString(R.string.sos));
+        }
 
         if (SosManager.getInstance(mActivity).getEvent() == null
             && Utils.isServerAuthenticated(mActivity))
         {
-            // TODO: refactor this with Utils.setLoading() like we did in AW
-            final ProgressDialog progressDialog = new ProgressDialog(mActivity);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-            progressDialog.setContentView(R.layout.loading_progressbar);
-
+            mLogs.info("SendMessageFragment.onResume() No event, trying to create one");
+            Utils.setLoading(mActivity, true);
             NetworkManager.createEvent(mActivity,
                     new NetworkManager.DeliverResultRunnable<Event>() {
                         @Override
                         public void deliver(Event event) {
+                            mLogs.info("SendMessageFragment.onResume() event created: " +
+                                    event.getId()); // TODO: make event.toString()
                             SosManager.getInstance(mActivity).setEvent(event);
-                            progressDialog.dismiss();
+                            Utils.setLoading(mActivity, false);
                         }
                     });
 
@@ -169,12 +186,14 @@ public class SendMessageFragment extends Fragment {
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+                                mLogs.info("SendMessageFragment. Password entered. Checking");
                                 checkPasswordAndCancelSos(userInput.getText().toString());
                             }
                         })
                 .setNegativeButton(android.R.string.cancel,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+                                mLogs.info("SendMessageFragment. Password dialog canceled");
                                 dialog.cancel();
                             }
                         });
@@ -187,6 +206,7 @@ public class SendMessageFragment extends Fragment {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    mLogs.info("SendMessageFragment. Password entered. Checking");
                     checkPasswordAndCancelSos(userInput.getText().toString());
                     alertDialog.dismiss();
                 }
@@ -198,16 +218,20 @@ public class SendMessageFragment extends Fragment {
     // cancels sos or builds dialog with retry/cancel buttons
     private void checkPasswordAndCancelSos(String password) {
         if (password.equals(Prefs.getPassword(mActivity))) {
+            mLogs.info("SendMessageFragment. Password correct. Stoping SOS");
+            Utils.setLoading(mActivity, true);
             SosManager.getInstance(mActivity).stopSos();
             mSosBtn.setText(getString(R.string.sos));
         }
         else {
+            mLogs.info("SendMessageFragment. Password incorrect");
             AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
             builder.setTitle(R.string.wrong_password);
             builder.setNegativeButton(android.R.string.cancel, null);
             builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    mLogs.info("SendMessageFragment. User wants to enter password again");
                     askPasswordAndCancelSos();
                 }
             });

@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Logs;
+import ua.p2psafety.util.Utils;
 
 public class AcceptEventFragment extends Fragment {
     TextView mEventInfo;
@@ -99,6 +100,7 @@ public class AcceptEventFragment extends Fragment {
         mLogs.info("accepting event");
         mAccepted = true;
 
+        Utils.setLoading(mActivity, true);
         NetworkManager.supportEvent(mActivity, mEventSupportUrl,
                 new NetworkManager.DeliverResultRunnable<Boolean>() {
             @Override
@@ -106,6 +108,7 @@ public class AcceptEventFragment extends Fragment {
                 mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Utils.setLoading(mActivity, false);
                         //mActivity.onBackPressed();
                         if (success) {
                             XmppService.processing_event = false;

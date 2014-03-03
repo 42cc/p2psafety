@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Facebook App Id -->
-    <string name="app_id">784584141570570</string>
+    <string name="app_id">575503025870783</string>
 
     <string name="app_name">SOSMessage</string>
 
@@ -88,6 +88,11 @@
     <string name="accept">Accept</string>
     <string name="ignore">Ignore</string>
 
+
+    <string name="network_error">Something went wrong. Check your network connection.</string>
+    <string name="connection">Connection</string>
+    <string name="connection_is_out">Internet connection is not available, check the settings</string>
+    <string name="connection_settings">Settings</string>
 
     <string-array name="media_types">
         <item>No</item>

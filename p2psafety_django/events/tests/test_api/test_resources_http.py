@@ -9,9 +9,9 @@ from django.core.urlresolvers import reverse
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
-from ..models import Event, EventUpdate
-from .helpers.factories import EventFactory, EventUpdateFactory, UserFactory
-from .helpers.mixins import ModelsMixin, UsersMixin
+from ...models import Event, EventUpdate
+from ..helpers.factories import EventFactory, EventUpdateFactory, UserFactory
+from ..helpers.mixins import ModelsMixin, UsersMixin
 
 
 class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
@@ -117,10 +117,10 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertEqual(objects[1]['latest_location'], {'latitude': 1, 'longitude': 1})
         self.assertDictContainsSubset({'id': event.user.id,
                                        'full_name': event.user.username},
-                                        objects[0]['user'])
+                                      objects[0]['user'])
         self.assertDictContainsSubset({'id': event_location.user.id,
                                        'full_name': event_location.user.username},
-                                       objects[1]['user'])
+                                      objects[1]['user'])
 
         for update_dict, update_obj in zip(objects, event_updates):
             latest_update = update_dict.get('latest_update')
@@ -145,7 +145,7 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
     def test_support_bad(self, support_by_user_mock):
         user_victim, user_supporter = UserFactory(), self.superuser
         event_victim = EventFactory(user=user_victim)
-        
+
         url = self.events_support_url(event_victim.id)
 
         # Invalid method
