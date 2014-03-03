@@ -4,7 +4,8 @@ from django.shortcuts import get_object_or_404
 
 from allauth.socialaccount.providers.facebook.views import fb_complete_login
 from tastypie import fields, http
-from tastypie.authentication import Authentication, ApiKeyAuthentication
+from tastypie.authentication import Authentication, ApiKeyAuthentication, \
+                                    SessionAuthentication, MultiAuthentication
 from tastypie.models import ApiKey
 from tastypie.resources import Resource, ModelResource
 from schematics.models import Model as SchemaModel
@@ -13,6 +14,7 @@ from schematics.types.compound import ListType
 
 from core.api.mixins import ApiMethodsMixin
 from core.api.decorators import body_params, api_method
+from .. import utils
 from ..models import Role, MovementType
 
 
@@ -23,6 +25,7 @@ class UserResource(ApiMethodsMixin, ModelResource):
         fields = ['id']
         detail_allowed_methods = []
         list_allowed_methods = []
+        authentication = ApiKeyAuthentication()
 
     full_name = fields.CharField('get_full_name')
 
@@ -58,12 +61,39 @@ class UserResource(ApiMethodsMixin, ModelResource):
         @body_params(PostParams)
         def post(self, request, pk=None, params=None, **kwargs):
             """
-            Sets user's roles to given list of ids as ``role_id`` param.
+            Sets user's roles to given list of ids as ``ids`` param.
             """
             user = get_object_or_404(User, pk=pk)
             roles = Role.objects.filter(id__in=params.role_ids)
             user.roles.clear()
             user.roles.add(*roles)
+            return http.HttpAccepted()
+
+        return get, post
+
+    @api_method(r'/movement_types', name='api_users_movement_types')
+    def movement_types(self):
+        """
+        Manages user's movement types.
+        """
+        def get(self, request, **kwargs):
+            """
+            Returns user's movement types as list of ids.
+            """
+            objects = [mtype.id for mtype in request.user.movement_types.all()]
+            return self.create_response(request, objects)
+
+        class PostParams(SchemaModel):
+            movement_type_ids = ListType(IntType(), required=True) 
+
+        @body_params(PostParams)
+        def post(self, request, params=None, **kwargs):
+            """
+            Sets user's movement types to given list of ids as ``ids`` param.
+            """
+            mtypes = MovementType.objects.filter(id__in=params.movement_type_ids)
+            request.user.movement_types.clear()
+            request.user.movement_types.add(*mtypes)
             return http.HttpAccepted()
 
         return get, post
@@ -80,7 +110,7 @@ class RoleResource(ModelResource):
 class MovementTypeResource(ModelResource):
     class Meta:
         queryset = MovementType.objects.all()
-        resource_name = 'movementtype'
+        resource_name = 'movement_types'
         detail_allowed_methods = []
         include_resource_uri = False
         authentication = ApiKeyAuthentication()
@@ -92,16 +122,11 @@ class AuthResource(ApiMethodsMixin, Resource):
         authentication = Authentication()
         detail_allowed_methods = []
         list_allowed_methods = []
-
-    def _get_api_token(self, user):
-        try:
-            return ApiKey.objects.filter(user=user)[0].key
-        except IndexError:
-            return ApiKey.objects.create(user=user).key
+        authentication = ApiKeyAuthentication()
 
     def _construct_login_response(self, user):
         return {'username': user.username,
-                'key': self._get_api_token(user)}
+                'key': utils.get_api_token(user).key}
 
     @api_method(r'/login/site', name='api_auth_login_site')
     def login_with_site(self):

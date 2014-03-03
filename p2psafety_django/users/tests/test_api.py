@@ -14,7 +14,14 @@ from allauth.socialaccount.tests import create_oauth_tests
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
-from .helpers import ModelsMixin, UserFactory, RoleFactory, SocialTestCase
+from .helpers import ModelsMixin, SocialTestCase, \
+                     UserFactory, RoleFactory, MovementTypeFactory 
+from .. import utils
+
+
+def auth(user):
+    api_token = utils.get_api_token(user)
+    return u'ApiKey %s:%s' % (user.username, api_token.key)
 
 
 class PermissionTestCase(ModelsMixin, ResourceTestCase):
@@ -47,19 +54,7 @@ class PermissionTestCase(ModelsMixin, ResourceTestCase):
         self.assertNotEqual(self.api_client.delete(url).status_code, 403)
 
 
-class RolesTestCase(ModelsMixin, ResourceTestCase):
-
-    def test_get_list(self):
-        role1, role2 = RoleFactory(), RoleFactory()
-
-        resp = self.api_client.get(self.roles_list_url, format='json')
-        self.assertValidJSONResponse(resp)
-        roles_dicts = sorted(self.deserialize(resp)['objects'], key=itemgetter('id'))
-        self.assertEqual(dict(id=role1.id, name=role1.name), roles_dicts[0])
-        self.assertEqual(dict(id=role2.id, name=role2.name), roles_dicts[1])
-
-
-class UsersTestCase(ModelsMixin, ResourceTestCase):
+class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
 
     def test_get_roles(self):
         user = UserFactory()
@@ -120,8 +115,96 @@ class UsersTestCase(ModelsMixin, ResourceTestCase):
 
         # Invalid body
         resp = self.api_client.post(existing_user, data='invalid data')
+        self.assertEqual(resp.status_code, 400)
+
+
+class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
+
+    def test_get_movement_types(self):
+        user = UserFactory()
+        mtype1, mtype2 = MovementTypeFactory(), MovementTypeFactory()
+        user.movement_types.add(mtype1)
+        url = self.users_movement_types_url()
+
+        resp = self.api_client.get(url, format='json', authentication=auth(user))
+        self.assertValidJSONResponse(resp)
+        movement_types_list = self.deserialize(resp)
+        self.assertEqual(movement_types_list, [mtype1.id])
+
+    def test_set_movement_types(self):
+        # User has 1100
+        user = UserFactory()
+        mtype0, mtype1, mtype2, mtype3 = map(lambda i: MovementTypeFactory(), range(4))
+        user.movement_types.add(mtype0, mtype1)
+        url = self.users_movement_types_url()
+        
+        # Setting 0110
+        data = {'movement_type_ids': [mtype1.id, mtype2.id]}
+        
+        # Results in 0110
+        resp = self.api_client.post(url, data=data, authentication=auth(user))
+        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(data['movement_type_ids'],
+                         [m.id for m in user.movement_types.all()])
+
+    def test_set_single_movement_type(self):
+        user, mtype = UserFactory(), MovementTypeFactory()
+        url = self.users_movement_types_url()
+
+        data = dict(movement_type_ids=mtype.id)
+        resp = self.api_client.post(url, data=data, authentication=auth(user))
+        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(list(user.movement_types.all()), [mtype])
+
+    def test_clear_movement_types(self):
+        user, mtype = UserFactory(), MovementTypeFactory()
+        url = self.users_movement_types_url()
+        user.movement_types.add(mtype)
+
+        data = dict(movement_type_ids=[])
+        resp = self.api_client.post(url, data=data, authentication=auth(user))
+        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(user.movement_types.count(), 0)
+
+    def test_movement_types_errors(self):
+        user, mtype = UserFactory(), MovementTypeFactory()
+        url = self.users_movement_types_url()
+        
+        # No ``movement_types_ids`` supplied
+        resp = self.api_client.post(url, data={}, authentication=auth(user))
+        self.assertEqual(resp.status_code, 400)
+
+        # Invalid body
+        resp = self.api_client.post(url, data='invalid data', authentication=auth(user))
         self.assertEqual(resp.status_code, 400)      
 
+
+class RolesTestCase(ModelsMixin, ResourceTestCase):
+
+    def test_get_list(self):
+        role1, role2 = RoleFactory(), RoleFactory()
+
+        resp = self.api_client.get(self.roles_list_url, format='json')
+        self.assertValidJSONResponse(resp)
+        roles_dicts = sorted(self.deserialize(resp)['objects'], key=itemgetter('id'))
+        self.assertEqual(dict(id=role1.id, name=role1.name), roles_dicts[0])
+        self.assertEqual(dict(id=role2.id, name=role2.name), roles_dicts[1])
+
+
+class MovementTypesTestCase(ModelsMixin, ResourceTestCase):
+
+    def test_get_list(self):
+        user = UserFactory()
+        mtype1, mtype2 = MovementTypeFactory(), MovementTypeFactory()
+
+        resp = self.api_client.get(self.movement_types_list_url, format='json',
+                                   authentication = auth(user))
+        self.assertValidJSONResponse(resp)
+        movementtypes_dicts = sorted(self.deserialize(resp)['objects'], key=itemgetter('id'))
+        self.assertEqual(dict(id=mtype1.id, name=mtype1.name), movementtypes_dicts[0])
+        self.assertEqual(dict(id=mtype2.id, name=mtype2.name), movementtypes_dicts[1])
+
+        
 
 class AuthTestCase(SocialTestCase):
 

@@ -52,6 +52,11 @@ class ModelsMixin(object):
         return reverse('api_dispatch_detail', kwargs=kwargs)
 
     @property
+    def movement_types_list_url(self):
+        kwargs = dict(resource_name='movement_types', api_name='v1')
+        return reverse('api_dispatch_list', kwargs=kwargs)
+
+    @property
     def users_list_url(self):
         kwargs = dict(resource_name='users', api_name='v1')
         return reverse('api_dispatch_list', kwargs=kwargs)
@@ -63,6 +68,10 @@ class ModelsMixin(object):
     def users_roles_url(self, user_id):
         kwargs = dict(resource_name='users', api_name='v1', pk=user_id)
         return reverse('api_users_roles', kwargs=kwargs)
+
+    def users_movement_types_url(self):
+        kwargs = dict(resource_name='users', api_name='v1')
+        return reverse('api_users_movement_types', kwargs=kwargs)
 
 
 @override_settings(
