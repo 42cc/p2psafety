@@ -20,32 +20,44 @@ from .helpers import ModelsMixin, SocialTestCase, api_key_auth as auth, \
 
 class PermissionTestCase(ModelsMixin, ResourceTestCase):
 
+    def setUp(self):
+        super(PermissionTestCase, self).setUp()
+        self.user = UserFactory()
+
     def test_get_users_list(self):
-        """
-        Noone can access user list.
-        """
         self.assertHttpMethodNotAllowed(self.api_client.get(self.users_list_url))
 
     def test_get_users_detail(self):
-        """
-        Noone can view user details.
-        """
-        user = UserFactory()
-        self.assertHttpMethodNotAllowed(self.api_client.get(self.users_detail_url(user.id)))
+        url = self.users_detail_url(self.user.id)
+        self.assertHttpMethodNotAllowed(self.api_client.get(url))
 
     def test_get_list_roles(self):
-        """
-        Anyone can access roles list.
-        """
-        self.assertHttpOK(self.api_client.get(self.roles_list_url, format='json'))
+        url = self.roles_list_url
+        self.assertHttpUnauthorized(self.api_client.get(url))
+        self.assertHttpOK(self.api_client.get(url, format='json', **auth(self.user)))
+
+    def test_post_list_roles(self):
+        url = self.roles_list_url
+        self.assertHttpMethodNotAllowed(self.api_client.post(url))
 
     def test_role_add_remove(self):
-        """
-        Anyone can add/remove role.
-        """
-        url = self.users_roles_url
-        self.assertNotEqual(self.api_client.post(url).status_code, 403)
-        self.assertNotEqual(self.api_client.delete(url).status_code, 403)
+        url, data = self.users_roles_url, dict(role_ids=[])
+        self.assertHttpUnauthorized(self.api_client.post(url, data=data))
+        self.assertHttpAccepted(self.api_client.post(url, data=data, **auth(self.user)))
+
+    def test_get_list_movement_types(self):
+        url = self.movement_types_list_url
+        self.assertHttpUnauthorized(self.api_client.get(url))
+        self.assertHttpOK(self.api_client.get(url, **auth(self.user)))
+
+    def test_post_list_movement_types(self):
+        url = self.movement_types_list_url
+        self.assertHttpMethodNotAllowed(self.api_client.post(url))
+
+    def test_movement_type_add_remove(self):
+        url, data = self.users_movement_types_url, dict(movement_type_ids=[])
+        self.assertHttpUnauthorized(self.api_client.post(url, data=data))
+        self.assertHttpAccepted(self.api_client.post(url, data=data, **auth(self.user)))
 
 
 class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
@@ -170,9 +182,10 @@ class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
 class RolesTestCase(ModelsMixin, ResourceTestCase):
 
     def test_get_list(self):
+        user = UserFactory()
         role1, role2 = RoleFactory(), RoleFactory()
 
-        resp = self.api_client.get(self.roles_list_url, format='json')
+        resp = self.api_client.get(self.roles_list_url, **auth(user))
         self.assertValidJSONResponse(resp)
         roles_dicts = sorted(self.deserialize(resp)['objects'], key=itemgetter('id'))
         self.assertEqual(dict(id=role1.id, name=role1.name), roles_dicts[0])

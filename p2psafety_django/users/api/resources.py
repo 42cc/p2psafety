@@ -93,7 +93,9 @@ class RoleResource(ModelResource):
         queryset = Role.objects.all()
         resource_name = 'roles'
         detail_allowed_methods = []
+        list_allowed_methods = ['get']
         include_resource_uri = False
+        authentication = ApiKeyAuthentication()
 
 
 class MovementTypeResource(ModelResource):
@@ -101,6 +103,7 @@ class MovementTypeResource(ModelResource):
         queryset = MovementType.objects.all()
         resource_name = 'movement_types'
         detail_allowed_methods = []
+        list_allowed_methods = ['get']
         include_resource_uri = False
         authentication = ApiKeyAuthentication()
 
