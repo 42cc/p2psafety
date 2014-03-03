@@ -18,3 +18,15 @@
 .event-heading{
     margin-bottom: 0;
 }
+
+.btn.type-support {
+    background-color: #5CB85C;
+    border-color: #4CAE4C;
+    color: #FFFFFF;
+}
+
+.btn.type-victim {
+    background-color: #D9534F;
+    border-color: #FF615D;
+    color: #FFFFFF;
+}

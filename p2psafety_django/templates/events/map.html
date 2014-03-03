@@ -98,7 +98,7 @@
                          ng-class="{'list-group-item-warning': event.isNew}"
                          ng-click="event.isNew = false"
                          ng-repeat="event in events">
-                      <a class="btn btn-success" ng-click="focus(event.latest_location)">
+                         <a class="btn type-{{event.type}}" ng-click="focus(event.latest_location)">
                         <span class="glyphicon glyphicon-map-marker"></span>
                       </a>
                       <div class="event-name"
