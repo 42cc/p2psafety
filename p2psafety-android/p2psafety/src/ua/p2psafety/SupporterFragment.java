@@ -3,6 +3,7 @@ package ua.p2psafety;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -83,6 +84,15 @@ public class SupporterFragment extends Fragment {
                 mActivity.onBackPressed();
             }
         });
+
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            String support_url = bundle.getString(XmppService.SUPPORTER_URL_KEY);
+            Location event_loc = (Location) bundle.get(XmppService.LOCATION_KEY);
+
+            Log.i("SupporterFragment", "url: " + support_url);
+            Log.i("SupporterFragment", "location: " + event_loc);
+        }
     }
 
     private void setupMediaButtons() {

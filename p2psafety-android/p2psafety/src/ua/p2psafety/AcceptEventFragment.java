@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -32,6 +33,9 @@ public class AcceptEventFragment extends Fragment {
     TextView mEventInfo;
     Button mAcceptBtn, mIgnoreBtn;
     Activity mActivity;
+
+    Location mEventLocation;
+    String mEventSupportUrl;
 
     Boolean mAccepted = false;
 
@@ -74,13 +78,24 @@ public class AcceptEventFragment extends Fragment {
                 mActivity.finish();
             }
         });
+
+        Bundle bundle = getArguments();
+        mEventLocation = (Location) bundle.get(XmppService.LOCATION_KEY);
+        mEventSupportUrl = bundle.getString(XmppService.SUPPORTER_URL_KEY);
+
+        System.out.println("onViewCreated. location: " + mEventLocation);
+        System.out.println("onViewCreated. url: " + mEventSupportUrl);
     }
 
     private void acceptEvent() {
         mAccepted = true;
 
         // open Supporter screen
+        Bundle bundle = new Bundle();
+        bundle.putString(XmppService.SUPPORTER_URL_KEY, mEventSupportUrl);
+        bundle.putParcelable(XmppService.LOCATION_KEY, mEventLocation);
         Fragment fragment = new SupporterFragment();
+        fragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
                             .addToBackStack(null)
                             .replace(R.id.content_frame, fragment).commit();

@@ -57,11 +57,12 @@ public class SosActivity extends ActionBarActivity {
         Fragment fragment;
 
         String fragmentClass = getIntent().getStringExtra(FRAGMENT_KEY);
-        if (fragmentClass != null)
+        if (fragmentClass != null) {
             // activity started from outside
             // and requested to show specific fragment
             fragment = Fragment.instantiate(this, fragmentClass);
-        else {
+            fragment.setArguments(getIntent().getExtras());
+        } else {
             // normal start
             fragment = new SendMessageFragment();
         }
