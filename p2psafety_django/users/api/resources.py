@@ -122,7 +122,7 @@ class AuthResource(ApiMethodsMixin, Resource):
         authentication = Authentication()
         detail_allowed_methods = []
         list_allowed_methods = []
-        authentication = ApiKeyAuthentication()
+        authentication = Authentication()
 
     def _construct_login_response(self, user):
         return {'username': user.username,

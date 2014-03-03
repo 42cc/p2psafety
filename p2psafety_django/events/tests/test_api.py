@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
+from users.tests.helpers import api_key_auth as auth
 from ..models import Event, EventUpdate
 from .helpers.factories import EventFactory, EventUpdateFactory, UserFactory
 from .helpers.mixins import ModelsMixin, UsersMixin
@@ -149,23 +150,25 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         url = self.events_support_url(event_victim.id)
 
         # Invalid method
-        self.assertHttpMethodNotAllowed(self.api_client.get(url))
+        resp = self.api_client.get(url, **auth(user_victim))
+        self.assertHttpMethodNotAllowed(resp)
 
         # Invalid body
-        self.assertHttpBadRequest(self.api_client.post(url, data='invalid'))
+        resp = self.api_client.post(url, data='invalid', **auth(user_victim))
+        self.assertHttpBadRequest(resp)
 
         # Invalid params
         data = dict(user_id='invalid')
-        self.assertHttpBadRequest(self.api_client.post(url, data=data))
+        resp = self.api_client.post(url, data=data, **auth(user_victim))
+        self.assertHttpBadRequest(resp)
 
         # Event does not exists
         data = dict(user_id=user_supporter.id)
         not_found_url = self.events_support_url(123)
-        self.assertHttpNotFound(self.api_client.post(not_found_url, data=data))
+        resp = self.api_client.post(not_found_url, data=data, **auth(user_victim))
+        self.assertHttpNotFound(resp)
 
-        # User does not exists
-        data = dict(user_id=123)
-        self.assertHttpBadRequest(self.api_client.post(url, data=data))
+        self.assertEqual(support_by_user_mock.call_count, 0)
 
 
 class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):

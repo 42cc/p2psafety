@@ -12,6 +12,19 @@ from factory.django import DjangoModelFactory
 from tastypie.test import ResourceTestCase
 
 from ..models import Role, MovementType
+from .. import utils
+
+
+def api_key_auth(user):
+    """
+    Returns api key authentication headers for given user.
+
+    :type user: `django.contrib.auth.models.User`
+    """
+    api_token = utils.get_api_token(user)
+    return {
+        'HTTP_AUTHORIZATION': u'ApiKey %s:%s' % (user.username, api_token.key)
+    }
 
 
 class UserFactory(DjangoModelFactory):
