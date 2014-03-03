@@ -43,7 +43,7 @@ class PermissionTestCase(ModelsMixin, ResourceTestCase):
         """
         Anyone can add/remove role.
         """
-        url = self.users_roles_url(1)
+        url = self.users_roles_url
         self.assertNotEqual(self.api_client.post(url).status_code, 403)
         self.assertNotEqual(self.api_client.delete(url).status_code, 403)
 
@@ -52,7 +52,7 @@ class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
 
     def test_get_roles(self):
         user = UserFactory()
-        url = self.users_roles_url(user.id)
+        url = self.users_roles_url
         role1, role2 = RoleFactory(), RoleFactory()
         user.roles.add(role1)
 
@@ -66,7 +66,7 @@ class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
         user = UserFactory()
         role0, role1, role2, role3 = RoleFactory(), RoleFactory(), RoleFactory(), RoleFactory()
         user.roles.add(role0, role1)
-        url = self.users_roles_url(user.id)
+        url = self.users_roles_url
         
         # Setting 0110
         data = {'role_ids': [role1.id, role2.id]}
@@ -78,7 +78,7 @@ class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
 
     def test_set_single_role(self):
         user, role = UserFactory(), RoleFactory()
-        url = self.users_roles_url(user.id)
+        url = self.users_roles_url
 
         resp = self.api_client.post(url, data=dict(role_ids=role.id), **auth(user))
         self.assertEqual(resp.status_code, 202)
@@ -86,7 +86,7 @@ class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
 
     def test_clear_roles(self):
         user, role = UserFactory(), RoleFactory()
-        url = self.users_roles_url(user.id)
+        url = self.users_roles_url
         user.roles.add(role)
 
         resp = self.api_client.post(url, data=dict(role_ids=[]), **auth(user))
@@ -95,7 +95,7 @@ class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
 
     def test_role_errors(self):
         user, role  = UserFactory(), RoleFactory()        
-        url = self.users_roles_url(user.id)
+        url = self.users_roles_url
 
         # No ``role_ids`` supplied
         resp = self.api_client.post(url, data={}, **auth(user))
@@ -112,7 +112,7 @@ class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
         user = UserFactory()
         mtype1, mtype2 = MovementTypeFactory(), MovementTypeFactory()
         user.movement_types.add(mtype1)
-        url = self.users_movement_types_url()
+        url = self.users_movement_types_url
 
         resp = self.api_client.get(url, format='json', **auth(user))
         self.assertValidJSONResponse(resp)
@@ -124,7 +124,7 @@ class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
         user = UserFactory()
         mtype0, mtype1, mtype2, mtype3 = map(lambda i: MovementTypeFactory(), range(4))
         user.movement_types.add(mtype0, mtype1)
-        url = self.users_movement_types_url()
+        url = self.users_movement_types_url
         
         # Setting 0110
         data = {'movement_type_ids': [mtype1.id, mtype2.id]}
@@ -137,7 +137,7 @@ class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
 
     def test_set_single_movement_type(self):
         user, mtype = UserFactory(), MovementTypeFactory()
-        url = self.users_movement_types_url()
+        url = self.users_movement_types_url
 
         data = dict(movement_type_ids=mtype.id)
         resp = self.api_client.post(url, data=data, **auth(user))
@@ -146,7 +146,7 @@ class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
 
     def test_clear_movement_types(self):
         user, mtype = UserFactory(), MovementTypeFactory()
-        url = self.users_movement_types_url()
+        url = self.users_movement_types_url
         user.movement_types.add(mtype)
 
         data = dict(movement_type_ids=[])
@@ -156,7 +156,7 @@ class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
 
     def test_movement_types_errors(self):
         user, mtype = UserFactory(), MovementTypeFactory()
-        url = self.users_movement_types_url()
+        url = self.users_movement_types_url
         
         # No ``movement_types_ids`` supplied
         resp = self.api_client.post(url, data={}, **auth(user))

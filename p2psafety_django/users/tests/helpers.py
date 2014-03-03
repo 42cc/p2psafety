@@ -78,10 +78,12 @@ class ModelsMixin(object):
         kwargs = dict(resource_name='users', api_name='v1', pk=user_id)
         return reverse('api_dispatch_detail', kwargs=kwargs)
 
-    def users_roles_url(self, user_id):
-        kwargs = dict(resource_name='users', api_name='v1', pk=user_id)
+    @property
+    def users_roles_url(self):
+        kwargs = dict(resource_name='users', api_name='v1')
         return reverse('api_users_roles', kwargs=kwargs)
 
+    @property
     def users_movement_types_url(self):
         kwargs = dict(resource_name='users', api_name='v1')
         return reverse('api_users_movement_types', kwargs=kwargs)

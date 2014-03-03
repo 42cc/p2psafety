@@ -135,10 +135,8 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         event_supporter = EventFactory(user=user_supporter,
                                        status=Event.STATUS_ACTIVE)
 
-        self.login_as_superuser()
         url = self.events_support_url(event_victim.id)
-        data = dict(user_id=user_supporter.id)
-        resp = self.api_client.post(url, data=data)
+        resp = self.api_client.post(url, **auth(user_supporter))
         self.assertEqual(resp.status_code, 200)
         support_by_user_mock.assert_called_once_with(user_supporter)
 
@@ -146,26 +144,15 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
     def test_support_bad(self, support_by_user_mock):
         user_victim, user_supporter = UserFactory(), self.superuser
         event_victim = EventFactory(user=user_victim)
-        
         url = self.events_support_url(event_victim.id)
 
         # Invalid method
         resp = self.api_client.get(url, **auth(user_victim))
         self.assertHttpMethodNotAllowed(resp)
 
-        # Invalid body
-        resp = self.api_client.post(url, data='invalid', **auth(user_victim))
-        self.assertHttpBadRequest(resp)
-
-        # Invalid params
-        data = dict(user_id='invalid')
-        resp = self.api_client.post(url, data=data, **auth(user_victim))
-        self.assertHttpBadRequest(resp)
-
         # Event does not exists
-        data = dict(user_id=user_supporter.id)
         not_found_url = self.events_support_url(123)
-        resp = self.api_client.post(not_found_url, data=data, **auth(user_victim))
+        resp = self.api_client.post(not_found_url, **auth(user_victim))
         self.assertHttpNotFound(resp)
 
         self.assertEqual(support_by_user_mock.call_count, 0)

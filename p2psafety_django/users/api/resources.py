@@ -33,40 +33,29 @@ class UserResource(ApiMethodsMixin, ModelResource):
         value = bundle.data['full_name']
         return value if value else bundle.obj.username
 
-    @api_method(r'/(?P<pk>\d+)/roles', name='api_users_roles')
+    @api_method(r'/roles', name='api_users_roles')
     def roles(self):
         """
-        ***
-        TODO: replace user with request.user.
-        ***
-
         Manages user's roles.
-
-        Raises:
-
-        * **404** if user is not found.
         """
-
-        def get(self, request, pk=None, **kwargs):
+        def get(self, request, **kwargs):
             """
             Returns user's roles as list of ids.
-            """
-            user = get_object_or_404(User, pk=pk)
-            objects = [role.id for role in user.roles.all()]
+            """            
+            objects = [role.id for role in request.user.roles.all()]
             return self.create_response(request, objects)
 
         class PostParams(SchemaModel):
             role_ids = ListType(IntType(), required=True)
 
         @body_params(PostParams)
-        def post(self, request, pk=None, params=None, **kwargs):
+        def post(self, request, params=None, **kwargs):
             """
             Sets user's roles to given list of ids as ``ids`` param.
-            """
-            user = get_object_or_404(User, pk=pk)
+            """            
             roles = Role.objects.filter(id__in=params.role_ids)
-            user.roles.clear()
-            user.roles.add(*roles)
+            request.user.roles.clear()
+            request.user.roles.add(*roles)
             return http.HttpAccepted()
 
         return get, post
