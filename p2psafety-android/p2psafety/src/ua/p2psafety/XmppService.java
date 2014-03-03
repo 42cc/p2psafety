@@ -4,10 +4,12 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.util.Xml;
 import android.widget.Toast;
 
 import org.jivesoftware.smack.AndroidConnectionConfiguration;
@@ -22,6 +24,7 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smackx.packet.DiscoverItems;
 import org.jivesoftware.smackx.pubsub.EventElement;
+import org.jivesoftware.smackx.pubsub.Item;
 import org.jivesoftware.smackx.pubsub.ItemPublishEvent;
 import org.jivesoftware.smackx.pubsub.ItemsExtension;
 import org.jivesoftware.smackx.pubsub.LeafNode;
@@ -30,8 +33,11 @@ import org.jivesoftware.smackx.pubsub.PayloadItem;
 import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jivesoftware.smackx.pubsub.Subscription;
 import org.jivesoftware.smackx.pubsub.listener.ItemEventListener;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.File;
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -41,10 +47,19 @@ public class XmppService extends Service {
     private static final String TAG = "XmppService";
     private static final String HOST = "p2psafety.net";
 
+    public static final String SUPPORTER_URL_KEY = "SUPPORTER_URL";
+    //public static final String RADIUS_KEY = "RADIUS";
+    public static final String LOCATION_KEY = "LOCATION";
+
     XMPPConnection mConnection;
     PacketListener mPacketListener;
     ItemEventListener mItemEventListener;
     LeafNode mNode;
+
+    // parsed data from xmpp-message
+    String mSupportUrl = "";
+    Long mRadius;
+    Location mLocation;
 
     Logs logs;
 
@@ -124,8 +139,6 @@ public class XmppService extends Service {
         };
         connection.addPacketListener(mPacketListener,
                 new MessageTypeFilter(Message.Type.chat));
-
-        // TODO look at 'accept()' method
     }
 
     // this is the listener for pubsub (global) messages
@@ -142,7 +155,7 @@ public class XmppService extends Service {
 //            }
 
             logs.info("getting xmpp pubsub node");
-            mNode = pbManager.getNode("test123");
+            mNode = pbManager.getNode("events");
             mNode.addItemEventListener(new ItemEventListener() {
                 @Override
                 public void handlePublishedItems(ItemPublishEvent items) {
@@ -155,10 +168,13 @@ public class XmppService extends Service {
                     Log.i("===================", "===================================");
                     logs.info("got xmpp pubsub message");
                     try {
-                        Log.i("===================", "xml: " + mNode.getItems(1).get(0).toXML());
+                        String message = mNode.getItems(1).get(0).toXML();
+                        Log.i("===================", "xml: " + message);
+                        parseXml(message);
                     } catch (XMPPException e) {}
                     Log.i("===================", "===================================");
 
+                    // TODO: distance check goes here
                     openAcceptEventScreen();
                 }
             });
@@ -185,6 +201,44 @@ public class XmppService extends Service {
         }
     }
 
+    public void parseXml(String xml) {
+        mSupportUrl = "";
+        mRadius = Long.valueOf(0);
+        mLocation = new Location("");
+        try {
+            XmlPullParser parser = Xml.newPullParser();
+            parser.setInput(new StringReader(xml));
+            int eventType = parser.getEventType();
+            String name = "";
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                switch (eventType) {
+                    case XmlPullParser.START_TAG:
+                        name = parser.getName();
+                        break;
+                    case XmlPullParser.TEXT:
+                        String text = parser.getText();
+                        System.out.println("name: " + name + "  text: " + text);
+                        if (name.equalsIgnoreCase("support"))
+                            mSupportUrl = parser.getText();
+                        else if (name.equalsIgnoreCase("radius"))
+                            mRadius = Long.valueOf(parser.getText());
+                        else if (name.equalsIgnoreCase("latitude"))
+                            mLocation.setLatitude(Double.valueOf(parser.getText()));
+                        else if (name.equalsIgnoreCase("longitude"))
+                            mLocation.setLongitude(Double.valueOf(parser.getText()));
+                        break;
+                }
+                eventType = parser.next();
+            }
+            System.out.println("End document");
+
+            System.out.println("support_url: " + mSupportUrl);
+            System.out.println("radius: " + mRadius);
+            System.out.println("loc: " + mLocation.toString());
+
+        } catch (Exception e) {}
+    }
+
     private boolean isSubscribed(Node node, String user_jid) {
         boolean result = false;
         try {
@@ -207,6 +261,10 @@ public class XmppService extends Service {
         Intent i = new Intent(this, SosActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.putExtra(SosActivity.FRAGMENT_KEY, AcceptEventFragment.class.getName());
+        // put parsed data
+        i.putExtra(SUPPORTER_URL_KEY, mSupportUrl);
+        //i.putExtra(RADIUS_KEY, mRadius);
+        i.putExtra(LOCATION_KEY, mLocation);
         startActivity(i);
     }
 

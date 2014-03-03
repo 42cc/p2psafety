@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
 public class PowerButtonListener extends BroadcastReceiver{
@@ -23,6 +24,12 @@ public class PowerButtonListener extends BroadcastReceiver{
     private void mainFunctionality(Context context) {
         if (SosManager.getInstance(context).isSosStarted())
             return; // Sos is already On, do nothing
+
+        if (Utils.isServiceRunning(context, AudioRecordService.class) ||
+            Utils.isServiceRunning(context, VideoRecordService.class))
+        {
+            return; // media record is going on - do nothing
+        }
 
         long max_timeout;
         if (mPressCount == 3) {
@@ -54,8 +61,15 @@ public class PowerButtonListener extends BroadcastReceiver{
         if (mPressCount == mPressThreshold) {
             // ATTN: vibrate every time when something's activated by hardware buttons
             // (startSos has vibration by itself though)
-            SosManager.getInstance(context).startSos();
-            mPressCount = 0;
+            if (Prefs.isSupporterMode(context)) {
+                // in Supporter mode start audio record (if no other record is on)
+                context.startService(new Intent(context, AudioRecordService.class));
+                Utils.startVibration(context);
+            } else {
+                // if not in Supporter mode - start SOS
+                SosManager.getInstance(context).startSos();
+                mPressCount = 0;
+            }
         }
     }
 }

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+    android:background="@color/White"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:clickable="true">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Long long ago in a galaxy far far away dark lord Sith decided to take over the world. Jedi orden asks you to help them."
+                android:id="@+id/txt_info"
+                android:layout_gravity="center"
+                android:textSize="24sp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="0" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Victim: "
+            android:id="@+id/txt_victim_caption"
+            android:layout_gravity="center"
+            android:textSize="24sp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="0"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Luke Skywalker"
+            android:id="@+id/txt_victim_name"
+            android:layout_gravity="center"
+            android:textSize="24sp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="0"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+        <Button
+            style="@style/TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Audio"
+            android:id="@+id/btn_audio"
+            android:background="@drawable/btn_sel"
+            android:padding="@dimen/st_padding"
+            android:singleLine="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textSize="24dp"
+            android:minWidth="170dp"/>
+
+        <Button
+            style="@style/TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Video"
+            android:id="@+id/btn_video"
+            android:background="@drawable/btn_sel"
+            android:padding="@dimen/st_padding"
+            android:singleLine="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textSize="24dp"
+            android:minWidth="170dp"/>
+
+    <Button
+        style="@style/TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="I'm done helping"
+        android:id="@+id/btn_close_event"
+        android:background="@drawable/btn_sel"
+        android:padding="@dimen/st_padding"
+        android:layout_marginRight="10dp"
+        android:singleLine="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="24dp"
+        android:minWidth="170dp"
+        android:layout_marginLeft="10dp" />
+
+
+</LinearLayout>

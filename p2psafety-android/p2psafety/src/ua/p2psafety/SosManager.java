@@ -3,6 +3,7 @@ package ua.p2psafety;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,6 +92,7 @@ public class SosManager {
             serverStopSos();
 
         mContext.stopService(new Intent(mContext, PhoneCallService.class));
+        mContext.stopService(new Intent(mContext, LocationService.class));
 
         setSosStarted(false);
     }
@@ -125,16 +127,16 @@ public class SosManager {
                         public void deliver(Event event) {
                             if (event != null) {
                                 setEvent(event);
-                                serverUpdateLocation(); // make this event active
+                                serverActivateSos(); // make this event active
                             }
                         }
                     });
         } else {
-            serverUpdateLocation();
+            serverActivateSos();
         }
     }
 
-    private void serverUpdateLocation() {
+    private void serverActivateSos() {
         mEvent.setStatus(Event.STATUS_ACTIVE);
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
@@ -144,7 +146,14 @@ public class SosManager {
                     data.put("loc", location);
                 data.put("text", Prefs.getMessage(mContext));
 
-                NetworkManager.updateEvent(mContext, data, null);
+                NetworkManager.updateEvent(mContext, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
+                    @Override
+                    public void deliver(Boolean aBoolean) {
+                        // start sending location updates
+                        Log.i("activate sos", "deliver");
+                        mContext.startService(new Intent(mContext, LocationService.class));
+                    }
+                });
             }
         };
         MyLocation myLocation = new MyLocation(logs);

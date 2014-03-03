@@ -27,6 +27,8 @@ public class Prefs {
     private static final String API_KEY = "API_KEY";
     private static final String API_USERNAME = "API_USERNAME";
 
+    private static final String IS_SUPPORTER_MODE = "IS_SUPPORTER_MODE";
+
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
     }
@@ -69,6 +71,10 @@ public class Prefs {
 
     public static void putApiUsername(Context context, String val) {
         getPrefs(context).edit().putString(API_USERNAME, val).commit();
+    }
+
+    public static void putSupporterMode(Context context, boolean val) {
+        getPrefs(context).edit().putBoolean(IS_SUPPORTER_MODE, val).commit();
     }
 
     public static boolean getIsLoc(Context context) {
@@ -126,6 +132,10 @@ public class Prefs {
 
     public static String getApiUsername(Context context) {
         return getPrefs(context).getString(API_USERNAME, null);
+    }
+
+    public static boolean isSupporterMode(Context context) {
+        return getPrefs(context).getBoolean(IS_SUPPORTER_MODE, false);
     }
 
 

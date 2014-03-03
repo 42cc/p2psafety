@@ -7,8 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,6 +34,9 @@ public class AcceptEventFragment extends Fragment {
     TextView mEventInfo;
     Button mAcceptBtn, mIgnoreBtn;
     Activity mActivity;
+
+    Location mEventLocation;
+    String mEventSupportUrl;
 
     Boolean mAccepted = false;
 
@@ -68,7 +74,6 @@ public class AcceptEventFragment extends Fragment {
             public void onClick(View v) {
                 mLogs.info("Accept button clicked");
                 acceptEvent();
-                mActivity.finish();
             }
         });
 
@@ -80,13 +85,28 @@ public class AcceptEventFragment extends Fragment {
                 mActivity.onBackPressed();
             }
         });
+
+        Bundle bundle = getArguments();
+        mEventLocation = (Location) bundle.get(XmppService.LOCATION_KEY);
+        mEventSupportUrl = bundle.getString(XmppService.SUPPORTER_URL_KEY);
+
+        System.out.println("onViewCreated. location: " + mEventLocation);
+        System.out.println("onViewCreated. url: " + mEventSupportUrl);
     }
 
     private void acceptEvent() {
         mLogs.info("accepting event");
         mAccepted = true;
-        Toast.makeText(mActivity, "Event accepted. Go and help this guy.", Toast.LENGTH_LONG)
-                .show();
+
+        // open Supporter screen
+        Bundle bundle = new Bundle();
+        bundle.putString(XmppService.SUPPORTER_URL_KEY, mEventSupportUrl);
+        bundle.putParcelable(XmppService.LOCATION_KEY, mEventLocation);
+        Fragment fragment = new SupporterFragment();
+        fragment.setArguments(bundle);
+        getFragmentManager().beginTransaction()
+                            .addToBackStack(null)
+                            .replace(R.id.content_frame, fragment).commit();
     }
 
     private void ignoreEvent() {
