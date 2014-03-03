@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.location.Location;
 import android.util.Log;
 
+import org.jivesoftware.smack.XMPPConnection;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +49,9 @@ public class SosManager {
 
     public void startSos() {
         Utils.startVibration(mContext);
+
+        // stop listening XMPP
+        mContext.stopService(new Intent(mContext, XmppService.class));
 
         // send SMS and email messages
         MessageResolver resolver = new MessageResolver(mContext);
@@ -93,6 +98,9 @@ public class SosManager {
 
         mContext.stopService(new Intent(mContext, PhoneCallService.class));
         mContext.stopService(new Intent(mContext, LocationService.class));
+
+        // start listening xmpp
+        mContext.stopService(new Intent(mContext, XmppService.class));
 
         setSosStarted(false);
     }

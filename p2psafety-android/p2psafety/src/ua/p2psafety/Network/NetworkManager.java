@@ -311,6 +311,78 @@ public class NetworkManager {
         });
     }
 
+    public static void supportEvent(final Context context, final String support_url,
+                                   final DeliverResultRunnable<Boolean> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final String TAG = "supportEvent";
+                final int CODE_SUCCESS = 200;
+
+                if (!Utils.isNetworkConnected(context, LOGS)) {
+//                    errorDialog(context, DIALOG_NO_CONNECTION);
+                    if (postRunnable != null) {
+                        postRunnable.setResult(false);
+                        postRunnable.run();
+                    }
+                    return;
+                }
+
+                try {
+                    HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
+                            .append(support_url).toString());
+
+                    addAuthHeader(context, httpPost);
+                    addUserAgentHeader(context, httpPost);
+                    httpPost.setHeader("Accept", "application/json");
+                    httpPost.setHeader("Content-type", "application/json");
+
+                    JSONObject json = new JSONObject();
+                    StringEntity se = new StringEntity(json.toString());
+                    httpPost.setEntity(se);
+
+                    Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
+                    Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpPost);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute post request", e);
+                        //errorDialog(context, DIALOG_NETWORK_ERROR);
+                        if (postRunnable != null) {
+                            postRunnable.setResult(false);
+                            postRunnable.run();
+                        }
+                        return;
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        postRunnable.setResult(true);
+                    } else {
+                        postRunnable.setResult(false);
+                    }
+
+                    if (postRunnable != null) {
+                        postRunnable.run();
+                    }
+                } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't create event", e);
+                    //errorDialog(context, DIALOG_NETWORK_ERROR);
+                    if (postRunnable != null) {
+                        postRunnable.setResult(false);
+                        postRunnable.run();
+                    }
+                }
+            }
+        });
+    }
+
     // TODO: make it work (now it returns code 401)
     public static void getEvents(final Context context,
                                  final DeliverResultRunnable<List<Event>> postRunnable) {

@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
+import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Logs;
 
@@ -98,20 +99,38 @@ public class AcceptEventFragment extends Fragment {
         mLogs.info("accepting event");
         mAccepted = true;
 
-        // open Supporter screen
-        Bundle bundle = new Bundle();
-        bundle.putString(XmppService.SUPPORTER_URL_KEY, mEventSupportUrl);
-        bundle.putParcelable(XmppService.LOCATION_KEY, mEventLocation);
-        Fragment fragment = new SupporterFragment();
-        fragment.setArguments(bundle);
-        getFragmentManager().beginTransaction()
-                            .addToBackStack(null)
-                            .replace(R.id.content_frame, fragment).commit();
+        NetworkManager.supportEvent(mActivity, mEventSupportUrl,
+                new NetworkManager.DeliverResultRunnable<Boolean>() {
+            @Override
+            public void deliver(final Boolean success) {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //mActivity.onBackPressed();
+                        if (success) {
+                            XmppService.processing_event = false;
+                            // open Supporter screen
+                            Bundle bundle = new Bundle();
+                            bundle.putString(XmppService.SUPPORTER_URL_KEY, mEventSupportUrl);
+                            bundle.putParcelable(XmppService.LOCATION_KEY, mEventLocation);
+                            Fragment fragment = new SupporterFragment();
+                            fragment.setArguments(bundle);
+                            getFragmentManager().beginTransaction()
+                                    .addToBackStack(null)
+                                    .replace(R.id.content_frame, fragment).commit();
+                        }
+                    }
+                });
+            }
+        });
+
+
     }
 
     private void ignoreEvent() {
         mLogs.info("ignoring event");
         mAccepted = false;
+        XmppService.processing_event = false;
         Toast.makeText(mActivity, "You decided to abandon that poor guy. He's in trouble :(", Toast.LENGTH_LONG)
                 .show();
     }

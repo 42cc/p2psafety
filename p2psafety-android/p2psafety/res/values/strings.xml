@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Facebook App Id -->
-    <string name="app_id">575503025870783</string>
+    <string name="app_id">784584141570570</string>
 
     <string name="app_name">SOSMessage</string>
 
@@ -83,6 +83,11 @@
     <string name="logs_successfully_sent">Files with logs successfully sent</string>
     <string name="please_write_a_description_of_issue">Please write a description of issue</string>
     <string name="email_for_logs">talk@mail.khavr.com</string>
+
+    <string name="help_needed">Somebody is in trouble. Can you help?</string>
+    <string name="accept">Accept</string>
+    <string name="ignore">Ignore</string>
+
 
     <string-array name="media_types">
         <item>No</item>

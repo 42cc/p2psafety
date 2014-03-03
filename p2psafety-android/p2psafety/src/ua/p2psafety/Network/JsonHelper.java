@@ -54,7 +54,7 @@ public class JsonHelper {
             user.setUri         (String.valueOf( data.get("resource_uri")));
 
             Log.i(TAG, "id: "           + user.getId());
-            Log.i(TAG, "fullName: "     + user.getFullName());
+            Log.i(TAG, "fullName: "     + user.getUsername());
             Log.i(TAG, "uri: "          + user.getUri());
 
         } catch (Exception e) {

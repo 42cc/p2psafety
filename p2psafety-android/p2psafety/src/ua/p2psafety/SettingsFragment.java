@@ -230,6 +230,7 @@ public class SettingsFragment extends Fragment {
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    mActivity.startService(new Intent(mActivity, XmppService.class));
                     openServersScreen();
                 }
             });

@@ -45,8 +45,12 @@ public class SosActivity extends ActionBarActivity {
         LOGS = new Logs(this);
         NetworkManager.init(this);
         startService(new Intent(this, PowerButtonService.class));
-        if (!Utils.isServiceRunning(this, XmppService.class))
+        if (!Utils.isServiceRunning(this, XmppService.class) &&
+            Utils.isServerAuthenticated(this) &&
+            !SosManager.getInstance(this).isSosStarted())
+        {
             startService(new Intent(this, XmppService.class));
+        }
     }
 
     @Override
@@ -66,9 +70,6 @@ public class SosActivity extends ActionBarActivity {
             // normal start
             fragment = new SendMessageFragment();
         }
-
-        // TODO: DELETE AFTER DEBUG
-        //fragment = new SupporterFragment();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().addToBackStack(null).replace(R.id.content_frame, fragment).commit();

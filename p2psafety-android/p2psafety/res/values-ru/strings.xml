@@ -81,6 +81,10 @@
     <string name="logs_successfully_sent">Файлы с логами успешно отправлены</string>
     <string name="please_write_a_description_of_issue">Пожалуйста, опишите проблему</string>
 
+    <string name="help_needed">У кого-то проблемы. Это недалеко. Поможете?</string>
+    <string name="accept">Принять</string>
+    <string name="ignore">Отклонить</string>
+
     <string-array name="media_types">
         <item>Нет</item>
         <item>Аудио</item>

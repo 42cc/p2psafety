@@ -191,7 +191,7 @@ public class Prefs {
     private static void putUser(Context context, User user) {
         getPrefs(context).edit()
                 .putString(USER_ID, user.getId())
-                .putString(USER_FULL_NAME, user.getFullName())
+                .putString(USER_FULL_NAME, user.getUsername())
                 .putString(USER_URI, user.getUri())
                 .commit();
     }

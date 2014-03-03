@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Long long ago in a galaxy far far away dark lord Sith decided to take over the world. Jedi orden asks you to help them."
+                android:text="@string/help_needed"
                 android:id="@+id/txt_info"
                 android:layout_gravity="center"
                 android:textSize="24sp"
@@ -45,23 +45,23 @@
             style="@style/TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Accept"
+            android:text="@string/accept"
             android:id="@+id/btn_accept"
             android:background="@drawable/btn_sel"
             android:padding="@dimen/st_padding"
             android:layout_marginRight="2dp"
             android:singleLine="true"
-            android:layout_gravity="center"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:textSize="24dp"
-            android:minWidth="170dp" />
+            android:textSize="21dp"
+            android:minWidth="170dp"
+            android:layout_weight="1" />
 
         <Button
             style="@style/TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ignore"
+            android:text="@string/ignore"
             android:id="@+id/btn_ignore"
             android:background="@drawable/btn_sel"
             android:padding="@dimen/st_padding"
@@ -69,8 +69,9 @@
             android:singleLine="true"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:textSize="24dp"
-            android:minWidth="170dp" />
+            android:textSize="21dp"
+            android:minWidth="170dp"
+            android:layout_weight="1" />
 
     </LinearLayout>
 
