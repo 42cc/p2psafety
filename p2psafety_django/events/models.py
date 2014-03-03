@@ -18,7 +18,7 @@ except ImportError:
     sha1 = sha.sha
 
 
-from . import jabber
+import jabber
 from .managers import EventManager
 
 
