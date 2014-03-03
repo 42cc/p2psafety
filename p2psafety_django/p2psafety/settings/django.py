@@ -140,6 +140,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 SECRET_KEY = 'CHANGE_THIS_KEY_BEFORE_USING_ON_PRODUCTION'
 
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,

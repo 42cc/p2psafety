@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
 from django.utils import timezone
 
-import config
+from events import config
 
 try:
     from hashlib import sha1
