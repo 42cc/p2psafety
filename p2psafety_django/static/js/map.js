@@ -95,10 +95,14 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
                                              location.longitude));
   };
-  $scope.add_eventupdate = function(event_id, text){
-    $http.post("/operator_add_eventupdate/", {"event_id":event_id, "text":text}).success(function(data) {
-        $scope.add_eventupdate_text = ""
+  $scope.add_eventupdate = function(event, text){
+    $http.post("/operator_add_eventupdate/", {"event_id":event.id, "text":text}).success(function(data) {
+        var params = {event__id: event.id};
+        $http.get(urls.eventupdates, {params: params}).success(function(data) {
+            event.updates = data.objects;
+        })
     })
+    document.getElementById('input-text-update').value = ""
   }
 
   setInterval(function(){alert("Do You sleep?")}, timeAlert.time_alert * 60 * 1000);

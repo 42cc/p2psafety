@@ -32,4 +32,4 @@ def operator_add_eventupdate(request):
 
     event = Event.objects.get(id=event_id)
     EventUpdate.objects.create(user=event.user, event=event, text=text)
-    return {'success': True, 'event': event}
+    return {'success': True}
