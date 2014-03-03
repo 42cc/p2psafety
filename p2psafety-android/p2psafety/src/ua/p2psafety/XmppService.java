@@ -27,6 +27,8 @@ import org.xmlpull.v1.XmlPullParser;
 
 import java.io.File;
 import java.io.StringReader;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.MyLocation;
@@ -75,30 +77,36 @@ public class XmppService extends Service {
     }
 
     private void connectToServer() {
-        logs.info("Getting xmpp connection configuration");
-        SmackAndroid.init(this);
-        mConnection = getConfiguredConnection(HOST);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                logs.info("Getting xmpp connection configuration");
+                SmackAndroid.init(XmppService.this);
+                mConnection = getConfiguredConnection(HOST);
 
-        try {
-            //mUserLogin = SosManager.getInstance(this).getEvent().getUser().getUsername();
-            mUserLogin = Prefs.getApiUsername(this);
-            mUserPassword = Prefs.getApiKey(this);
-            mUserJid = mUserLogin + "@" + HOST;
+                try {
+                    //mUserLogin = SosManager.getInstance(this).getEvent().getUser().getUsername();
+                    mUserLogin = Prefs.getApiUsername(XmppService.this);
+                    mUserPassword = Prefs.getApiKey(XmppService.this);
+                    mUserJid = mUserLogin + "@" + HOST;
 
-            logs.info("Connecting to xmpp server");
-            Log.i("XmppService", "login: " + mUserLogin + " password: " + mUserPassword +
-                  " jid: " + mUserJid);
+                    logs.info("Connecting to xmpp server");
+                    Log.i("XmppService", "login: " + mUserLogin + " password: " + mUserPassword +
+                            " jid: " + mUserJid);
 
-            mConnection.connect();
-            mConnection.login(mUserLogin, mUserPassword);
-        } catch (Exception e) {
-            Log.i(TAG, "Error during connection");
-            e.printStackTrace();
-            return;
-        }
+                    mConnection.connect();
+                    mConnection.login(mUserLogin, mUserPassword);
+                } catch (Exception e) {
+                    Log.i(TAG, "Error during connection");
+                    e.printStackTrace();
+                    return;
+                }
 
-        setMessageListener(mConnection);
-        setPubsubListener(mConnection);
+                setMessageListener(mConnection);
+                setPubsubListener(mConnection);
+            }
+        });
     }
 
     private XMPPConnection getConfiguredConnection(String host) {
@@ -186,8 +194,8 @@ public class XmppService extends Service {
                            if (location == null || mRadius == 0 ||
                                location.distanceTo(mEventLocation) <= mRadius)
                            {
-                               if (!processing_event &&
-                                   !SosManager.getInstance(XmppService.this).isSosStarted())
+                               if (!processing_event) //&&
+                                   //!SosManager.getInstance(XmppService.this).isSosStarted())
                                {
                                    openAcceptEventScreen();
                                    processing_event = true;
