@@ -10,9 +10,9 @@ from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
 from users.tests.helpers import api_key_auth as auth
-from ..models import Event, EventUpdate
-from .helpers.factories import EventFactory, EventUpdateFactory, UserFactory
-from .helpers.mixins import ModelsMixin, UsersMixin
+from ..helpers.factories import EventFactory, EventUpdateFactory, UserFactory
+from ..helpers.mixins import ModelsMixin, UsersMixin
+from ...models import Event, EventUpdate
 
 
 class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):

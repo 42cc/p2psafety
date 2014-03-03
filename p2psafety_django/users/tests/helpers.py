@@ -21,9 +21,9 @@ def api_key_auth(user):
 
     :type user: `django.contrib.auth.models.User`
     """
-    api_token = utils.get_api_token(user)
+    api_key = utils.get_api_key(user)
     return {
-        'HTTP_AUTHORIZATION': u'ApiKey %s:%s' % (user.username, api_token.key)
+        'HTTP_AUTHORIZATION': u'ApiKey %s:%s' % (user.username, api_key.key)
     }
 
 

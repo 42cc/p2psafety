@@ -49,6 +49,7 @@ public class SendLogsFragment extends Fragment {
                 String text = descriptionOfIssue.getText().toString();
                 if (!text.equals(""))
                 {
+                    Utils.setLoading(mActivity, true);
                     List<File> files = SosActivity.LOGS.getFiles();
                     AsyncTaskExecutionHelper.executeParallel(new SendReportAsyncTask(files, text));
                     //return to settings
@@ -86,16 +87,14 @@ public class SendLogsFragment extends Fragment {
         @Override
         protected Boolean doInBackground(Void... params) {
             String account = Utils.getEmail(mActivity);
-            if (account != null)
-            {
+            if (account != null) {
                 GmailOAuth2Sender gmailOAuth2Sender = new GmailOAuth2Sender(mActivity);
                 gmailOAuth2Sender.sendMail("[p2psafety] Report an issue",
                         "Logs in attachments. Description of issue:\r\n" + message, account,
                         email, files);
                 return true;
             }
-            else
-            {
+            else {
                 return false;
             }
         }
@@ -110,6 +109,8 @@ public class SendLogsFragment extends Fragment {
                 Toast.makeText(mActivity,
                         R.string.no_account_message,
                         Toast.LENGTH_SHORT).show();
+
+            Utils.setLoading(mActivity, false);
         }
     }
 
