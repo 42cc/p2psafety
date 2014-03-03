@@ -12,8 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
@@ -22,6 +22,7 @@ public class SupporterFragment extends Fragment {
     Button mAudioBtn, mVideoBtn;
     Button mCloseEventBtn;
     Activity mActivity;
+    Event mEvent;
 
     public SupporterFragment() {
         super();
@@ -42,6 +43,18 @@ public class SupporterFragment extends Fragment {
         mVideoBtn = (Button) view.findViewById(R.id.btn_video);
         mCloseEventBtn = (Button) view.findViewById(R.id.btn_close_event);
 
+        mEvent = Prefs.getEvent(mActivity);
+
+        mActivity.getIntent().putExtra("event_id", mEvent.getId());
+
+        NetworkManager.getInfoAboutEvent(mActivity, mActivity.getIntent().getStringExtra("event_id")
+                , new NetworkManager.DeliverResultRunnable<Boolean>() {
+            @Override
+            public void deliver(Boolean aBoolean) {
+                //good
+            }
+        });
+
         return view;
     }
 
@@ -58,6 +71,8 @@ public class SupporterFragment extends Fragment {
                 // start audio record if we that's what user wants
                 if (!Utils.isServiceRunning(mActivity, AudioRecordService.class))
                     mActivity.startService(new Intent(mActivity, AudioRecordService.class));
+                else
+                    mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
                 setupMediaButtons();
             }
         });
@@ -65,12 +80,14 @@ public class SupporterFragment extends Fragment {
         mVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // stop all record services
+                // stop audio record services
                 mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
-                mActivity.stopService(new Intent(mActivity, VideoRecordService.class));
-                // start audio record if we that's what user whants
+
+                // start video record if we that's what user wants
                 if (!Utils.isServiceRunning(mActivity, VideoRecordService.class))
                     mActivity.startService(new Intent(mActivity, VideoRecordService.class));
+                else
+                    mActivity.stopService(new Intent(mActivity, VideoRecordService.class));
                 setupMediaButtons();
             }
         });
@@ -78,10 +95,7 @@ public class SupporterFragment extends Fragment {
         mCloseEventBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: network request goes here
-
-                Prefs.putSupporterMode(mActivity, false);
-                mActivity.onBackPressed();
+                closeEvent();
             }
         });
 
@@ -95,16 +109,41 @@ public class SupporterFragment extends Fragment {
         }
     }
 
+    private void closeEvent() {
+        // TODO: network request goes here
+        // stop all record services
+        mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
+        mActivity.stopService(new Intent(mActivity, VideoRecordService.class));
+        mActivity.stopService(new Intent(mActivity, LocationService.class));
+
+        if (mEvent != null)
+            mEvent.setStatus(Event.STATUS_FINISHED);
+
+        NetworkManager.createEvent(mActivity, new NetworkManager.DeliverResultRunnable<Event>() {
+            @Override
+            public void deliver(Event event) {
+                //setEvent(event);
+            }
+        });
+
+        Prefs.putSupporterMode(mActivity, false);
+        mActivity.onBackPressed();
+    }
+
     private void setupMediaButtons() {
         if (Utils.isServiceRunning(mActivity, AudioRecordService.class))
-            mAudioBtn.setText("Stop Audio record");
+            mAudioBtn.setText(getString(R.string.stop_media_record).replace("#media#",
+                    getString(R.string.upper_audio)));
         else
-            mAudioBtn.setText("Start Audio record");
+            mAudioBtn.setText(getString(R.string.start_media_record).replace("#media#",
+                    getString(R.string.upper_audio)));
 
         if (Utils.isServiceRunning(mActivity, VideoRecordService.class))
-            mVideoBtn.setText("Stop Video record");
+            mVideoBtn.setText(getString(R.string.stop_media_record).replace("#media#",
+                    getString(R.string.upper_video)));
         else
-            mVideoBtn.setText("Start Video record");
+            mVideoBtn.setText(getString(R.string.start_media_record).replace("#media#",
+                    getString(R.string.upper_video)));
     }
 
     @Override
