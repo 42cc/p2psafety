@@ -118,8 +118,6 @@ public class NetworkManager {
                     return;
                 }
 
-                String access_token = Session.getActiveSession().getAccessToken();
-
                 try {
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/events/").toString());
@@ -754,6 +752,7 @@ public class NetworkManager {
         request.addHeader(new BasicHeader("Authorization", new StringBuilder().append("ApiKey ")
                 .append(Prefs.getApiUsername(context)).append(":")
                 .append(Prefs.getApiKey(context)).toString()));
+        Log.i("addAuthHeader", Prefs.getApiUsername(context) + ":" + Prefs.getApiKey(context));
         return request;
     }
 
