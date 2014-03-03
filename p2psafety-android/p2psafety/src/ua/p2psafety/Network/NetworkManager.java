@@ -63,7 +63,7 @@ public class NetworkManager {
     public static final int SITE = 0;
     public static final int FACEBOOK = 1;
 
-    private static final String SERVER_URL = "http://p2psafety.staging.42cc.co";
+    private static final String SERVER_URL = "https://p2psafety.net";
     public static Logs LOGS;
 
     private static final int CODE_SUCCESS = 201;
