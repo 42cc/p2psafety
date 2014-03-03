@@ -41,6 +41,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :forwarded_port, guest: 8000, host: 8000
   config.vm.network :forwarded_port, guest: 5222, host: 5222
   config.vm.synced_folder "../", "/home/vagrant/p2psafety", type: "nfs", nfs_version:4
+  config.nfs.map_uid = Process.uid
+  config.nfs.map_gid = Process.gid
 
   # Share an additional folder to the guest VM. The first argument is
   # an identifier, the second is the path on the guest to mount the
@@ -48,8 +50,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # config.vm.share_folder "v-data", "/vagrant_data", "../data"
 
   # Enable provisioning with Puppet stand alone. 
+  #
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "manifests"
     puppet.manifest_file  = "p2psafety.pp"
+    puppet.facter = {
+      "FACTER_uid" => "#{config.nfs.map_uid}",
+      "FACTER_gid" => "#{config.nfs.map_gid}",
+    }
   end
 end
