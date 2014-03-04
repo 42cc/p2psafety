@@ -7,7 +7,26 @@ mapApp.constant('ICONS', {
 });
 
 mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapSettings) {
+  $scope.$location = window.location
+  $scope.selectedEventsupport = {}
+  $scope.selectedEventsupported = {}
   $scope.initGoogleMap = function(rootElement) {
+
+    var fullBounds = new google.maps.LatLngBounds();
+    var params = {status: 'A'};
+    $http.get(urls.events, {params: params}).success(function(data) {
+      for (i in data.objects) {
+        var event = data.objects[i];
+        if (event.latest_location != null) {
+          var point = new google.maps.LatLng(
+            event.latest_location.latitude,
+            event.latest_location.longitude
+          );
+          fullBounds.extend(point)
+        }
+      };
+    });
+
     var mapOptions = {
       zoom: 10,
       center: new google.maps.LatLng(50.444, 390.56),
@@ -36,14 +55,41 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     if (event == null) {
       $scope.zoomOut();
       $scope.selectedEvent = null;
+      $scope.selectedEventsupport = {};
+      $scope.selectedEventsupported = {};
+      window.location.hash = '';
     } else {
       var params = {event__id: event.id};
       $http.get(urls.eventupdates, {params: params}).success(function(data) {
         event.updates = data.objects;
         $scope.zoomIn();
         $scope.selectedEvent = event;
+        window.location.hash = event.id;
         $scope.selectedEvent.isNew = false;
       });
+      for (i in $scope.events) {
+        var event_support = $scope.events[i];
+        if(event_support.type=="support"){
+          for (i in event_support.supported){
+            var supported = event_support.supported[i];
+            if(supported.id == event.id){
+              var params = {event__id: event_support.id};
+              $http.get(urls.eventupdates, {params: params}).success(function(data) {
+                event_support.updates = data.objects;
+                $scope.selectedEventsupport[event_support.id] = event_support;
+              })
+            }
+          }
+        }
+      }
+      for (var i = 0; i<event.supported.length; i++) {
+        var supported = event.supported[i];
+        var params = {event__id: supported.id};
+        $http.get(urls.eventupdates, {params: params}).success(function(data) {
+            supported.updates = data.objects;
+            $scope.selectedEventsupported[supported.id] = supported;
+        })
+      }
     };
   };
   $scope.update = function(highightNew, playSoundForNew, centerMap) {
@@ -63,16 +109,20 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       // Adding new events
       for (newEventId in newEvents) {
         if ($scope.events[newEventId] == null) {
-            var new_event =  newEvents[newEventId]
+          var new_event =  newEvents[newEventId]
             if (highightNew){
-                new_event.isNew = true
+              new_event.isNew = true
             } else {
-                new_event.isNew = false
+              new_event.isNew = false
             }
           $scope.events[newEventId] = new_event;
           eventsAppeared = true;
         }
       }
+      if ($scope.$location.hash!=""){
+          var id = parseFloat($scope.$location.hash.split('#')[1])
+          $scope.select( $scope.events[id])
+        }
       if (eventsAppeared && playSoundForNew)
         document.getElementById('audiotag').play();
 
@@ -94,13 +144,14 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
                                              location.longitude));
   };
+
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;
   $scope.zoomedIn = false;
   $scope.zoomScale = 1;
   $scope.initGoogleMap(document.getElementById("map-canvas"));
   $scope.events = {};
-  
+
   $scope.update(false, false, true);
 
   $interval(function() {
@@ -108,7 +159,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   }, $scope.updatePerSeconds * 1000);
 })
 .factory('markerFactory', function() {
-  return function(scope, element, content, icon, location, map, onclick) {    
+  return function(scope, element, content, icon, location, map, onclick) {
     var markerArgs = {
       icon: icon,
       position: new google.maps.LatLng(location.latitude, location.longitude),
@@ -121,11 +172,8 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
         scope.$eval(onclick);
       });
 
-    if (content.length) {
-      content = content.detach()[0];
-    }
     var markersWindow = new google.maps.InfoWindow();
-      
+
     google.maps.event.addListener(marker, 'mouseover', function() {
       markersWindow.setContent(content);
       markersWindow.open(map, marker);
@@ -148,12 +196,12 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 })
 .directive('eventMarker', function(markerFactory, ICONS) {
   var linker = function(scope, element, attrs) {
+    var content = element.children().detach()[0];
     var location = scope.event.latest_location;
 
     if (location) {
       var map = scope.$parent.gmap;
       var icon = (scope.event.type == 'victim') ? ICONS.RED : ICONS.GREEN;
-      var content = element.children().detach()[0];
       var marker = markerFactory(scope, element, content, icon, location,
                                  map, attrs.click);
 
@@ -161,6 +209,24 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
         var animation = (isNew) ? google.maps.Animation.BOUNCE : null;
         marker.setAnimation(animation);
       });
+    }
+  };
+  return {
+    replace: true,
+    template: '',
+    restrict: 'E',
+    link: linker,
+  };
+})
+.directive('supportMarker', function(markerFactory, ICONS) {
+  var linker = function(scope, element, attrs) {
+    var location = scope.support.latest_location;
+
+    if (location) {
+      var map = scope.$parent.gmap;
+      var content = element.children().detach()[0];
+      var marker = markerFactory(scope, element, content, ICONS.GREEN, location,
+                                 map, attrs.click);
     }
   };
   return {
@@ -185,4 +251,22 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     restrict: 'E',
     link: linker,
   };
-});
+})
+.directive('supportedMarker', function(markerFactory, ICONS) {
+  var linker = function(scope, element, attrs) {
+    var location = scope.supported.latest_location;
+
+    if (location) {
+      var map = scope.$parent.gmap;
+      var content = element.children().detach()[0];
+      var marker = markerFactory(scope, element, content, ICONS.RED, location,
+                                 map, attrs.click);
+    }
+  };
+  return {
+    replace: true,
+    template: '',
+    restrict: 'E',
+    link: linker,
+  };
+})
