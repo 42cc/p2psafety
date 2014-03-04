@@ -174,8 +174,7 @@ class EventUpdate(models.Model):
             if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
                 self.event.status = Event.STATUS_ACTIVE
                 self.event.save()
+                if waffle.switch_is_active('supporters-autonotify'):
+                    self.event.notify_supporters()
 
             super(EventUpdate, self).save(*args, **kwargs)
-
-            if waffle.switch_is_active('supporters-autonotify'):
-                self.event.notify_supporters()
