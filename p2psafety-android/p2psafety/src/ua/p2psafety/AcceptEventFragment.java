@@ -111,6 +111,8 @@ public class AcceptEventFragment extends Fragment {
                         Utils.setLoading(mActivity, false);
                         //mActivity.onBackPressed();
                         if (success) {
+                            EventManager.getInstance(mActivity).getEvent().setType(Event.TYPE_SUPPORT);
+                            EventManager.getInstance(mActivity).getEvent().setStatus(Event.STATUS_ACTIVE);
                             XmppService.processing_event = false;
                             // open Supporter screen
                             Bundle bundle = new Bundle();

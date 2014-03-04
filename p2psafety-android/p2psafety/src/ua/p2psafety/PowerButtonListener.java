@@ -22,7 +22,7 @@ public class PowerButtonListener extends BroadcastReceiver{
     }
 
     private void mainFunctionality(Context context) {
-        if (SosManager.getInstance(context).isSosStarted())
+        if (EventManager.getInstance(context).isSosStarted())
             return; // Sos is already On, do nothing
 
         if (Utils.isServiceRunning(context, AudioRecordService.class) ||
@@ -67,7 +67,7 @@ public class PowerButtonListener extends BroadcastReceiver{
                 Utils.startVibration(context);
             } else {
                 // if not in Supporter mode - start SOS
-                SosManager.getInstance(context).startSos();
+                EventManager.getInstance(context).startSos();
                 mPressCount = 0;
             }
         }

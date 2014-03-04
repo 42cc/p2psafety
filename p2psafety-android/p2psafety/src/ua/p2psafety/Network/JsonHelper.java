@@ -24,14 +24,16 @@ public class JsonHelper {
             event.setKey      (String.valueOf( data.get("key")));
             event.setUri      (String.valueOf( data.get("resource_uri")));
             event.setStatus   (String.valueOf( data.get("status")));
+            event.setType     (String.valueOf( data.get("type")));
 
             Map user_data = (Map) data.get("user");
             event.setUser(jsonToUser(user_data));
 
             Log.i(TAG, "id: "       + event.getId());
-            Log.i(TAG, "key: "       + event.getKey());
+            Log.i(TAG, "key: "      + event.getKey());
             Log.i(TAG, "uri: "      + event.getUri());
             Log.i(TAG, "status: "   + event.getStatus());
+            Log.i(TAG, "type: "     + event.getType());
         } catch (Exception e) {
             NetworkManager.LOGS.error("Can't get object from data", e);
         }

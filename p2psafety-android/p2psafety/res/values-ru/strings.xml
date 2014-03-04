@@ -96,6 +96,8 @@
     <string name="connection_is_out">Интернет соединение отсутствует, проверьте настройки</string>
     <string name="connection_settings">Настройки</string>
 
+    <string name="support_screen">Экран помощи</string>
+
     <string-array name="media_types">
         <item>Нет</item>
         <item>Аудио</item>

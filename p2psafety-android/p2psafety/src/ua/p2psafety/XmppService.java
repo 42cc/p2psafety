@@ -86,7 +86,6 @@ public class XmppService extends Service {
                 mConnection = getConfiguredConnection(HOST);
 
                 try {
-                    //mUserLogin = SosManager.getInstance(this).getEvent().getUser().getUsername();
                     mUserLogin = Prefs.getApiUsername(XmppService.this);
                     mUserPassword = Prefs.getApiKey(XmppService.this);
                     mUserJid = mUserLogin + "@" + HOST;
@@ -194,8 +193,8 @@ public class XmppService extends Service {
                            if (location == null || mRadius == 0 ||
                                location.distanceTo(mEventLocation) <= mRadius)
                            {
-                               if (!processing_event) //&&
-                                   //!SosManager.getInstance(XmppService.this).isSosStarted())
+                               if (!processing_event
+                                    && !EventManager.getInstance(XmppService.this).isEventActive())
                                {
                                    openAcceptEventScreen();
                                    processing_event = true;

@@ -119,12 +119,7 @@ public class SupporterFragment extends Fragment {
         if (mEvent != null)
             mEvent.setStatus(Event.STATUS_FINISHED);
 
-        NetworkManager.createEvent(mActivity, new NetworkManager.DeliverResultRunnable<Event>() {
-            @Override
-            public void deliver(Event event) {
-                //setEvent(event);
-            }
-        });
+        EventManager.getInstance(mActivity).createNewEvent();
 
         Prefs.putSupporterMode(mActivity, false);
         mActivity.onBackPressed();
