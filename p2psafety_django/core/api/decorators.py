@@ -48,6 +48,7 @@ class api_method(object):
         @functools.wraps(func)
         def decorated(self, request, *args, **kwargs):
             self.method_check(request, allowed=methods_names)
+            self.is_authenticated(request)
             self.throttle_check(request)
 
             method = methods[request.method.lower()]
