@@ -43,6 +43,9 @@ public class SupporterFragment extends Fragment {
 
     ScheduledExecutorService mExecutor;
 
+    String mSupportUrl;
+    Location mEventLocation;
+
     public SupporterFragment() {
         super();
     }
@@ -130,22 +133,24 @@ public class SupporterFragment extends Fragment {
 
         Bundle bundle = getArguments();
         if (bundle != null) {
-            String support_url = bundle.getString(XmppService.SUPPORTER_URL_KEY);
-            Location event_loc = (Location) bundle.get(XmppService.LOCATION_KEY);
+            mSupportUrl = bundle.getString(XmppService.SUPPORTER_URL_KEY);
+            mEventLocation = (Location) bundle.get(XmppService.LOCATION_KEY);
 
-            Log.i("SupporterFragment", "url: " + support_url);
-            Log.i("SupporterFragment", "location: " + event_loc);
-
-            LatLng eventLatLng = new LatLng(event_loc.getLatitude(), event_loc.getLongitude());
+            LatLng eventLatLng = new LatLng(mEventLocation.getLatitude(), mEventLocation.getLongitude());
             mMap.addMarker(new MarkerOptions()
                     .position(eventLatLng)
                     .title("Victim"));
 
             MapsInitializer.initialize(mActivity);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 15.0f));
-
-            startAutoUpdates(support_url);
+        } else {
+            mSupportUrl = Prefs.getSupportUrl(mActivity);
         }
+
+        Log.i("SupporterFragment", "url: " + String.valueOf(mSupportUrl));
+        Log.i("SupporterFragment", "location: " + String.valueOf(mEventLocation));
+
+        startAutoUpdates(mSupportUrl);
     }
 
     public void startAutoUpdates(final String support_url) {
@@ -155,7 +160,7 @@ public class SupporterFragment extends Fragment {
             public void run() {
                 updateMap(support_url);
             }
-        }, 60*1000, 60*1000, TimeUnit.MILLISECONDS); // update map every 60 sec
+        }, 0, 60*1000, TimeUnit.MILLISECONDS); // update map every 60 sec
     }
 
     private void stopAutoUpdates() {
@@ -246,6 +251,8 @@ public class SupporterFragment extends Fragment {
         super.onPause();
         mMapView.onPause();
         stopAutoUpdates();
+
+        Prefs.putSupportUrl(mActivity, mSupportUrl);
     }
 
     @Override

@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Long long ago in a galaxy far far away dark lord Sith decided to take over the world. Jedi orden asks you to help them."
+            android:text="Long long time ago in a galaxy far far away dark lord Sith decided to take over the world. Jedi orden asks you to help them stand against Evil."
             android:id="@+id/txt_info"
             android:layout_gravity="center"
             android:textSize="16sp"
