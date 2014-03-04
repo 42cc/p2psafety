@@ -25,6 +25,12 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.util.concurrent.TimeUnit;
 
 import ua.p2psafety.Network.NetworkManager;
@@ -41,6 +47,9 @@ public class AcceptEventFragment extends Fragment {
     String mEventSupportUrl;
 
     Boolean mAccepted = false;
+
+    P2PMapView mMapView;
+    GoogleMap mMap;
 
     Logs mLogs;
 
@@ -63,6 +72,16 @@ public class AcceptEventFragment extends Fragment {
         mEventInfo = (TextView) view.findViewById(R.id.txt_info);
         mAcceptBtn = (Button) view.findViewById(R.id.btn_accept);
         mIgnoreBtn = (Button) view.findViewById(R.id.btn_ignore);
+
+        mMapView = (P2PMapView) view.findViewById(R.id.fae_map);
+        mMapView.onCreate(savedInstanceState);
+
+        mMap = mMapView.getMap();
+        if (mMap != null) {
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            mMap.setMyLocationEnabled(true);
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        }
 
         return view;
     }
@@ -94,6 +113,14 @@ public class AcceptEventFragment extends Fragment {
 
         System.out.println("onViewCreated. location: " + mEventLocation);
         System.out.println("onViewCreated. url: " + mEventSupportUrl);
+
+        LatLng eventLatLng = new LatLng(mEventLocation.getLatitude(), mEventLocation.getLongitude());
+        mMap.addMarker(new MarkerOptions()
+                .position(eventLatLng)
+                .title("Victim"));
+
+        MapsInitializer.initialize(mActivity);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 15.0f));
     }
 
     private void acceptEvent() {
@@ -146,6 +173,7 @@ public class AcceptEventFragment extends Fragment {
     public void onResume() {
         mLogs.info("AcceptEvent screen opened");
         super.onResume();
+        mMapView.onResume();
     }
 
     @Override
@@ -156,5 +184,18 @@ public class AcceptEventFragment extends Fragment {
             ignoreEvent();
         mLogs.info("AcceptEventScreen closed");
         super.onPause();
+        mMapView.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
     }
 }
