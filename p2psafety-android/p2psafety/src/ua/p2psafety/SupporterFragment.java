@@ -97,8 +97,7 @@ public class SupporterFragment extends Fragment {
         mAudioBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // stop all record services
-                mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
+                // stop video record services
                 mActivity.stopService(new Intent(mActivity, VideoRecordService.class));
                 // start audio record if we that's what user wants
                 if (!Utils.isServiceRunning(mActivity, AudioRecordService.class))
