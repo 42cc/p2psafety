@@ -244,7 +244,8 @@ class EventsNotifierClient(BaseClient):
 
 def get_client(ClientClassOrName):
     """
-    Constructs client object using proper settings by given class object or name.
+    Constructs client object using proper settings by given class object
+     or name.
 
     :type ClientClassOrName: type or basestring
     :rtype: BaseClient
@@ -257,7 +258,7 @@ def get_client(ClientClassOrName):
         raise TypeError(ClientClassOrName)
 
     config_dict = {
-        'JID': settings.XMPP_ADMIN_USERNAME,
+        'JID': settings.XMPP_ADMIN_JID,
         'PASSWORD': settings.XMPP_ADMIN_PASSWORD,
     }
 

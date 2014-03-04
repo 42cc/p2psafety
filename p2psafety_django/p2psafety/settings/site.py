@@ -8,5 +8,5 @@ XMPP_EVENTS_NOTIFICATION_NODE = 'events'
 XMPP_EVENTS_NOTIFICATION_RADIUS = 0  # 0 means "send to all"
 
 # Define next two in your local installations
-XMPP_ADMIN_USERNAME = NotImplemented
+XMPP_ADMIN_JID = NotImplemented
 XMPP_ADMIN_PASSWORD = NotImplemented
