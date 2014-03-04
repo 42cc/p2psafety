@@ -15,10 +15,10 @@ class GeoPointField(fields.DictField):
             return dict(latitude=value.y, longitude=value.x)
 
     def hydrate(self, bundle):
-        location = super(GeoPointField, self).hydrate(bundle)        
+        location = super(GeoPointField, self).hydrate(bundle)
         if location is None:
             return location
-        
+
         longitude = location.get('longitude')
         latitude = location.get('latitude')
         if longitude is None or latitude is None:

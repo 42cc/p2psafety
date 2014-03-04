@@ -83,11 +83,24 @@
     <string name="logs_successfully_sent">Files with logs successfully sent</string>
     <string name="please_write_a_description_of_issue">Please write a description of issue</string>
     <string name="email_for_logs">talk@mail.khavr.com</string>
+    <string name="victim_text">Victim: </string>
+    <string name="upper_audio">Audio</string>
+    <string name="upper_video">Video</string>
+    <string name="finish_helping">I finished helping</string>
+    <string name="stop_media_record">Stop #media# record</string>
+    <string name="start_media_record">Start #media# record</string>
+
+    <string name="help_needed">Somebody is in trouble. Can you help?</string>
+    <string name="accept">Accept</string>
+    <string name="ignore">Ignore</string>
+
 
     <string name="network_error">Something went wrong. Check your network connection.</string>
     <string name="connection">Connection</string>
     <string name="connection_is_out">Internet connection is not available, check the settings</string>
     <string name="connection_settings">Settings</string>
+
+    <string name="support_screen">Support screen</string>
 
     <string-array name="media_types">
         <item>No</item>

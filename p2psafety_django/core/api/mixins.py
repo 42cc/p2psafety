@@ -2,10 +2,8 @@ import functools
 import inspect
 from operator import itemgetter
 
-from django import http as django_http
 from django.conf.urls import url
 
-from tastypie import http as tastypie_http
 from tastypie.utils import trailing_slash
 
 
@@ -32,6 +30,6 @@ class ApiMethodsMixin(object):
                 res_name = r'^(?P<resource_name>%s)/' % self._meta.resource_name
                 full_url = res_name + method.view_url.strip('/') + trailing_slash()
                 wrapped = self.__wrap_view(name, method)
-                django_url = url(full_url, wrapped , name=method.view_name)
+                django_url = url(full_url, wrapped, name=method.view_name)
                 result.append(django_url)
         return result

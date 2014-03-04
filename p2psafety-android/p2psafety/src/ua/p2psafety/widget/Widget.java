@@ -13,11 +13,9 @@ import java.util.concurrent.TimeUnit;
 
 import ua.p2psafety.DelayedSosFragment;
 import ua.p2psafety.DelayedSosService;
-import ua.p2psafety.LoginActivity;
+import ua.p2psafety.EventManager;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
-import ua.p2psafety.SosManager;
-import ua.p2psafety.util.Utils;
 
 public class Widget extends AppWidgetProvider {
     private static final String WIDGET_CLICKED = "ua.p2psafety.widget";
@@ -55,12 +53,6 @@ public class Widget extends AppWidgetProvider {
         String action = intent.getAction();
 
         if (action.equals(WIDGET_CLICKED)) {
-//            if (!Utils.isFbAuthenticated(mContext)) {
-//                // don't let use widget if not authenticated
-//                Intent i = new Intent(context, LoginActivity.class);
-//                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                context.startActivity(i);
-//            } else
             if (DelayedSosService.isTimerOn()) {
                 // if delayed sos is on - show timer screen
                 Intent i = new Intent(context, SosActivity.class);
@@ -68,7 +60,7 @@ public class Widget extends AppWidgetProvider {
                 i.putExtra(SosActivity.FRAGMENT_KEY, DelayedSosFragment.class.getName());
                 context.startActivity(i);
             }
-            else if (SosManager.getInstance(mContext).isSosStarted()) {
+            else if (EventManager.getInstance(mContext).isSosStarted()) {
                 // if normal sos is already on - inform user
                 String msg = mContext.getResources().getString(R.string.sos_already_active);
                 Toast.makeText(mContext, msg, Toast.LENGTH_LONG)

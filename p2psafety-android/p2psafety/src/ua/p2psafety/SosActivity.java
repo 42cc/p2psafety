@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -41,31 +42,44 @@ public class SosActivity extends ActionBarActivity {
         mLogs = new Logs(this);
         mLogs.info("\n\n\n==========================\n==============================");
         mLogs.info("SosActiviy. onCreate()");
-
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
         mLogs.info("SosActiviy. onCreate. Initiating NetworkManager");
         NetworkManager.init(this);
-
-        // SOS launcher with power button press
         mLogs.info("SosActiviy. onCreate. Starting PowerButtonService");
         startService(new Intent(this, PowerButtonService.class));
+        if (!Utils.isServiceRunning(this, XmppService.class) &&
+            Utils.isServerAuthenticated(this) &&
+            !EventManager.getInstance(this).isSosStarted())
+        {
+            startService(new Intent(this, XmppService.class));
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mUiHelper.onResume();
 
         Fragment fragment;
 
         String fragmentClass = getIntent().getStringExtra(FRAGMENT_KEY);
         if (fragmentClass != null) {
-            // activity started by widget
+            // activity started from outside
+            // and requested to show specific fragment
             mLogs.info("SosActiviy. onCreate. Activity requested to open " + fragmentClass);
             fragment = Fragment.instantiate(this, fragmentClass);
+            fragment.setArguments(getIntent().getExtras());
         } else {
             // normal start
             mLogs.info("SosActiviy. onCreate. Normal start. Opening SendMessageFragment");
             fragment = new SendMessageFragment();
         }
+
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        fragmentManager.beginTransaction().addToBackStack(null)
+                .replace(R.id.content_frame, fragment).commit();
 
         if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, mLogs) && Prefs.getGmailToken(this) == null)
         {
@@ -73,16 +87,14 @@ public class SosActivity extends ActionBarActivity {
             GmailOAuth2Sender sender = new GmailOAuth2Sender(this);
             sender.initToken();
         }
-
         mLogs.info("SosActiviy. onCreate. Checking for location services");
-        Utils.checkForLocationServices(this);
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        mLogs.info("SosActiviy.onResume()");
-        mUiHelper.onResume();
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.i("onNewIntent", "NEW INTENT!");
+        setIntent(intent);
     }
 
     @Override
@@ -117,6 +129,11 @@ public class SosActivity extends ActionBarActivity {
             super.onBackPressed();
         } else {
             mLogs.info("SosActivity. onBackPressed. Ignoring");
+        }
+
+        FragmentManager fm = getSupportFragmentManager();
+        if (fm.getBackStackEntryCount() == 0) {
+            finish();
         }
     }
 

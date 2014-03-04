@@ -50,4 +50,10 @@
     <string name="bad_logs_files">Файлів з логами не існує</string>
     <string name="logs_successfully_sent">Файли з логами успішно відправлені</string>
     <string name="please_write_a_description_of_issue">Будь ласка, опишіть проблему</string>
+    <string name="victim_text">Жертва: </string>
+    <string name="upper_audio">Аудіо</string>
+    <string name="upper_video">Відео</string>
+    <string name="finish_helping">Я закінчив допомагати</string>
+    <string name="stop_media_record">Зупинити #media#запис</string>
+    <string name="start_media_record">Розпочати #media#запис</string>
 </resources>
