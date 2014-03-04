@@ -220,11 +220,11 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 })
 .directive('supportMarker', function(markerFactory, ICONS) {
   var linker = function(scope, element, attrs) {
+    var content = element.children().detach()[0];
     var location = scope.support.latest_location;
 
     if (location) {
       var map = scope.$parent.gmap;
-      var content = element.children().detach()[0];
       var marker = markerFactory(scope, element, content, ICONS.GREEN, location,
                                  map, attrs.click);
     }
@@ -238,9 +238,11 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 })
 .directive('eventupdateMarker', function(markerFactory, ICONS) {
   var linker = function(scope, element, attrs) {
-    if (scope.update.location != null) {
+    var content = element.children().detach()[0];
+    var location = scope.update.location != null;
+
+    if (location) {
       var map = scope.$parent.gmap;
-      var content = element.children().detach()[0];
       var marker = markerFactory(scope, element, content, ICONS.BLUE,
                                  scope.update.location, map);
     }
@@ -254,11 +256,11 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 })
 .directive('supportedMarker', function(markerFactory, ICONS) {
   var linker = function(scope, element, attrs) {
+    var content = element.children().detach()[0];
     var location = scope.supported.latest_location;
 
     if (location) {
       var map = scope.$parent.gmap;
-      var content = element.children().detach()[0];
       var marker = markerFactory(scope, element, content, ICONS.RED, location,
                                  map, attrs.click);
     }
