@@ -13,10 +13,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -71,7 +74,7 @@ public class SupporterFragment extends Fragment {
 
         mMap = mMapView.getMap();
         if (mMap != null) {
-            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
             mMap.setMyLocationEnabled(true);
             mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         }
@@ -128,9 +131,19 @@ public class SupporterFragment extends Fragment {
             Log.i("SupporterFragment", "url: " + support_url);
             Log.i("SupporterFragment", "location: " + event_loc);
 
+            LatLng eventLatLng = new LatLng(event_loc.getLatitude(), event_loc.getLongitude());
             mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(event_loc.getLatitude(), event_loc.getLongitude()))
+                    .position(eventLatLng)
                     .title("Victim name"));
+
+           /* CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(mMap.getMyLocation().getLatitude(),
+                            mMap.getMyLocation().getLongitude()))
+                    .zoom(10.0f)
+                    .build();
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
+
+            mMapView.getMap().moveCamera(cameraUpdate);*/
         }
     }
 

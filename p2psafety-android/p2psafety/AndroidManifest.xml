@@ -117,11 +117,11 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <!-- debug key:     AIzaSyC4qa_YPaodP9s7EHieoHdjm5ju5XZeVMU -->
+        <!-- debug key:     AIzaSyBC_oxIKQU5NnUsJTxtsVrhP7fcdKVJo-4 -->
         <!-- release key:   AIzaSyCZgqFXs5r7qOKUFgKnGGvlkGsIA0-fhC8 -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyC4qa_YPaodP9s7EHieoHdjm5ju5XZeVMU"/>
+            android:value="AIzaSyBC_oxIKQU5NnUsJTxtsVrhP7fcdKVJo-4"/>
 
     </application>
 
