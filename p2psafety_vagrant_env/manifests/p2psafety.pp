@@ -197,7 +197,7 @@ class postgis {
     user => "postgres",
     unless => "psql ${db_name} -c \"\\d\"",
     before => Exec['geocmd','dbuser'],
-    require => Service['postgresql']
+    require => [Class['locale'],Service['postgresql']]
   }
 
   exec {'dbuser':
