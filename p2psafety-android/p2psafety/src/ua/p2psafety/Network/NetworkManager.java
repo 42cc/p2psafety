@@ -740,7 +740,6 @@ public class NetworkManager {
 
                     StringBuilder url = new StringBuilder()
                             .append(SERVER_URL).append("/api/v1/users/roles/");
-                            .append(EventManager.getInstance(context).getEvent().getUser().getId())
 
                     HttpGet httpGet = new HttpGet(url.toString());
                     addAuthHeader(context, httpGet);
