@@ -8,7 +8,8 @@ mapApp.constant('ICONS', {
 
 mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapSettings) {
   $scope.$location = window.location
-  $scope.selectedEventsupport = {};
+  $scope.selectedEventsupport = {}
+  $scope.selectedEventsupported = {}
   $scope.initGoogleMap = function(rootElement) {
 
     var fullBounds = new google.maps.LatLngBounds();
@@ -81,7 +82,7 @@ $scope.select = function(event) {
               }
             }
           }
-          for (i = 0; i<event.supported.length; i++){
+          for (var i = 0; i<event.supported.length; i++){
             var supported = event.supported[i]
             var params = {event__id: supported.id};
             $http.get(urls.eventupdates, {params: params}).success(function(data) {
@@ -253,4 +254,22 @@ $scope.select = function(event) {
     restrict: 'E',
     link: linker,
   };
-});
+})
+.directive('supportedMarker', function(markerFactory, ICONS) {
+  var linker = function(scope, element, attrs) {
+    var location = scope.supported.latest_location;
+
+    if (location) {
+      var map = scope.$parent.gmap;
+      var content = element.children().detach()[0];
+      var marker = markerFactory(scope, element, content, ICONS.RED, location,
+                                 map, attrs.click);
+    }
+  };
+  return {
+    replace: true,
+    template: '',
+    restrict: 'E',
+    link: linker,
+  };
+})
