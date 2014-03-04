@@ -141,11 +141,10 @@ public class SupporterFragment extends Fragment {
                     .position(eventLatLng)
                     .title("Victim"));
 
-            startAutoUpdates(support_url);
-
             MapsInitializer.initialize(mActivity);
-
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 15.0f));
+
+            startAutoUpdates(support_url);
         }
     }
 
@@ -194,6 +193,7 @@ public class SupporterFragment extends Fragment {
                                 LatLng latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
                                 mMap.addMarker(new MarkerOptions()
                                         .position(latLng).title("Victim name"));
+                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
 
                                 break;
                             }
