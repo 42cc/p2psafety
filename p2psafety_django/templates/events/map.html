@@ -92,12 +92,15 @@
           <div class="selected-event panel panel-primary " 
                 ng-if="selectedEvent == null">
             <h4 class="panel-heading event-heading">Dispatcher panel</h4>
+            <button ng-click="filterMarkers('on')">filter on</button>
+            <button ng-click="filterMarkers('off')">filter off</button>
             <div class="panel-body">
                 <div class="list-group">
                     <div class="list-group-item"
                          ng-class="{'list-group-item-warning': event.isNew}"
                          ng-click="event.isNew = false"
-                         ng-repeat="event in events">
+                         ng-repeat="event in events"
+                         ng-if="event.isVisible">
                          <a class="btn type-{{event.type}}" ng-click="focus(event.latest_location)">
                         <span class="glyphicon glyphicon-map-marker"></span>
                       </a>

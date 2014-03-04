@@ -40,6 +40,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       var params = {event__id: event.id};
       $http.get(urls.eventupdates, {params: params}).success(function(data) {
         event.updates = data.objects;
+        $scope.focus(event.latest_location);
         $scope.zoomIn();
         $scope.selectedEvent = event;
         $scope.selectedEvent.isNew = false;
@@ -69,6 +70,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
             } else {
                 new_event.isNew = false
             }
+          new_event.isVisible = true;
           $scope.events[newEventId] = new_event;
           eventsAppeared = true;
         }
@@ -94,6 +96,19 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
                                              location.longitude));
   };
+
+  $scope.filterMarkers = function (mode) {
+    for(i in $scope.events){
+        
+    }
+  if(mode === 'on'){
+      $scope.events[i].isVisible = false;
+  }else{
+      $scope.events[i].isVisible = true;
+  }
+
+  }
+
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;
   $scope.zoomedIn = false;
@@ -160,6 +175,10 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       scope.$watch('event.isNew', function(isNew) {
         var animation = (isNew) ? google.maps.Animation.BOUNCE : null;
         marker.setAnimation(animation);
+      });
+      scope.$watch('event.isVisible', function (isVisible) {
+          if (isVisible) marker.setVisible(true)
+          else marker.setVisible(false);
       });
     }
   };
