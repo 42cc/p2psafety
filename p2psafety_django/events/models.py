@@ -60,7 +60,8 @@ class Event(models.Model):
     key = models.CharField(max_length=128, blank=True, default='', db_index=True)
     status = models.CharField(max_length=1, choices=STATUS, default=STATUS_PASSIVE)
     type = models.IntegerField(choices=EVENT_TYPE, default=TYPE_VICTIM)
-    supported = models.ManyToManyField('self', symmetrical=False, related_name='supporters')
+    supported = models.ManyToManyField('self', symmetrical=False,
+        related_name='supporters', blank=True)
 
     def __unicode__(self):
         return u"{} event by {}".format(self.status, self.user)
