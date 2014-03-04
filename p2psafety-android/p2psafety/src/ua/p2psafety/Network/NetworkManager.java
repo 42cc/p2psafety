@@ -702,7 +702,7 @@ public class NetworkManager {
                     }
 
                     int responseCode = response.getStatusLine().getStatusCode();
-                    String responseContent = EntityUtils.toString(response.getEntity());
+                    String responseContent = EntityUtils.toString(response.getEntity(), "UTF-8");
                     Log.i(TAG, "responseCode: " + responseCode);
                     Log.i(TAG, "responseContent: " + responseContent);
 
