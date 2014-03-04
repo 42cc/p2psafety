@@ -51,45 +51,45 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       $scope.zoomedIn = false;
     }
   };
-$scope.select = function(event) {
+  $scope.select = function(event) {
     if (event == null) {
       $scope.zoomOut();
       $scope.selectedEvent = null;
       $scope.selectedEventsupport = {};
       $scope.selectedEventsupported = {};
-      window.location.hash = ''
+      window.location.hash = '';
     } else {
       var params = {event__id: event.id};
       $http.get(urls.eventupdates, {params: params}).success(function(data) {
-      event.updates = data.objects;
-      $scope.zoomIn();
-      $scope.selectedEvent = event;
-      window.location.hash = event.id
-      $scope.selectedEvent.isNew = false;
+        event.updates = data.objects;
+        $scope.zoomIn();
+        $scope.selectedEvent = event;
+        window.location.hash = event.id;
+        $scope.selectedEvent.isNew = false;
       });
-        for (i in $scope.events) {
-          var event_support = $scope.events[i];
-            if(event_support.type=="support"){
-              for (i in event_support.supported){
-                var supported = event_support.supported[i]
-                if(supported.id == event.id){
-                  var params = {event__id: event_support.id};
-                  $http.get(urls.eventupdates, {params: params}).success(function(data) {
-                    event_support.updates = data.objects;
-                    $scope.selectedEventsupport[event_support.id] = event_support;
-                  })
-                }
-              }
+      for (i in $scope.events) {
+        var event_support = $scope.events[i];
+        if(event_support.type=="support"){
+          for (i in event_support.supported){
+            var supported = event_support.supported[i];
+            if(supported.id == event.id){
+              var params = {event__id: event_support.id};
+              $http.get(urls.eventupdates, {params: params}).success(function(data) {
+                event_support.updates = data.objects;
+                $scope.selectedEventsupport[event_support.id] = event_support;
+              })
             }
           }
-          for (var i = 0; i<event.supported.length; i++){
-            var supported = event.supported[i]
-            var params = {event__id: supported.id};
-            $http.get(urls.eventupdates, {params: params}).success(function(data) {
-                supported.updates = data.objects;
-                $scope.selectedEventsupported[supported.id] = supported;
-            })
-          }
+        }
+      }
+      for (var i = 0; i<event.supported.length; i++) {
+        var supported = event.supported[i];
+        var params = {event__id: supported.id};
+        $http.get(urls.eventupdates, {params: params}).success(function(data) {
+            supported.updates = data.objects;
+            $scope.selectedEventsupported[supported.id] = supported;
+        })
+      }
     };
   };
   $scope.update = function(highightNew, playSoundForNew, centerMap) {
@@ -172,9 +172,6 @@ $scope.select = function(event) {
         scope.$eval(onclick);
       });
 
-    if (content.length) {
-      content = content.detach()[0];
-    }
     var markersWindow = new google.maps.InfoWindow();
 
     google.maps.event.addListener(marker, 'mouseover', function() {

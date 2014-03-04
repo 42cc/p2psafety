@@ -78,9 +78,7 @@
               <div class="list-group">
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
-                  <eventupdate-marker click="focus(update.location)">
-                    <p>{{ update.timestamp | date:'dd.MM HH:mm' }}</p>
-                  </eventupdate-marker>
+                  <eventupdate-marker click="focus(update.location)"></eventupdate-marker>
                   <p class="list-group-item-heading">
                     <span class="badge">{{ update.timestamp | date:'dd.MM HH:mm' }}</span>
                     {{ update.text || "..." }}
