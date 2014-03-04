@@ -8,19 +8,6 @@ mapApp.constant('ICONS', {
 
 mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapSettings, timeAlert) {
   $scope.initGoogleMap = function(rootElement) {
-
-    var fullBounds = new google.maps.LatLngBounds();
-    var params = {status: 'A'};
-    $http.get(urls.events, {params: params}).success(function(data) {
-        for (i in data.objects) {
-            var event = data.objects[i];
-            var lat=event.latest_location.latitude;
-            var long=event.latest_location.longitude;
-            var point=new google.maps.LatLng(lat, long);
-        fullBounds.extend(point)
-        };
-    });
-
     var mapOptions = {
       zoom: 10,
       center: new google.maps.LatLng(50.444, 390.56),
@@ -32,7 +19,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     $scope.gmap = new google.maps.Map(rootElement, mapOptions);
     $scope.gwindow = new google.maps.InfoWindow({content: "Sup"});
     $scope.gwindow_opened = false;
-    $scope.gmap.fitBounds(fullBounds);
   };
   $scope.zoomIn = function() {
     if ($scope.zoomedIn == false) {
@@ -60,7 +46,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       });
     };
   };
-  $scope.update = function(highightNew, playSoundForNew) {
+  $scope.update = function(highightNew, playSoundForNew, centerMap) {
     var params = {status: 'A'};
     $http.get(urls.events, {params: params}).success(function(data) {
       var eventsAppeared = false, newEvents = {};
@@ -89,6 +75,19 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       }
       if (eventsAppeared && playSoundForNew)
         document.getElementById('audiotag').play();
+
+      // Making map show all events
+      if (centerMap) {
+        var eventsBounds = new google.maps.LatLngBounds();
+        for (eventId in $scope.events) {
+          var event = $scope.events[eventId];
+          eventsBounds.extend(new google.maps.LatLng(
+            event.latest_location.latitude,
+            event.latest_location.longitude
+          ));
+        }
+        $scope.gmap.fitBounds(eventsBounds);
+      }
     });
   };
   $scope.focus = function(location) {
@@ -114,7 +113,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.initGoogleMap(document.getElementById("map-canvas"));
   $scope.events = {};
   
-  $scope.update(false, false);
+  $scope.update(false, false, true);
 
   $interval(function() {
     $scope.update(mapSettings.highlight, mapSettings.sound);

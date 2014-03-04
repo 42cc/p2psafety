@@ -10,18 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ua.p2psafety.EventManager;
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
-import ua.p2psafety.SosManager;
-import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
 public class SetRolesFragment extends Fragment {
@@ -67,14 +64,21 @@ public class SetRolesFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        if (!Utils.isServerAuthenticated(mActivity)) {
+            Toast.makeText(mActivity, "Please auth at server", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         mSaveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Utils.setLoading(mActivity, true);
                 NetworkManager.setRoles(mActivity,
-                        SosManager.getInstance(mActivity).getEvent().getUser(),
+                        EventManager.getInstance(mActivity).getEvent().getUser(),
                         mRoles, new NetworkManager.DeliverResultRunnable<Boolean>() {
                     @Override
                     public void deliver(Boolean success) {
+                        Utils.setLoading(mActivity, false);
                         if (success)
                             Toast.makeText(mActivity, getString(R.string.save), Toast.LENGTH_LONG).show();
                     }
@@ -94,54 +98,43 @@ public class SetRolesFragment extends Fragment {
     }
 
     private void fetchAndFillAdapter() {
-        //Utils.setLoading(mActivity, true);
-
+        Utils.setLoading(mActivity, true);
         // get all possible roles
-        NetworkManager.getRoles(mActivity, null, new NetworkManager.DeliverResultRunnable<List<Role>>() {
+        NetworkManager.getRoles(mActivity, new NetworkManager.DeliverResultRunnable<List<Role>>() {
             @Override
             public void deliver(final List<Role> all_roles) {
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!isAdded() || all_roles == null)
-                            return;
+                if (!isAdded() || all_roles == null) {
+                    Utils.setLoading(mActivity, false);
+                    return;
+                }
 
-                        mRolesAdapter.clear();
-                        mRoles.clear();
+                mRolesAdapter.clear();
+                mRoles.clear();
 
-                        for (Role role : all_roles)
-                            mRoles.add(role);
+                for (Role role : all_roles)
+                    mRoles.add(role);
 
-                        all_roles.clear();
+                all_roles.clear();
 
-                        // get user picked roles
-                        NetworkManager.getRoles(mActivity,
-                                SosManager.getInstance(mActivity).getEvent().getUser(),
-                                new NetworkManager.DeliverResultRunnable<List<Role>>() {
-                                    @Override
-                                    public void deliver(final List<Role> picked_roles) {
-                                        mActivity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (!isAdded() || picked_roles == null)
-                                                    return;
+                // get user roles
+                NetworkManager.getUserRoles(mActivity,
+                        new NetworkManager.DeliverResultRunnable<List<String>>() {
+                            @Override
+                            public void deliver(final List<String> user_roles) {
+                                Utils.setLoading(mActivity, false);
 
-                                                for (Role picked_role: picked_roles)
-                                                    for (Role role: mRoles)
-                                                        if (role.id == picked_role.id)
-                                                            role.checked = true;
+                                if (!isAdded() || user_roles == null)
+                                    return;
 
-                                                for (Role role: mRoles)
-                                                    mRolesAdapter.add(role);
+                                for (String user_role: user_roles)
+                                    for (Role role: mRoles)
+                                        if (role.id.equals(user_role))
+                                            role.checked = true;
 
-                                                picked_roles.clear();
-                                                //Utils.setLoading(mActivity, false);
-                                            }
-                                        });
-                                    }
-                                });
-                    }
-                });
+                                for (Role role: mRoles)
+                                    mRolesAdapter.add(role);
+                            }
+                        });
             }
         });
     }

@@ -4,24 +4,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.Session;
@@ -41,6 +36,7 @@ import ua.p2psafety.setemails.SetEmailsFragment;
 import ua.p2psafety.setphones.SetPhoneFragment;
 import ua.p2psafety.setservers.SetServersFragment;
 import ua.p2psafety.sms.MessageResolver;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -50,6 +46,8 @@ public class SettingsFragment extends Fragment {
 
     private View vParent;
     private Activity mActivity;
+
+    Logs mLogs;
 
     public SettingsFragment() {
         super();
@@ -65,6 +63,9 @@ public class SettingsFragment extends Fragment {
         vParent = rootView;
 
         mActivity = getActivity();
+        mLogs = new Logs(mActivity);
+
+        mLogs.info("SettingsFragment.onCreateView()");
 
         final ListView settingsList = (ListView) vParent.findViewById(R.id.settings_list);
         final String[] values = new String[]{
@@ -90,6 +91,8 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view,
                                     int position, long id) {
+                mLogs.info("SettingsFragment. Settings list. Item click");
+
                 final Fragment[] mfragment = new Fragment[1];
                 FragmentManager mfragmentManager = getFragmentManager();
                 final FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
@@ -112,10 +115,14 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 3:
-                        if (Prefs.getApiKey(mActivity) != null)
+                        mLogs.info("SettingsFragment. setServers");
+                        if (Prefs.getApiKey(mActivity) != null) {
+                            mLogs.info("SettingsFragment. We have ApiKey. Opening Servers screen");
                             openServersScreen();
-                        else
+                        } else {
+                            mLogs.info("SettingsFragment. No ApiKey. Asking user to log in");
                             askLoginAndOpenServers();
+                        }
                         break;
                     case 4:
                         mfragment[0] = new PasswordFragment();
@@ -185,6 +192,10 @@ public class SettingsFragment extends Fragment {
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+                                mLogs.info("SettingsFragment. User entered login and password: " +
+                                    userLogin.getText().toString() + " " +
+                                    userPassword.getText().toString() + "  " +
+                                    "Sending request");
                                 NetworkManager.loginAtServer(mActivity,
                                         userLogin.getText().toString(),
                                         userPassword.getText().toString(), postRunnable);
@@ -193,6 +204,7 @@ public class SettingsFragment extends Fragment {
                 .setNegativeButton(android.R.string.cancel,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+                                mLogs.info("SettingsFragment. User canceled login dialog");
                                 dialog.cancel();
                             }
                         });
@@ -202,10 +214,13 @@ public class SettingsFragment extends Fragment {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mLogs.info("SettingsFragment. User tries to login with FB");
                 Session.StatusCallback mStatusCallback = new Session.StatusCallback() {
                     @Override
                     public void call(final Session session, SessionState state, Exception exception) {
+                        mLogs.info("SettingsFragment. FB Session callback. state: " + state.toString());
                         if (state.isOpened()) {
+                            mLogs.info("SettingsFragment. FB session is opened. Loggin in at server");
                             NetworkManager.loginAtServer(mActivity,
                                     Session.getActiveSession().getAccessToken(),
                                     NetworkManager.FACEBOOK, postRunnable);
@@ -230,6 +245,7 @@ public class SettingsFragment extends Fragment {
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    mActivity.startService(new Intent(mActivity, XmppService.class));
                     openServersScreen();
                 }
             });
@@ -266,10 +282,13 @@ public class SettingsFragment extends Fragment {
 
     private void openServersScreen() {
         FragmentManager mfragmentManager = getFragmentManager();
-        final FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
-        Fragment fragment = new SetServersFragment();
-        fragmentTransaction.addToBackStack(SetServersFragment.TAG);
-        fragmentTransaction.replace(R.id.content_frame, fragment).commit();
+        if (mfragmentManager != null)
+        {
+            final FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
+            Fragment fragment = new SetServersFragment();
+            fragmentTransaction.addToBackStack(SetServersFragment.TAG);
+            fragmentTransaction.replace(R.id.content_frame, fragment).commit();
+        }
     }
 
      private class SendReportAsyncTask extends AsyncTask {

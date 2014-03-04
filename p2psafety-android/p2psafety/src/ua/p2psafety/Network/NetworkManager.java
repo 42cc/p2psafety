@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -40,6 +38,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,24 +49,23 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 
 import ua.p2psafety.Event;
-import ua.p2psafety.SosManager;
+import ua.p2psafety.EventManager;
 import ua.p2psafety.User;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.roles.Role;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
+import static ua.p2psafety.util.Utils.errorDialog;
+
 public class NetworkManager {
     public static final int SITE = 0;
     public static final int FACEBOOK = 1;
 
-    private static final String SERVER_URL = "http://p2psafety.staging.42cc.co";
+    private static final String SERVER_URL = "https://p2psafety.net";
     public static Logs LOGS;
 
     private static final int CODE_SUCCESS = 201;
-
-    private static int DIALOG_NETWORK_ERROR = 10;
-    private static int DIALOG_NO_CONNECTION = 100;
 
     private static HttpClient httpClient;
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -102,25 +100,24 @@ public class NetworkManager {
             LOGS.close();
     }
 
+    public static void createEvent(final Context context) {
+        createEvent(context, new DeliverResultRunnable());
+    }
+
     public static void createEvent(final Context context,
                                    final DeliverResultRunnable<Event> postRunnable) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
                 final String TAG = "createEvent";
-
-                if (!Utils.isNetworkConnected(context, LOGS)) {
-//                    errorDialog(context, DIALOG_NO_CONNECTION);
-                    if (postRunnable != null) {
-                        postRunnable.setResult(null);
-                        postRunnable.run();
-                    }
-                    return;
-                }
-
-                String access_token = Session.getActiveSession().getAccessToken();
-
+                LOGS.info("EventManager. CreateEvent.");
                 try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        LOGS.info("EventManager. createEvent. No network.");
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/events/").toString());
 
@@ -135,10 +132,161 @@ public class NetworkManager {
 
                     Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
                     Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+                    Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+
+                    LOGS.info("EventManager. CreateEvent. Request: " + httpPost.getRequestLine().toString());
+                    LOGS.info("EventManager. CreateEvent. Request entity: " + EntityUtils.toString(httpPost.getEntity()));
 
                     HttpResponse response = null;
                     try {
                         response = httpClient.execute(httpPost);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute post request", e);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    LOGS.info("EventManager. CreateEvent. ResponseCode: " + responseCode);
+                    LOGS.info("EventManager. CreateEvent. ResponseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        Map<String, Object> data = mapper.readValue(responseContent, Map.class);
+                        Event event = JsonHelper.jsonToEvent(data);
+                        data.clear();
+
+                        LOGS.info("EventManager. CreateEvent. Success");
+                        postRunnable.setResult(event);
+                    } else {
+                        LOGS.info("EventManager. CreateEvent. Failure");
+                        postRunnable.setResult(null);
+                    }
+
+                    executeRunnable(context, postRunnable);
+                } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't create event", e);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(null);
+                    executeRunnable(context, postRunnable);
+                }
+            }
+        });
+    }
+
+    public static void updateEventWithAttachment(Context context, File file, boolean isAudio) {
+        updateEventWithAttachment(context, file, isAudio, new DeliverResultRunnable());
+    }
+
+//    public static void createEventSupport(final Context context, final String id, final String userId,
+//                                   final DeliverResultRunnable<Boolean> postRunnable) {
+//        executor.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                final String TAG = "createEventSupport";
+//
+//                if (!Utils.isNetworkConnected(context, LOGS)) {
+////                    errorDialog(context, DIALOG_NO_CONNECTION);
+//                    if (postRunnable != null) {
+//                        postRunnable.setResult(null);
+//                        postRunnable.run();
+//                    }
+//                    return;
+//                }
+//
+//                String access_token = Session.getActiveSession().getAccessToken();
+//
+//                try {
+//                    HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
+//                            .append("/api/v1/events/").append(id).append("/support/").toString());
+//
+//                    addAuthHeader(context, httpPost);
+//                    addUserAgentHeader(context, httpPost);
+//                    httpPost.setHeader("Accept", "application/json");
+//                    httpPost.setHeader("Content-type", "application/json");
+//
+//                    JSONObject json = new JSONObject();
+//                    json.put("user_id", userId);
+//                    StringEntity se = new StringEntity(json.toString());
+//                    httpPost.setEntity(se);
+//
+//                    Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
+//                    Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+//
+//                    HttpResponse response = null;
+//                    try {
+//                        response = httpClient.execute(httpPost);
+//                    } catch (Exception e) {
+//                        NetworkManager.LOGS.error("Can't execute post request", e);
+//                        //errorDialog(context, DIALOG_NETWORK_ERROR);
+//                        if (postRunnable != null) {
+//                            postRunnable.setResult(null);
+//                            postRunnable.run();
+//                        }
+//                        return;
+//                    }
+//
+//                    int responseCode = response.getStatusLine().getStatusCode();
+//                    String responseContent = EntityUtils.toString(response.getEntity());
+//                    Log.i(TAG, "responseCode: " + responseCode);
+//                    Log.i(TAG, "responseContent: " + responseContent);
+//
+//                    if (responseCode == CODE_SUCCESS) {
+//                        postRunnable.setResult(true);
+//                    } else {
+//                        postRunnable.setResult(false);
+//                    }
+//
+//                    if (postRunnable != null) {
+//                        postRunnable.run();
+//                    }
+//                } catch (Exception e) {
+//                    NetworkManager.LOGS.error("Can't create event", e);
+//                    //errorDialog(context, DIALOG_NETWORK_ERROR);
+//                    if (postRunnable != null) {
+//                        postRunnable.setResult(null);
+//                        postRunnable.run();
+//                    }
+//                }
+//            }
+//        });
+//    }
+
+    public static void getInfoAboutEvent(final Context context, final String id,
+                                          final DeliverResultRunnable<Boolean> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final String TAG = "createEventSupport";
+
+                if (!Utils.isNetworkConnected(context, LOGS)) {
+//                    errorDialog(context, DIALOG_NO_CONNECTION);
+                    if (postRunnable != null) {
+                        postRunnable.setResult(null);
+                        postRunnable.run();
+                    }
+                    return;
+                }
+
+                String access_token = Session.getActiveSession().getAccessToken();
+
+                try {
+                    HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
+                            .append("/api/v1/events/").append(id).append("/").toString());
+
+                    addAuthHeader(context, httpGet);
+                    addUserAgentHeader(context, httpGet);
+                    httpGet.setHeader("Accept", "application/json");
+                    httpGet.setHeader("Content-type", "application/json");
+
+                    Log.i(TAG, "request: " + httpGet.getRequestLine().toString());
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpGet);
                     } catch (Exception e) {
                         NetworkManager.LOGS.error("Can't execute post request", e);
                         //errorDialog(context, DIALOG_NETWORK_ERROR);
@@ -155,13 +303,9 @@ public class NetworkManager {
                     Log.i(TAG, "responseContent: " + responseContent);
 
                     if (responseCode == CODE_SUCCESS) {
-                        Map<String, Object> data = mapper.readValue(responseContent, Map.class);
-                        Event event = JsonHelper.jsonToEvent(data);
-                        data.clear();
-
-                        postRunnable.setResult(event);
+                        postRunnable.setResult(true);
                     } else {
-                        postRunnable.setResult(null);
+                        postRunnable.setResult(false);
                     }
 
                     if (postRunnable != null) {
@@ -186,15 +330,14 @@ public class NetworkManager {
             @Override
             public void run() {
                 final String TAG = "updateEvent";
-
-//                if (!Utils.isNetworkConnected(context)) {
-//                    errorDialog(context, DIALOG_NO_CONNECTION);
-//                    return;
-//                }
-
-                Event event = SosManager.getInstance(context).getEvent();
-
                 try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
+                    Event event = EventManager.getInstance(context).getEvent();
+
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/eventupdates/").toString());
 
@@ -217,8 +360,8 @@ public class NetworkManager {
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
                         NetworkManager.LOGS.error("Can't execute post request", e);
-                        errorDialog(context, DIALOG_NETWORK_ERROR);
-                        return;
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
                     }
 
                     int responseCode = response.getStatusLine().getStatusCode();
@@ -232,13 +375,19 @@ public class NetworkManager {
                         postRunnable.setResult(false);
                     }
 
-                    postRunnable.run();
+                    executeRunnable(context, postRunnable);
                 } catch (Exception e) {
                     NetworkManager.LOGS.error("Can't update event with attachments", e);
-                    errorDialog(context, DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(false);
+                    executeRunnable(context, postRunnable);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
                 }
             }
         });
+    }
+
+    public static void updateEvent(Context context, Map data) {
+        updateEvent(context, data, new DeliverResultRunnable());
     }
 
     public static void updateEvent(final Context context,
@@ -248,15 +397,16 @@ public class NetworkManager {
             @Override
             public void run() {
                 final String TAG = "updateEvent";
-
-//                if (!Utils.isNetworkConnected(context)) {
-//                    errorDialog(context, DIALOG_NO_CONNECTION);
-//                    return;
-//                }
-
-                Event event = SosManager.getInstance(context).getEvent();
-
+                LOGS.info("EventManager. UpdateEvent.");
                 try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        LOGS.info("EventManager. UpdateEvent. No network");
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
+                    Event event = EventManager.getInstance(context).getEvent();
+
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/eventupdates/").toString());
 
@@ -271,15 +421,90 @@ public class NetworkManager {
                     try {
                         Location loc = (Location) data.get("loc");
                         JSONObject jsonLocation = new JSONObject();
-                        jsonLocation.put("latitude",  loc.getLatitude());
+                        jsonLocation.put("latitude", loc.getLatitude());
                         jsonLocation.put("longitude", loc.getLongitude());
                         json.put("location", jsonLocation);
                     } catch (Exception e) {
-                        NetworkManager.LOGS.error("Can't get object from data", e);
+                        // we have no location (GPS is off)
                     }
 
                     StringEntity se = new StringEntity(json.toString(), "UTF-8");
                     httpPost.setEntity(se);
+
+                    Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
+                    Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+                    Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+
+                    LOGS.info("EventManager. UpdateEvent. Request: " + httpPost.getRequestLine().toString());
+                    LOGS.info("EventManager. UpdateEvent. Request entity: " + EntityUtils.toString(httpPost.getEntity()));
+
+                    HttpResponse response = null;
+                    try {
+                        LOGS.info("EventManager. UpdateEvent. Executing request");
+                        response = httpClient.execute(httpPost);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute post request", e);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    LOGS.info("EventManager. UpdateEvent. ResponseCode: " + responseCode);
+                    LOGS.info("EventManager. UpdateEvent. ResponseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        LOGS.info("EventManager. UpdateEvent. Success");
+                        postRunnable.setResult(true);
+                    } else {
+                        LOGS.info("EventManager. UpdateEvent. Failure");
+                        postRunnable.setResult(false);
+                    }
+
+                    executeRunnable(context, postRunnable);
+                } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't update event", e);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(false);
+                    executeRunnable(context, postRunnable);
+                }
+            }
+        });
+    }
+
+    public static void supportEvent(final Context context, final String support_url,
+                                   final DeliverResultRunnable<Boolean> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final String TAG = "supportEvent";
+                final int CODE_SUCCESS = 200;
+
+                if (!Utils.isNetworkConnected(context, LOGS)) {
+//                    errorDialog(context, DIALOG_NO_CONNECTION);
+                    if (postRunnable != null) {
+                        postRunnable.setResult(false);
+                        postRunnable.run();
+                    }
+                    return;
+                }
+
+                try {
+                    HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
+                            .append(support_url).toString());
+
+                    addAuthHeader(context, httpPost);
+                    addUserAgentHeader(context, httpPost);
+                    httpPost.setHeader("Accept", "application/json");
+                    httpPost.setHeader("Content-type", "application/json");
+
+                    JSONObject json = new JSONObject();
+                    StringEntity se = new StringEntity(json.toString());
+                    httpPost.setEntity(se);
+                    //httpPost.getParams().setParameter("user_id", EventManager.getInstance(context).getEvent().getUser().getId());
 
                     Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
                     Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
@@ -289,7 +514,11 @@ public class NetworkManager {
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
                         NetworkManager.LOGS.error("Can't execute post request", e);
-                        errorDialog(context, DIALOG_NETWORK_ERROR);
+                        //errorDialog(context, DIALOG_NETWORK_ERROR);
+                        if (postRunnable != null) {
+                            postRunnable.setResult(false);
+                            postRunnable.run();
+                        }
                         return;
                     }
 
@@ -304,10 +533,74 @@ public class NetworkManager {
                         postRunnable.setResult(false);
                     }
 
-                    postRunnable.run();
+                    if (postRunnable != null) {
+                        postRunnable.run();
+                    }
                 } catch (Exception e) {
-                    NetworkManager.LOGS.error("Can't update event", e);
-                    errorDialog(context, DIALOG_NETWORK_ERROR);
+                    NetworkManager.LOGS.error("Can't create event", e);
+                    //errorDialog(context, DIALOG_NETWORK_ERROR);
+                    if (postRunnable != null) {
+                        postRunnable.setResult(false);
+                        postRunnable.run();
+                    }
+                }
+            }
+        });
+    }
+
+    public static void getEventUpdates(final Context context, final String event_id,
+                                final DeliverResultRunnable<List<Event>> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final int CODE_SUCCESS = 200;
+                final String TAG = "getEventUpdates";
+                try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
+                    StringBuilder url = new StringBuilder()
+                            .append(SERVER_URL).append("/api/v1/")
+                            .append("eventupdates?").append("event=").append(event_id);
+
+                    HttpGet httpGet = new HttpGet(url.toString());
+                    addAuthHeader(context, httpGet);
+                    addUserAgentHeader(context, httpGet);
+                    httpGet.setHeader("Accept", "application/json");
+                    httpGet.setHeader("Content-type", "application/json");
+
+                    Log.i(TAG, "request: " + httpGet.getRequestLine().toString());
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpGet);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute get request", e);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        List<Event> result = JsonHelper.jsonResponseToEvents(responseContent);
+
+                        postRunnable.setResult(result);
+                    } else {
+                        postRunnable.setResult(null);
+                    }
+
+                    executeRunnable(context, postRunnable);
+                } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't get roles", e);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(null);
+                    executeRunnable(context, postRunnable);
                 }
             }
         });
@@ -320,17 +613,16 @@ public class NetworkManager {
             @Override
             public void run() {
                 final String TAG = "getEvents";
-
-//                if (!Utils.isNetworkConnected(context)) {
-//                    errorDialog(context, DIALOG_NO_CONNECTION);
-//                    return;
-//                }
-
                 try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
                     HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
-                            .append("/api/v1/events/")
-                            .append("?user=")
-                            .append(SosManager.getInstance(context).getEvent().getUser().getId())
+                            .append("/api/v1/events/?format=json")
+//                            .append("?user=")
+//                            .append(EventManager.getInstance(context).getEvent().getUser().getId())
                             .toString());
 
                     addAuthHeader(context, httpGet);
@@ -345,7 +637,7 @@ public class NetworkManager {
                         response = httpClient.execute(httpGet);
                     } catch (Exception e) {
                         NetworkManager.LOGS.error("Can't execute get request", e);
-                        errorDialog(context, DIALOG_NETWORK_ERROR);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
                         return;
                     }
 
@@ -364,40 +656,33 @@ public class NetworkManager {
                         postRunnable.setResult(null);
                     }
 
-                    if (postRunnable != null) {
-                        postRunnable.run();
-                    }
+                    executeRunnable(context, postRunnable);
                 } catch (Exception e) {
                     NetworkManager.LOGS.error("Can't get events", e);
-                    errorDialog(context, DIALOG_NETWORK_ERROR);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(null);
+                    executeRunnable(context, postRunnable);
                 }
             }
         });
     }
 
-    public static void getRoles(final Context context, final User user,
-                                 final DeliverResultRunnable<List<Role>> postRunnable) {
+    public static void getRoles(final Context context,
+                                final DeliverResultRunnable<List<Role>> postRunnable) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                final int CODE_SUCCESS = 200; // TODO: ask server devs about difference between 200 and 201
+                final int CODE_SUCCESS = 200;
                 final String TAG = "getRoles";
-
-//                if (!Utils.isNetworkConnected(context)) {
-//                    errorDialog(context, DIALOG_NO_CONNECTION);
-//                    return;
-//                }
-
                 try {
-                    StringBuilder url = new StringBuilder()
-                            .append(SERVER_URL).append("/api/v1/");
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
 
-                    if (user == null)
-                        url.append("roles/");
-                    else
-                        url.append("users/")
-                           .append(SosManager.getInstance(context).getEvent().getUser().getId())
-                           .append("/roles/");
+                    StringBuilder url = new StringBuilder()
+                            .append(SERVER_URL).append("/api/v1/")
+                            .append("roles/");
 
                     HttpGet httpGet = new HttpGet(url.toString());
                     addAuthHeader(context, httpGet);
@@ -412,8 +697,8 @@ public class NetworkManager {
                         response = httpClient.execute(httpGet);
                     } catch (Exception e) {
                         NetworkManager.LOGS.error("Can't execute get request", e);
-                        errorDialog(context, DIALOG_NETWORK_ERROR);
-                        return;
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
                     }
 
                     int responseCode = response.getStatusLine().getStatusCode();
@@ -424,109 +709,77 @@ public class NetworkManager {
                     if (responseCode == CODE_SUCCESS) {
                         List<Role> result = JsonHelper.jsonResponseToRoles(responseContent);
 
-//                        // TODO: delete after debug
-//                        List<Role> result = new ArrayList<Role>();
-////
-//                        Role role = new Role();
-//                        role.id = "1";
-//                        role.name = "Tank";
-//                        result.add(role);
-//
-//                        if (user == null) {
-//                            role = new Role();
-//                            role.id = "2";
-//                            role.name = "Supporter";
-//                            result.add(role);
-//                        }
-
                         postRunnable.setResult(result);
                     } else {
                         postRunnable.setResult(null);
                     }
 
-                    if (postRunnable != null) {
-                        postRunnable.run();
-                    }
+                    executeRunnable(context, postRunnable);
                 } catch (Exception e) {
                     NetworkManager.LOGS.error("Can't get roles", e);
-                    errorDialog(context, DIALOG_NETWORK_ERROR);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(null);
+                    executeRunnable(context, postRunnable);
                 }
             }
         });
     }
 
-    private static void errorDialog(final Context context, final int type) {
-        if (context == null)
-            return;
-
-        Activity activity = null;
-        try {
-            activity = (Activity) context;
-        } catch (Exception e) {
-            NetworkManager.LOGS.error("Context is not a activity", e);
-            return;
-        }
-        activity.runOnUiThread(new Runnable() {
+    public static void getUserRoles(final Context context,
+                                final DeliverResultRunnable<List<String>> postRunnable) {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
-//                try {
-//                    final ETAApplication app = (ETAApplication) ((Activity) context).getApplication();
-//                    if (app.dialogShown)
-//                        return;
-//
-//                    if (type == DIALOG_NETWORK_ERROR) {
-//                        app.dialogShown = true;
-//
-//                        new AlertDialog.Builder(context)
-//                                .setMessage(R.string.network_error)
-//                                .setNeutralButton(android.R.string.ok,
-//                                        new DialogInterface.OnClickListener() {
-//                                            @Override
-//                                            public void onClick(DialogInterface dialog, int which) {
-//                                                dialog.dismiss();
-//                                                app.dialogShown = false;
-//                                            }
-//                                        })
-//                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-//                                    @Override
-//                                    public void onCancel(DialogInterface dialog) {
-//                                        dialog.dismiss();
-//                                        app.dialogShown = false;
-//                                    }
-//                                }).show();
-//                    }
-//
-//                    if (type == DIALOG_NO_CONNECTION) {
-//                        app.dialogShown = true;
-//
-//                        new AlertDialog.Builder(context)
-//                                .setTitle(R.string.connection)
-//                                .setMessage(R.string.connection_is_out)
-//                                .setIcon(android.R.drawable.ic_dialog_alert)
-//                                .setNeutralButton(R.string.connection_settings,
-//                                        new DialogInterface.OnClickListener() {
-//                                            @Override
-//                                            public void onClick(DialogInterface dialog, int which) {
-//                                                dialog.dismiss();
-//                                                app.dialogShown = false;
-//
-//                                                // open wi-fi settings
-//                                                ((Activity) context)
-//                                                        .startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
-//                                            }
-//                                        })
-//                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-//                                    @Override
-//                                    public void onCancel(DialogInterface dialog) {
-//                                        dialog.dismiss();
-//                                        app.dialogShown = false;
-//                                    }
-//                                }).show();
-//                    }
-//                } catch (Exception e) {
-//                    // if activity is already destroyed, we don't need to show any dialogs
-//                    // let them go :)
-//                }
+                final int CODE_SUCCESS = 200;
+                final String TAG = "getUserRoles";
+                try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
+                    StringBuilder url = new StringBuilder()
+                            .append(SERVER_URL).append("/api/v1/users/roles/");
+
+                    HttpGet httpGet = new HttpGet(url.toString());
+                    addAuthHeader(context, httpGet);
+                    addUserAgentHeader(context, httpGet);
+                    httpGet.setHeader("Accept", "application/json");
+                    httpGet.setHeader("Content-type", "application/json");
+
+                    Log.i(TAG, "request: " + httpGet.getRequestLine().toString());
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpGet);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute get request", e);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw  new Exception();
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        String[] roles = responseContent.substring(1, responseContent.length()-1)
+                                                        .split(",");
+                        List<String> result = Arrays.asList(roles);
+                        Log.i(TAG, "result: " + String.valueOf(result));
+                        postRunnable.setResult(result);
+                    } else {
+                        postRunnable.setResult(null);
+                    }
+
+                    executeRunnable(context, postRunnable);
+                } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't get roles", e);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(null);
+                    executeRunnable(context, postRunnable);
+                }
             }
         });
     }
@@ -537,22 +790,14 @@ public class NetworkManager {
             @Override
             public void run() {
                 final String TAG = "setRoles";
-
-                if (!Utils.isNetworkConnected(context, LOGS)) {
-//                    errorDialog(context, DIALOG_NO_CONNECTION);
-                    if (postRunnable != null) {
-                        postRunnable.setResult(null);
-                        postRunnable.run();
-                    }
-                    return;
-                }
-
                 try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
-                            .append("/api/v1/users/")
-                            .append(SosManager.getInstance(context).getEvent().getUser().getId())
-                            .append("/roles/")
-                            .toString());
+                            .append("/api/v1/users/roles/").toString());
 
                     addAuthHeader(context, httpPost);
                     addUserAgentHeader(context, httpPost);
@@ -578,12 +823,8 @@ public class NetworkManager {
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
                         NetworkManager.LOGS.error("Can't execute post request", e);
-                        //errorDialog(context, DIALOG_NETWORK_ERROR);
-                        if (postRunnable != null) {
-                            postRunnable.setResult(null);
-                            postRunnable.run();
-                        }
-                        return;
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
                     }
 
                     int responseCode = response.getStatusLine().getStatusCode();
@@ -601,16 +842,12 @@ public class NetworkManager {
                         postRunnable.setResult(false);
                     }
 
-                    if (postRunnable != null) {
-                        postRunnable.run();
-                    }
+                    executeRunnable(context, postRunnable);
                 } catch (Exception e) {
                     NetworkManager.LOGS.error("Can't create roles", e);
-                    //errorDialog(context, DIALOG_NETWORK_ERROR);
-                    if (postRunnable != null) {
-                        postRunnable.setResult(null);
-                        postRunnable.run();
-                    }
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(false);
+                    executeRunnable(context, postRunnable);
                 }
             }
         });
@@ -628,6 +865,7 @@ public class NetworkManager {
 
     public static void loginAtServer(final Context context, String token, int provider,
                                      final DeliverResultRunnable<Boolean> postRunnable) {
+        LOGS.info("NetworkManager. loginAtServer() with Social Network access token");
         Map credentials = new HashMap();
         credentials.put("access_token", token);
         credentials.put("provider", provider);
@@ -642,17 +880,13 @@ public class NetworkManager {
             public void run() {
                 final int CODE_SUCCESS = 200;
                 final String TAG = "loginAtServer";
-
-                if (!Utils.isNetworkConnected(context, LOGS)) {
-//                    errorDialog(context, DIALOG_NO_CONNECTION);
-                    if (postRunnable != null) {
-                        postRunnable.setUnsuccessful(0);
-                        postRunnable.run();
-                    }
-                    return;
-                }
-
                 try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        LOGS.info("NetworkManager. loginAtServer. No Network");
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
                     StringBuilder url = new StringBuilder(SERVER_URL)
                             .append("/api/v1/auth/login/");
 
@@ -660,11 +894,13 @@ public class NetworkManager {
                     int provider = (Integer) credentials.get("provider");
                     switch (provider) {
                         case SITE:
+                            LOGS.info("NetworkManager. loginAtServer. Using login + password)");
                             url = url.append("site/");
                             json.put("username", credentials.get("username"));
                             json.put("password", credentials.get("password"));
                             break;
                         case FACEBOOK:
+                            LOGS.info("NetworkManager. loginAtServer. Using FB access token");
                             url = url.append("facebook/");
                             json.put("access_token", credentials.get("access_token"));
                             break;
@@ -677,20 +913,19 @@ public class NetworkManager {
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
-
                     Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
                     Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
 
+                    LOGS.info("EventManager. loginAtServer. Request: " + httpPost.getRequestLine().toString());
+                    LOGS.info("EventManager. loginAtServer. Request entity: " + EntityUtils.toString(httpPost.getEntity()));
+
                     HttpResponse response = null;
                     try {
+                        LOGS.info("EventManager. loginAtServer. Executing request");
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
-                        //errorDialog(context, DIALOG_NETWORK_ERROR);
-                        if (postRunnable != null) {
-                            postRunnable.setUnsuccessful(0);
-                            postRunnable.run();
-                        }
-                        return;
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
                     }
 
                     int responseCode = response.getStatusLine().getStatusCode();
@@ -698,30 +933,37 @@ public class NetworkManager {
                     Log.i(TAG, "responseCode: " + responseCode);
                     Log.i(TAG, "responseContent: " + responseContent);
 
+                    LOGS.info("EventManager. loginAtServer. ResponseCode: " + responseCode);
+                    LOGS.info("EventManager. loginAtServer. ResponseContent: " + responseContent);
+
                     if (responseCode == CODE_SUCCESS) {
+                        LOGS.info("EventManager. loginAtServer. Success");
                         Map<String, Object> data = mapper.readValue(responseContent, Map.class);
                         String api_username = String.valueOf(data.get("username"));
                         String api_key = String.valueOf(data.get("key"));
+
+                        LOGS.info("EventManager. loginAtServer. got username: " + api_username +
+                            "  got api_key: " + api_key + "  Saving it");
 
                         saveAuthData(context, api_username, api_key);
 
                         postRunnable.setResult(true);
                     } else {
+                        LOGS.info("EventManager. loginAtServer. Failure");
                         postRunnable.setUnsuccessful(responseCode);
                     }
                     postRunnable.run();
                 } catch (Exception e) {
-                    //errorDialog(context, DIALOG_NETWORK_ERROR);
-                    if (postRunnable != null) {
-                        postRunnable.setUnsuccessful(0);
-                        postRunnable.run();
-                    }
+                    LOGS.info("EventManager. loginAtServer. Can't login to server");
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setUnsuccessful(0);
+                    executeRunnable(context, postRunnable);
                 }
             }
         });
     }
 
-    public static abstract class DeliverResultRunnable<Result> implements Runnable {
+    public static class DeliverResultRunnable<Result> implements Runnable {
 
         private Result result;
         private boolean success = true;
@@ -745,15 +987,26 @@ public class NetworkManager {
             this.errorCode = errorCode;
         }
 
-        public abstract void deliver(Result result);
+        public void deliver(Result result) {}
 
-        public void onError(int errorCode) { }
+        public void onError(int errorCode) {}
+    }
+
+    private static void executeRunnable(Context context, Runnable runnable) {
+        if (runnable == null)
+            return;
+        else if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            activity.runOnUiThread(runnable);
+        } else
+            runnable.run();
     }
 
     private static AbstractHttpMessage addAuthHeader(Context context, AbstractHttpMessage request) {
         request.addHeader(new BasicHeader("Authorization", new StringBuilder().append("ApiKey ")
                 .append(Prefs.getApiUsername(context)).append(":")
                 .append(Prefs.getApiKey(context)).toString()));
+        Log.i("addAuthHeader", Prefs.getApiUsername(context) + ":" + Prefs.getApiKey(context));
         return request;
     }
 

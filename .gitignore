@@ -83,3 +83,4 @@ p2psafety_django/static_media
 p2psafety_django/docs/build/
 
 .env/
+*.log
