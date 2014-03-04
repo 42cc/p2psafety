@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
 
 from events.models import EventUpdate, Event
 
@@ -27,9 +28,11 @@ def map(request):
 @require_POST
 @ajax_request
 def operator_add_eventupdate(request):
-    text = json.loads(request.body)['text']
-    event_id = json.loads(request.body)['event_id']
+    import pdb; pdb.set_trace()
+    data = json.loads(request.body)
+    text = data['text']
+    event_id = data['event_id']
 
-    event = Event.objects.get(id=event_id)
-    EventUpdate.objects.create(user=event.user, event=event, text=text)
+    event = get_object_or_404(Event, id=event_id)
+    EventUpdate.objects.create(user=request.user, event=event, text=text)
     return {'success': True}
