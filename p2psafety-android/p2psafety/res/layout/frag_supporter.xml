@@ -60,7 +60,7 @@
 
         </LinearLayout>
 
-        <com.google.android.gms.maps.MapView
+        <ua.p2psafety.P2PMapView
             android:id="@+id/supporter_map"
             android:layout_width="match_parent"
             android:layout_height="270dp"
