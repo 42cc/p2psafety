@@ -112,10 +112,11 @@ public class SupporterFragment extends Fragment {
         mVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // stop audio record services
+                // stop all record services
                 mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
+                mActivity.stopService(new Intent(mActivity, VideoRecordService.class));
 
-                // start video record if we that's what user wants
+                // start video record if that's what user wants
                 if (!Utils.isServiceRunning(mActivity, VideoRecordService.class))
                     mActivity.startService(new Intent(mActivity, VideoRecordService.class));
                 else

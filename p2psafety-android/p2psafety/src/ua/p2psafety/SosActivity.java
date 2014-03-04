@@ -72,7 +72,8 @@ public class SosActivity extends ActionBarActivity {
         }
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().addToBackStack(null).replace(R.id.content_frame, fragment).commit();
+        fragmentManager.beginTransaction().addToBackStack(null)
+                .replace(R.id.content_frame, fragment).commit();
 
         if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, LOGS) && Prefs.getGmailToken(this) == null)
         {

@@ -116,6 +116,9 @@ public class EventManager {
         // start listening xmpp
         mContext.startService(new Intent(mContext, XmppService.class));
 
+        // stop sending location updates
+        mContext.startService(new Intent(mContext, LocationService.class));
+
         setSosStarted(false);
     }
 

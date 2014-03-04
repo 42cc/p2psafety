@@ -120,7 +120,9 @@ public class AcceptEventFragment extends Fragment {
                             bundle.putParcelable(XmppService.LOCATION_KEY, mEventLocation);
                             Fragment fragment = new SupporterFragment();
                             fragment.setArguments(bundle);
-                            getFragmentManager().beginTransaction()
+                            FragmentManager fm = getFragmentManager();
+                            fm.popBackStackImmediate();
+                            fm.beginTransaction()
                                     .addToBackStack(null)
                                     .replace(R.id.content_frame, fragment).commit();
                         }

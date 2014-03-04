@@ -302,10 +302,9 @@ public class XmppService extends Service {
             mConnection.removePacketListener(mPacketListener);
             mNode.removeItemEventListener(mItemEventListener);
             mConnection.disconnect();
+            logs.info("XmppService stopped");
+            logs.close();
         } catch (Exception e) {}
-
-        logs.info("XmppService stopped");
-        logs.close();
     }
 
     @Override
