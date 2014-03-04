@@ -107,6 +107,10 @@ public class AcceptEventFragment extends Fragment {
             }
         });
 
+        Utils.startVibration(mActivity);
+        Utils.playDefaultNotificationSound(mActivity);
+        Utils.blinkLED(mActivity);
+
         Bundle bundle = getArguments();
         mEventLocation = (Location) bundle.get(XmppService.LOCATION_KEY);
         mEventSupportUrl = bundle.getString(XmppService.SUPPORTER_URL_KEY);

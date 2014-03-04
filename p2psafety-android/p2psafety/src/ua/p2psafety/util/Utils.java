@@ -6,6 +6,8 @@ import android.app.ActivityManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,9 +16,13 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Color;
 import android.location.LocationManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -126,6 +132,23 @@ public class Utils {
 
         // Vibrate for 2000 milliseconds
         AsyncTaskExecutionHelper.executeParallel(vibration, 2000);
+    }
+
+    public static void playDefaultNotificationSound(Context context) {
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Ringtone r = RingtoneManager.getRingtone(context, notification);
+        r.play();
+    }
+
+    public static void blinkLED(Context context) {
+        NotificationManager notifMgr = (NotificationManager)
+                context.getSystemService(context.NOTIFICATION_SERVICE);
+        Notification notif = new Notification();
+        notif.ledARGB = Color.argb(255, 0, 255, 0);
+        notif.flags |= Notification.FLAG_SHOW_LIGHTS;
+        notif.ledOnMS = 300;
+        notif.ledOffMS = 200;
+        notifMgr.notify(999, notif);
     }
 
     public static void sendMailsWithAttachments(final Context context, final int mediaId, final File file) {
