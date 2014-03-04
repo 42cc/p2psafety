@@ -121,7 +121,7 @@
         <!-- release key:   AIzaSyCZgqFXs5r7qOKUFgKnGGvlkGsIA0-fhC8 -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBC_oxIKQU5NnUsJTxtsVrhP7fcdKVJo-4"/>
+            android:value="AIzaSyCZgqFXs5r7qOKUFgKnGGvlkGsIA0-fhC8"/>
 
     </application>
 
