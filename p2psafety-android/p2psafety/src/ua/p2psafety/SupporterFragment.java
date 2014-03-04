@@ -13,15 +13,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Arrays;
@@ -43,7 +38,7 @@ public class SupporterFragment extends Fragment {
     Button mCloseEventBtn;
     Activity mActivity;
     Event mEvent;
-    MapView mMapView;
+    P2PMapView mMapView;
     GoogleMap mMap;
 
     ScheduledExecutorService mExecutor;
@@ -79,7 +74,7 @@ public class SupporterFragment extends Fragment {
 //            }
 //        });
 
-        mMapView = (MapView) view.findViewById(R.id.supporter_map);
+        mMapView = (P2PMapView) view.findViewById(R.id.supporter_map);
         mMapView.onCreate(savedInstanceState);
 
         mMap = mMapView.getMap();
@@ -148,14 +143,9 @@ public class SupporterFragment extends Fragment {
 
             startAutoUpdates(support_url);
 
-           /* CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(new LatLng(mMap.getMyLocation().getLatitude(),
-                            mMap.getMyLocation().getLongitude()))
-                    .zoom(10.0f)
-                    .build();
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
+            MapsInitializer.initialize(mActivity);
 
-            mMapView.getMap().moveCamera(cameraUpdate);*/
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 15.0f));
         }
     }
 
