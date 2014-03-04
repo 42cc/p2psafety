@@ -1,5 +1,7 @@
 package ua.p2psafety;
 
+import android.location.Location;
+
 public class Event {
     public static String STATUS_PASSIVE  = "P";
     public static String STATUS_ACTIVE   = "A";
@@ -14,6 +16,7 @@ public class Event {
     String mStatus;
     String mType;
     User mUser;
+    Location mLocation;
 
     public void setId(String id) {
         mId = id;
@@ -39,6 +42,10 @@ public class Event {
         mUser = user;
     }
 
+    public void setLocation(Location loc) {
+        mLocation = loc;
+    }
+
     public String getId() {
         return mId;
     }
@@ -61,5 +68,9 @@ public class Event {
 
     public User getUser() {
         return mUser;
+    }
+
+    public Location getLocation() {
+        return mLocation;
     }
 }

@@ -24,6 +24,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
@@ -37,6 +45,8 @@ public class SupporterFragment extends Fragment {
     Event mEvent;
     MapView mMapView;
     GoogleMap mMap;
+
+    ScheduledExecutorService mExecutor;
 
     public SupporterFragment() {
         super();
@@ -59,15 +69,15 @@ public class SupporterFragment extends Fragment {
 
         mEvent = Prefs.getEvent(mActivity);
 
-        mActivity.getIntent().putExtra("event_id", mEvent.getId());
+//        mActivity.getIntent().putExtra("event_id", mEvent.getId());
 
-        NetworkManager.getInfoAboutEvent(mActivity, mActivity.getIntent().getStringExtra("event_id")
-                , new NetworkManager.DeliverResultRunnable<Boolean>() {
-            @Override
-            public void deliver(Boolean aBoolean) {
-                //good
-            }
-        });
+//        NetworkManager.getInfoAboutEvent(mActivity, mActivity.getIntent().getStringExtra("event_id")
+//                , new NetworkManager.DeliverResultRunnable<Boolean>() {
+//            @Override
+//            public void deliver(Boolean aBoolean) {
+//                //good
+//            }
+//        });
 
         mMapView = (MapView) view.findViewById(R.id.supporter_map);
         mMapView.onCreate(savedInstanceState);
@@ -134,7 +144,9 @@ public class SupporterFragment extends Fragment {
             LatLng eventLatLng = new LatLng(event_loc.getLatitude(), event_loc.getLongitude());
             mMap.addMarker(new MarkerOptions()
                     .position(eventLatLng)
-                    .title("Victim name"));
+                    .title("Victim"));
+
+            startAutoUpdates(support_url);
 
            /* CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(new LatLng(mMap.getMyLocation().getLatitude(),
@@ -145,6 +157,59 @@ public class SupporterFragment extends Fragment {
 
             mMapView.getMap().moveCamera(cameraUpdate);*/
         }
+    }
+
+    public void startAutoUpdates(final String support_url) {
+        mExecutor = Executors.newScheduledThreadPool(1);
+        mExecutor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                updateMap(support_url);
+            }
+        }, 60*1000, 60*1000, TimeUnit.MILLISECONDS); // update map every 60 sec
+    }
+
+    private void stopAutoUpdates() {
+        mExecutor.shutdown();
+    }
+
+    private void updateMap(String support_url) {
+        // getting event id from url
+        String str = support_url.replaceAll("[^0-9]+", " ");
+        String event_id = Arrays.asList(str.trim().split(" ")).get(1);
+        Log.i("SupporterFragment", "Event id: " + event_id);
+
+        NetworkManager.getEventUpdates(mActivity, event_id,
+                new NetworkManager.DeliverResultRunnable<List<Event>>() {
+                    @Override
+                    public void deliver(List<Event> updates) {
+                        if (updates == null || updates.size() < 1)
+                            return;
+
+                        // sort updates from newest to oldest
+                        Collections.sort(updates, new Comparator<Event>() {
+                            @Override
+                            public int compare(Event a, Event b) {
+                                return Integer.valueOf(b.getId()) - Integer.valueOf(a.getId());
+                            }
+                        });
+
+                        // try to get latest loc
+                        for (Event update: updates) {
+                            Log.i("SupporterFragment", "update id: " + update.getId());
+                            Location loc = update.getLocation();
+                            if (loc != null) {
+                                mMap.clear();
+                                Log.i("SupporterFragment", "new loc on map: " + loc);
+                                LatLng latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
+                                mMap.addMarker(new MarkerOptions()
+                                        .position(latLng).title("Victim name"));
+
+                                break;
+                            }
+                        }
+                    }
+                });
     }
 
     private void closeEvent() {
@@ -190,6 +255,7 @@ public class SupporterFragment extends Fragment {
     public void onPause() {
         super.onPause();
         mMapView.onPause();
+        stopAutoUpdates();
     }
 
     @Override
