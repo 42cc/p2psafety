@@ -28,7 +28,6 @@ def map(request):
 @require_POST
 @ajax_request
 def operator_add_eventupdate(request):
-    import pdb; pdb.set_trace()
     data = json.loads(request.body)
     text = data['text']
     event_id = data['event_id']
