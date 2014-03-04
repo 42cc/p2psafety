@@ -103,8 +103,10 @@ public class SetRolesFragment extends Fragment {
         NetworkManager.getRoles(mActivity, new NetworkManager.DeliverResultRunnable<List<Role>>() {
             @Override
             public void deliver(final List<Role> all_roles) {
-                if (!isAdded() || all_roles == null)
+                if (!isAdded() || all_roles == null) {
+                    Utils.setLoading(mActivity, false);
                     return;
+                }
 
                 mRolesAdapter.clear();
                 mRoles.clear();
