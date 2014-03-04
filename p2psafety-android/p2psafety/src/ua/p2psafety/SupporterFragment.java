@@ -13,16 +13,30 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
 public class SupporterFragment extends Fragment {
+
     TextView mEventInfo;
     Button mAudioBtn, mVideoBtn;
     Button mCloseEventBtn;
     Activity mActivity;
     Event mEvent;
+    MapView mMapView;
+    GoogleMap mMap;
 
     public SupporterFragment() {
         super();
@@ -54,6 +68,16 @@ public class SupporterFragment extends Fragment {
                 //good
             }
         });
+
+        mMapView = (MapView) view.findViewById(R.id.supporter_map);
+        mMapView.onCreate(savedInstanceState);
+
+        mMap = mMapView.getMap();
+        if (mMap != null) {
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            mMap.setMyLocationEnabled(true);
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        }
 
         return view;
     }
@@ -106,6 +130,20 @@ public class SupporterFragment extends Fragment {
 
             Log.i("SupporterFragment", "url: " + support_url);
             Log.i("SupporterFragment", "location: " + event_loc);
+
+            LatLng eventLatLng = new LatLng(event_loc.getLatitude(), event_loc.getLongitude());
+            mMap.addMarker(new MarkerOptions()
+                    .position(eventLatLng)
+                    .title("Victim name"));
+
+           /* CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(mMap.getMyLocation().getLatitude(),
+                            mMap.getMyLocation().getLongitude()))
+                    .zoom(10.0f)
+                    .build();
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
+
+            mMapView.getMap().moveCamera(cameraUpdate);*/
         }
     }
 
@@ -145,10 +183,25 @@ public class SupporterFragment extends Fragment {
     public void onResume() {
         Prefs.putSupporterMode(mActivity, true);
         super.onResume();
+        mMapView.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        mMapView.onPause();
     }
+
+    @Override
+     public void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
+    }
+
 }
