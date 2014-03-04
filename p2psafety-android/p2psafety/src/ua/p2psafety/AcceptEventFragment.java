@@ -110,7 +110,7 @@ public class AcceptEventFragment extends Fragment {
                     public void run() {
                         Utils.setLoading(mActivity, false);
                         //mActivity.onBackPressed();
-                        if (success) {
+                        if (true) {
                             EventManager.getInstance(mActivity).getEvent().setType(Event.TYPE_SUPPORT);
                             EventManager.getInstance(mActivity).getEvent().setStatus(Event.STATUS_ACTIVE);
                             XmppService.processing_event = false;
