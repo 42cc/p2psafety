@@ -117,6 +117,26 @@ class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
         resp = self.api_client.post(url, data='invalid data', **auth(user))
         self.assertEqual(resp.status_code, 400)
 
+    def test_roles_by_id(self):
+        user1, user2 = UserFactory(),UserFactory()
+        url = self.users_roles_url
+        role1, role2 = RoleFactory(), RoleFactory()
+        user1.roles.add(role1)
+        user2.roles.add(role2)
+
+        data = {'id':user1.id, 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertValidJSONResponse(resp)
+        roles_list = self.deserialize(resp)
+        self.assertEqual(roles_list, [role1.id])
+
+        data = {'id':user2.id, 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertValidJSONResponse(resp)
+        roles_list = self.deserialize(resp)
+        self.assertEqual(roles_list, [role2.id])
+
+
 
 class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
 

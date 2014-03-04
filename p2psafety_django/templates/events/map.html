@@ -12,11 +12,16 @@
   {{ block.super }}
   <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&sensor=false&language=uk"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+  <script src="{% static 'js/angular_lodash.js' %}"></script>
   <script src="{% static 'js/map.js' %}"></script>
   <script>
     mapApp.constant('urls', {
       events: "{% url 'api_dispatch_list' resource_name='events' api_name='v1' %}",
       eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
+      roles: "{% url 'api_dispatch_list' resource_name='roles' api_name='v1' %}",
+      movement_types: "{% url 'api_dispatch_list' resource_name='movement_types' api_name='v1' %}",
+      user_roles:"{% url 'api_users_roles' resource_name='users' api_name='v1' %}",
     });
     mapApp.constant('mapSettings', {
         highlight: {% switch 'eventsmap-newevent-highlight' %}true{% else %}false{% endswitch %},
@@ -94,7 +99,19 @@
             <h4 class="panel-heading event-heading">Dispatcher panel</h4>
             <button ng-click="filterMarkers('on')">filter on</button>
             <button ng-click="filterMarkers('off')">filter off</button>
+
             <div class="panel-body">
+              <form role="form">
+                <div class="form-group">
+                  <label  ng-repeat="role in roles"  class="checkbox-inline">
+                    <input 
+                      ng-click="toggleFilter({type:'role', id:role.id})"   
+                      ng-checked="!(_.contains(enabledFilters.role, {{role.id}}))"
+                      type="checkbox" 
+                      value="{{role.id}}"/>{{role.name}}</input>
+                  </label>
+                </div>
+              </form>
                 <div class="list-group">
                     <div class="list-group-item"
                          ng-class="{'list-group-item-warning': event.isNew}"

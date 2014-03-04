@@ -25,7 +25,8 @@ class UserResource(ApiMethodsMixin, ModelResource):
         fields = ['id']
         detail_allowed_methods = []
         list_allowed_methods = []
-        authentication = ApiKeyAuthentication()
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             SessionAuthentication())
 
     full_name = fields.CharField('get_full_name')
 
@@ -42,7 +43,16 @@ class UserResource(ApiMethodsMixin, ModelResource):
             """
             Returns user's roles as list of ids.
             """            
-            objects = [role.id for role in request.user.roles.all()]
+            if request.GET.has_key('id'):
+                try:
+                    user = User.objects.get(id=request.GET['id'])
+                except User.DoesNotExist:
+                    return http.HttpNotFound #TODO
+            else:
+                user = request.user
+
+
+            objects = [role.id for role in user.roles.all()]
             return self.create_response(request, objects)
 
         class PostParams(SchemaModel):
@@ -95,7 +105,8 @@ class RoleResource(ModelResource):
         detail_allowed_methods = []
         list_allowed_methods = ['get']
         include_resource_uri = False
-        authentication = ApiKeyAuthentication()
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             SessionAuthentication())
 
 
 class MovementTypeResource(ModelResource):
@@ -105,8 +116,8 @@ class MovementTypeResource(ModelResource):
         detail_allowed_methods = []
         list_allowed_methods = ['get']
         include_resource_uri = False
-        authentication = ApiKeyAuthentication()
-
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             SessionAuthentication())
 
 class AuthResource(ApiMethodsMixin, Resource):
     class Meta:

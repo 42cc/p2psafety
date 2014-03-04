@@ -1,4 +1,4 @@
-var mapApp = angular.module('mapApp', []);
+var mapApp = angular.module('mapApp', ["angular-lodash"]);
 
 mapApp.constant('ICONS', {
   RED: 'http://maps.google.com/mapfiles/ms/micons/red-dot.png',
@@ -47,12 +47,14 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       });
     };
   };
-  $scope.update = function(highightNew, playSoundForNew, centerMap) {
+  $scope.update = function(options, callback) {
     var params = {status: 'A'};
     $http.get(urls.events, {params: params}).success(function(data) {
       var eventsAppeared = false, newEvents = {};
       for (i in data.objects) {
         var event = data.objects[i];
+
+
         newEvents[event.id] = event;
       }
       // Deleting old events
@@ -65,7 +67,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       for (newEventId in newEvents) {
         if ($scope.events[newEventId] == null) {
             var new_event =  newEvents[newEventId]
-            if (highightNew){
+            if (options.highightNew){
                 new_event.isNew = true
             } else {
                 new_event.isNew = false
@@ -75,11 +77,11 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
           eventsAppeared = true;
         }
       }
-      if (eventsAppeared && playSoundForNew)
+      if (eventsAppeared && options.playSoundForNew)
         document.getElementById('audiotag').play();
 
       // Making map show all events
-      if (centerMap) {
+      if (options.centerMap) {
         var eventsBounds = new google.maps.LatLngBounds();
         for (eventId in $scope.events) {
           var event = $scope.events[eventId];
@@ -89,38 +91,98 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
           ));
         }
         $scope.gmap.fitBounds(eventsBounds);
+
+
       }
+      if ('function' === typeof callback) callback();
     });
   };
+
+  $scope.updateUserAttrs = function(){
+        //clojure for ajax callback
+      _.forEach($scope.events, function(event){
+        var clojr = function(pevent){
+            return function(data){
+                pevent.user.roles = data;
+            }
+        }
+
+        $http.get(urls.user_roles, {params:{id:event.user.id}}).success(clojr(event))
+      });
+    }
+
   $scope.focus = function(location) {
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
                                              location.longitude));
   };
 
+  $scope.getRoles = function() {
+      //populate list of avail roles for matching
+      $http.get(urls.roles).success(function(data) {
+          $scope.roles = data.objects;
+      });
+  }
+
+  $scope.getMovementTypes = function() {
+      //populate list of avail movement_types for matching
+      $http.get(urls.movement_types).success(function(data) {
+          $scope.movement_types = data.objects;
+      });
+  }
+
   $scope.filterMarkers = function (mode) {
     for(i in $scope.events){
         
     }
-  if(mode === 'on'){
-      $scope.events[i].isVisible = false;
-  }else{
-      $scope.events[i].isVisible = true;
-  }
+      if(mode === 'on'){
+          $scope.events[i].isVisible = false;
+      }else{
+          $scope.events[i].isVisible = true;
+      }
 
   }
 
-  $scope.updatePerSeconds = 5;
+  $scope.toggleFilter = function(filter) {
+      if (!_.contains($scope.enabledFilters[filter.type],filter.id)){
+          $scope.enabledFilters[filter.type].push(filter.id)
+      }else{
+          _.pull($scope.enabledFilters[filter.type],filter.id)
+      }
+      _.forEach($scope.events, function(event){
+          if(_.isEmpty(
+                  _.intersection(event.user.roles, $scope.enabledFilters['role']))){
+              event.isVisible = true;
+          }else{
+              event.isVisible = false
+          }
+          
+
+      });
+  }
+
   $scope.selectedEvent = null;
   $scope.zoomedIn = false;
   $scope.zoomScale = 1;
   $scope.initGoogleMap(document.getElementById("map-canvas"));
   $scope.events = {};
+  $scope.enabledFilters = {'role':[],'movement_type':[]};
+  $scope.getRoles();
+  //$scope.getMovementTypes();
+  $scope.updatePerSeconds = 5;
   
-  $scope.update(false, false, true);
+  $scope.update({playSoundForNew:false, highightNew:false, centerMap:true},
+          $scope.updateUserAttrs
+  );
 
   $interval(function() {
-    $scope.update(mapSettings.highlight, mapSettings.sound);
+    $scope.update({playSoundForNew:mapSettings.sound,
+        highightNew:mapSettings.highlight,
+        centerMap:false});
   }, $scope.updatePerSeconds * 1000);
+
+  $interval(function() {
+    $scope.updateUserAttrs();
+  },15*1000);
 })
 .factory('markerFactory', function() {
   return function(scope, element, content, icon, location, map, onclick) {    
