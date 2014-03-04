@@ -78,9 +78,9 @@ public class SetRolesFragment extends Fragment {
                         mRoles, new NetworkManager.DeliverResultRunnable<Boolean>() {
                     @Override
                     public void deliver(Boolean success) {
+                        Utils.setLoading(mActivity, false);
                         if (success)
                             Toast.makeText(mActivity, getString(R.string.save), Toast.LENGTH_LONG).show();
-                        Utils.setLoading(mActivity, false);
                     }
                 });
             }
@@ -116,10 +116,11 @@ public class SetRolesFragment extends Fragment {
 
                 // get user roles
                 NetworkManager.getUserRoles(mActivity,
-                        EventManager.getInstance(mActivity).getEvent().getUser(),
                         new NetworkManager.DeliverResultRunnable<List<String>>() {
                             @Override
                             public void deliver(final List<String> user_roles) {
+                                Utils.setLoading(mActivity, false);
+
                                 if (!isAdded() || user_roles == null)
                                     return;
 
@@ -130,8 +131,6 @@ public class SetRolesFragment extends Fragment {
 
                                 for (Role role: mRoles)
                                     mRolesAdapter.add(role);
-
-                                Utils.setLoading(mActivity, false);
                             }
                         });
             }

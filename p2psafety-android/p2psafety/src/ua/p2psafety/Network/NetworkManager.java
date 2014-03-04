@@ -725,7 +725,7 @@ public class NetworkManager {
         });
     }
 
-    public static void getUserRoles(final Context context, final User user,
+    public static void getUserRoles(final Context context,
                                 final DeliverResultRunnable<List<String>> postRunnable) {
         executor.execute(new Runnable() {
             @Override
@@ -739,10 +739,8 @@ public class NetworkManager {
                     }
 
                     StringBuilder url = new StringBuilder()
-                            .append(SERVER_URL).append("/api/v1/")
-                            .append("users/")
+                            .append(SERVER_URL).append("/api/v1/users/roles/");
                             .append(EventManager.getInstance(context).getEvent().getUser().getId())
-                            .append("/roles/");
 
                     HttpGet httpGet = new HttpGet(url.toString());
                     addAuthHeader(context, httpGet);
@@ -800,10 +798,7 @@ public class NetworkManager {
                     }
 
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
-                            .append("/api/v1/users/")
-                            .append(EventManager.getInstance(context).getEvent().getUser().getId())
-                            .append("/roles/")
-                            .toString());
+                            .append("/api/v1/users/roles/").toString());
 
                     addAuthHeader(context, httpPost);
                     addUserAgentHeader(context, httpPost);

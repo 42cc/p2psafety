@@ -9,9 +9,10 @@ from django.core.urlresolvers import reverse
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
-from ...models import Event, EventUpdate
+from users.tests.helpers import api_key_auth as auth
 from ..helpers.factories import EventFactory, EventUpdateFactory, UserFactory
 from ..helpers.mixins import ModelsMixin, UsersMixin
+from ...models import Event, EventUpdate
 
 
 class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
@@ -134,10 +135,8 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         event_supporter = EventFactory(user=user_supporter,
                                        status=Event.STATUS_ACTIVE)
 
-        self.login_as_superuser()
         url = self.events_support_url(event_victim.id)
-        data = dict(user_id=user_supporter.id)
-        resp = self.api_client.post(url, data=data)
+        resp = self.api_client.post(url, **auth(user_supporter))
         self.assertEqual(resp.status_code, 200)
         support_by_user_mock.assert_called_once_with(user_supporter)
 
@@ -149,23 +148,15 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         url = self.events_support_url(event_victim.id)
 
         # Invalid method
-        self.assertHttpMethodNotAllowed(self.api_client.get(url))
-
-        # Invalid body
-        self.assertHttpBadRequest(self.api_client.post(url, data='invalid'))
-
-        # Invalid params
-        data = dict(user_id='invalid')
-        self.assertHttpBadRequest(self.api_client.post(url, data=data))
+        resp = self.api_client.get(url, **auth(user_victim))
+        self.assertHttpMethodNotAllowed(resp)
 
         # Event does not exists
-        data = dict(user_id=user_supporter.id)
         not_found_url = self.events_support_url(123)
-        self.assertHttpNotFound(self.api_client.post(not_found_url, data=data))
+        resp = self.api_client.post(not_found_url, **auth(user_victim))
+        self.assertHttpNotFound(resp)
 
-        # User does not exists
-        data = dict(user_id=123)
-        self.assertHttpBadRequest(self.api_client.post(url, data=data))
+        self.assertEqual(support_by_user_mock.call_count, 0)
 
 
 class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
