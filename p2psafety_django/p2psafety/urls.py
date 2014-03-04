@@ -7,8 +7,9 @@ from django.views.generic import TemplateView
 
 from tastypie.api import Api
 
-from events.api import EventResource, EventUpdateResource
-from users.api import UserResource, RoleResource, AuthResource
+from events.api.resources import EventResource, EventUpdateResource
+from users.api.resources import UserResource, RoleResource, AuthResource, \
+                                MovementTypeResource
 
 
 admin.autodiscover()
@@ -19,6 +20,7 @@ api_v1.register(EventResource())
 api_v1.register(EventUpdateResource())
 api_v1.register(UserResource())
 api_v1.register(RoleResource())
+api_v1.register(MovementTypeResource())
 api_v1.register(AuthResource())
 
 
@@ -33,7 +35,6 @@ urlpatterns = patterns('',
     
     url(r'^accounts/', include('allauth.urls')),
 )
-
 
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()

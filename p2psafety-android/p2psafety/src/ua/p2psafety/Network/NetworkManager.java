@@ -111,8 +111,10 @@ public class NetworkManager {
             @Override
             public void run() {
                 final String TAG = "createEvent";
+                LOGS.info("SosManager. CreateEvent.");
                 try {
                     if (!Utils.isNetworkConnected(context, LOGS)) {
+                        LOGS.info("SosManager. createEvent. No network.");
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
@@ -131,6 +133,10 @@ public class NetworkManager {
 
                     Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
                     Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+                    Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+
+                    LOGS.info("SosManager. CreateEvent. Request: " + httpPost.getRequestLine().toString());
+                    LOGS.info("SosManager. CreateEvent. Request entity: " + EntityUtils.toString(httpPost.getEntity()));
 
                     HttpResponse response = null;
                     try {
@@ -146,13 +152,18 @@ public class NetworkManager {
                     Log.i(TAG, "responseCode: " + responseCode);
                     Log.i(TAG, "responseContent: " + responseContent);
 
+                    LOGS.info("SosManager. CreateEvent. ResponseCode: " + responseCode);
+                    LOGS.info("SosManager. CreateEvent. ResponseContent: " + responseContent);
+
                     if (responseCode == CODE_SUCCESS) {
                         Map<String, Object> data = mapper.readValue(responseContent, Map.class);
                         Event event = JsonHelper.jsonToEvent(data);
                         data.clear();
 
+                        LOGS.info("SosManager. CreateEvent. Success");
                         postRunnable.setResult(event);
                     } else {
+                        LOGS.info("SosManager. CreateEvent. Failure");
                         postRunnable.setResult(null);
                     }
 
@@ -245,8 +256,10 @@ public class NetworkManager {
             @Override
             public void run() {
                 final String TAG = "updateEvent";
+                LOGS.info("SosManager. UpdateEvent.");
                 try {
                     if (!Utils.isNetworkConnected(context, LOGS)) {
+                        LOGS.info("SosManager. UpdateEvent. No network");
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
@@ -279,9 +292,14 @@ public class NetworkManager {
 
                     Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
                     Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+                    Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+
+                    LOGS.info("SosManager. UpdateEvent. Request: " + httpPost.getRequestLine().toString());
+                    LOGS.info("SosManager. UpdateEvent. Request entity: " + EntityUtils.toString(httpPost.getEntity()));
 
                     HttpResponse response = null;
                     try {
+                        LOGS.info("SosManager. UpdateEvent. Executing request");
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
                         NetworkManager.LOGS.error("Can't execute post request", e);
@@ -294,9 +312,14 @@ public class NetworkManager {
                     Log.i(TAG, "responseCode: " + responseCode);
                     Log.i(TAG, "responseContent: " + responseContent);
 
+                    LOGS.info("SosManager. UpdateEvent. ResponseCode: " + responseCode);
+                    LOGS.info("SosManager. UpdateEvent. ResponseContent: " + responseContent);
+
                     if (responseCode == CODE_SUCCESS) {
+                        LOGS.info("SosManager. UpdateEvent. Success");
                         postRunnable.setResult(true);
                     } else {
+                        LOGS.info("SosManager. UpdateEvent. Failure");
                         postRunnable.setResult(false);
                     }
 
@@ -430,7 +453,7 @@ public class NetworkManager {
         });
     }
 
-    public static void getUserRoles(final Context context, final User user,
+    public static void getUserRoles(final Context context,
                                 final DeliverResultRunnable<List<String>> postRunnable) {
         executor.execute(new Runnable() {
             @Override
@@ -444,10 +467,7 @@ public class NetworkManager {
                     }
 
                     StringBuilder url = new StringBuilder()
-                            .append(SERVER_URL).append("/api/v1/")
-                            .append("users/")
-                            .append(SosManager.getInstance(context).getEvent().getUser().getId())
-                            .append("/roles/");
+                            .append(SERVER_URL).append("/api/v1/users/roles/");
 
                     HttpGet httpGet = new HttpGet(url.toString());
                     addAuthHeader(context, httpGet);
@@ -505,10 +525,7 @@ public class NetworkManager {
                     }
 
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
-                            .append("/api/v1/users/")
-                            .append(SosManager.getInstance(context).getEvent().getUser().getId())
-                            .append("/roles/")
-                            .toString());
+                            .append("/api/v1/users/roles/").toString());
 
                     addAuthHeader(context, httpPost);
                     addUserAgentHeader(context, httpPost);
@@ -576,6 +593,7 @@ public class NetworkManager {
 
     public static void loginAtServer(final Context context, String token, int provider,
                                      final DeliverResultRunnable<Boolean> postRunnable) {
+        LOGS.info("NetworkManager. loginAtServer() with Social Network access token");
         Map credentials = new HashMap();
         credentials.put("access_token", token);
         credentials.put("provider", provider);
@@ -592,6 +610,7 @@ public class NetworkManager {
                 final String TAG = "loginAtServer";
                 try {
                     if (!Utils.isNetworkConnected(context, LOGS)) {
+                        LOGS.info("NetworkManager. loginAtServer. No Network");
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
@@ -603,11 +622,13 @@ public class NetworkManager {
                     int provider = (Integer) credentials.get("provider");
                     switch (provider) {
                         case SITE:
+                            LOGS.info("NetworkManager. loginAtServer. Using login + password)");
                             url = url.append("site/");
                             json.put("username", credentials.get("username"));
                             json.put("password", credentials.get("password"));
                             break;
                         case FACEBOOK:
+                            LOGS.info("NetworkManager. loginAtServer. Using FB access token");
                             url = url.append("facebook/");
                             json.put("access_token", credentials.get("access_token"));
                             break;
@@ -620,12 +641,15 @@ public class NetworkManager {
                     httpPost.setHeader("Accept", "application/json");
                     httpPost.setHeader("Content-type", "application/json");
 
-
                     Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
                     Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
 
+                    LOGS.info("SosManager. loginAtServer. Request: " + httpPost.getRequestLine().toString());
+                    LOGS.info("SosManager. loginAtServer. Request entity: " + EntityUtils.toString(httpPost.getEntity()));
+
                     HttpResponse response = null;
                     try {
+                        LOGS.info("SosManager. loginAtServer. Executing request");
                         response = httpClient.execute(httpPost);
                     } catch (Exception e) {
                         errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
@@ -637,19 +661,28 @@ public class NetworkManager {
                     Log.i(TAG, "responseCode: " + responseCode);
                     Log.i(TAG, "responseContent: " + responseContent);
 
+                    LOGS.info("SosManager. loginAtServer. ResponseCode: " + responseCode);
+                    LOGS.info("SosManager. loginAtServer. ResponseContent: " + responseContent);
+
                     if (responseCode == CODE_SUCCESS) {
+                        LOGS.info("SosManager. loginAtServer. Success");
                         Map<String, Object> data = mapper.readValue(responseContent, Map.class);
                         String api_username = String.valueOf(data.get("username"));
                         String api_key = String.valueOf(data.get("key"));
+
+                        LOGS.info("SosManager. loginAtServer. got username: " + api_username +
+                            "  got api_key: " + api_key + "  Saving it");
 
                         saveAuthData(context, api_username, api_key);
 
                         postRunnable.setResult(true);
                     } else {
+                        LOGS.info("SosManager. loginAtServer. Failure");
                         postRunnable.setUnsuccessful(responseCode);
                     }
                     postRunnable.run();
                 } catch (Exception e) {
+                    LOGS.info("SosManager. loginAtServer. Can't login to server");
                     errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
                     postRunnable.setUnsuccessful(0);
                     executeRunnable(context, postRunnable);
