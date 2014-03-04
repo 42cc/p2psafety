@@ -80,6 +80,16 @@ class Event(models.Model):
         except EventUpdate.DoesNotExist:
             return None
 
+    @property
+    def related_users(self):
+        """
+        Returns user ids of self and all related events.
+        """
+        sd = list(self.supported.all().values_list('user', flat=True))
+        ss = list(self.supporters.all().values_list('user', flat=True))
+        u = [self.user.id, ]
+        return list(u + sd + ss)
+
     def save(self, *args, **kwargs):
         """
         Basic save + generator until PIN is unique.
