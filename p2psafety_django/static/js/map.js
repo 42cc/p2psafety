@@ -73,22 +73,14 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
           for (i in event_support.supported){
             var supported = event_support.supported[i];
             if(supported.id == event.id){
-              var params = {event__id: event_support.id};
-              $http.get(urls.eventupdates, {params: params}).success(function(data) {
-                event_support.updates = data.objects;
                 $scope.selectedEventsupport[event_support.id] = event_support;
-              })
             }
           }
         }
       }
       for (var i = 0; i<event.supported.length; i++) {
         var supported = event.supported[i];
-        var params = {event__id: supported.id};
-        $http.get(urls.eventupdates, {params: params}).success(function(data) {
-            supported.updates = data.objects;
-            $scope.selectedEventsupported[supported.id] = supported;
-        })
+        $scope.selectedEventsupported[supported.id] = supported;
       }
     };
   };

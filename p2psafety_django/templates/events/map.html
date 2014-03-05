@@ -100,21 +100,20 @@
                 <div ng-repeat="support in selectedEventsupport"
                         ng-if="selectedEvent.type == 'victim'">
                   <p>{{ support.user.full_name }} - support</p>
-                  <div class="list-group-item"
-                       ng-repeat="update in support.updates">
+                  <div class="list-group-item">
                     <p class="list-group-item-heading">
-                      <span class="badge">{{ update.timestamp | date:'dd.MM HH:mm' }}</span>
-                      {{ update.text || "..." }}
+                      <span class="badge">{{ support.latest_update.timestamp | date:'dd.MM HH:mm' }}</span>
+                      {{ support.latest_update.text || "..." }}
                     </p>
-                    <a href="{{ update.audio }}" class="btn btn-default"
-                       ng-if="update.audio != null">
+                    <a href="{{ support.latest_update.audio }}" class="btn btn-default"
+                       ng-if="support.latest_update.audio != null">
                       <span class="glyphicon glyphicon-headphones"></span> Play</a>
-                    <a href="{{ update.video }}" class="btn btn-default"
-                       ng-if="update.video != null">
+                    <a href="{{ support.latest_update.video }}" class="btn btn-default"
+                       ng-if="support.latest_update.video != null">
                       <span class="glyphicon glyphicon-film"></span> Play</a>
                     <a class="btn btn-success"
-                       ng-if="update.location != null"
-                       ng-click="focus(update.location)">
+                       ng-if="support.latest_update.location != null"
+                       ng-click="focus(support.latest_update.location)">
                       <span class="glyphicon glyphicon-map-marker"></span></a>
                   </div>
                 </div>
@@ -131,21 +130,20 @@
                     </div>
                 </supported-marker>
                 <p>{{ supported.user.full_name }} - victim</p>
-                <div class="list-group-item"
-                     ng-repeat="update in supported.updates">
+                <div class="list-group-item">
                   <p class="list-group-item-heading">
-                    <span class="badge">{{ update.timestamp | date:'dd.MM HH:mm' }}</span>
-                    {{ update.text || "..." }}
+                    <span class="badge">{{ supported.latest_update.timestamp | date:'dd.MM HH:mm' }}</span>
+                    {{ supported.latest_update.text || "..." }}
                   </p>
-                  <a href="{{ update.audio }}" class="btn btn-default"
-                     ng-if="update.audio != null">
+                  <a href="{{ supported.latest_update.audio }}" class="btn btn-default"
+                     ng-if="supported.latest_update.audio != null">
                     <span class="glyphicon glyphicon-headphones"></span> Play</a>
-                  <a href="{{ update.video }}" class="btn btn-default"
-                     ng-if="update.video != null">
+                  <a href="{{ supported.latest_update.video }}" class="btn btn-default"
+                     ng-if="supported.latest_update.video != null">
                     <span class="glyphicon glyphicon-film"></span> Play</a>
                   <a class="btn btn-success"
-                     ng-if="update.location != null"
-                     ng-click="focus(update.location)">
+                     ng-if="supported.latest_update.location != null"
+                     ng-click="focus(supported.latest_update.location)">
                     <span class="glyphicon glyphicon-map-marker"></span></a>
                 </div>
                 </div>
