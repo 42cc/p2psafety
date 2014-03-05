@@ -7,6 +7,7 @@ from django.contrib.gis import geos
 
 from events.tests.helpers.factories import EventFactory, EventUpdateFactory
 from users.tests.helpers import UserFactory
+from users.models import Role, MovementType
 
 
 class Command(BaseCommand):
@@ -18,9 +19,21 @@ class Command(BaseCommand):
     def setup(self):
         data = {
             'main_user': User.objects.get_or_create(username="devdata_user")[0],
+            'supporter_user': User.objects.get_or_create(username="supporter_user")[0],
+            'another_user': User.objects.get_or_create(username="another_user")[0],
+            'roles': [Role.objects.get_or_create(name="activist")[0],
+                      Role.objects.get_or_create(name="journalist")[0]],
+            'movement_types': [MovementType.objects.get_or_create(name="feet")[0],
+                              MovementType.objects.get_or_create(name="car")[0]],
             'timestamp_start': datetime.datetime.now(),
             'location_start': geos.Point(390.56, 50.43),
         }
+        data['supporter_user'].roles.add(data['roles'][0])
+        data['supporter_user'].roles.add(data['roles'][1])
+        data['supporter_user'].movement_types.add(data['movement_types'][1])
+
+        data['another_user'].roles.add(data['roles'][0])
+        data['another_user'].movement_types.add(data['movement_types'][0])
         return data
 
     def create_point_generator(self, location_start):
@@ -76,12 +89,32 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         cfg = self.setup()
         event = EventFactory(user=cfg['main_user'])
-        args_generator = self.create_args_generator(event=event, **cfg)
-        timestamp_generator = self.create_timestamp_generator(cfg['timestamp_start'])
+        supporting_event = EventFactory(user=cfg['supporter_user'], type=1)
+        supporting_event.supported.add(event)
+
+        another_event = EventFactory(user=cfg['another_user'], type=1)
+        another_event.supported.add(event)
+
         created = []
 
+        args_generator = self.create_args_generator(event=event, **cfg)
+        timestamp_generator = self.create_timestamp_generator(cfg['timestamp_start'])
         for entity_args in args_generator:
             created.append(EventUpdateFactory(event=event,
+                                              timestamp=timestamp_generator.next(),
+                                              **entity_args))
+
+        args_generator = self.create_args_generator(event=supporting_event, **cfg)
+        timestamp_generator = self.create_timestamp_generator(cfg['timestamp_start'])
+        for entity_args in args_generator:
+            created.append(EventUpdateFactory(event=supporting_event,
+                                              timestamp=timestamp_generator.next(),
+                                              **entity_args))
+
+        args_generator = self.create_args_generator(event=another_event, **cfg)
+        timestamp_generator = self.create_timestamp_generator(cfg['timestamp_start'])
+        for entity_args in args_generator:
+            created.append(EventUpdateFactory(event=another_event,
                                               timestamp=timestamp_generator.next(),
                                               **entity_args))
 
