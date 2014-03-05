@@ -172,7 +172,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.getMovementTypes();
   $scope.showFilterPanel = false;
   $scope.updatePerSeconds = 5;
-
   $scope.shownFilters = {'roles':[],'movement_types':[]};
   
   $scope.update({playSoundForNew:false, highightNew:false, centerMap:true},
