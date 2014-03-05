@@ -30,6 +30,7 @@ import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.media.SetMediaFragment;
 import ua.p2psafety.message.MessageFragment;
+import ua.p2psafety.movements.SetMovementTypesFragment;
 import ua.p2psafety.password.PasswordFragment;
 import ua.p2psafety.roles.SetRolesFragment;
 import ua.p2psafety.setemails.SetEmailsFragment;
@@ -76,6 +77,7 @@ public class SettingsFragment extends Fragment {
                 getString(R.string.password),
                 getString(R.string.media),
                 getString(R.string.roles),
+                getString(R.string.movement_types),
                 getString(R.string.logout),
                 getString(R.string.send_logs)
         };
@@ -140,9 +142,14 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 7:
-                        logout();
+                        mfragment[0] = new SetMovementTypesFragment();
+                        fragmentTransaction.addToBackStack(SetMovementTypesFragment.TAG);
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 8:
+                        logout();
+                        break;
+                    case 9:
                         mfragment[0] = new SendLogsFragment();
                         fragmentTransaction.addToBackStack(SendLogsFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
