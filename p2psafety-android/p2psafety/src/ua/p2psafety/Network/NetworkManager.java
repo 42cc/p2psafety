@@ -725,6 +725,64 @@ public class NetworkManager {
         });
     }
 
+    public static void getMovementTypes(final Context context,
+                                final DeliverResultRunnable<List<Role>> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final int CODE_SUCCESS = 200;
+                final String TAG = "getMovementTypes";
+                try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
+                    StringBuilder url = new StringBuilder()
+                            .append(SERVER_URL).append("/api/v1/")
+                            .append("movement_types/");
+
+                    HttpGet httpGet = new HttpGet(url.toString());
+                    addAuthHeader(context, httpGet);
+                    addUserAgentHeader(context, httpGet);
+                    httpGet.setHeader("Accept", "application/json");
+                    httpGet.setHeader("Content-type", "application/json");
+
+                    Log.i(TAG, "request: " + httpGet.getRequestLine().toString());
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpGet);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute get request", e);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity(), "UTF-8");
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        List<Role> result = JsonHelper.jsonResponseToRoles(responseContent);
+
+                        postRunnable.setResult(result);
+                    } else {
+                        postRunnable.setResult(null);
+                    }
+
+                    executeRunnable(context, postRunnable);
+                } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't get roles", e);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(null);
+                    executeRunnable(context, postRunnable);
+                }
+            }
+        });
+    }
+
     public static void getUserRoles(final Context context,
                                 final DeliverResultRunnable<List<String>> postRunnable) {
         executor.execute(new Runnable() {
@@ -784,6 +842,65 @@ public class NetworkManager {
         });
     }
 
+    public static void getUserMovementTypes(final Context context,
+                                    final DeliverResultRunnable<List<String>> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final int CODE_SUCCESS = 200;
+                final String TAG = "getUserMovementTypes";
+                try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
+                    StringBuilder url = new StringBuilder()
+                            .append(SERVER_URL).append("/api/v1/users/movement_types/");
+
+                    HttpGet httpGet = new HttpGet(url.toString());
+                    addAuthHeader(context, httpGet);
+                    addUserAgentHeader(context, httpGet);
+                    httpGet.setHeader("Accept", "application/json");
+                    httpGet.setHeader("Content-type", "application/json");
+
+                    Log.i(TAG, "request: " + httpGet.getRequestLine().toString());
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpGet);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute get request", e);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw  new Exception();
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        String[] roles = responseContent.substring(1, responseContent.length()-1)
+                                .split(",");
+                        List<String> result = Arrays.asList(roles);
+                        Log.i(TAG, "result: " + String.valueOf(result));
+                        postRunnable.setResult(result);
+                    } else {
+                        postRunnable.setResult(null);
+                    }
+
+                    executeRunnable(context, postRunnable);
+                } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't get roles", e);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(null);
+                    executeRunnable(context, postRunnable);
+                }
+            }
+        });
+    }
+
     public static void setRoles(final Context context, User user, final List<Role> roles,
                                    final DeliverResultRunnable<Boolean> postRunnable) {
         executor.execute(new Runnable() {
@@ -798,6 +915,75 @@ public class NetworkManager {
 
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/users/roles/").toString());
+
+                    addAuthHeader(context, httpPost);
+                    addUserAgentHeader(context, httpPost);
+                    httpPost.setHeader("Accept", "application/json");
+                    httpPost.setHeader("Content-type", "application/json");
+
+                    JSONArray arr = new JSONArray();
+                    for (Role role : roles)
+                        if (role.checked)
+                            arr.put(role.id);
+
+                    JSONObject json = new JSONObject();
+                    json.put("role_ids", arr);
+
+                    StringEntity se = new StringEntity(json.toString());
+                    httpPost.setEntity(se);
+
+                    Log.i(TAG, "request: " + httpPost.getRequestLine().toString());
+                    Log.i(TAG, "request entity: " + EntityUtils.toString(httpPost.getEntity()));
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpPost);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute post request", e);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        Map<String, Object> data = mapper.readValue(responseContent, Map.class);
+                        Event event = JsonHelper.jsonToEvent(data);
+                        data.clear();
+
+                        postRunnable.setResult(true);
+                    } else {
+                        postRunnable.setResult(false);
+                    }
+
+                    executeRunnable(context, postRunnable);
+                } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't create roles", e);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(false);
+                    executeRunnable(context, postRunnable);
+                }
+            }
+        });
+    }
+
+    public static void setMovementTypes(final Context context, User user, final List<Role> roles,
+                                final DeliverResultRunnable<Boolean> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final String TAG = "setRoles";
+                try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
+                    HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
+                            .append("/api/v1/users/movement_types/").toString());
 
                     addAuthHeader(context, httpPost);
                     addUserAgentHeader(context, httpPost);
