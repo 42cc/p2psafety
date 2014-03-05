@@ -99,17 +99,20 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   };
 
   $scope.updateUserAttrs = function(){
-        //clojure for ajax callback
-      _.forEach($scope.events, function(event){
-        var clojr = function(pevent,field){
-            return function(data){
-                pevent.user[field] = data;
-            }
+      //clojure for ajax callback
+    _.forEach($scope.events, function(event){
+      var clojr = function(pevent,field){
+        return function(data){
+          pevent.user[field] = data;
         }
+      }
 
-        $http.get(urls.user_roles, {params:{id:event.user.id}}).success(clojr(event,'roles'))
-      });
-    }
+      $http.get(urls.user_roles,
+        {params:{id:event.user.id}}).success(clojr(event,'roles'))
+      $http.get(urls.user_movement_types,
+        {params:{id:event.user.id}}).success(clojr(event,'movement_types'))
+    });
+  }
 
   $scope.focus = function(location) {
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
@@ -117,38 +120,49 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   };
 
   $scope.getRoles = function() {
-      //populate list of avail roles for matching
-      $scope.roles={};
-      $http.get(urls.roles).success(function(data) {
-          _.forEach(data.objects, function(role){
-              $scope.roles[role.id] = role;
-              $scope.visibleRoles.role.push(role.id)
-          });
+    //populate list of avail roles for matching
+    $scope.roles={};
+    $http.get(urls.roles).success(function(data) {
+      _.forEach(data.objects, function(role){
+        $scope.roles[role.id] = role;
+        $scope.shownFilters.roles.push(role.id)
       });
+    });
   }
 
   $scope.getMovementTypes = function() {
-      //populate list of avail movement_types for matching
-      $http.get(urls.movement_types).success(function(data) {
-          $scope.movement_types = data.objects;
+    //populate list of avail movement_types for matching
+    $scope.movement_types={};
+    $http.get(urls.movement_types).success(function(data) {
+      _.forEach(data.objects, function(mt){
+        $scope.movement_types[mt.id] = mt;
+        $scope.shownFilters.movement_types.push(mt.id)
       });
+    });
   }
 
-
   $scope.toggleFilter = function(filter) {
-      if (_.contains($scope.visibleRoles[filter.type],filter.id)){
-          _.pull($scope.visibleRoles[filter.type],filter.id)
-      }else{
-          $scope.visibleRoles[filter.type].push(filter.id)
+    if (_.contains($scope.shownFilters[filter.type],filter.id)){
+      _.pull($scope.shownFilters[filter.type],filter.id)
+    }else{
+        $scope.shownFilters[filter.type].push(filter.id)
+    }
+    _.forEach($scope.events, function(event){
+
+      var user = event.user;
+      event.isVisible = true
+
+      if(!_.isEmpty(user.roles)
+        && _.isEmpty(_.intersection(
+          user.roles, $scope.shownFilters.roles))){
+            event.isVisible = false;
       }
-      _.forEach($scope.events, function(event){
-          if(!_.isEmpty(event.user.roles) && _.isEmpty(_.intersection(
-                      event.user.roles, $scope.visibleRoles['role']))){
-              event.isVisible = false;
-          }else{
-              event.isVisible = true
-          }
-      });
+      if(!_.isEmpty(user.movement_types)
+        && _.isEmpty(_.intersection(
+          user.movement_types, $scope.shownFilters.movement_types))){
+            event.isVisible = false;
+      }
+    });
   }
 
   $scope.selectedEvent = null;
@@ -157,14 +171,15 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.initGoogleMap(document.getElementById("map-canvas"));
   $scope.events = {};
   $scope.getRoles();
+  $scope.getMovementTypes();
   $scope.filterPanel = false;
   //$scope.getMovementTypes();
   $scope.updatePerSeconds = 5;
 
-  $scope.visibleRoles = {'role':[],'movement_type':[]};
+  $scope.shownFilters = {'roles':[],'movement_types':[]};
   
   $scope.update({playSoundForNew:false, highightNew:false, centerMap:true},
-          $scope.updateUserAttrs
+    $scope.updateUserAttrs
   );
 
   $interval(function() {

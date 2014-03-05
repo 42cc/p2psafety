@@ -118,6 +118,7 @@ class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
         self.assertEqual(resp.status_code, 400)
 
     def test_roles_by_user_id(self):
+        """get list of user's roles by user id"""
         user1, user2 = UserFactory(),UserFactory()
         url = self.users_roles_url
         role1, role2 = RoleFactory(), RoleFactory()
@@ -199,6 +200,7 @@ class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
         self.assertEqual(resp.status_code, 400)      
 
     def test_movement_types_by_user_id(self):
+        """get list of user's mt-s by user id"""
         user1, user2 = UserFactory(),UserFactory()
         url = self.users_movement_types_url
         mt1, mt2 = MovementTypeFactory(), MovementTypeFactory()
