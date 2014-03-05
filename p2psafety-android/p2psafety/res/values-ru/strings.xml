@@ -80,11 +80,23 @@
     <string name="bad_logs_files">Файлов с логами не существует</string>
     <string name="logs_successfully_sent">Файлы с логами успешно отправлены</string>
     <string name="please_write_a_description_of_issue">Пожалуйста, опишите проблему</string>
+    <string name="victim_text">Жертва: </string>
+    <string name="upper_audio">Аудио</string>
+    <string name="upper_video">Видео</string>
+    <string name="finish_helping">Я закончил помогать</string>
+    <string name="stop_media_record">Остановить #media#запись</string>
+    <string name="start_media_record">Начать #media#запись</string>
+
+    <string name="help_needed">У кого-то проблемы. Это недалеко. Поможете?</string>
+    <string name="accept">Принять</string>
+    <string name="ignore">Отклонить</string>
 
     <string name="network_error">Что-то пошло не так. Проверьте подключение к сети.</string>
     <string name="connection">Соединение</string>
     <string name="connection_is_out">Интернет соединение отсутствует, проверьте настройки</string>
     <string name="connection_settings">Настройки</string>
+
+    <string name="support_screen">Экран помощи</string>
 
     <string-array name="media_types">
         <item>Нет</item>
