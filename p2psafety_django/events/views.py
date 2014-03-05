@@ -9,9 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from events.models import EventUpdate, Event
 
-from livesettings import config_value
-
 from annoying.decorators import render_to, ajax_request
+from livesettings import config_value
 
 
 @login_required
@@ -21,7 +20,9 @@ from annoying.decorators import render_to, ajax_request
 def map(request):
     return {
         'GOOGLE_API_KEY': getattr(settings, 'GOOGLE_API_KEY'),
-        "TIME_ALERT": config_value('Events', 'operator_wake_up_alert_interval')
+        'newevent_highlight': config_value('EventsMap', 'newevent-highlight'),
+        'newevent_sound': config_value('EventsMap', 'newevent-sound'),
+        'wakeup_interval': config_value('EventsMap', 'operator-wake-up-alert-interval')
     }
 
 

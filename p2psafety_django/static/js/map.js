@@ -6,7 +6,7 @@ mapApp.constant('ICONS', {
   BLUE: 'http://maps.google.com/mapfiles/ms/micons/blue-dot.png',
 });
 
-mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapSettings, timeAlert) {
+mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapSettings) {
   $scope.initGoogleMap = function(rootElement) {
     var mapOptions = {
       zoom: 10,
@@ -104,7 +104,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     document.getElementById('input-text-update').value = ""
   }
 
-  setInterval(function(){alert("Do You sleep?")}, timeAlert.time_alert * 60 * 1000);
+  setInterval(function(){alert("Do You sleep?")}, mapSettings.wakeup_interval * 60 * 1000);
 
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;

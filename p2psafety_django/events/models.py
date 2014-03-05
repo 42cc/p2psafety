@@ -9,8 +9,9 @@ from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
 from django.utils import timezone
 
+from livesettings import config_value
+
 from events import config
-import waffle
 
 try:
     from hashlib import sha1
@@ -176,7 +177,7 @@ class EventUpdate(models.Model):
             if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
                 self.event.status = Event.STATUS_ACTIVE
                 self.event.save()
-                if waffle.switch_is_active('supporters-autonotify'):
+                if config_value('EventsMap', 'supporters-autonotify'):
                     self.event.notify_supporters()
 
             super(EventUpdate, self).save(*args, **kwargs)

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load staticfiles %}
-{% load waffle_tags %}
+{% load config_tags %}
 
 {% block styles %}
   {{ block.super }}
@@ -19,11 +19,9 @@
       eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
     });
     mapApp.constant('mapSettings', {
-        highlight: {% switch 'eventsmap-newevent-highlight' %}true{% else %}false{% endswitch %},
-        sound: {% switch 'eventsmap-newevent-sound' %}true{% else %}false{% endswitch %},
-    });
-    mapApp.constant('timeAlert', {
-        time_alert: {{ TIME_ALERT }},
+        highlight: {% if newevent_highlight %}true{% else %}false{% endif %},
+        sound: {% if newevent_sound %}true{% else %}false{% endif %},
+        wakeup_interval: {% if wakeup_interval %}true{% else %}false{% endif %},
     });
   </script>
 {% endblock %}
