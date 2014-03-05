@@ -51,7 +51,6 @@ class UserResource(ApiMethodsMixin, ModelResource):
             else:
                 user = request.user
 
-
             objects = [role.id for role in user.roles.all()]
             return self.create_response(request, objects)
 

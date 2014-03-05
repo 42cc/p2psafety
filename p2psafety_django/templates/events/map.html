@@ -102,10 +102,10 @@
 
             <div class="panel-body">
               <button class="btn-filter-panel btn btn-xs"
-                ng-class="{false:'btn-default',true:'btn-success'}[filterPanel]"
-                ng-click="filterPanel= !filterPanel"> Filters <span class="caret"> 
+                ng-class="{false:'btn-default',true:'btn-success'}[showFilterPanel]"
+                ng-click="showFilterPanel= !showFilterPanel"> Filters <span class="caret"> 
               </button>
-                <div ng-show="filterPanel" class="filter-panel list-group">
+                <div ng-show="showFilterPanel" class="filter-panel list-group">
                   <div ng-if="roles" class="list-group-item">
                     <h6> Roles: </h6>
                     <label  ng-repeat="role in roles"  class="checkbox-inline">
