@@ -85,7 +85,6 @@ class EventResource(ApiMethodsMixin, ModelResource):
         bundle.obj.user = bundle.request.user
         return bundle
 
-
     def dehydrate(self, bundle):
         if bundle.request and bundle.request.META.get('REQUEST_METHOD') == 'POST':
             bundle.data['key'] = bundle.obj.key
