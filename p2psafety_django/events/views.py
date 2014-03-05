@@ -1,9 +1,11 @@
 import json
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpResponseBadRequest
+from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import get_object_or_404
 
 from events.models import EventUpdate, Event
 
@@ -24,14 +26,18 @@ def map(request):
 
 
 @csrf_exempt
-@login_required
 @require_POST
+@permission_required('events.view_event', raise_exception=True)
+@permission_required('events.view_eventupdate', raise_exception=True)
 @ajax_request
 def operator_add_eventupdate(request):
-    data = json.loads(request.body)
-    text = data['text']
-    event_id = data['event_id']
-
-    event = get_object_or_404(Event, id=event_id)
-    EventUpdate.objects.create(user=request.user, event=event, text=text)
-    return {'success': True}
+    try:
+        data = json.loads(request.body)
+        text = data['text']
+        event_id = int(data['event_id'])
+    except KeyError, ValueError:
+        return HttpResponseBadRequest()
+    else:
+        event = get_object_or_404(Event, id=event_id)
+        EventUpdate.objects.create(user=request.user, event=event, text=text)
+        return dict(success=True)
