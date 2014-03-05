@@ -128,7 +128,7 @@ public class SetRolesFragment extends Fragment {
 
                                 for (String user_role: user_roles)
                                     for (Role role: mRoles)
-                                        if (role.id.equals(user_role))
+                                        if (role.id.equals(user_role.trim()))
                                             role.checked = true;
 
                                 for (Role role: mRoles)

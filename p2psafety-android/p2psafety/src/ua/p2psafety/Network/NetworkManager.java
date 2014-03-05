@@ -975,7 +975,7 @@ public class NetworkManager {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                final String TAG = "setRoles";
+                final String TAG = "setMovementTypes";
                 try {
                     if (!Utils.isNetworkConnected(context, LOGS)) {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
@@ -996,7 +996,7 @@ public class NetworkManager {
                             arr.put(role.id);
 
                     JSONObject json = new JSONObject();
-                    json.put("role_ids", arr);
+                    json.put("movement_type_ids", arr);
 
                     StringEntity se = new StringEntity(json.toString());
                     httpPost.setEntity(se);

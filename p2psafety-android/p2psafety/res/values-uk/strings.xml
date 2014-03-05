@@ -58,5 +58,5 @@
     <string name="start_media_record">Розпочати #media#запис</string>
     <string name="movement_types">Тип пересування</string>
     <string name="set_your_roles">Виберіть Ваші ролі:</string>
-    <string name="set_movement_types">Виберіть Ваш тип пересування:</string>
+    <string name="set_movement_types">Виберіть Ваші типи пересування:</string>
 </resources>
