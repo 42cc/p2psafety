@@ -91,16 +91,14 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
           ));
         }
         $scope.gmap.fitBounds(eventsBounds);
-
-
       }
       if ('function' === typeof callback) callback();
     });
   };
 
   $scope.updateUserAttrs = function(){
-      //clojure for ajax callback
     _.forEach($scope.events, function(event){
+      //clojure for ajax callback
       var clojr = function(pevent,field){
         return function(data){
           pevent.user[field] = data;

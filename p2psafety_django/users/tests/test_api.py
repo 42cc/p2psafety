@@ -138,7 +138,6 @@ class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
         self.assertEqual(roles_list, [role2.id])
 
 
-
 class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
 
     def test_get_movement_types(self):
