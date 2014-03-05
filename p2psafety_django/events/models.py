@@ -11,7 +11,6 @@ from django.utils import timezone
 
 from livesettings import config_value
 
-from events import config
 
 try:
     from hashlib import sha1
@@ -177,7 +176,7 @@ class EventUpdate(models.Model):
             if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
                 self.event.status = Event.STATUS_ACTIVE
                 self.event.save()
-                if config_value('EventsMap', 'supporters-autonotify'):
+                if config_value('Events', 'supporters-autonotify'):
                     self.event.notify_supporters()
 
             super(EventUpdate, self).save(*args, **kwargs)

@@ -65,8 +65,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    'waffle.middleware.WaffleMiddleware',
 )
 
 INSTALLED_APPS = (
@@ -79,7 +77,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.staticfiles',
 
-    'waffle',
     'south',
     'livesettings',
 
