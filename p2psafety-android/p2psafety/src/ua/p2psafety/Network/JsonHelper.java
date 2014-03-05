@@ -1,5 +1,6 @@
 package ua.p2psafety.Network;
 
+import android.location.Location;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +14,27 @@ import ua.p2psafety.User;
 import ua.p2psafety.roles.Role;
 
 public class JsonHelper {
+    public static List<Event> jsonResponseToEvents(String json) {
+        List<Event> events = new ArrayList<Event>();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> data = mapper.readValue(json, Map.class);
+            List<Map> objects = (ArrayList) data.get("objects");
+
+            // deserializing json response
+            for (Map jsonMap : objects) {
+                events.add(JsonHelper.jsonToEvent(jsonMap));
+            }
+
+            data.clear();
+            objects.clear();
+        } catch (Exception e) {
+            // ignore
+            NetworkManager.LOGS.error("Can't get object from data", e);
+        }
+
+        return events;
+    }
 
      public static Event jsonToEvent(Map data) {
         String TAG = "jsonToEvent";
@@ -24,14 +46,27 @@ public class JsonHelper {
             event.setKey      (String.valueOf( data.get("key")));
             event.setUri      (String.valueOf( data.get("resource_uri")));
             event.setStatus   (String.valueOf( data.get("status")));
+            event.setType     (String.valueOf( data.get("type")));
 
+            // parse user
             Map user_data = (Map) data.get("user");
             event.setUser(jsonToUser(user_data));
+            // parse location
+            Map loc_data = (Map) data.get("location");
+            Location loc = new Location("");
+            String lat = String.valueOf(loc_data.get("latitude"));
+            String lon = String.valueOf(loc_data.get("longitude"));
+            Log.i(TAG, "lat: " + lat + "  lon: " + lon);
+            loc.setLatitude(Double.valueOf(lat));
+            loc.setLongitude(Double.valueOf(lon));
+            event.setLocation(loc);
 
             Log.i(TAG, "id: "       + event.getId());
-            Log.i(TAG, "key: "       + event.getKey());
+            Log.i(TAG, "key: "      + event.getKey());
             Log.i(TAG, "uri: "      + event.getUri());
             Log.i(TAG, "status: "   + event.getStatus());
+            Log.i(TAG, "type: "     + event.getType());
+            Log.i(TAG, "location: " + event.getLocation());
         } catch (Exception e) {
             NetworkManager.LOGS.error("Can't get object from data", e);
         }
@@ -54,7 +89,7 @@ public class JsonHelper {
             user.setUri         (String.valueOf( data.get("resource_uri")));
 
             Log.i(TAG, "id: "           + user.getId());
-            Log.i(TAG, "fullName: "     + user.getFullName());
+            Log.i(TAG, "fullName: "     + user.getUsername());
             Log.i(TAG, "uri: "          + user.getUri());
 
         } catch (Exception e) {

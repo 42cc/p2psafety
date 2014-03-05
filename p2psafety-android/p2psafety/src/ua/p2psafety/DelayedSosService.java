@@ -60,7 +60,7 @@ public class DelayedSosService extends Service {
             Intent i = new Intent(SOS_DELAY_FINISH);
             sendBroadcast(i);
 
-            SosManager.getInstance(getApplicationContext()).startSos();
+            EventManager.getInstance(getApplicationContext()).startSos();
             mTimerOn = false;
         }
 
