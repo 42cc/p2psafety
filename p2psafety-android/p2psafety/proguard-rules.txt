@@ -151,6 +151,8 @@
 -keep class com.sun.mail.** { *; }
 -keep class javax.mail.** { *; }
 -keep class com.fasterxml.jackson.** { *; }
+-keep class org.jivesoftware.** { *; }
+-keep class android.support.v4.** { *; }
 
 -dontwarn org.apache.http.**
 -dontwarn com.squareup.okhttp.**
