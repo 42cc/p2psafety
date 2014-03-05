@@ -11,7 +11,8 @@
 {% block scripts %}
   {{ block.super }}
   <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&sensor=false&language=uk"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular-animate.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
   <script src="{% static 'js/angular_lodash.js' %}"></script>
   <script src="{% static 'js/map.js' %}"></script>
@@ -97,21 +98,26 @@
           <div class="selected-event panel panel-primary " 
                 ng-if="selectedEvent == null">
             <h4 class="panel-heading event-heading">Dispatcher panel</h4>
-            <button ng-click="filterMarkers('on')">filter on</button>
-            <button ng-click="filterMarkers('off')">filter off</button>
 
             <div class="panel-body">
-              <form role="form">
-                <div class="form-group">
+              <button class="btn-filter-panel btn btn-xs"
+                ng-class="{false:'btn-default',true:'btn-success'}[filterPanel]"
+                ng-click="filterPanel= !filterPanel"> Filters <span class="caret"> 
+              </button>
+                <div ng-show="filterPanel" class="filter-panel list-group">
+                  <div ng-if="roles" class="list-group-item">
+                  <h6> Roles: </h6>
                   <label  ng-repeat="role in roles"  class="checkbox-inline">
                     <input 
                       ng-click="toggleFilter({type:'role', id:role.id})"   
-                      ng-checked="!(_.contains(enabledFilters.role, {{role.id}}))"
+                      ng-checked="visibleRoles.role.indexOf(role)"
                       type="checkbox" 
                       value="{{role.id}}"/>{{role.name}}</input>
                   </label>
                 </div>
-              </form>
+              </div>
+                <hr>
+
                 <div class="list-group">
                     <div class="list-group-item"
                          ng-class="{'list-group-item-warning': event.isNew}"
@@ -119,11 +125,20 @@
                          ng-repeat="event in events"
                          ng-if="event.isVisible">
                          <a class="btn type-{{event.type}}" ng-click="focus(event.latest_location)">
-                        <span class="glyphicon glyphicon-map-marker"></span>
-                      </a>
-                      <div class="event-name"
+                           <span class="glyphicon glyphicon-map-marker"></span>
+                         </a>
+                         <div class="event-name"
                            ng-click="select(event)"
                            ng-bind="event.user.full_name"></div>
+
+                         <ul class='event-roles small'>
+                           <span ng-if="event.user.roles">roles: </span>
+                         <li class="event-role"
+                           ng-repeat="role in event.user.roles">
+                           {{roles[role].name}}
+                         </li>
+                       </ul>
+                      </div>
                     </div>
                 </div>
             </div>

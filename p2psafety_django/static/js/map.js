@@ -1,4 +1,4 @@
-var mapApp = angular.module('mapApp', ["angular-lodash"]);
+var mapApp = angular.module('mapApp', ["angular-lodash","ngAnimate"]);
 
 mapApp.constant('ICONS', {
   RED: 'http://maps.google.com/mapfiles/ms/micons/red-dot.png',
@@ -101,13 +101,13 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.updateUserAttrs = function(){
         //clojure for ajax callback
       _.forEach($scope.events, function(event){
-        var clojr = function(pevent){
+        var clojr = function(pevent,field){
             return function(data){
-                pevent.user.roles = data;
+                pevent.user[field] = data;
             }
         }
 
-        $http.get(urls.user_roles, {params:{id:event.user.id}}).success(clojr(event))
+        $http.get(urls.user_roles, {params:{id:event.user.id}}).success(clojr(event,'roles'))
       });
     }
 
@@ -118,8 +118,12 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 
   $scope.getRoles = function() {
       //populate list of avail roles for matching
+      $scope.roles={};
       $http.get(urls.roles).success(function(data) {
-          $scope.roles = data.objects;
+          _.forEach(data.objects, function(role){
+              $scope.roles[role.id] = role;
+              $scope.visibleRoles.role.push(role.id)
+          });
       });
   }
 
@@ -130,33 +134,20 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       });
   }
 
-  $scope.filterMarkers = function (mode) {
-    for(i in $scope.events){
-        
-    }
-      if(mode === 'on'){
-          $scope.events[i].isVisible = false;
-      }else{
-          $scope.events[i].isVisible = true;
-      }
-
-  }
 
   $scope.toggleFilter = function(filter) {
-      if (!_.contains($scope.enabledFilters[filter.type],filter.id)){
-          $scope.enabledFilters[filter.type].push(filter.id)
+      if (_.contains($scope.visibleRoles[filter.type],filter.id)){
+          _.pull($scope.visibleRoles[filter.type],filter.id)
       }else{
-          _.pull($scope.enabledFilters[filter.type],filter.id)
+          $scope.visibleRoles[filter.type].push(filter.id)
       }
       _.forEach($scope.events, function(event){
-          if(_.isEmpty(
-                  _.intersection(event.user.roles, $scope.enabledFilters['role']))){
-              event.isVisible = true;
+          if(!_.isEmpty(event.user.roles) && _.isEmpty(_.intersection(
+                      event.user.roles, $scope.visibleRoles['role']))){
+              event.isVisible = false;
           }else{
-              event.isVisible = false
+              event.isVisible = true
           }
-          
-
       });
   }
 
@@ -165,10 +156,12 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.zoomScale = 1;
   $scope.initGoogleMap(document.getElementById("map-canvas"));
   $scope.events = {};
-  $scope.enabledFilters = {'role':[],'movement_type':[]};
   $scope.getRoles();
+  $scope.filterPanel = false;
   //$scope.getMovementTypes();
   $scope.updatePerSeconds = 5;
+
+  $scope.visibleRoles = {'role':[],'movement_type':[]};
   
   $scope.update({playSoundForNew:false, highightNew:false, centerMap:true},
           $scope.updateUserAttrs
