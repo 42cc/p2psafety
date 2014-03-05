@@ -117,7 +117,7 @@ class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
         resp = self.api_client.post(url, data='invalid data', **auth(user))
         self.assertEqual(resp.status_code, 400)
 
-    def test_roles_by_id(self):
+    def test_roles_by_user_id(self):
         user1, user2 = UserFactory(),UserFactory()
         url = self.users_roles_url
         role1, role2 = RoleFactory(), RoleFactory()
@@ -197,6 +197,25 @@ class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
         # Invalid body
         resp = self.api_client.post(url, data='invalid data', **auth(user))
         self.assertEqual(resp.status_code, 400)      
+
+    def test_movement_types_by_user_id(self):
+        user1, user2 = UserFactory(),UserFactory()
+        url = self.users_movement_types_url
+        mt1, mt2 = MovementTypeFactory(), MovementTypeFactory()
+        user1.movement_types.add(mt1)
+        user2.movement_types.add(mt2)
+
+        data = {'id':user1.id, 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertValidJSONResponse(resp)
+        movement_types_list = self.deserialize(resp)
+        self.assertEqual(movement_types_list, [mt1.id])
+
+        data = {'id':user2.id, 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertValidJSONResponse(resp)
+        movement_types_list = self.deserialize(resp)
+        self.assertEqual(movement_types_list, [mt2.id])
 
 
 class RolesTestCase(ModelsMixin, ResourceTestCase):

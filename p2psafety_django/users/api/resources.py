@@ -47,7 +47,7 @@ class UserResource(ApiMethodsMixin, ModelResource):
                 try:
                     user = User.objects.get(id=request.GET['id'])
                 except User.DoesNotExist:
-                    return http.HttpNotFound #TODO
+                    return http.HttpNotFound
             else:
                 user = request.user
 
@@ -79,7 +79,15 @@ class UserResource(ApiMethodsMixin, ModelResource):
             """
             Returns user's movement types as list of ids.
             """
-            objects = [mtype.id for mtype in request.user.movement_types.all()]
+            if request.GET.has_key('id'):
+                try:
+                    user = User.objects.get(id=request.GET['id'])
+                except User.DoesNotExist:
+                    return http.HttpNotFound
+            else:
+                user = request.user
+
+            objects = [mtype.id for mtype in user.movement_types.all()]
             return self.create_response(request, objects)
 
         class PostParams(SchemaModel):
