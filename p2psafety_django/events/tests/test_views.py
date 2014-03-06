@@ -5,6 +5,7 @@ from tastypie.test import ResourceTestCase
 
 from .helpers.mixins import UsersMixin
 from .helpers.factories import EventFactory
+from ..models import Event
 from users.tests.helpers import UserFactory
 
 
@@ -47,7 +48,7 @@ class MapTestCase(UsersMixin, ResourceTestCase):
         self.assertHttpBadRequest(self.api_client.post(url, data=data))
 
         # Invalid id
-        data = dict(event_id='test')
+        data = dict(event_id='test', text='test')
         self.assertHttpBadRequest(self.api_client.post(url, data=data))
 
         # No such event
@@ -61,6 +62,7 @@ class MapTestCase(UsersMixin, ResourceTestCase):
 
         self.login_as_superuser()
         resp = self.api_client.post(url, data=dict(event_id=event.id))
+        event = Event.objects.get(id=event.id)
         self.assertValidJSONResponse(resp)
         self.assertTrue(self.deserialize(resp)['success'])
         self.assertEqual(event.status, event.STATUS_FINISHED)

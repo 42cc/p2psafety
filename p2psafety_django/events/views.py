@@ -35,7 +35,7 @@ def map_add_eventupdate(request):
         data = json.loads(request.body)
         text = data['text']
         event_id = int(data['event_id'])
-    except KeyError, ValueError:
+    except (KeyError, ValueError):
         return HttpResponseBadRequest()
     else:
         event = get_object_or_404(Event, id=event_id)
@@ -48,4 +48,13 @@ def map_add_eventupdate(request):
 @permission_required('events.change_event', raise_exception=True)
 @ajax_request
 def map_close_event(request):
-    return dict(success=True)
+    try:
+        data = json.loads(request.body)
+        event_id = int(data['event_id'])
+    except (KeyError, ValueError):
+        return HttpResponseBadRequest()
+    else:
+        event = get_object_or_404(Event, id=event_id)
+        event.status = Event.STATUS_FINISHED
+        event.save()
+        return dict(success=True)
