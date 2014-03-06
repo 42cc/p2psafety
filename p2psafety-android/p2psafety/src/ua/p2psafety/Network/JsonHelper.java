@@ -51,7 +51,11 @@ public class JsonHelper {
             // parse user
             Map user_data = (Map) data.get("user");
             event.setUser(jsonToUser(user_data));
-            // parse location
+
+            // THIS IS EVENTUPDATE STUFF; EVENT DOESN'T HAVE THIS FIELDS
+            // TODO: make EventUpdate class and separate function to parse it
+            event.setText(String.valueOf(data.get("text")));
+            // location
             Map loc_data = (Map) data.get("location");
             Location loc = new Location("");
             String lat = String.valueOf(loc_data.get("latitude"));

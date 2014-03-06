@@ -144,9 +144,28 @@ public class XmppService extends Service {
                     Message mes = (Message) packet;
                     Log.i("got personal message", "xml: " + mes.toXML());
                     logs.info("Got personal xmpp message: " + mes.toXML());
-                } catch (Exception e) {}
 
-                openAcceptEventScreen();
+                    parseXml(mes.toXML());
+
+                    // check if event is in acceptable distance and if so show it
+                    MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+                        @Override
+                        public void gotLocation(Location location) {
+                            if (location == null || mRadius == 0 ||
+                                    location.distanceTo(mEventLocation) <= mRadius)
+                            {
+                                if (!processing_event
+                                    && !EventManager.getInstance(XmppService.this).isEventActive())
+                                {
+                                    openAcceptEventScreen();
+                                    processing_event = true;
+                                }
+                            }
+                        }
+                    };
+                    MyLocation myLocation = new MyLocation(logs);
+                    myLocation.getLocation(XmppService.this, locationResult);
+                } catch (Exception e) {}
             }
         };
         connection.addPacketListener(mPacketListener,
