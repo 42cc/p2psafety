@@ -58,3 +58,8 @@ def map_close_event(request):
         event.status = Event.STATUS_FINISHED
         event.save()
         return dict(success=True)
+
+
+@ajax_request
+def map_notify_supporters(request):
+    return dict(success=True)
