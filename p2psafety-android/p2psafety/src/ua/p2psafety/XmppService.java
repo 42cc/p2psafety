@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.MyLocation;
 import ua.p2psafety.util.Logs;
+import ua.p2psafety.util.Utils;
 
 public class XmppService extends Service {
     private static final String TAG = "XmppService";
@@ -290,6 +291,10 @@ public class XmppService extends Service {
     }
 
     public void openAcceptEventScreen() {
+        Utils.startVibration(this);
+        Utils.playDefaultNotificationSound(this);
+        Utils.blinkLED(this);
+
         logs.info("opening AcceptEvent screen");
         Intent i = new Intent(this, SosActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

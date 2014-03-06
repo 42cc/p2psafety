@@ -1,27 +1,16 @@
 package ua.p2psafety;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,10 +20,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.concurrent.TimeUnit;
-
 import ua.p2psafety.Network.NetworkManager;
-import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
@@ -106,10 +92,6 @@ public class AcceptEventFragment extends Fragment {
                 mActivity.onBackPressed();
             }
         });
-
-        Utils.startVibration(mActivity);
-        Utils.playDefaultNotificationSound(mActivity);
-        Utils.blinkLED(mActivity);
 
         Bundle bundle = getArguments();
         mEventLocation = (Location) bundle.get(XmppService.LOCATION_KEY);
