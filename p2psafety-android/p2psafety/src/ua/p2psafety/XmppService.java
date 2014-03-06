@@ -178,13 +178,19 @@ public class XmppService extends Service {
                     Log.i("===================", items.toString());
                     Log.i("===================", items.getItems().get(0).toString());
                     Log.i("===================", "===================================");
+                    logs.info("got pubsub message: " + "Item count: " + items.getItems().size());
+                    logs.info("===================: " + items.toString());
+                    logs.info("===================: " + items.getItems().get(0).toString());
+                    logs.info("======================================================");
                     logs.info("got xmpp pubsub message");
                     try {
                         String message = mNode.getItems(1).get(0).toXML();
                         Log.i("===================", "xml: " + message);
+                        logs.info("===================: " + "xml: " + message);
                         parseXml(message);
                     } catch (XMPPException e) {}
                     Log.i("===================", "===================================");
+                    logs.info("======================================================");
 
                     // check if event is in acceptable distance and if so show it
                     MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
