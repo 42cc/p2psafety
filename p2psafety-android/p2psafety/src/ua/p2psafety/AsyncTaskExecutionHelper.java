@@ -11,10 +11,12 @@ import java.util.concurrent.Executor;
 public class AsyncTaskExecutionHelper {
     static class HoneycombExecutionHelper {
         public static <P> void execute(AsyncTask<P, ?, ?> asyncTask, boolean parallel, P... params) {
-            SosActivity.mLogs.info("HoneycombExecutionHelper started");
+            if (SosActivity.mLogs != null)
+                SosActivity.mLogs.info("HoneycombExecutionHelper started");
             Executor executor = parallel ? AsyncTask.THREAD_POOL_EXECUTOR : AsyncTask.SERIAL_EXECUTOR;
             asyncTask.executeOnExecutor(executor, params);
-            SosActivity.mLogs.info("HoneycombExecutionHelper ended");
+            if (SosActivity.mLogs != null)
+                SosActivity.mLogs.info("HoneycombExecutionHelper ended");
         }
     }
 
@@ -27,7 +29,8 @@ public class AsyncTaskExecutionHelper {
     }
 
     private static <P> void execute(AsyncTask<P, ?, ?> asyncTask, boolean parallel, P... params) {
-        SosActivity.mLogs.info("AsyncTask executed");
+        if (SosActivity.mLogs != null)
+            SosActivity.mLogs.info("AsyncTask executed");
         if (Build.VERSION.SDK_INT >= 11) {
             HoneycombExecutionHelper.execute(asyncTask, parallel, params);
         } else {

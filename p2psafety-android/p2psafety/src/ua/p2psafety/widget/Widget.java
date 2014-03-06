@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import ua.p2psafety.DelayedSosFragment;
 import ua.p2psafety.DelayedSosService;
 import ua.p2psafety.EventManager;
+import ua.p2psafety.LocationService;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
 
@@ -90,6 +91,8 @@ public class Widget extends AppWidgetProvider {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             appWidgetManager.updateAppWidget(mWatchWidget, mRemoteViews);
         }
+        else if (action.equals(DelayedSosService.SOS_DELAY_START))
+            context.startService(new Intent(context, LocationService.class));
     }
 
     protected PendingIntent getPendingSelfIntent(Context context, String action) {
