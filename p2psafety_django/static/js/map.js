@@ -105,7 +105,10 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     document.getElementById('input-text-update').value = ""
   }
 
-  setInterval(function(){alert("Do You sleep?")}, mapSettings.wakeup_interval * 60 * 1000);
+  setInterval(function() {
+    document.getElementById('audiotag').play();
+    alert('Do You sleep?');
+  }, mapSettings.wakeup_interval * 60 * 1000);
 
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;
