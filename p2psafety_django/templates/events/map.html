@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load staticfiles %}
-{% load waffle_tags %}
+{% load config_tags %}
 
 {% block styles %}
   {{ block.super }}
@@ -17,10 +17,12 @@
     mapApp.constant('urls', {
       events: "{% url 'api_dispatch_list' resource_name='events' api_name='v1' %}",
       eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
+      operatorAddEventUpdate: "{% url 'events:operator_add_eventupdate' %}",
     });
     mapApp.constant('mapSettings', {
-        highlight: {% switch 'eventsmap-newevent-highlight' %}true{% else %}false{% endswitch %},
-        sound: {% switch 'eventsmap-newevent-sound' %}true{% else %}false{% endswitch %},
+        highlight: {% if newevent_highlight %}true{% else %}false{% endif %},
+        sound: {% if newevent_sound %}true{% else %}false{% endif %},
+        wakeup_interval: {{ wakeup_interval }},
     });
   </script>
 {% endblock %}
@@ -35,7 +37,7 @@
   <div class="row">
     <div class="col-md-12">
       {% verbatim %}
-      <div ng-app="mapApp">       
+      <div ng-app="mapApp">
         <div ng-controller="EventListCtrl">
           <event-marker click="select(event)"
                         ng-repeat="event in events"
@@ -66,6 +68,14 @@
             </h4>
             <div class="panel-body">
               <div class="list-group">
+                <div class="list-group-item">
+                  <p>Add event update</p>
+                  <input id="input-text-update" class="form-control input-sm" type="text" placeholder="Text" 
+                         ng-model="fields.addEventUpdateText"
+                         ng-keydown="ctrlEnter($event)"/>
+                  <button class="btn btn-primary btn-sm button-add"
+                          ng-click="addEventUpdate()">Add</button>
+                </div>
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
                   <eventupdate-marker click="focus(update.location)">

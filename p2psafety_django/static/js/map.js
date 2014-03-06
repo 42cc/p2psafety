@@ -94,12 +94,41 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
                                              location.longitude));
   };
+  $scope.addEventUpdate = function() {
+    var event = $scope.selectedEvent,
+        text = $scope.fields.addEventUpdateText,
+        url = urls.operatorAddEventUpdate;
+    $http.post(url, {"event_id":event.id, "text":text}).success(function(data) {
+        var params = {event__id: event.id};
+        $http.get(urls.eventupdates, {params: params}).success(function(data) {
+            event.updates = data.objects;
+        })
+    })
+    $scope.fields.addEventUpdateText = '';
+  };
+  $scope.ctrlEnter = function(event) {
+    var ctrlPressed = event.metaKey || event.ctrlKey;
+    var enterPressed = event.keyCode == 13;
+    var text = $scope.fields.addEventUpdateText;
+    if (ctrlPressed && enterPressed && text.length) {
+      $scope.addEventUpdate(text);
+    }
+  }
+
+  setInterval(function() {
+    document.getElementById('audiotag').play();
+    alert('Do You sleep?');
+  }, mapSettings.wakeup_interval * 60 * 1000);
+
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;
   $scope.zoomedIn = false;
   $scope.zoomScale = 1;
   $scope.initGoogleMap(document.getElementById("map-canvas"));
   $scope.events = {};
+  $scope.fields = {
+    addEventUpdateText: '',
+  };
   
   $scope.update(false, false, true);
 

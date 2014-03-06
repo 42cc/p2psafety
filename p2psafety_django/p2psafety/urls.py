@@ -29,10 +29,11 @@ urlpatterns = patterns('',
     url(r'^', include('events.urls', namespace='events')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(api_v1.urls)),
-    
+    url(r'^settings/', include('livesettings.urls')),
+
     # Delete next line to allow logout confirmation
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}),
-    
+    url(r'^accounts/emergency_logout/', 'users.views.emergency_logout', name='emergency_logout'),
     url(r'^accounts/', include('allauth.urls')),
 )
 
