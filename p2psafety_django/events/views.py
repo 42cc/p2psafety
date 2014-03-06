@@ -41,3 +41,11 @@ def map_add_eventupdate(request):
         event = get_object_or_404(Event, id=event_id)
         EventUpdate.objects.create(user=request.user, event=event, text=text)
         return dict(success=True)
+
+
+@csrf_exempt
+@require_POST
+@permission_required('events.change_event', raise_exception=True)
+@ajax_request
+def map_close_event(request):
+    return dict(success=True)
