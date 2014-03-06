@@ -22,7 +22,7 @@
     mapApp.constant('mapSettings', {
         highlight: {% if newevent_highlight %}true{% else %}false{% endif %},
         sound: {% if newevent_sound %}true{% else %}false{% endif %},
-        wakeup_interval: {% if wakeup_interval %}true{% else %}false{% endif %},
+        wakeup_interval: {{ wakeup_interval }},
     });
   </script>
 {% endblock %}

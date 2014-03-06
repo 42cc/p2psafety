@@ -15,7 +15,7 @@ config_register(values.PositiveIntegerValue(
     EVENTS_MAP_GROUP,
     'operator-wake-up-alert-interval',
     description='Time for operator alert in minutes',
-    default=10
+    default=7
 ))
 config_register(values.BooleanValue(
     EVENTS_MAP_GROUP,
