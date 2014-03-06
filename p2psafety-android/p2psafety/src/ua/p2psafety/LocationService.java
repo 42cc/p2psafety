@@ -47,6 +47,7 @@ public class LocationService extends Service implements
     public static AWLocationListener locationListener;
     private static LocationClient mLocationClient;
     private static LocationManager mLocationManager;
+    private EventManager mEventManager;
 
     @Override
     public void onCreate() {
@@ -56,7 +57,7 @@ public class LocationService extends Service implements
         locationListener = new AWLocationListener();
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        NetworkManager.init(this);
+        mEventManager = EventManager.getInstance(LocationService.this);
     }
 
     @Override
@@ -71,7 +72,7 @@ public class LocationService extends Service implements
         mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                if (EventManager.getInstance(LocationService.this).isSosStarted() && Utils.isServerAuthenticated(LocationService.this))
+                if (mEventManager.isSosStarted() && Utils.isServerAuthenticated(LocationService.this))
                 {
                     mLogs.info("LocationService. Checking if we need to send new location");
                     getCurrentLoc();

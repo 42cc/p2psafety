@@ -60,6 +60,7 @@ public class XmppService extends Service {
     Location mEventLocation;
 
     Logs logs;
+    SmackAndroid mSmackAndroid;
 
     @Override
     public void onCreate() {
@@ -81,7 +82,7 @@ public class XmppService extends Service {
             @Override
             public void run() {
                 logs.info("Getting xmpp connection configuration");
-                SmackAndroid.init(XmppService.this);
+                mSmackAndroid = SmackAndroid.init(XmppService.this);
                 mConnection = getConfiguredConnection(HOST);
 
                 try {
@@ -291,6 +292,8 @@ public class XmppService extends Service {
     public void onDestroy() {
         super.onDestroy();
         try {
+            if (mSmackAndroid != null)
+                mSmackAndroid.onDestroy();
             mConnection.removePacketListener(mPacketListener);
             mNode.removeItemEventListener(mItemEventListener);
             mConnection.disconnect();
