@@ -4,24 +4,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.Session;
@@ -35,6 +30,7 @@ import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.media.SetMediaFragment;
 import ua.p2psafety.message.MessageFragment;
+import ua.p2psafety.movements.SetMovementTypesFragment;
 import ua.p2psafety.password.PasswordFragment;
 import ua.p2psafety.roles.SetRolesFragment;
 import ua.p2psafety.setemails.SetEmailsFragment;
@@ -81,6 +77,7 @@ public class SettingsFragment extends Fragment {
                 getString(R.string.password),
                 getString(R.string.media),
                 getString(R.string.roles),
+                getString(R.string.movement_types),
                 getString(R.string.logout),
                 getString(R.string.send_logs)
         };
@@ -145,9 +142,14 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 7:
-                        logout();
+                        mfragment[0] = new SetMovementTypesFragment();
+                        fragmentTransaction.addToBackStack(SetMovementTypesFragment.TAG);
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 8:
+                        logout();
+                        break;
+                    case 9:
                         mfragment[0] = new SendLogsFragment();
                         fragmentTransaction.addToBackStack(SendLogsFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
@@ -250,6 +252,7 @@ public class SettingsFragment extends Fragment {
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    mActivity.startService(new Intent(mActivity, XmppService.class));
                     openServersScreen();
                 }
             });
@@ -286,10 +289,13 @@ public class SettingsFragment extends Fragment {
 
     private void openServersScreen() {
         FragmentManager mfragmentManager = getFragmentManager();
-        final FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
-        Fragment fragment = new SetServersFragment();
-        fragmentTransaction.addToBackStack(SetServersFragment.TAG);
-        fragmentTransaction.replace(R.id.content_frame, fragment).commit();
+        if (mfragmentManager != null)
+        {
+            final FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
+            Fragment fragment = new SetServersFragment();
+            fragmentTransaction.addToBackStack(SetServersFragment.TAG);
+            fragmentTransaction.replace(R.id.content_frame, fragment).commit();
+        }
     }
 
      private class SendReportAsyncTask extends AsyncTask {

@@ -9,7 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
 from django.utils import timezone
 
-import waffle
+from livesettings import config_value
+
 
 try:
     from hashlib import sha1
@@ -80,6 +81,16 @@ class Event(models.Model):
         except EventUpdate.DoesNotExist:
             return None
 
+    @property
+    def related_users(self):
+        """
+        Returns user ids of self and all related events.
+        """
+        sd = list(self.supported.all().values_list('user', flat=True))
+        ss = list(self.supporters.all().values_list('user', flat=True))
+        u = [self.user.id, ]
+        return list(u + sd + ss)
+
     def save(self, *args, **kwargs):
         """
         Basic save + generator until PIN is unique.
@@ -142,6 +153,7 @@ class EventUpdate(models.Model):
         )
         get_latest_by = 'timestamp'
 
+    user = models.ForeignKey(User, related_name='event_owner', blank=True, null=True)
     event = models.ForeignKey(Event, related_name='updates')
     timestamp = models.DateTimeField(default=timezone.now)
 
@@ -164,8 +176,7 @@ class EventUpdate(models.Model):
             if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
                 self.event.status = Event.STATUS_ACTIVE
                 self.event.save()
+                if config_value('Events', 'supporters-autonotify'):
+                    self.event.notify_supporters()
 
             super(EventUpdate, self).save(*args, **kwargs)
-
-            if waffle.switch_is_active('supporters-autonotify'):
-                self.event.notify_supporters()

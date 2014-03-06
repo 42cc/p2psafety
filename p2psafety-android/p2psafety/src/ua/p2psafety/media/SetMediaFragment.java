@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
-import ua.p2psafety.SosManager;
+import ua.p2psafety.EventManager;
 import ua.p2psafety.data.Prefs;
 
 public class SetMediaFragment extends Fragment {
@@ -69,7 +69,7 @@ public class SetMediaFragment extends Fragment {
         mSaveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (SosManager.getInstance(mActivity).isSosStarted()) {
+                if (EventManager.getInstance(mActivity).isSosStarted()) {
                     Toast.makeText(mActivity,
                             getString(R.string.no_settings_while_sos), Toast.LENGTH_LONG)
                          .show();
