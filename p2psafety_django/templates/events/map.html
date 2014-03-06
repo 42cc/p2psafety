@@ -112,13 +112,13 @@
                        ng-if="support.latest_update.video != null">
                       <span class="glyphicon glyphicon-film"></span> Play</a>
                     <a class="btn btn-success"
-                       ng-if="support.latest_update.location != null"
-                       ng-click="focus(support.latest_update.location)">
+                       ng-if="support.latest_location != null"
+                       ng-click="focus(support.latest_location)">
                       <span class="glyphicon glyphicon-map-marker"></span></a>
                   </div>
                 </div>
                 <div ng-repeat="supported in selectedEventsupported"
-                        ng-if="selectedEvent.type == 'support'">
+                     ng-if="selectedEvent.type == 'support'">
                 <supported-marker click="select(supported)">
                     <div>
                       <p ng-if="supported.user.full_name != null">
@@ -142,8 +142,8 @@
                      ng-if="supported.latest_update.video != null">
                     <span class="glyphicon glyphicon-film"></span> Play</a>
                   <a class="btn btn-success"
-                     ng-if="supported.latest_update.location != null"
-                     ng-click="focus(supported.latest_update.location)">
+                     ng-if="supported.latest_location != null"
+                     ng-click="focus(supported.latest_location)">
                     <span class="glyphicon glyphicon-map-marker"></span></a>
                 </div>
                 </div>
