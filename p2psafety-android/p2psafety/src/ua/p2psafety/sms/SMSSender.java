@@ -10,6 +10,7 @@ import java.util.ArrayList;
  */
 public class SMSSender {
     public static void send(String number, String message, Context context) {
+        MessageResolver.LOGS.info("SMSSender. Sending SMS. Phone: " + number);
         try {
             SmsManager smsManager = SmsManager.getDefault();
             ArrayList<String> msgStringArray = smsManager.divideMessage(message);

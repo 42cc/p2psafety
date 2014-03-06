@@ -95,21 +95,29 @@ public class EventManager {
     }
 
     public void stopSos() {
+        logs.info("SosManager. StopSos()");
+
         // stop media recording
+        logs.info("SosManager. StopSos. Stop Media recording");
         mContext.stopService(new Intent(mContext, AudioRecordService.class));
         mContext.stopService(new Intent(mContext, VideoRecordService.class));
 
+        logs.info("SosManager. StopSos. Changing Notifications");
         Notifications.removeNotification(mContext, Notifications.NOTIF_SOS_STARTED_CODE);
         Notifications.notifSosCanceled(mContext);
 
         // TODO: send "i'm safe now" SMS and email messages (ask if needed)
 
         // report event to the server
-        if (Utils.isServerAuthenticated(mContext))
+        if (Utils.isServerAuthenticated(mContext)) {
+            logs.info("SosManager. StopSos. User is authenticated at server. Sendng stop SOS request");
             createNewEvent();
-        else
+        } else {
+            logs.info("SosManager. StopSos. User is NOT authenticated at server.");
             Utils.setLoading(mContext, false);
+        }
 
+        logs.info("SosManager. StopSos. Stop PhoneCall and Location services");
         mContext.stopService(new Intent(mContext, PhoneCallService.class));
         mContext.stopService(new Intent(mContext, LocationService.class));
 
@@ -138,6 +146,7 @@ public class EventManager {
     }
 
     public void setEvent(Event event) {
+        logs.info("SosManager. Set new event: " + event.getId());
         mEvent = event;
         Prefs.putEvent(mContext, mEvent);
         if (mEvent == null)
@@ -187,7 +196,7 @@ public class EventManager {
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
-                logs.info("EventManager. StartSos. Got location");
+                logs.info("EventManager. StartSos. LocationResult");
                 Map data = new HashMap();
                 if (location != null) {
                     logs.info("EventManager. StartSos. Location is not null");

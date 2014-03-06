@@ -32,18 +32,22 @@ public class SosActivity extends ActionBarActivity {
     public static final String FRAGMENT_KEY = "fragmentKey";
 
     private UiLifecycleHelper mUiHelper;
-    public static Logs LOGS;
+    public static Logs mLogs;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_sosmain);
         setSupportActionBar();
 
+        mLogs = new Logs(this);
+        mLogs.info("\n\n\n==========================\n==============================");
+        mLogs.info("SosActiviy. onCreate()");
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
-        LOGS = new Logs(this);
+        mLogs.info("SosActiviy. onCreate. Initiating NetworkManager");
         NetworkManager.init(this);
+        mLogs.info("SosActiviy. onCreate. Starting PowerButtonService");
         startService(new Intent(this, PowerButtonService.class));
         if (!Utils.isServiceRunning(this, XmppService.class) &&
             Utils.isServerAuthenticated(this) &&
@@ -64,10 +68,12 @@ public class SosActivity extends ActionBarActivity {
         if (fragmentClass != null) {
             // activity started from outside
             // and requested to show specific fragment
+            mLogs.info("SosActiviy. onCreate. Activity requested to open " + fragmentClass);
             fragment = Fragment.instantiate(this, fragmentClass);
             fragment.setArguments(getIntent().getExtras());
         } else {
             // normal start
+            mLogs.info("SosActiviy. onCreate. Normal start. Opening SendMessageFragment");
             fragment = new SendMessageFragment();
         }
 
@@ -75,11 +81,13 @@ public class SosActivity extends ActionBarActivity {
         fragmentManager.beginTransaction().addToBackStack(null)
                 .replace(R.id.content_frame, fragment).commit();
 
-        if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, LOGS) && Prefs.getGmailToken(this) == null)
+        if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, mLogs) && Prefs.getGmailToken(this) == null)
         {
+            mLogs.info("SosActiviy. onCreate. Getting new GmailOAuth token");
             GmailOAuth2Sender sender = new GmailOAuth2Sender(this);
             sender.initToken();
         }
+        mLogs.info("SosActiviy. onCreate. Checking for location services");
     }
 
     @Override
@@ -92,6 +100,7 @@ public class SosActivity extends ActionBarActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        mLogs.info("SosActiviy.onActivityResult()");
         mUiHelper.onActivityResult(requestCode, resultCode, data);
         Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
     }
@@ -99,21 +108,28 @@ public class SosActivity extends ActionBarActivity {
     @Override
     public void onPause() {
         super.onPause();
+        mLogs.info("SosActiviy.onPause");
         mUiHelper.onPause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mLogs.info("SosActiviy.onDestroy()");
+        mLogs.info("\n\n\n==========================\n==============================");
         mUiHelper.onDestroy();
-        LOGS.close();
+        mLogs.close();
     }
 
     @Override
     public void onBackPressed() {
+        mLogs.info("SosActivity.onBackPressed()");
         Session currentSession = Session.getActiveSession();
-        if (currentSession == null || currentSession.getState() != SessionState.OPENING)
+        if (currentSession == null || currentSession.getState() != SessionState.OPENING) {
             super.onBackPressed();
+        } else {
+            mLogs.info("SosActivity. onBackPressed. Ignoring");
+        }
 
         FragmentManager fm = getSupportFragmentManager();
         if (fm.getBackStackEntryCount() == 0) {
@@ -124,30 +140,32 @@ public class SosActivity extends ActionBarActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        mLogs.info("SosActivity.onSaveInstanceState()");
         mUiHelper.onSaveInstanceState(outState);
+        mLogs.info("SosActivity. onSaveInstanceState. Saving session");
         Session session = Session.getActiveSession();
         Session.saveSession(session, outState);
     }
 
     public void loginToFacebook(Activity activity, Session.StatusCallback callback) {
-        LOGS.info("SosActivity. loginToFacebook()");
-        if (!Utils.isNetworkConnected(activity, LOGS)) {
-            LOGS.info("SosActivity. loginToFacebook. No network");
+        mLogs.info("SosActivity. loginToFacebook()");
+        if (!Utils.isNetworkConnected(activity, mLogs)) {
+            mLogs.info("SosActivity. loginToFacebook. No network");
             Utils.errorDialog(activity, Utils.DIALOG_NO_CONNECTION);
             return;
         }
         Session session = Session.getActiveSession();
         if (session == null) {
-            LOGS.info("SosActivity. No FB session. Opening a new one");
+            mLogs.info("SosActivity. No FB session. Opening a new one");
             Session.openActiveSession(activity, true, callback);
         }
         else if (!session.getState().isOpened() && !session.getState().isClosed()) {
-            LOGS.info("SosActivity. loginToFacebook. FB session not opened AND not closed. Opening for read");
+            mLogs.info("SosActivity. loginToFacebook. FB session not opened AND not closed. Opening for read");
             session.openForRead(new Session.OpenRequest(activity)
                     //.setPermissions(Const.FB_PERMISSIONS_READ)
                     .setCallback(callback));
         } else {
-            LOGS.info("SosActivity. loginToFacebook. FB session opened or closed. Opening a new one");
+            mLogs.info("SosActivity. loginToFacebook. FB session opened or closed. Opening a new one");
             Session.openActiveSession(activity, true, callback);
         }
     }

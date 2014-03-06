@@ -38,7 +38,7 @@ public class SetEmailsFragment extends Fragment {
                 return;
             }
 
-            if (Utils.isNetworkConnected(getActivity(), SosActivity.LOGS) && Prefs.getGmailToken(getActivity()) == null)
+            if (Utils.isNetworkConnected(getActivity(), SosActivity.mLogs) && Prefs.getGmailToken(getActivity()) == null)
             {
                 GmailOAuth2Sender sender = new GmailOAuth2Sender(getActivity());
                 sender.initToken();

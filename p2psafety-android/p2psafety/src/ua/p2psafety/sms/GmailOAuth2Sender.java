@@ -137,10 +137,12 @@ public class GmailOAuth2Sender {
 
     public synchronized void sendMail(String subject, String body, String user, String recipients) {
         if (!Utils.isNetworkConnected(context, LOGS)) {
+            LOGS.info("GMailOAuth2Sender. No network.");
             return;
         }
         SMTPTransport smtpTransport = null;
         try {
+            LOGS.info("GMailOAuth2Sender. Connecting to SMTP");
             smtpTransport = connectToSmtp("smtp.gmail.com",
                     587,
                     user,
@@ -153,12 +155,14 @@ public class GmailOAuth2Sender {
             message.setContent(body, "text/html; charset=utf-8");
 
             try {
+                LOGS.info("GMailOAuth2Sender. Setting email recipients");
                 if (recipients.indexOf(',') > 0)
                     message.setRecipients(Message.RecipientType.TO,
                             InternetAddress.parse(recipients));
                 else
                     message.setRecipient(Message.RecipientType.TO,
                             new InternetAddress(recipients));
+                LOGS.info("GMailOAuth2Sender. Sending email. Recipients: " + recipients);
                 smtpTransport.sendMessage(message, message.getAllRecipients());
             } finally {
                 smtpTransport.close();

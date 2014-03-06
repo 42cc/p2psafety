@@ -56,6 +56,7 @@ public class MessageResolver {
     }
 
     private void sendMessage(String message) {
+        LOGS.info("MessageResolver. Ready to send message: " + message);
         for (String phone : phones)
             SMSSender.send(phone, message, context);
         sendEmails(message);
@@ -66,8 +67,7 @@ public class MessageResolver {
             return;
 
         String account = Utils.getEmail(context);
-        if (account != null && emails.size() > 0)
-        {
+        if (account != null && emails.size() > 0) {
             String csv = emails.toString().replace("[", "").replace("]", "").replace(", ", ",");
             GmailOAuth2Sender gmailOAuth2Sender = new GmailOAuth2Sender(context);
             gmailOAuth2Sender.sendMail("SOS!!!", message, account, csv, file);
@@ -75,29 +75,35 @@ public class MessageResolver {
     }
 
     private void sendEmails(String message) {
+        LOGS.info("MessageResolver. Sending emails");
         String account = Utils.getEmail(context);
-        if (account!=null && emails.size() > 0)
-        {
+        LOGS.info("MessageResolver. User email: " + account);
+        if (account!=null && emails.size() > 0) {
             String csv = emails.toString().replace("[", "").replace("]", "").replace(", ", ",");
             GmailOAuth2Sender gmailOAuth2Sender = new GmailOAuth2Sender(context);
             gmailOAuth2Sender.sendMail("SOS!!!", message, account, csv);
+        } else {
+            LOGS.info("MessageResolver. User has no GMail account or no recipients provided");
         }
     }
 
     // TODO: refactor this code or better whole MessageResolver
     // (split it into SMSSender & EmailSender?)
     public void sendMessages() {
+        LOGS.info("MessageResolver. Building message");
         AsyncTask ast = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] params) {
                 try {
                     if (Prefs.getIsLoc(context)) {
+                        LOGS.info("MessageResolver. Location option is turned ON");
                         // loop until we have location
                         Looper.prepare();
                         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
                             @Override
                             public void gotLocation(Location location) {
                                 if (location != null) {
+                                    LOGS.info("MessageResolver. Got location");
                                     String lat = location.getLatitude() + "";
                                     if (lat.length() > 10)
                                         lat = lat.substring(0, 9);
@@ -110,6 +116,8 @@ public class MessageResolver {
                                             .append(formatTimeAndDay(location.getTime(), false))
                                             .append(" https://maps.google.com/maps?q=")
                                             .append(lat).append(",").append(lon).toString();
+                                } else {
+                                    LOGS.info("MessageResolver. Location is NULL");
                                 }
 
                                 sendMessage(message);
@@ -120,6 +128,7 @@ public class MessageResolver {
                         myLocation.getLocation(context, locationResult);
                         Looper.loop();
                     } else {
+                        LOGS.info("MessageResolver. Location option is turned OFF");
                         sendMessage(message);
                         Log.d("Message", "Message sent" + message);
                     }
