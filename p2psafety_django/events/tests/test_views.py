@@ -88,8 +88,8 @@ class MapTestCase(UsersMixin, ResourceTestCase):
         data = dict(event_id=event.id + 1)
         self.assertHttpNotFound(self.api_client.post(url, data=data))
 
-    @mock.patch.object(jabber, 'notify_supporters')
-    def test_notify_supporters_ok(self, mock_notify_supporters):
+    @mock.patch('events.views.jabber')
+    def test_notify_supporters_ok(self, mock_jabber):
         user, operator = self.user, self.superuser
         event = EventFactory(user=user)
         url = reverse('events:map_notify_supporters')
@@ -101,15 +101,15 @@ class MapTestCase(UsersMixin, ResourceTestCase):
         resp = self.api_client.post(url, data=data)
         self.assertValidJSONResponse(resp)
         self.assertTrue(self.deserialize(resp)['success'])
-        mock_notify_supporters.assert_called_once_with(event)
-        mock_notify_supporters.reset_mock()
+        mock_jabber.notify_supporters.assert_called_once_with(event, radius=None)
+        mock_jabber.notify_supporters.reset_mock()
 
         # With radius
         data['radius'] = 123
         resp = self.api_client.post(url, data=data)
         self.assertValidJSONResponse(resp)
         self.assertTrue(self.deserialize(resp)['success'])
-        mock_notify_supporters.assert_called_once_with(event, 123)
+        mock_jabber.notify_supporters.assert_called_once_with(event, radius=123)
 
     def test_notify_supporters_errors(self):
         user, operator = self.user, self.superuser
