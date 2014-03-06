@@ -73,22 +73,14 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
           for (i in event_support.supported){
             var supported = event_support.supported[i];
             if(supported.id == event.id){
-              var params = {event__id: event_support.id};
-              $http.get(urls.eventupdates, {params: params}).success(function(data) {
-                event_support.updates = data.objects;
                 $scope.selectedEventsupport[event_support.id] = event_support;
-              })
             }
           }
         }
       }
       for (var i = 0; i<event.supported.length; i++) {
         var supported = event.supported[i];
-        var params = {event__id: supported.id};
-        $http.get(urls.eventupdates, {params: params}).success(function(data) {
-            supported.updates = data.objects;
-            $scope.selectedEventsupported[supported.id] = supported;
-        })
+        $scope.selectedEventsupported[supported.id] = supported;
       }
     };
   };
@@ -145,12 +137,41 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
                                              location.longitude));
   };
 
+  $scope.addEventUpdate = function() {
+    var event = $scope.selectedEvent,
+        text = $scope.fields.addEventUpdateText,
+        url = urls.operatorAddEventUpdate;
+    $http.post(url, {"event_id":event.id, "text":text}).success(function(data) {
+        var params = {event__id: event.id};
+        $http.get(urls.eventupdates, {params: params}).success(function(data) {
+            event.updates = data.objects;
+        })
+    })
+    $scope.fields.addEventUpdateText = '';
+  };
+  $scope.ctrlEnter = function(event) {
+    var ctrlPressed = event.metaKey || event.ctrlKey;
+    var enterPressed = event.keyCode == 13;
+    var text = $scope.fields.addEventUpdateText;
+    if (ctrlPressed && enterPressed && text.length) {
+      $scope.addEventUpdate(text);
+    }
+  }
+
+  setInterval(function() {
+    document.getElementById('audiotag').play();
+    alert('Do You sleep?');
+  }, mapSettings.wakeup_interval * 60 * 1000);
+
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;
   $scope.zoomedIn = false;
   $scope.zoomScale = 1;
   $scope.initGoogleMap(document.getElementById("map-canvas"));
   $scope.events = {};
+  $scope.fields = {
+    addEventUpdateText: '',
+  };
 
   $scope.update(false, false, true);
 
@@ -220,11 +241,11 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 })
 .directive('supportMarker', function(markerFactory, ICONS) {
   var linker = function(scope, element, attrs) {
+    var content = element.children().detach()[0];
     var location = scope.support.latest_location;
 
     if (location) {
       var map = scope.$parent.gmap;
-      var content = element.children().detach()[0];
       var marker = markerFactory(scope, element, content, ICONS.GREEN, location,
                                  map, attrs.click);
     }
@@ -238,9 +259,11 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 })
 .directive('eventupdateMarker', function(markerFactory, ICONS) {
   var linker = function(scope, element, attrs) {
-    if (scope.update.location != null) {
+    var content = element.children().detach()[0];
+    var location = scope.update.location != null;
+
+    if (location) {
       var map = scope.$parent.gmap;
-      var content = element.children().detach()[0];
       var marker = markerFactory(scope, element, content, ICONS.BLUE,
                                  scope.update.location, map);
     }
@@ -254,11 +277,11 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 })
 .directive('supportedMarker', function(markerFactory, ICONS) {
   var linker = function(scope, element, attrs) {
+    var content = element.children().detach()[0];
     var location = scope.supported.latest_location;
 
     if (location) {
       var map = scope.$parent.gmap;
-      var content = element.children().detach()[0];
       var marker = markerFactory(scope, element, content, ICONS.RED, location,
                                  map, attrs.click);
     }

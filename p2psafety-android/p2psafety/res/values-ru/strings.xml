@@ -97,6 +97,9 @@
     <string name="connection_settings">Настройки</string>
 
     <string name="support_screen">Экран помощи</string>
+    <string name="movement_types">Тип передвижения</string>
+    <string name="set_your_roles">Выберите Ваши роли:</string>
+    <string name="set_movement_types">Выберите Ваши типы передвижения:</string>
 
     <string-array name="media_types">
         <item>Нет</item>
