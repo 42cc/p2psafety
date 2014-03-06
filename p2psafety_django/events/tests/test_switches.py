@@ -2,7 +2,7 @@ import mock
 
 from django.test import TestCase
 
-from livesettings import ConfigurationSettings, config_value
+from livesettings import ConfigurationSettings
 
 from .helpers.factories import EventFactory, EventUpdateFactory
 
@@ -18,12 +18,10 @@ class EventSwitchesTestCase(TestCase):
     def test_supporters_autonotify(self, mock_jabber):
         event1, event2 = EventFactory(), EventFactory()
 
-        # self.set_switch('supporters-autonotify', False)
         self.set_value('Events', 'supporters-autonotify', False)
         EventUpdateFactory(event=event1)
         self.assertFalse(mock_jabber.notify_supporters.called)
 
-        # self.set_switch('supporters-autonotify')
         self.set_value('Events', 'supporters-autonotify', True)
         EventUpdateFactory(event=event2)
         self.assertEqual(mock_jabber.notify_supporters.call_count, 1)
