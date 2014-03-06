@@ -24,7 +24,9 @@ import com.facebook.SessionState;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
@@ -43,9 +45,12 @@ import ua.p2psafety.util.Utils;
  * Created by Taras Melon on 08.01.14.
  */
 public class SettingsFragment extends Fragment {
-
     private View vParent;
     private Activity mActivity;
+
+    ListView mSettingsList;
+
+    private Runnable mDoAfterLogin = null;
 
     Logs mLogs;
 
@@ -67,27 +72,18 @@ public class SettingsFragment extends Fragment {
 
         mLogs.info("SettingsFragment.onCreateView()");
 
-        final ListView settingsList = (ListView) vParent.findViewById(R.id.settings_list);
-        final String[] values = new String[]{
-                getString(R.string.add_phone),
-                getString(R.string.edit_message),
-                getString(R.string.emails),
-                getString(R.string.servers),
-                getString(R.string.password),
-                getString(R.string.media),
-                getString(R.string.roles),
-                getString(R.string.logout),
-                getString(R.string.send_logs)
-        };
+        mSettingsList = (ListView) vParent.findViewById(R.id.settings_list);
 
-        final ArrayList<String> list = new ArrayList<String>();
-        Collections.addAll(list, values);
-        final StableArrayAdapter adapter = new StableArrayAdapter(this.getActivity(),
-                android.R.layout.simple_list_item_1, list);
-        settingsList.setAdapter(adapter);
+        return rootView;
+    }
 
-        settingsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    @Override
+    public void onResume() {
+        super.onResume();
 
+        setupOptions();
+
+        mSettingsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view,
                                     int position, long id) {
@@ -103,7 +99,6 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.addToBackStack(SetPhoneFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
-
                     case 1:
                         mfragment[0] = new MessageFragment();
                         fragmentTransaction.addToBackStack(MessageFragment.TAG);
@@ -121,7 +116,12 @@ public class SettingsFragment extends Fragment {
                             openServersScreen();
                         } else {
                             mLogs.info("SettingsFragment. No ApiKey. Asking user to log in");
-                            askLoginAndOpenServers();
+                            login(new Runnable() {
+                                @Override
+                                public void run() {
+                                    openServersScreen();
+                                }
+                            });
                         }
                         break;
                     case 4:
@@ -140,7 +140,10 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 7:
-                        logout();
+                        if (Utils.isServerAuthenticated(mActivity))
+                            logout();
+                        else
+                            login(null);
                         break;
                     case 8:
                         mfragment[0] = new SendLogsFragment();
@@ -149,36 +152,16 @@ public class SettingsFragment extends Fragment {
                         break;
                 }
             }
-
         });
 
         Utils.checkForLocationServices(mActivity);
 
-        return rootView;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
         getView().bringToFront();
     }
 
-    public void logout() {
-        if (Session.getActiveSession() != null)
-            Session.getActiveSession().closeAndClearTokenInformation();
-        Session.setActiveSession(null);
+    public void login(Runnable doAfterLogin) {
+        mDoAfterLogin = doAfterLogin;
 
-        Prefs.putApiKey(mActivity, null);
-
-        Toast.makeText(mActivity, "Готово", Toast.LENGTH_SHORT)
-                .show();
-
-        return;
-    }
-
-    // builds dialog with password prompt
-    private void askLoginAndOpenServers() {
         LayoutInflater li = LayoutInflater.from(mActivity);
         View promptsView = li.inflate(R.layout.login_dialog, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
@@ -193,9 +176,9 @@ public class SettingsFragment extends Fragment {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 mLogs.info("SettingsFragment. User entered login and password: " +
-                                    userLogin.getText().toString() + " " +
-                                    userPassword.getText().toString() + "  " +
-                                    "Sending request");
+                                        userLogin.getText().toString() + " " +
+                                        userPassword.getText().toString() + "  " +
+                                        "Sending request");
                                 NetworkManager.loginAtServer(mActivity,
                                         userLogin.getText().toString(),
                                         userPassword.getText().toString(), postRunnable);
@@ -235,9 +218,42 @@ public class SettingsFragment extends Fragment {
 
         alertDialog.show();
         alertDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+        return;
     }
 
-    // if login completed sucessfully, open Servers screen;
+    public void logout() {
+        if (Session.getActiveSession() != null)
+            Session.getActiveSession().closeAndClearTokenInformation();
+        Session.setActiveSession(null);
+        Prefs.putApiKey(mActivity, null);
+
+        setupOptions();
+    }
+
+    private void setupOptions() {
+        String[] options = new String[]{
+                getString(R.string.add_phone),
+                getString(R.string.edit_message),
+                getString(R.string.emails),
+                getString(R.string.servers),
+                getString(R.string.password),
+                getString(R.string.media),
+                getString(R.string.roles),
+                getString(R.string.logout),
+                getString(R.string.send_logs)
+        };
+        StableArrayAdapter adapter = new StableArrayAdapter(mActivity,
+                android.R.layout.simple_list_item_1,
+                new ArrayList<String>(Arrays.asList(options)));
+
+        if (!Utils.isServerAuthenticated(mActivity))
+            adapter.mSettingsList.set(7, "Вход (Login)");
+
+        mSettingsList.setAdapter(adapter);
+    }
+
+    // if login completed successfully, open Servers screen;
     // otherwise build new dialog with retry/cancel buttons
     private NetworkManager.DeliverResultRunnable<Boolean> postRunnable = new NetworkManager.DeliverResultRunnable<Boolean>() {
         @Override
@@ -245,8 +261,10 @@ public class SettingsFragment extends Fragment {
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    setupOptions();
                     mActivity.startService(new Intent(mActivity, XmppService.class));
-                    openServersScreen();
+                    if (mDoAfterLogin != null)
+                        mDoAfterLogin.run();
                 }
             });
         }
@@ -271,7 +289,7 @@ public class SettingsFragment extends Fragment {
                     builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            askLoginAndOpenServers();
+                            login(mDoAfterLogin);
                         }
                     });
                     builder.create().show();
