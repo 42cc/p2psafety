@@ -240,6 +240,7 @@ public class SettingsFragment extends Fragment {
             Session.getActiveSession().closeAndClearTokenInformation();
         Session.setActiveSession(null);
         Prefs.putApiKey(mActivity, null);
+        Prefs.putApiUsername(mActivity, null);
 
         setupOptions();
     }
@@ -291,6 +292,7 @@ public class SettingsFragment extends Fragment {
                 public void run() {
                     mLogs.info("SettingsFragment. Login failed");
                     Utils.setLoading(mActivity, false);
+                    logout(); // clear any data that was saved during failed login attempt
                     AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
 
                     switch (errorCode) {
