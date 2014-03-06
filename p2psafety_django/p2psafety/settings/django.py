@@ -65,8 +65,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    'waffle.middleware.WaffleMiddleware',
 )
 
 INSTALLED_APPS = (
@@ -79,8 +77,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.staticfiles',
 
-    'waffle',
     'south',
+    'livesettings',
 
     'core',
     'events',
@@ -91,7 +89,8 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.google',
+    # TODO: wait for implementation on mobile apps 
+    # 'allauth.socialaccount.providers.google',
     'bootstrap3',
     'tastypie',
 )
