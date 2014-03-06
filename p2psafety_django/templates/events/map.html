@@ -17,7 +17,8 @@
     mapApp.constant('urls', {
       events: "{% url 'api_dispatch_list' resource_name='events' api_name='v1' %}",
       eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
-      operatorAddEventUpdate: "{% url 'events:map_add_eventupdate' %}",
+      addEventUpdate: "{% url 'events:map_add_eventupdate' %}",
+      closeEvent: "{% url 'events:map_close_event' %}",
     });
     mapApp.constant('mapSettings', {
         highlight: {% if newevent_highlight %}true{% else %}false{% endif %},
@@ -56,15 +57,14 @@
           </event-marker>
           <div class="selected-event panel panel-primary"
                ng-if="selectedEvent != null">
-            <h4 class="panel-heading">Status:
-              <span class="label label-danger"
-                    ng-if="selectedEvent.status == 'A'">active</span>
-              <span class="label label-primary"
-                    ng-if="selectedEvent.status == 'P'">passive</span>
-              <span class="label label-default"
-                    ng-if="selectedEvent.status == 'F'">finished</span>
-              <button type="button" class="close"
-                      ng-click="select(null)">&times;</button>
+            <h4 class="panel-heading">
+              <span>Event info</span>
+              <div class="btn-group dispatcher-panel-buttons">
+                <button class="btn btn-success btn-sm"
+                        ng-click="select(null)">Back</button>
+                <button class="btn btn-warning btn-sm"
+                        ng-click="closeEvent(selectedEvent)">Close</button>
+              </div>
             </h4>
             <div class="panel-body">
               <div class="list-group">

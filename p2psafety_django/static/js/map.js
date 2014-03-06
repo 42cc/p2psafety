@@ -97,7 +97,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.addEventUpdate = function() {
     var event = $scope.selectedEvent,
         text = $scope.fields.addEventUpdateText,
-        url = urls.operatorAddEventUpdate;
+        url = urls.addEventUpdate;
     $http.post(url, {"event_id":event.id, "text":text}).success(function(data) {
         var params = {event__id: event.id};
         $http.get(urls.eventupdates, {params: params}).success(function(data) {
@@ -113,7 +113,13 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     if (ctrlPressed && enterPressed && text.length) {
       $scope.addEventUpdate(text);
     }
-  }
+  };
+  $scope.closeEvent = function(event) {
+    $http.post(urls.closeEvent, {event_id: event.id}).success(function(data) {
+      $scope.select(null);
+      delete $scope.events[event.id];
+    });
+  };
 
   setInterval(function() {
     document.getElementById('audiotag').play();
