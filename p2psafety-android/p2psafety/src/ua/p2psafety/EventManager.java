@@ -10,7 +10,6 @@ import java.util.Map;
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.MessageResolver;
-import ua.p2psafety.sms.MyLocation;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
@@ -119,13 +118,13 @@ public class EventManager {
 
         logs.info("SosManager. StopSos. Stop PhoneCall and Location services");
         mContext.stopService(new Intent(mContext, PhoneCallService.class));
-        mContext.stopService(new Intent(mContext, LocationService.class));
+        //mContext.stopService(new Intent(mContext, LocationService.class));
 
         // start listening xmpp
         mContext.startService(new Intent(mContext, XmppService.class));
 
         // stop sending location updates
-        mContext.startService(new Intent(mContext, LocationService.class));
+        //mContext.startService(new Intent(mContext, LocationService.class));
 
         setSosStarted(false);
     }
@@ -193,7 +192,7 @@ public class EventManager {
 
     private void serverActivateSos() {
         mEvent.setStatus(Event.STATUS_ACTIVE);
-        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+        /*MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
                 logs.info("EventManager. StartSos. LocationResult");
@@ -211,14 +210,34 @@ public class EventManager {
                     public void deliver(Boolean aBoolean) {
                         // start sending location updates
                         logs.info("EventManager. StartSos. Event activated. Starting LocationService");
-                        mContext.startService(new Intent(mContext, LocationService.class));
+                        //mContext.startService(new Intent(mContext, LocationService.class));
                         Utils.setLoading(mContext, false);
                     }
                 });
             }
         };
         MyLocation myLocation = new MyLocation(logs);
-        myLocation.getLocation(mContext, locationResult);
+        myLocation.getLocation(mContext, locationResult);*/
+        Location location = SosActivity.locationListener.getLastLocation(true);
+        logs.info("EventManager. StartSos. LocationResult");
+        Map data = new HashMap();
+        if (location != null) {
+            logs.info("EventManager. StartSos. Location is not null");
+            data.put("loc", location);
+        } else {
+            logs.info("EventManager. StartSos. Location is NULL");
+        }
+        data.put("text", Prefs.getMessage(mContext));
+
+        NetworkManager.updateEvent(mContext, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
+            @Override
+            public void deliver(Boolean aBoolean) {
+                // start sending location updates
+                logs.info("EventManager. StartSos. Event activated. Starting LocationService");
+                //mContext.startService(new Intent(mContext, LocationService.class));
+                Utils.setLoading(mContext, false);
+            }
+        });
     }
 
     public void createNewEvent() {

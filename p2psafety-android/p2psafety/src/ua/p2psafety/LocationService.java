@@ -1,13 +1,10 @@
+/*
 package ua.p2psafety;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.location.Location;
-import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +13,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import ua.p2psafety.Network.NetworkManager;
-import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.MyLocation;
 import ua.p2psafety.util.Logs;
 
@@ -117,3 +113,4 @@ public class LocationService extends Service {
             mLogs.close();
     }
 }
+*/

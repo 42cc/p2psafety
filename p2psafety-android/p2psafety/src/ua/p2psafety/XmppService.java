@@ -31,7 +31,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import ua.p2psafety.data.Prefs;
-import ua.p2psafety.sms.MyLocation;
 import ua.p2psafety.util.Logs;
 
 public class XmppService extends Service {
@@ -187,7 +186,7 @@ public class XmppService extends Service {
                     Log.i("===================", "===================================");
 
                     // check if event is in acceptable distance and if so show it
-                    MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+                    /*MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
                         @Override
                         public void gotLocation(Location location) {
                            if (location == null || mRadius == 0 ||
@@ -203,7 +202,18 @@ public class XmppService extends Service {
                         }
                     };
                     MyLocation myLocation = new MyLocation(logs);
-                    myLocation.getLocation(XmppService.this, locationResult);
+                    myLocation.getLocation(XmppService.this, locationResult);*/
+                    Location location = SosActivity.locationListener.getLastLocation(false);
+                    if (location == null || mRadius == 0 ||
+                            location.distanceTo(mEventLocation) <= mRadius)
+                    {
+                        if (!processing_event
+                                && !EventManager.getInstance(XmppService.this).isEventActive())
+                        {
+                            openAcceptEventScreen();
+                            processing_event = true;
+                        }
+                    }
                 }
             });
 

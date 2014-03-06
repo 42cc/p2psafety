@@ -76,7 +76,7 @@
         <service android:name=".PowerButtonService" />
         <service android:name=".PhoneCallService"/>
         <service android:name=".XmppService"/>
-        <service android:name=".LocationService"/>
+        <!--<service android:name=".LocationService"/>-->
 
         <activity
             android:name=".LoginActivity"

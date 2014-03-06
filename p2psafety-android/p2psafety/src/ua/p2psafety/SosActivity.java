@@ -1,8 +1,15 @@
 package ua.p2psafety;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -17,6 +24,9 @@ import android.widget.Toast;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationClient;
 
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.PhonesDatasourse;
@@ -28,11 +38,19 @@ import ua.p2psafety.util.Utils;
 /**
  * Created by ihorpysmennyi on 12/14/13.
  */
-public class SosActivity extends ActionBarActivity {
+public class SosActivity extends ActionBarActivity implements
+        GooglePlayServicesClient.ConnectionCallbacks,
+        GooglePlayServicesClient.OnConnectionFailedListener {
     public static final String FRAGMENT_KEY = "fragmentKey";
+    // milliseconds per second
+    public static final int MILLISECONDS_PER_SECOND = 1000;
+    public static final int LOCATION_FIX_TIMEOUT = MILLISECONDS_PER_SECOND * 10;
 
     private UiLifecycleHelper mUiHelper;
     public static Logs mLogs;
+    public static AWLocationListener locationListener;
+    private static LocationClient mLocationClient;
+    private static LocationManager mLocationManager;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +73,10 @@ public class SosActivity extends ActionBarActivity {
         {
             startService(new Intent(this, XmppService.class));
         }
+
+        mLocationClient = new LocationClient(this, this, this);
+        locationListener = new AWLocationListener();
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     }
 
     @Override
@@ -203,5 +225,127 @@ public class SosActivity extends ActionBarActivity {
 
         }
         return (super.onOptionsItemSelected(menuItem));
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        for (String provider : mLocationManager.getProviders(true)) {
+            mLocationManager.requestLocationUpdates(provider, 1000, 0, locationListener);
+        }
+    }
+
+    @Override
+    public void onDisconnected() {
+        // do nothing
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        // ignore
+    }
+
+    public class AWLocationListener implements android.location.LocationListener {
+
+        private Location mLocation;                                     // last known location
+        private OnLocationChangedListener mOnLocationChangedListener;
+
+        @Override
+        public void onLocationChanged(Location location) {
+            mLocation = location;
+
+            if (location.getProvider().equals("gps")) {
+                // GPS location is most accurate, so stop updating
+                mLocationManager.removeUpdates(this);
+            }
+
+            if (mOnLocationChangedListener != null) {
+                mOnLocationChangedListener.onLocationChanged(mLocation);
+            }
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) { }
+
+        @Override
+        public void onProviderEnabled(String provider) { }
+
+        @Override
+        public void onProviderDisabled(String provider) { }
+
+        /**
+         * Return last known location
+         * @param isNeededLocationServices whether we need to Location Services should be active or not,
+         *                                 if true, then we ask user for activate Services,
+         *                                 if false, then we just ignore it, and return location,
+         *                                 which we have
+         * @return last known location
+         */
+        public Location getLastLocation(boolean isNeededLocationServices) {
+            // if last known location is not null and not too old - return it
+            if (mLocation != null
+                    && (System.currentTimeMillis() - mLocation.getTime() <= LOCATION_FIX_TIMEOUT))
+                return mLocation;
+
+            // start listening GPS if it is enabled
+            if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0,
+                        locationListener);
+            }
+
+            // if some of providers are not active, then ask user to do it
+            if (isNeededLocationServices
+                    && (!mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                    !mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))) {
+                // Build the alert dialog
+                AlertDialog.Builder builder = new AlertDialog.Builder(SosActivity.this);
+                builder.setTitle(getString(R.string.location_services_not_active));
+                builder.setMessage(getString(R.string.please_enable_location_services));
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Show location settings when the user acknowledges the alert dialog
+                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(intent);
+                    }
+                });
+                Dialog alertDialog = builder.create();
+                alertDialog.setCanceledOnTouchOutside(false);
+                alertDialog.show();
+            } else {
+                // return some location from PASSIVE provider
+                mLocation = mLocationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+            }
+            return mLocation;
+        }
+
+        public void setOnLocationChangedListener(OnLocationChangedListener listener) {
+            mOnLocationChangedListener = listener;
+        }
+    }
+
+    public interface OnLocationChangedListener {
+        public void onLocationChanged(Location loc);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (mLocationClient.isConnected()) {
+            /*
+             * Remove location updates for a listener.
+             */
+            mLocationManager.removeUpdates(locationListener);
+        }
+        /*
+         * After disconnect() is called, the client is
+         * considered "dead".
+         */
+        mLocationClient.disconnect();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mLocationClient.connect();
     }
 }

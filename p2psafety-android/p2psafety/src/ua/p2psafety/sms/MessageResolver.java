@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.p2psafety.AsyncTaskExecutionHelper;
+import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.EmailsDatasourse;
 import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.data.Prefs;
@@ -96,36 +97,59 @@ public class MessageResolver {
             protected Object doInBackground(Object[] params) {
                 try {
                     if (Prefs.getIsLoc(context)) {
+//                        LOGS.info("MessageResolver. Location option is turned ON");
+//                        // loop until we have location
+//                        Looper.prepare();
+//                        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+//                            @Override
+//                            public void gotLocation(Location location) {
+//                                if (location != null) {
+//                                    LOGS.info("MessageResolver. Got location");
+//                                    String lat = location.getLatitude() + "";
+//                                    if (lat.length() > 10)
+//                                        lat = lat.substring(0, 9);
+//                                    String lon = location.getLongitude() + "";
+//                                    if (lon.length() > 10)
+//                                        lon = lon.substring(0, 9);
+//
+//                                    message = new StringBuilder().append(message)
+//                                            .append("\n")
+//                                            .append(formatTimeAndDay(location.getTime(), false))
+//                                            .append(" https://maps.google.com/maps?q=")
+//                                            .append(lat).append(",").append(lon).toString();
+//                                } else {
+//                                    LOGS.info("MessageResolver. Location is NULL");
+//                                }
+//
+//                                sendMessage(message);
+//                                Log.d("Message", "Message sent" + message);
+//                            }
+//                        };
+//                        MyLocation myLocation = new MyLocation(LOGS);
+//                        myLocation.getLocation(context, locationResult);
                         LOGS.info("MessageResolver. Location option is turned ON");
-                        // loop until we have location
                         Looper.prepare();
-                        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
-                            @Override
-                            public void gotLocation(Location location) {
-                                if (location != null) {
-                                    LOGS.info("MessageResolver. Got location");
-                                    String lat = location.getLatitude() + "";
-                                    if (lat.length() > 10)
-                                        lat = lat.substring(0, 9);
-                                    String lon = location.getLongitude() + "";
-                                    if (lon.length() > 10)
-                                        lon = lon.substring(0, 9);
+                        Location location = SosActivity.locationListener.getLastLocation(true);
+                        if (location != null) {
+                            LOGS.info("MessageResolver. Got location");
+                            String lat = location.getLatitude() + "";
+                            if (lat.length() > 10)
+                                lat = lat.substring(0, 9);
+                            String lon = location.getLongitude() + "";
+                            if (lon.length() > 10)
+                                lon = lon.substring(0, 9);
 
-                                    message = new StringBuilder().append(message)
-                                            .append("\n")
-                                            .append(formatTimeAndDay(location.getTime(), false))
-                                            .append(" https://maps.google.com/maps?q=")
-                                            .append(lat).append(",").append(lon).toString();
-                                } else {
-                                    LOGS.info("MessageResolver. Location is NULL");
-                                }
+                            message = new StringBuilder().append(message)
+                                    .append("\n")
+                                    .append(formatTimeAndDay(location.getTime(), false))
+                                    .append(" https://maps.google.com/maps?q=")
+                                    .append(lat).append(",").append(lon).toString();
+                        } else {
+                            LOGS.info("MessageResolver. Location is NULL");
+                        }
 
-                                sendMessage(message);
-                                Log.d("Message", "Message sent" + message);
-                            }
-                        };
-                        MyLocation myLocation = new MyLocation(LOGS);
-                        myLocation.getLocation(context, locationResult);
+                        sendMessage(message);
+                        Log.d("Message", "Message sent" + message);
                         Looper.loop();
                     } else {
                         LOGS.info("MessageResolver. Location option is turned OFF");
