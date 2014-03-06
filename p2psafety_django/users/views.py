@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 
 
 @login_required
-def log_the_fuck_out(request):
+def emergency_logout(request):
     user = request.user
     user.is_active = False
     user.set_unusable_password()

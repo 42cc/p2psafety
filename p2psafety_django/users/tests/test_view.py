@@ -8,9 +8,9 @@ from .helpers import UserFactory
 
 class UserTestCase(TestCase):
 
-    def test_log_the_fuck_out(self):
+    def test_emergency_logout(self):
         user = UserFactory()
-        url = reverse('log_the_fuck_out')
+        url = reverse('emergency_logout')
         
         self.client.login(username=user.username, password=user.username)
         self.assertEqual(user.is_active, True)
