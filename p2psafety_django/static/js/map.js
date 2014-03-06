@@ -120,6 +120,16 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       delete $scope.events[event.id];
     });
   };
+  $scope.notifySupporters = function(event) {
+    var data = {
+      event_id: $scope.selectedEvent.id,
+      radius: $scope.fields.notifySupportersRadius
+    };
+    $scope.isNotifyingSupporters = true;
+    $http.post(urls.notifySupporters, data).success(function(data) {
+      $scope.isNotifyingSupporters = false;
+    })
+  };
 
   setInterval(function() {
     document.getElementById('audiotag').play();
@@ -134,7 +144,9 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.events = {};
   $scope.fields = {
     addEventUpdateText: '',
+    notifySupportersRadius: '',
   };
+  $scope.isNotifyingSupporters = false;
   
   $scope.update(false, false, true);
 

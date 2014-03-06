@@ -8,6 +8,9 @@
   overflow-y: auto;
   float: left;
 }
+.selected-event .notify-supporters input {
+  width: 100px;
+}
 .event-name{
     cursor: pointer;
     display: inline;

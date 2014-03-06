@@ -1,6 +1,11 @@
+import logging
+
 from django.conf import settings
 
 from .clients import get_client
+
+
+logger = logging.getLogger('events.jabber')
 
 
 def on_user_created(new_user):
@@ -9,7 +14,9 @@ def on_user_created(new_user):
 
     :type new_user: `django.contrib.auth.models.User`
     """
-    if not settings.JABBER_DRY_RUN:
+    if settings.JABBER_DRY_RUN:
+        logger.debug('ignored jabber call from "%s"', on_user_created.__name__)
+    else:
         with get_client('UsersClient') as client:
             client.create_account(new_user)
 
@@ -24,7 +31,9 @@ def notify_supporters(event, radius=None):
     if radius is None:
         radius = settings.XMPP_EVENTS_NOTIFICATION_RADIUS
 
-    if not settings.JABBER_DRY_RUN:
+    if settings.JABBER_DRY_RUN:
+        logger.debug('ignored jabber call from "%s"', notify_supporters.__name__)
+    else:
         with get_client('EventsNotifierClient') as client:
             client.publish(event, radius)
 

@@ -69,7 +69,7 @@ def map_notify_supporters(request):
         data = json.loads(request.body)
         event_id = int(data['event_id'])
         radius = data.get('radius')
-        radius = float(radius) if radius is not None else None
+        if radius: radius = float(radius)
     except (KeyError, ValueError):
         return HttpResponseBadRequest()
     else:

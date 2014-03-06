@@ -19,6 +19,7 @@
       eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
       addEventUpdate: "{% url 'events:map_add_eventupdate' %}",
       closeEvent: "{% url 'events:map_close_event' %}",
+      notifySupporters: "{% url 'events:map_notify_supporters' %}",
     });
     mapApp.constant('mapSettings', {
         highlight: {% if newevent_highlight %}true{% else %}false{% endif %},
@@ -70,11 +71,24 @@
               <div class="list-group">
                 <div class="list-group-item">
                   <p>Add event update</p>
-                  <input id="input-text-update" class="form-control input-sm" type="text" placeholder="Text" 
+                  <input class="form-control input-sm" type="text" placeholder="Text" 
                          ng-model="fields.addEventUpdateText"
                          ng-keydown="ctrlEnter($event)"/>
                   <button class="btn btn-primary btn-sm button-add"
                           ng-click="addEventUpdate()">Click or hit Ctrl+Enter</button>
+                </div>
+                <div class="list-group-item">
+                  <div class="form-inline notify-supporters">
+                    <div class="form-group">
+                      <input class="form-control input-sm" type="text" placeholder="Radius, km"
+                             ng-model="fields.notifySupportersRadius"/>
+                    </div>
+                    <div class="form-group">
+                      <button class="btn btn-success btn-sm"
+                              ng-disabled="{{ isNotifyingSupporters }}"
+                              ng-click="notifySupporters()">Notify supporters</button>
+                    </div>
+                  </div>
                 </div>
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
