@@ -22,7 +22,7 @@ class OperatorTestCase(UsersMixin, ResourceTestCase):
     def test_add_eventupdate_ok(self):
         user = UserFactory()
         event = EventFactory(user=user)
-        url = reverse('events:operator_add_eventupdate')
+        url = reverse('events:map_add_eventupdate')
 
         self.login_as_superuser()
         data = dict(event_id=event.id, text='test')
@@ -33,7 +33,7 @@ class OperatorTestCase(UsersMixin, ResourceTestCase):
     def test_add_eventupdate_errors(self):
         user, operator = UserFactory(), self.superuser
         event = EventFactory(user=user)
-        url = reverse('events:operator_add_eventupdate')
+        url = reverse('events:map_add_eventupdate')
         valid_data = dict(event_id=event.id, text='test')
 
         # No permissions

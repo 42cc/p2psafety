@@ -30,7 +30,7 @@ def map(request):
 @require_POST
 @permission_required('events.add_eventupdate', raise_exception=True)
 @ajax_request
-def operator_add_eventupdate(request):
+def map_add_eventupdate(request):
     try:
         data = json.loads(request.body)
         text = data['text']
