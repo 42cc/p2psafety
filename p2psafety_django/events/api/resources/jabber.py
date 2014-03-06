@@ -17,6 +17,7 @@ class EventResource(ModelResource):
     location = GeoPointField('latest_location', null=True, readonly=True)
     support = fields.CharField(readonly=True)
     radius = fields.CharField(readonly=True)
+    text = fields.CharField('latest_text', readonly=True)
 
     def dehydrate_support(self, bundle):
         kwargs = dict(resource_name='events', api_name='v1', pk=bundle.obj.pk)

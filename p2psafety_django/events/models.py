@@ -84,7 +84,7 @@ class Event(models.Model):
     @property
     def latest_text(self):
         try:
-            return self.updates.exclude(text='')[0].text
+            return self.updates.exclude(text='').latest().text
         except EventUpdate.DoesNotExist:
             return None
 
@@ -158,6 +158,7 @@ class EventUpdate(models.Model):
         permissions = (
             ("view_eventupdate", "Can view event update"),
         )
+        ordering = ('-timestamp',)
         get_latest_by = 'timestamp'
 
     user = models.ForeignKey(User, related_name='event_owner', blank=True, null=True)
