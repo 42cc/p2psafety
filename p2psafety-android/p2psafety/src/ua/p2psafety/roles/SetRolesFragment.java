@@ -10,18 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ua.p2psafety.EventManager;
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
-import ua.p2psafety.SosManager;
-import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
 public class SetRolesFragment extends Fragment {
@@ -77,13 +74,13 @@ public class SetRolesFragment extends Fragment {
             public void onClick(View v) {
                 Utils.setLoading(mActivity, true);
                 NetworkManager.setRoles(mActivity,
-                        SosManager.getInstance(mActivity).getEvent().getUser(),
+                        EventManager.getInstance(mActivity).getEvent().getUser(),
                         mRoles, new NetworkManager.DeliverResultRunnable<Boolean>() {
                     @Override
                     public void deliver(Boolean success) {
+                        Utils.setLoading(mActivity, false);
                         if (success)
                             Toast.makeText(mActivity, getString(R.string.save), Toast.LENGTH_LONG).show();
-                        Utils.setLoading(mActivity, false);
                     }
                 });
             }
@@ -106,8 +103,10 @@ public class SetRolesFragment extends Fragment {
         NetworkManager.getRoles(mActivity, new NetworkManager.DeliverResultRunnable<List<Role>>() {
             @Override
             public void deliver(final List<Role> all_roles) {
-                if (!isAdded() || all_roles == null)
+                if (!isAdded() || all_roles == null) {
+                    Utils.setLoading(mActivity, false);
                     return;
+                }
 
                 mRolesAdapter.clear();
                 mRoles.clear();
@@ -119,10 +118,11 @@ public class SetRolesFragment extends Fragment {
 
                 // get user roles
                 NetworkManager.getUserRoles(mActivity,
-                        SosManager.getInstance(mActivity).getEvent().getUser(),
                         new NetworkManager.DeliverResultRunnable<List<String>>() {
                             @Override
                             public void deliver(final List<String> user_roles) {
+                                Utils.setLoading(mActivity, false);
+
                                 if (!isAdded() || user_roles == null)
                                     return;
 
@@ -133,8 +133,6 @@ public class SetRolesFragment extends Fragment {
 
                                 for (Role role: mRoles)
                                     mRolesAdapter.add(role);
-
-                                Utils.setLoading(mActivity, false);
                             }
                         });
             }
