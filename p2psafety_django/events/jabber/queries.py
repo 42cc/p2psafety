@@ -14,9 +14,7 @@ def on_user_created(new_user):
 
     :type new_user: `django.contrib.auth.models.User`
     """
-    if settings.JABBER_DRY_RUN:
-        logger.debug('ignored jabber call from "%s"', on_user_created.__name__)
-    else:
+    if not settings.JABBER_DRY_RUN:
         with get_client('UsersClient') as client:
             client.create_account(new_user)
 

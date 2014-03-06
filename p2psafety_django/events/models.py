@@ -82,6 +82,13 @@ class Event(models.Model):
             return None
 
     @property
+    def latest_text(self):
+        try:
+            return self.updates.exclude(text='')[0].text
+        except EventUpdate.DoesNotExist:
+            return None
+
+    @property
     def related_users(self):
         """
         Returns user ids of self and all related events.
