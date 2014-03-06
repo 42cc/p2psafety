@@ -148,6 +148,22 @@ public class SosActivity extends ActionBarActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (!EventManager.getInstance(this).isSosStarted())
+            stopService(new Intent(this, LocationService.class));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (!EventManager.getInstance(this).isSosStarted())
+            startService(new Intent(this, LocationService.class));
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mLogs.info("SosActivity.onSaveInstanceState()");

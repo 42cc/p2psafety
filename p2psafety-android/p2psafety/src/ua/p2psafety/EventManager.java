@@ -117,7 +117,6 @@ public class EventManager {
         }
 
         logs.info("SosManager. StopSos. Stop PhoneCall and Location services");
-        mContext.stopService(new Intent(mContext, PhoneCallService.class));
 
         // start listening xmpp
         mContext.startService(new Intent(mContext, XmppService.class));
