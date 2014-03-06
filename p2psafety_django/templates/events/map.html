@@ -17,6 +17,7 @@
     mapApp.constant('urls', {
       events: "{% url 'api_dispatch_list' resource_name='events' api_name='v1' %}",
       eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
+      operatorAddEventUpdate: "{% url 'events:operator_add_eventupdate' %}",
     });
     mapApp.constant('mapSettings', {
         highlight: {% if newevent_highlight %}true{% else %}false{% endif %},

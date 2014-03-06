@@ -94,8 +94,9 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
                                              location.longitude));
   };
-  $scope.add_eventupdate = function(event, text){
-    $http.post("/operator_add_eventupdate/", {"event_id":event.id, "text":text}).success(function(data) {
+  $scope.add_eventupdate = function(event, text) {
+    var url = urls.operatorAddEventUpdate;
+    $http.post(url, {"event_id":event.id, "text":text}).success(function(data) {
         var params = {event__id: event.id};
         $http.get(urls.eventupdates, {params: params}).success(function(data) {
             event.updates = data.objects;
