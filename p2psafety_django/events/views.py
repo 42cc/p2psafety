@@ -28,8 +28,7 @@ def map(request):
 
 @csrf_exempt
 @require_POST
-@permission_required('events.view_event', raise_exception=True)
-@permission_required('events.view_eventupdate', raise_exception=True)
+@permission_required('events.add_eventupdate', raise_exception=True)
 @ajax_request
 def operator_add_eventupdate(request):
     try:
