@@ -68,11 +68,14 @@
             </h4>
             <div class="panel-body">
               <div class="list-group">
-              <div class="list-group-item">
-                <p>Add event update</p>
-                <input id="input-text-update" type="text" ng-model="add_eventupdate_text"  class="form-control input-sm" placeholder="Text"/>
-                <button class="btn btn-primary btn-sm button-add" ng-click="add_eventupdate(selectedEvent, add_eventupdate_text)">Add</button>
-              </div>
+                <div class="list-group-item">
+                  <p>Add event update</p>
+                  <input id="input-text-update" class="form-control input-sm" type="text" placeholder="Text" 
+                         ng-model="fields.addEventUpdateText"
+                         ng-keydown="ctrlEnter($event)"/>
+                  <button class="btn btn-primary btn-sm button-add"
+                          ng-click="addEventUpdate()">Add</button>
+                </div>
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
                   <eventupdate-marker click="focus(update.location)">
