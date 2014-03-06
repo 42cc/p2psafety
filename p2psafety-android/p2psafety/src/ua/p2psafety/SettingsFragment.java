@@ -179,6 +179,7 @@ public class SettingsFragment extends Fragment {
                                         userLogin.getText().toString() + " " +
                                         userPassword.getText().toString() + "  " +
                                         "Sending request");
+                                Utils.setLoading(mActivity, true);
                                 NetworkManager.loginAtServer(mActivity,
                                         userLogin.getText().toString(),
                                         userPassword.getText().toString(), postRunnable);
@@ -204,6 +205,7 @@ public class SettingsFragment extends Fragment {
                         mLogs.info("SettingsFragment. FB Session callback. state: " + state.toString());
                         if (state.isOpened()) {
                             mLogs.info("SettingsFragment. FB session is opened. Loggin in at server");
+                            Utils.setLoading(mActivity, true);
                             NetworkManager.loginAtServer(mActivity,
                                     Session.getActiveSession().getAccessToken(),
                                     NetworkManager.FACEBOOK, postRunnable);
@@ -261,6 +263,7 @@ public class SettingsFragment extends Fragment {
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    Utils.setLoading(mActivity, false);
                     setupOptions();
                     mActivity.startService(new Intent(mActivity, XmppService.class));
                     if (mDoAfterLogin != null)
@@ -274,6 +277,7 @@ public class SettingsFragment extends Fragment {
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    Utils.setLoading(mActivity, false);
                     AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
 
                     switch (errorCode) {
@@ -308,29 +312,4 @@ public class SettingsFragment extends Fragment {
             fragmentTransaction.replace(R.id.content_frame, fragment).commit();
         }
     }
-
-     private class SendReportAsyncTask extends AsyncTask {
-
-        private File file;
-
-        public SendReportAsyncTask(File file)
-        {
-            this.file = file;
-        }
-
-        @Override
-        protected Object doInBackground(Object[] params) {
-            MessageResolver resolver = new MessageResolver(mActivity);
-            resolver.sendEmails("Error", file);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Object o) {
-            super.onPostExecute(o);
-
-            Toast.makeText(mActivity, R.string.logs_successfully_sent, Toast.LENGTH_SHORT).show();
-        }
-    }
-
 }
