@@ -63,6 +63,7 @@ class EventResource(ApiMethodsMixin, ModelResource):
     user = fields.ForeignKey(UserResource, 'user', full=True, readonly=True)
     type = fields.CharField('get_type_display', readonly=True)
     latest_location = GeoPointField('latest_location', null=True, readonly=True)
+    latest_text = fields.CharField('latest_text', null=True, readonly=True)
     latest_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
                                       'latest_update',
                                       full=True, null=True, readonly=True)
