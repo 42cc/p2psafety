@@ -127,9 +127,11 @@ public class EventManager {
     }
 
     public boolean isSupportStarted() {
-        if (mEvent != null && mEvent.getType() == Event.TYPE_SUPPORT)
+        if (mEvent != null && mEvent.getType() == Event.TYPE_SUPPORT &&
+            mEvent.getStatus() == Event.STATUS_ACTIVE)
+        {
             return true;
-        else
+        } else
             return false;
     }
 
