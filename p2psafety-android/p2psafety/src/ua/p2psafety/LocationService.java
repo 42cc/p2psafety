@@ -48,6 +48,7 @@ public class LocationService extends Service implements
     private static LocationClient mLocationClient;
     private static LocationManager mLocationManager;
     private EventManager mEventManager;
+    private boolean mWithUpdates = true;
 
     @Override
     public void onCreate() {
@@ -153,6 +154,7 @@ public class LocationService extends Service implements
     @Override
     public void onConnected(Bundle bundle) {
         for (String provider : mLocationManager.getProviders(true)) {
+            mLogs.info(provider.toUpperCase() + " is turned on");
             mLocationManager.requestLocationUpdates(provider, 1000, 0, locationListener);
         }
     }
@@ -175,9 +177,20 @@ public class LocationService extends Service implements
         public void onLocationChanged(Location location) {
             mLocation = location;
 
+            if (mEventManager.isSosStarted())
+                mLogs.info("Is user authenticated on server:" +
+                        Utils.isServerAuthenticated(LocationService.this) + "; New location from " +
+                        mLocation.getProvider().toUpperCase() + ": " + mLocation.getLongitude()
+                        + ", " + mLocation.getLatitude());
+
             if (location.getProvider().equals("gps")) {
                 // GPS location is most accurate, so stop updating
                 mLocationManager.removeUpdates(this);
+                mWithUpdates = false;
+            }
+            else if (!mWithUpdates)
+            {
+                onConnected(null);
             }
         }
 

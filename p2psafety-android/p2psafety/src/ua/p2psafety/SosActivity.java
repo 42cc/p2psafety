@@ -1,6 +1,7 @@
 package ua.p2psafety;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,8 @@ import android.widget.Toast;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.PhonesDatasourse;
@@ -30,6 +33,7 @@ import ua.p2psafety.util.Utils;
  */
 public class SosActivity extends ActionBarActivity {
     public static final String FRAGMENT_KEY = "fragmentKey";
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
     private UiLifecycleHelper mUiHelper;
     public static Logs mLogs;
@@ -62,6 +66,11 @@ public class SosActivity extends ActionBarActivity {
     public void onResume() {
         super.onResume();
         mUiHelper.onResume();
+
+        int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (result != ConnectionResult.SUCCESS) {
+            showErrorDialog(result);
+        }
 
         Fragment fragment;
 
@@ -146,6 +155,13 @@ public class SosActivity extends ActionBarActivity {
         mLogs.info("SosActivity. onSaveInstanceState. Saving session");
         Session session = Session.getActiveSession();
         Session.saveSession(session, outState);
+    }
+
+    private void showErrorDialog(int result) {
+        Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(result,
+                this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+        if (errorDialog != null)
+            errorDialog.show();
     }
 
     public void loginToFacebook(Activity activity, Session.StatusCallback callback) {
