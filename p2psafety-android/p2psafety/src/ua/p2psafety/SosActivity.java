@@ -56,7 +56,7 @@ public class SosActivity extends ActionBarActivity {
         startService(new Intent(this, LocationService.class));
         if (!Utils.isServiceRunning(this, XmppService.class) &&
             Utils.isServerAuthenticated(this) &&
-            !EventManager.getInstance(this).isSosStarted())
+            !EventManager.getInstance(this).isEventActive())
         {
             startService(new Intent(this, XmppService.class));
         }
