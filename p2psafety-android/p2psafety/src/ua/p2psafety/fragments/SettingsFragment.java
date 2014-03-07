@@ -154,7 +154,7 @@ public class SettingsFragment extends Fragment {
                         break;
                     case 7:
                         if (Prefs.getApiKey(mActivity) != null) {
-                            setFragment(new SetRolesFragment());
+                            setFragment(new SetMovementTypesFragment());
                         } else {
                             login(new Runnable() {
                                 @Override

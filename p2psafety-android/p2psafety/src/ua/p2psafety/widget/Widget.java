@@ -17,6 +17,7 @@ import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.fragments.DelayedSosFragment;
 import ua.p2psafety.services.DelayedSosService;
+import ua.p2psafety.services.LocationService;
 import ua.p2psafety.util.EventManager;
 
 public class Widget extends AppWidgetProvider {
