@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.MyLocation;
 import ua.p2psafety.util.Logs;
+import ua.p2psafety.util.Utils;
 
 public class XmppService extends Service {
     private static final String TAG = "XmppService";
@@ -213,7 +214,8 @@ public class XmppService extends Service {
                                location.distanceTo(mEventLocation) <= mRadius)
                            {
                                if (!processing_event
-                                    && !EventManager.getInstance(XmppService.this).isEventActive())
+                                   && Utils.isServerAuthenticated(XmppService.this)
+                                   && !EventManager.getInstance(XmppService.this).isEventActive())
                                {
                                    openAcceptEventScreen();
                                    processing_event = true;

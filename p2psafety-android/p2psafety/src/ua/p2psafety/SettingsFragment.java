@@ -189,6 +189,9 @@ public class SettingsFragment extends Fragment {
 
     public void login(Runnable doAfterLogin) {
         mDoAfterLogin = doAfterLogin;
+        // stop listening XMPP
+        mActivity.stopService(new Intent(mActivity, XmppService.class));
+
 
         mLogs.info("SettingsFragment. Building password dialog");
         LayoutInflater li = LayoutInflater.from(mActivity);
