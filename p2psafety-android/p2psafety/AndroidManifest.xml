@@ -70,13 +70,13 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
 
-        <service android:name=".DelayedSosService" />
-        <service android:name=".AudioRecordService" />
-        <service android:name=".VideoRecordService" />
-        <service android:name=".PowerButtonService" />
-        <service android:name=".PhoneCallService"/>
-        <service android:name=".XmppService"/>
-        <service android:name=".LocationService"/>
+        <service android:name=".services.DelayedSosService" />
+        <service android:name=".services.AudioRecordService" />
+        <service android:name=".services.VideoRecordService" />
+        <service android:name=".services.PowerButtonService" />
+        <service android:name=".services.PhoneCallService"/>
+        <service android:name=".services.XmppService"/>
+        <service android:name=".services.LocationService"/>
 
         <activity
                 android:name=".SosActivity"

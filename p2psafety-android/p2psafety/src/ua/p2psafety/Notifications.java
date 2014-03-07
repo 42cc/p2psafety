@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v4.app.NotificationCompat;
 
+import ua.p2psafety.fragments.DelayedSosFragment;
+import ua.p2psafety.services.DelayedSosService;
+
 public class Notifications extends BroadcastReceiver{
     public static final int NOTIF_DELAYED_SOS_CODE = 100;
     public static final int NOTIF_SOS_STARTED_CODE = 101;

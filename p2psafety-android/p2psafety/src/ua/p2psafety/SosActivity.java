@@ -18,10 +18,14 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 
-import ua.p2psafety.Network.NetworkManager;
+import ua.p2psafety.fragments.SendMessageFragment;
+import ua.p2psafety.services.PowerButtonService;
+import ua.p2psafety.services.XmppService;
+import ua.p2psafety.util.EventManager;
+import ua.p2psafety.util.NetworkManager;
 import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.data.Prefs;
-import ua.p2psafety.sms.GmailOAuth2Sender;
+import ua.p2psafety.util.GmailOAuth2Sender;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 

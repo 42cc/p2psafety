@@ -35,11 +35,9 @@ import com.facebook.Session;
 import java.io.File;
 import java.security.MessageDigest;
 
-import ua.p2psafety.AsyncTaskExecutionHelper;
 import ua.p2psafety.R;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
-import ua.p2psafety.sms.MessageResolver;
 
 /**
  * Created by Taras Melon on 10.01.14.

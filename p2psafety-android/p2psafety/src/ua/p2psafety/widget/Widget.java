@@ -11,9 +11,9 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
-import ua.p2psafety.DelayedSosFragment;
-import ua.p2psafety.DelayedSosService;
-import ua.p2psafety.EventManager;
+import ua.p2psafety.fragments.DelayedSosFragment;
+import ua.p2psafety.services.DelayedSosService;
+import ua.p2psafety.util.EventManager;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
 
