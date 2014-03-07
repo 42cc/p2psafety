@@ -32,6 +32,7 @@ import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.media.SetMediaFragment;
 import ua.p2psafety.message.MessageFragment;
+import ua.p2psafety.movements.SetMovementTypesFragment;
 import ua.p2psafety.password.PasswordFragment;
 import ua.p2psafety.roles.SetRolesFragment;
 import ua.p2psafety.setemails.SetEmailsFragment;
@@ -116,13 +117,13 @@ public class SettingsFragment extends Fragment {
                         mLogs.info("SettingsFragment. User chose Servers settings");
                         if (Prefs.getApiKey(mActivity) != null) {
                             mLogs.info("SettingsFragment. We have ApiKey. Opening Servers screen");
-                            openServersScreen();
+                            setFragment(new SetServersFragment());
                         } else {
                             mLogs.info("SettingsFragment. No ApiKey. Asking user to log in");
                             login(new Runnable() {
                                 @Override
                                 public void run() {
-                                    openServersScreen();
+                                    setFragment(new SetServersFragment());
                                 }
                             });
                         }
@@ -140,20 +141,37 @@ public class SettingsFragment extends Fragment {
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 6:
-                        mLogs.info("SettingsFragment. User chose Roles settings");
-                        mfragment[0] = new SetRolesFragment();
-                        fragmentTransaction.addToBackStack(SetRolesFragment.TAG);
-                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
+                        if (Prefs.getApiKey(mActivity) != null) {
+                            setFragment(new SetRolesFragment());
+                        } else {
+                            login(new Runnable() {
+                                @Override
+                                public void run() {
+                                    setFragment(new SetRolesFragment());
+                                }
+                            });
+                        }
                         break;
                     case 7:
-                        mLogs.info("SettingsFragment. User chose Logout");
+                        if (Prefs.getApiKey(mActivity) != null) {
+                            setFragment(new SetMovementTypesFragment());
+                        } else {
+                            login(new Runnable() {
+                                @Override
+                                public void run() {
+                                    setFragment(new SetMovementTypesFragment());
+                                }
+                            });
+                        }
+                        break;
+                    case 8:
+                        mLogs.info("SettingsFragment. User chose Login/Logout");
                         if (Utils.isServerAuthenticated(mActivity))
                             logout();
                         else
                             login(null);
                         break;
-                    case 8:
-                        mLogs.info("SettingsFragment. User chose Send Logs");
+                    case 9:
                         mfragment[0] = new SendLogsFragment();
                         fragmentTransaction.addToBackStack(SendLogsFragment.TAG);
                         fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
@@ -254,6 +272,7 @@ public class SettingsFragment extends Fragment {
                 getString(R.string.password),
                 getString(R.string.media),
                 getString(R.string.roles),
+                getString(R.string.movement_types),
                 getString(R.string.logout),
                 getString(R.string.send_logs)
         };
@@ -262,7 +281,7 @@ public class SettingsFragment extends Fragment {
                 new ArrayList<String>(Arrays.asList(options)));
 
         if (!Utils.isServerAuthenticated(mActivity))
-            adapter.mSettingsList.set(7, "Вход (Login)");
+            adapter.mSettingsList.set(8, "Вход (Login)");
 
         mSettingsList.setAdapter(adapter);
     }
@@ -320,15 +339,15 @@ public class SettingsFragment extends Fragment {
         }
     };
 
-    private void openServersScreen() {
-        mLogs.info("SettingsFragment. Opening Servers screen");
+    private void setFragment(Fragment fragment) {
         FragmentManager mfragmentManager = getFragmentManager();
         if (mfragmentManager != null)
         {
             final FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
-            Fragment fragment = new SetServersFragment();
-            fragmentTransaction.addToBackStack(SetServersFragment.TAG);
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.replace(R.id.content_frame, fragment).commit();
+        } else {
+            Toast.makeText(mActivity, "FragmentManager is null :(", Toast.LENGTH_LONG);
         }
     }
 }

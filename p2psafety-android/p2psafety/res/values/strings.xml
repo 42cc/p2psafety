@@ -105,6 +105,9 @@
     <string name="connection_settings">Settings</string>
 
     <string name="support_screen">Support screen</string>
+    <string name="movement_types">Movement types</string>
+    <string name="set_your_roles">Set your roles:</string>
+    <string name="set_movement_types">Set your movement types:</string>
 
     <string-array name="media_types">
         <item>No</item>

@@ -86,7 +86,7 @@ public class SetMovementTypesFragment extends Fragment {
                     public void deliver(Boolean success) {
                         Utils.setLoading(mActivity, false);
                         if (success)
-                            Toast.makeText(mActivity, R.string.save, Toast.LENGTH_LONG).show();
+                            Toast.makeText(mActivity, getString(R.string.save), Toast.LENGTH_LONG).show();
                     }
                 });
             }

@@ -17,6 +17,7 @@ public class Event {
     String mType;
     User mUser;
     Location mLocation;
+    String mText;
 
     public void setId(String id) {
         mId = id;
@@ -46,6 +47,10 @@ public class Event {
         mLocation = loc;
     }
 
+    public void setText(String text) {
+        mText = text;
+    }
+
     public String getId() {
         return mId;
     }
@@ -72,5 +77,9 @@ public class Event {
 
     public Location getLocation() {
         return mLocation;
+    }
+
+    public String getText() {
+        return mText;
     }
 }

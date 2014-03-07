@@ -4,7 +4,6 @@ django-allauth==0.15.0
 django-annoying==0.7.9
 django-bootstrap3==2.5.6
 django-tastypie==0.9.16
-django-waffle==0.9.2
 dnspython==1.11.1
 lxml==3.3.1
 mock==1.0.1
@@ -16,3 +15,5 @@ simplejson==3.3.2
 sleekxmpp==1.2.4
 git+git://github.com/alekzvik/factory_boy.git
 git+git://github.com/stefanfoulis/django-phonenumber-field.git
+hg+https://bitbucket.org/bkroeze/django-livesettings
+hg+https://bitbucket.org/bkroeze/django-keyedcache

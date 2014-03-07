@@ -1,6 +1,3 @@
-from tastypie.models import ApiKey
-
-
 def get_api_key(user):
     """
     Use this function to get user's personal api key.
@@ -8,6 +5,8 @@ def get_api_key(user):
     :type user: `django.contrib.auth.models.User`
     :rtype: `tastypie.models.ApiKey`
     """
+    from tastypie.models import ApiKey
+
     try:
         return ApiKey.objects.filter(user=user)[0]
     except IndexError:
