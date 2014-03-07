@@ -141,7 +141,10 @@ public class EventManager {
     }
 
     public boolean isEventActive() {
-        return mEvent.getStatus() == Event.STATUS_ACTIVE;
+        if (mEvent != null && mEvent.getStatus() == Event.STATUS_ACTIVE)
+            return true;
+        else
+            return false;
     }
 
     public void setEvent(Event event) {

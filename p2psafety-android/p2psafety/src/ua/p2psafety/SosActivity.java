@@ -60,7 +60,7 @@ public class SosActivity extends ActionBarActivity {
         startService(new Intent(this, LocationService.class));
         if (!Utils.isServiceRunning(this, XmppService.class) &&
             Utils.isServerAuthenticated(this) &&
-            !EventManager.getInstance(this).isSosStarted())
+            !EventManager.getInstance(this).isEventActive())
         {
             startService(new Intent(this, XmppService.class));
         }
@@ -90,6 +90,8 @@ public class SosActivity extends ActionBarActivity {
             mLogs.info("SosActiviy. onCreate. Normal start. Opening SendMessageFragment");
             fragment = new SendMessageFragment();
         }
+
+        setIntent(new Intent(this, SosActivity.class));
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().addToBackStack(null)
