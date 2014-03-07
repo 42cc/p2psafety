@@ -26,6 +26,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import ua.p2psafety.R;
+import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Logs;

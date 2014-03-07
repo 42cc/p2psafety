@@ -11,10 +11,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import ua.p2psafety.LocationService;
 import ua.p2psafety.data.EmailsDatasourse;
 import ua.p2psafety.data.PhonesDatasourse;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.services.LocationService;
 
 /**
  * Created by ihorpysmennyi on 12/7/13.

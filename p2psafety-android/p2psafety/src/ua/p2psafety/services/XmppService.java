@@ -34,7 +34,6 @@ import ua.p2psafety.util.EventManager;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.fragments.AcceptEventFragment;
-import ua.p2psafety.util.MyLocation;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
