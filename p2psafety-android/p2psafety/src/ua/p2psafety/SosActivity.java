@@ -22,6 +22,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import ua.p2psafety.fragments.SendMessageFragment;
+import ua.p2psafety.services.LocationService;
 import ua.p2psafety.services.PowerButtonService;
 import ua.p2psafety.services.XmppService;
 import ua.p2psafety.util.EventManager;

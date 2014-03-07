@@ -3,16 +3,13 @@ package ua.p2psafety.services;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Service;
-import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Handler;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.provider.Settings;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -25,9 +22,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import ua.p2psafety.util.NetworkManager;
-import ua.p2psafety.data.Prefs;
+import ua.p2psafety.R;
+import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.Logs;
+import ua.p2psafety.util.NetworkManager;
 import ua.p2psafety.util.Utils;
 
 public class LocationService extends Service implements

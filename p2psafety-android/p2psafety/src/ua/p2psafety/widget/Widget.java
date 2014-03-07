@@ -11,13 +11,13 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
-import ua.p2psafety.fragments.DelayedSosFragment;
-import ua.p2psafety.services.DelayedSosService;
-import ua.p2psafety.util.EventManager;
-import ua.p2psafety.LocationService;
-import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
+import ua.p2psafety.fragments.DelayedSosFragment;
+import ua.p2psafety.services.DelayedSosService;
+import ua.p2psafety.services.LocationService;
+import ua.p2psafety.util.EventManager;
+import ua.p2psafety.util.NetworkManager;
 
 public class Widget extends AppWidgetProvider {
     private static final String WIDGET_CLICKED = "ua.p2psafety.widget";
