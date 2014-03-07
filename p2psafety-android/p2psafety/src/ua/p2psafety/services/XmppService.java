@@ -65,6 +65,7 @@ public class XmppService extends Service {
     Location mEventLocation;
 
     Logs logs;
+    SmackAndroid mSmackAndroid;
 
     @Override
     public void onCreate() {
@@ -86,7 +87,7 @@ public class XmppService extends Service {
             @Override
             public void run() {
                 logs.info("Getting xmpp connection configuration");
-                SmackAndroid.init(XmppService.this);
+                mSmackAndroid = SmackAndroid.init(XmppService.this);
                 mConnection = getConfiguredConnection(HOST);
 
                 try {
@@ -152,23 +153,17 @@ public class XmppService extends Service {
                     parseXml(mes.toXML());
 
                     // check if event is in acceptable distance and if so show it
-                    MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
-                        @Override
-                        public void gotLocation(Location location) {
-                            if (location == null || mRadius == 0 ||
-                                    location.distanceTo(mEventLocation) <= mRadius)
-                            {
-                                if (!processing_event
-                                    && !EventManager.getInstance(XmppService.this).isEventActive())
-                                {
-                                    openAcceptEventScreen();
-                                    processing_event = true;
-                                }
-                            }
+                    Location location = LocationService.locationListener.getLastLocation(false);
+                    if (location == null || mRadius == 0 ||
+                            location.distanceTo(mEventLocation) <= mRadius)
+                    {
+                        if (!processing_event
+                                && !EventManager.getInstance(XmppService.this).isEventActive())
+                        {
+                            openAcceptEventScreen();
+                            processing_event = true;
                         }
-                    };
-                    MyLocation myLocation = new MyLocation(logs);
-                    myLocation.getLocation(XmppService.this, locationResult);
+                    }
                 } catch (Exception e) {}
             }
         };
@@ -210,24 +205,18 @@ public class XmppService extends Service {
                     Log.i("===================", "===================================");
 
                     // check if event is in acceptable distance and if so show it
-                    MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
-                        @Override
-                        public void gotLocation(Location location) {
-                           if (location == null || mRadius == 0 ||
-                               location.distanceTo(mEventLocation) <= mRadius)
-                           {
-                               if (!processing_event
+                    Location location = LocationService.locationListener.getLastLocation(false);
+                    if (location == null || mRadius == 0 ||
+                            location.distanceTo(mEventLocation) <= mRadius)
+                    {
+                        if (!processing_event
                                    && Utils.isServerAuthenticated(XmppService.this)
                                    && !EventManager.getInstance(XmppService.this).isEventActive())
-                               {
-                                   openAcceptEventScreen();
-                                   processing_event = true;
-                               }
-                           }
+                        {
+                            openAcceptEventScreen();
+                            processing_event = true;
                         }
-                    };
-                    MyLocation myLocation = new MyLocation(logs);
-                    myLocation.getLocation(XmppService.this, locationResult);
+                    }
                 }
             });
 
@@ -323,6 +312,8 @@ public class XmppService extends Service {
     public void onDestroy() {
         super.onDestroy();
         try {
+            if (mSmackAndroid != null)
+                mSmackAndroid.onDestroy();
             mConnection.removePacketListener(mPacketListener);
             mNode.removeItemEventListener(mItemEventListener);
             mConnection.disconnect();

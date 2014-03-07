@@ -240,7 +240,6 @@ public class SupporterFragment extends Fragment {
         // stop all record services
         mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
         mActivity.stopService(new Intent(mActivity, VideoRecordService.class));
-        mActivity.stopService(new Intent(mActivity, LocationService.class));
 
         if (mEvent != null)
             mEvent.setStatus(Event.STATUS_FINISHED);
