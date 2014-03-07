@@ -55,7 +55,6 @@
     <string name="protect_description">protect yourself</string>
     <string name="logout">Выход (Logout)</string>
 
-    <string name="sos">SOS</string>
     <string name="sos_after">SOS через #n# мин.</string>
     <string name="sos_activated">Тревога активирована!</string>
     <string name="sos_cancel">Отбой</string>
@@ -105,6 +104,7 @@
     <string name="set_movement_types">Выберите Ваши типы передвижения:</string>
     <string name="logged_out">Вы успешно вышли</string>
     <string name="login">Вход (Login)</string>
+    <string name="enter_login">Введите логин:</string>
 
     <string-array name="media_types">
         <item>Нет</item>

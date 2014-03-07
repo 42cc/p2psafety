@@ -66,4 +66,14 @@
     <string name="help_needed">У когоcь проблеми. Це недалеко. Допоможете?</string>
     <string name="accept">Прийняти</string>
     <string name="ignore">Відхилити</string>
+    <string name="support_screen">Екран допомоги</string>
+    <string name="enter_password">Введіть пароль:</string>
+    <string name="you_need_account">Потрібно мати аккаунт на p2psafety.net</string>
+    <string name="enter_login">Введіть логін:</string>
+    <string name="media">Аудіо/відео</string>
+    <string name="media_type">Запис інциденту:</string>
+    <string name="media_length">Тривалість запису:</string>
+    <string name="password">Пароль</string>
+    <string name="lock_with_password">Заблокувати паролем</string>
+    <string name="add_server">Добавити сервер</string>
 </resources>

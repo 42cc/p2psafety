@@ -58,7 +58,7 @@
         android:layout_marginLeft="40dp"
         android:layout_marginRight="10dp"
         android:adjustViewBounds="false"
-        android:contentDescription="@string/protect_description"
+        android:contentDescription="@null"
         android:src="@android:drawable/bottom_bar"
         android:cropToPadding="true"
         android:background="@drawable/btn_sel"
