@@ -3,9 +3,9 @@ import functools
 from django import forms
 from django.conf import settings
 
-from .models import Profile
+from livesettings import config_value
 
-import waffle
+from .models import Profile
 
 
 class SignupForm(forms.ModelForm):
@@ -30,6 +30,6 @@ class SignupForm(forms.ModelForm):
         user.profile.phone_number = self.cleaned_data['phone_number']
         user.profile.save()
 
-        if waffle.switch_is_active('user-moderation'):
+        if config_value('Users', 'user-moderation'):
             user.is_active = False
             user.save()
