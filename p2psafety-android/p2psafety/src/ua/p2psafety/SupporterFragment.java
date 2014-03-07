@@ -168,7 +168,7 @@ public class SupporterFragment extends Fragment {
     private void updateMap(String support_url) {
         // getting event id from url
         String str = support_url.replaceAll("[^0-9]+", " ");
-        String event_id = Arrays.asList(str.trim().split(" ")).get(1);
+        final String event_id = Arrays.asList(str.trim().split(" ")).get(1);
         Log.i("SupporterFragment", "Event id: " + event_id);
 
         NetworkManager.getEventUpdates(mActivity, event_id,
@@ -201,6 +201,26 @@ public class SupporterFragment extends Fragment {
                                 break;
                             }
                         }
+
+                        // try to get latest event info
+                        for (Event update: updates) {
+                            Log.i("SupporterFragment", "update id: " + update.getId());
+                            String text = update.getText();
+                            if (text != null && !text.isEmpty()) {
+                               mEventInfo.setText(text);
+
+                               break;
+                            }
+                        }
+
+                        NetworkManager.getEvent(mActivity, event_id,
+                                new NetworkManager.DeliverResultRunnable<Event>() {
+                                    @Override
+                                    public void deliver(Event event) {
+                                        NetworkManager.getUserByEvent(mActivity, event_id,
+                                                new NetworkManager.DeliverResultRunnable<User>());
+                                    }
+                                });
                     }
                 });
     }
