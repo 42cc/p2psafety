@@ -105,6 +105,9 @@
     <string name="logged_out">Вы успешно вышли</string>
     <string name="login">Вход (Login)</string>
     <string name="enter_login">Введите логин:</string>
+    <string name="bad_login_or_password">Неверный логин или пароль.</string>
+    <string name="unsuccessful_authorization">Не получилось авторизоваться.</string>
+    <string name="viction_name">Имя жертвы</string>
 
     <string-array name="media_types">
         <item>Нет</item>

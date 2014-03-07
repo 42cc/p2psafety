@@ -79,11 +79,6 @@
         <service android:name=".LocationService"/>
 
         <activity
-            android:name=".LoginActivity"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
                 android:name=".SosActivity"
                 android:screenOrientation="portrait"
                 android:launchMode="singleTask">

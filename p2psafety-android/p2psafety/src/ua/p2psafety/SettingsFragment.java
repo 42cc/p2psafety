@@ -318,11 +318,11 @@ public class SettingsFragment extends Fragment {
                     switch (errorCode) {
                         case 401:
                             mLogs.info("SettingsFragment. error code: 401 wrong credentials");
-                            builder.setTitle("Неверный логин или пароль.");
+                            builder.setTitle(R.string.bad_login_or_password);
                             break;
                         default:
                             mLogs.info("SettingsFragment. error code: " + errorCode);
-                            builder.setTitle("Не получилось авторизоваться.");
+                            builder.setTitle(R.string.unsuccessful_authorization);
                             break;
                     }
 
@@ -348,7 +348,7 @@ public class SettingsFragment extends Fragment {
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.replace(R.id.content_frame, fragment).commit();
         } else {
-            Toast.makeText(mActivity, "FragmentManager is null :(", Toast.LENGTH_LONG);
+            mLogs.error("FragmentManager is null :(");
         }
     }
 }

@@ -137,7 +137,7 @@ public class SupporterFragment extends Fragment {
             LatLng eventLatLng = new LatLng(mEventLocation.getLatitude(), mEventLocation.getLongitude());
             mMap.addMarker(new MarkerOptions()
                     .position(eventLatLng)
-                    .title("Victim"));
+                    .title(getString(R.string.victim_text).replace(": ", "")));
 
             MapsInitializer.initialize(mActivity);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 15.0f));
@@ -195,7 +195,7 @@ public class SupporterFragment extends Fragment {
                                 Log.i("SupporterFragment", "new loc on map: " + loc);
                                 LatLng latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
                                 mMap.addMarker(new MarkerOptions()
-                                        .position(latLng).title("Victim name"));
+                                        .position(latLng).title(getString(R.string.viction_name)));
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
 
                                 break;

@@ -76,4 +76,30 @@
     <string name="password">Пароль</string>
     <string name="lock_with_password">Заблокувати паролем</string>
     <string name="add_server">Добавити сервер</string>
+    <string name="no_settings_while_sos">Не можна змінити ці налаштування під час тривоги</string>
+    <string name="network_error">Щось пішло не так. Перевірте підключення до мережі.</string>
+    <string name="connection">Підключення</string>
+    <string name="connection_is_out">Інтернет з\'єднання відсутнє, перевірте налаштування</string>
+    <string name="connection_settings">Налаштування</string>
+    <string name="sos_already_active">Тривога вже активна</string>
+    <string name="media_record_error">Не вийшло почати запис #media#</string>
+    <string name="bad_login_or_password">Невірний логін або пароль.</string>
+    <string name="unsuccessful_authorization">Не вдалося авторизуватися.</string>
+    <string name="viction_name">Ім\'я жертви</string>
+    <string name="wrong_password">Пароль не вірний</string>
+    <string name="retry">Заново</string>
+    <string name="stop">Стоп</string>
+    <string name="sos_activated">Тривога активована!</string>
+    <string name="sos_canceled">Тривога скасована</string>
+    <string name="audio_is_recording">Запис аудіо. Залишилося #n# хв"</string>
+    <string name="audio_record_finished">Запис аудіо завершено</string>
+    <string name="video_is_recording">Запис відео. Залишилося #n# хв"</string>
+    <string name="video_record_finished">Запис відео завершено</string>
+    <string name="sos_after">SOS через #n# хв.</string>
+    <string name="sos_cancel">Відбій</string>
+    <string name="not_supporter_mode">Ви повинні бути в режимі підтримки</string>
+    <string name="servers">Адреси серверів</string>
+    <string name="roles">Хочу допомогти</string>
+    <string name="logout">Вихід (Logout)</string>
+
 </resources>

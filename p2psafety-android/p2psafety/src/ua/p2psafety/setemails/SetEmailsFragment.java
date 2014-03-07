@@ -56,7 +56,7 @@ public class SetEmailsFragment extends Fragment {
                         } else {
                             AlertDialog.Builder noEmailDialog = new AlertDialog.Builder(getActivity());
                             noEmailDialog.setMessage(getResources().getString(R.string.it_is_not_email))
-                                    .setNeutralButton("OK", null)
+                                    .setNeutralButton(android.R.string.ok, null)
                                     .show();
                             return;
                         }
