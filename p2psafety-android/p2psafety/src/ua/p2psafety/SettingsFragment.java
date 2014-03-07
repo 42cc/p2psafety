@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,11 +21,8 @@ import android.widget.Toast;
 import com.facebook.Session;
 import com.facebook.SessionState;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
@@ -38,7 +34,6 @@ import ua.p2psafety.roles.SetRolesFragment;
 import ua.p2psafety.setemails.SetEmailsFragment;
 import ua.p2psafety.setphones.SetPhoneFragment;
 import ua.p2psafety.setservers.SetServersFragment;
-import ua.p2psafety.sms.MessageResolver;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
@@ -260,6 +255,9 @@ public class SettingsFragment extends Fragment {
         Prefs.putApiKey(mActivity, null);
         Prefs.putApiUsername(mActivity, null);
 
+        Toast.makeText(mActivity, R.string.logged_out, Toast.LENGTH_SHORT)
+                .show();
+
         setupOptions();
     }
 
@@ -281,7 +279,7 @@ public class SettingsFragment extends Fragment {
                 new ArrayList<String>(Arrays.asList(options)));
 
         if (!Utils.isServerAuthenticated(mActivity))
-            adapter.mSettingsList.set(8, "Вход (Login)");
+            adapter.mSettingsList.set(8, getString(R.string.login));
 
         mSettingsList.setAdapter(adapter);
     }
