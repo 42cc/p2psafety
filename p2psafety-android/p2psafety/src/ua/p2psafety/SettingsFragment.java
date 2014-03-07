@@ -209,7 +209,7 @@ public class SettingsFragment extends Fragment {
                                 Utils.setLoading(mActivity, true);
                                 NetworkManager.loginAtServer(mActivity,
                                         userLogin.getText().toString(),
-                                        userPassword.getText().toString(), postRunnable);
+                                        userPassword.getText().toString(), new MyDeliverResultRunnable());
                             }
                         })
                 .setNegativeButton(android.R.string.cancel,
@@ -235,7 +235,7 @@ public class SettingsFragment extends Fragment {
                             Utils.setLoading(mActivity, true);
                             NetworkManager.loginAtServer(mActivity,
                                     Session.getActiveSession().getAccessToken(),
-                                    NetworkManager.FACEBOOK, postRunnable);
+                                    NetworkManager.FACEBOOK, new MyDeliverResultRunnable());
                         }
                     }
                 };
@@ -289,7 +289,7 @@ public class SettingsFragment extends Fragment {
 
     // if login completed successfully, open Servers screen;
     // otherwise build new dialog with retry/cancel buttons
-    private NetworkManager.DeliverResultRunnable<Boolean> postRunnable = new NetworkManager.DeliverResultRunnable<Boolean>() {
+    private class MyDeliverResultRunnable extends NetworkManager.DeliverResultRunnable<Boolean> {
         @Override
         public void deliver(final Boolean success) {
             mLogs.info("SettingsFragment. Login succeed");
