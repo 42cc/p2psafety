@@ -23,7 +23,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -169,8 +168,6 @@ public class AcceptEventFragment extends Fragment {
         mLogs.info("ignoring event");
         mAccepted = false;
         XmppService.processing_event = false;
-        Toast.makeText(mActivity, "You decided to abandon that poor guy. He's in trouble :(", Toast.LENGTH_LONG)
-                .show();
     }
 
     @Override

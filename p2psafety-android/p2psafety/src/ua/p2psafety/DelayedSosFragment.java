@@ -68,8 +68,7 @@ public class DelayedSosFragment extends Fragment {
                         askPasswordAndStopTimer();
                     }
                 } else if (EventManager.getInstance(mActivity).isSosStarted()) {
-                    String msg = getResources().getString(R.string.sos_already_active);
-                    Toast.makeText(mActivity, msg, Toast.LENGTH_LONG)
+                    Toast.makeText(mActivity, R.string.sos_already_active, Toast.LENGTH_LONG)
                          .show();
                 } else {
                     // start timer

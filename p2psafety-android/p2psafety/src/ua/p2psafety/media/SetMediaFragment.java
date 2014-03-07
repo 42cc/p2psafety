@@ -78,7 +78,7 @@ public class SetMediaFragment extends Fragment {
                     Prefs.putMediaRecordLength(mActivity, optionPosToRecordLength(optionPos));
                     Prefs.putMediaRecordType(mActivity, mMediaTypeView.getSelectedItemPosition());
 
-                    Toast.makeText(mActivity, getString(R.string.save), Toast.LENGTH_LONG).show();
+                    Toast.makeText(mActivity, R.string.save, Toast.LENGTH_LONG).show();
                 }
             }
         });

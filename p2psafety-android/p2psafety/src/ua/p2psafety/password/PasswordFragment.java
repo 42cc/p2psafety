@@ -58,9 +58,8 @@ public class PasswordFragment extends Fragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (EventManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()) {
-                    Toast.makeText(getActivity(),
-                            getString(R.string.no_settings_while_sos), Toast.LENGTH_LONG)
-                         .show();
+                    Toast.makeText(getActivity(), R.string.no_settings_while_sos,
+                            Toast.LENGTH_LONG).show();
                     editText.clearFocus();
                 }
             }
@@ -83,8 +82,7 @@ public class PasswordFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (EventManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()) {
-                    Toast.makeText(getActivity(),
-                            getString(R.string.no_settings_while_sos), Toast.LENGTH_LONG)
+                    Toast.makeText(getActivity(), R.string.no_settings_while_sos, Toast.LENGTH_LONG)
                          .show();
                     usePasswordBtn.setChecked(!isChecked); // reset changes
                     return;
@@ -101,8 +99,7 @@ public class PasswordFragment extends Fragment {
             public void onClick(View v) {
                 if (EventManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()) {
                     // tell user we can't
-                    Toast.makeText(getActivity(),
-                            getString(R.string.no_settings_while_sos), Toast.LENGTH_LONG)
+                    Toast.makeText(getActivity(), R.string.no_settings_while_sos, Toast.LENGTH_LONG)
                          .show();
                 } else {
                     Prefs.putPassword(context, editText.getText().toString());

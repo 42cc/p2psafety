@@ -1,4 +1,4 @@
-package ua.p2psafety.roles;
+package ua.p2psafety.movements;
 
 
 import android.app.Activity;
@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -19,10 +20,12 @@ import ua.p2psafety.EventManager;
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
+import ua.p2psafety.roles.Role;
+import ua.p2psafety.roles.RolesAdapter;
 import ua.p2psafety.util.Utils;
 
-public class SetRolesFragment extends Fragment {
-    public static final String TAG = "SetRolesFragment";
+public class SetMovementTypesFragment extends Fragment {
+    public static final String TAG = "SetMovementTypesFragment";
     private Button mSaveBtn;
     private Activity mActivity;
 
@@ -30,7 +33,7 @@ public class SetRolesFragment extends Fragment {
     List<Role> mRoles = new ArrayList<Role>();
     RolesAdapter mRolesAdapter;
 
-    public SetRolesFragment() {
+    public SetMovementTypesFragment() {
         super();
     }
 
@@ -38,6 +41,10 @@ public class SetRolesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.setup_roles, container, false);
+
+        if (view != null) {
+            ((TextView)view.findViewById(R.id.textView)).setText(R.string.set_movement_types);
+        }
 
         mActivity = getActivity();
         mRolesView = (ListView) view.findViewById(R.id.roles_list);
@@ -72,7 +79,7 @@ public class SetRolesFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Utils.setLoading(mActivity, true);
-                NetworkManager.setRoles(mActivity,
+                NetworkManager.setMovementTypes(mActivity,
                         EventManager.getInstance(mActivity).getEvent().getUser(),
                         mRoles, new NetworkManager.DeliverResultRunnable<Boolean>() {
                     @Override
@@ -99,7 +106,7 @@ public class SetRolesFragment extends Fragment {
     private void fetchAndFillAdapter() {
         Utils.setLoading(mActivity, true);
         // get all possible roles
-        NetworkManager.getRoles(mActivity, new NetworkManager.DeliverResultRunnable<List<Role>>() {
+        NetworkManager.getMovementTypes(mActivity, new NetworkManager.DeliverResultRunnable<List<Role>>() {
             @Override
             public void deliver(final List<Role> all_roles) {
                 if (!isAdded() || all_roles == null) {
@@ -116,7 +123,7 @@ public class SetRolesFragment extends Fragment {
                 all_roles.clear();
 
                 // get user roles
-                NetworkManager.getUserRoles(mActivity,
+                NetworkManager.getUserMovementTypes(mActivity,
                         new NetworkManager.DeliverResultRunnable<List<String>>() {
                             @Override
                             public void deliver(final List<String> user_roles) {
@@ -125,12 +132,12 @@ public class SetRolesFragment extends Fragment {
                                 if (!isAdded() || user_roles == null)
                                     return;
 
-                                for (String user_role: user_roles)
-                                    for (Role role: mRoles)
-                                        if (role.id.equals(user_role))
+                                for (String user_role : user_roles)
+                                    for (Role role : mRoles)
+                                        if (role.id.equals(user_role.trim()))
                                             role.checked = true;
 
-                                for (Role role: mRoles)
+                                for (Role role : mRoles)
                                     mRolesAdapter.add(role);
                             }
                         });

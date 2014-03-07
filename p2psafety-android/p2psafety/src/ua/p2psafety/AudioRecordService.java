@@ -86,7 +86,9 @@ public class AudioRecordService extends Service {
 
             Notifications.notifAudioRecording(getApplicationContext(), mTimeLeft, mDuration);
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Can't start audio recording", Toast.LENGTH_LONG)
+            String msg = getString(R.string.media_record_error)
+                    .replace("#media#", getString(R.string.audio));
+            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG)
                  .show();
             LOGS.error("Can't start audio recording", e);
         }

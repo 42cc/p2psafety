@@ -329,8 +329,9 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
     private void tryLowerQuality() {
         if (mQuality == QUALITY_LOW || mQuality == QUALITY_UNDETECTED) {
             releaseCamera();
-            Toast.makeText(getApplicationContext(), "Can't start video recording", Toast.LENGTH_LONG)
-                 .show();
+            String msg = getString(R.string.media_record_error)
+                    .replace("#media#", getString(R.string.video));
+            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
             return;
         }
         // we have lower quality to try

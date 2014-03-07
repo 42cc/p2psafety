@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Нужно иметь аккаунт на p2psafety.net"
+        android:text="@string/you_need_account"
         android:textSize="14sp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:gravity="top"
@@ -19,7 +19,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Введите логин:"
+        android:text="@string/enter_login"
         android:textSize="14sp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:gravity="top" />

@@ -62,9 +62,8 @@ public class Widget extends AppWidgetProvider {
             }
             else if (EventManager.getInstance(mContext).isSosStarted()) {
                 // if normal sos is already on - inform user
-                String msg = mContext.getResources().getString(R.string.sos_already_active);
-                Toast.makeText(mContext, msg, Toast.LENGTH_LONG)
-                     .show();
+                Toast.makeText(mContext, mContext.getString(R.string.sos_already_active),
+                        Toast.LENGTH_LONG).show();
             } else {
                 // if sos is off - start delay timer
                 context.startService(new Intent(context, DelayedSosService.class));

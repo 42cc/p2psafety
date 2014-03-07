@@ -118,8 +118,8 @@ public class SendMessageFragment extends Fragment {
                     getFragmentManager().beginTransaction()
                             .addToBackStack(null).replace(R.id.content_frame, fragment).commit();
                 } else {
-                    Toast.makeText(mActivity, "You are not in the Supporter mode", Toast.LENGTH_LONG)
-                            .show();
+                    Toast.makeText(mActivity, R.string.not_supporter_mode, Toast.LENGTH_LONG)
+                         .show();
                 }
             }
         });

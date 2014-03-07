@@ -55,9 +55,9 @@ public class SendLogsFragment extends Fragment {
                     //return to settings
                     mActivity.onBackPressed();
                 }
-                else
-                {
-                    Toast.makeText(mActivity, R.string.please_write_a_description_of_issue, Toast.LENGTH_SHORT).show();
+                else {
+                    Toast.makeText(mActivity, R.string.please_write_a_description_of_issue,
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -104,15 +104,15 @@ public class SendLogsFragment extends Fragment {
             super.onPostExecute(o);
 
             if (o) {
+                Toast.makeText(mActivity, R.string.logs_successfully_sent, Toast.LENGTH_SHORT)
+                     .show();
                 // delete sent logs from device
                 for (File f: files)
                     f.delete();
-                Toast.makeText(mActivity, R.string.logs_successfully_sent, Toast.LENGTH_SHORT).show();
             }
             else
-                Toast.makeText(mActivity,
-                        R.string.no_account_message,
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity, R.string.no_account_message, Toast.LENGTH_SHORT)
+                     .show();
 
             Utils.setLoading(mActivity, false);
         }

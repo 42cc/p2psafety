@@ -54,7 +54,7 @@ public class MessageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 save();
-                Toast.makeText(getActivity(), getString(R.string.save), Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), R.string.save, Toast.LENGTH_LONG).show();
             }
         });
 
