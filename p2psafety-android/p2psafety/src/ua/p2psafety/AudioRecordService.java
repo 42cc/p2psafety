@@ -144,27 +144,33 @@ public class AudioRecordService extends Service {
         if (isAlarmStop)
             mTimerOn = false;
 
-        Utils.sendMailsWithAttachments(this, R.string.audio, mRecordFile);
         if (Utils.isServerAuthenticated(this)) {
+            LOGS.info("AudioRecordService. User authenticated at server. Upload record");
             NetworkManager.updateEventWithAttachment(this, mRecordFile, true);
+        } else {
+            LOGS.info("AudioRecordService. User is NOT authenticated at server. " +  "" +
+                      "Send record by Email");
+            Utils.sendMailsWithAttachments(this, R.string.audio, mRecordFile);
         }
 
         Notifications.removeNotification(getApplicationContext(), Notifications.NOTIF_AUDIO_RECORD_CODE);
         Notifications.notifAudioRecordingFinished(getApplicationContext());
 
-        if (!isAlarmStop)
+        if (!isAlarmStop) {
+            LOGS.info("AudioRecordService. SOS is still active. Start a new record.");
             startRecording();
+        }
     }
 
     @Override
     public void onDestroy() {
+        LOGS.info("AudioRecordService. Service shutdown");
         if (mTimerOn) {
+            LOGS.info("AudioRecordService. Record is on. Stop it");
             stopRecording(true);
         }
         if (LOGS != null)
             LOGS.close();
-
-        LOGS.info("Destroy AudioRecordService");
 
         super.onDestroy();
     }

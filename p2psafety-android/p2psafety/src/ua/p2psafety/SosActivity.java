@@ -1,6 +1,7 @@
 package ua.p2psafety;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,8 @@ import android.widget.Toast;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.PhonesDatasourse;
@@ -30,21 +33,27 @@ import ua.p2psafety.util.Utils;
  */
 public class SosActivity extends ActionBarActivity {
     public static final String FRAGMENT_KEY = "fragmentKey";
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
     private UiLifecycleHelper mUiHelper;
-    public static Logs LOGS;
+    public static Logs mLogs;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_sosmain);
         setSupportActionBar();
 
+        mLogs = new Logs(this);
+        mLogs.info("\n\n\n==========================\n==============================");
+        mLogs.info("SosActiviy. onCreate()");
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
-        LOGS = new Logs(this);
+        mLogs.info("SosActiviy. onCreate. Initiating NetworkManager");
         NetworkManager.init(this);
+        mLogs.info("SosActiviy. onCreate. Starting PowerButtonService");
         startService(new Intent(this, PowerButtonService.class));
+        startService(new Intent(this, LocationService.class));
         if (!Utils.isServiceRunning(this, XmppService.class) &&
             Utils.isServerAuthenticated(this) &&
             !EventManager.getInstance(this).isSosStarted())
@@ -58,16 +67,23 @@ public class SosActivity extends ActionBarActivity {
         super.onResume();
         mUiHelper.onResume();
 
+        int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (result != ConnectionResult.SUCCESS) {
+            showErrorDialog(result);
+        }
+
         Fragment fragment;
 
         String fragmentClass = getIntent().getStringExtra(FRAGMENT_KEY);
         if (fragmentClass != null) {
             // activity started from outside
             // and requested to show specific fragment
+            mLogs.info("SosActiviy. onCreate. Activity requested to open " + fragmentClass);
             fragment = Fragment.instantiate(this, fragmentClass);
             fragment.setArguments(getIntent().getExtras());
         } else {
             // normal start
+            mLogs.info("SosActiviy. onCreate. Normal start. Opening SendMessageFragment");
             fragment = new SendMessageFragment();
         }
 
@@ -75,11 +91,13 @@ public class SosActivity extends ActionBarActivity {
         fragmentManager.beginTransaction().addToBackStack(null)
                 .replace(R.id.content_frame, fragment).commit();
 
-        if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, LOGS) && Prefs.getGmailToken(this) == null)
+        if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, mLogs) && Prefs.getGmailToken(this) == null)
         {
+            mLogs.info("SosActiviy. onCreate. Getting new GmailOAuth token");
             GmailOAuth2Sender sender = new GmailOAuth2Sender(this);
             sender.initToken();
         }
+        mLogs.info("SosActiviy. onCreate. Checking for location services");
     }
 
     @Override
@@ -92,6 +110,7 @@ public class SosActivity extends ActionBarActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        mLogs.info("SosActiviy.onActivityResult()");
         mUiHelper.onActivityResult(requestCode, resultCode, data);
         Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
     }
@@ -99,21 +118,28 @@ public class SosActivity extends ActionBarActivity {
     @Override
     public void onPause() {
         super.onPause();
+        mLogs.info("SosActiviy.onPause");
         mUiHelper.onPause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mLogs.info("SosActiviy.onDestroy()");
+        mLogs.info("\n\n\n==========================\n==============================");
         mUiHelper.onDestroy();
-        LOGS.close();
+        mLogs.close();
     }
 
     @Override
     public void onBackPressed() {
+        mLogs.info("SosActivity.onBackPressed()");
         Session currentSession = Session.getActiveSession();
-        if (currentSession == null || currentSession.getState() != SessionState.OPENING)
+        if (currentSession == null || currentSession.getState() != SessionState.OPENING) {
             super.onBackPressed();
+        } else {
+            mLogs.info("SosActivity. onBackPressed. Ignoring");
+        }
 
         FragmentManager fm = getSupportFragmentManager();
         if (fm.getBackStackEntryCount() == 0) {
@@ -122,32 +148,57 @@ public class SosActivity extends ActionBarActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (!EventManager.getInstance(this).isSosStarted())
+            stopService(new Intent(this, LocationService.class));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (!EventManager.getInstance(this).isSosStarted())
+            startService(new Intent(this, LocationService.class));
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        mLogs.info("SosActivity.onSaveInstanceState()");
         mUiHelper.onSaveInstanceState(outState);
+        mLogs.info("SosActivity. onSaveInstanceState. Saving session");
         Session session = Session.getActiveSession();
         Session.saveSession(session, outState);
     }
 
+    private void showErrorDialog(int result) {
+        Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(result,
+                this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+        if (errorDialog != null)
+            errorDialog.show();
+    }
+
     public void loginToFacebook(Activity activity, Session.StatusCallback callback) {
-        LOGS.info("SosActivity. loginToFacebook()");
-        if (!Utils.isNetworkConnected(activity, LOGS)) {
-            LOGS.info("SosActivity. loginToFacebook. No network");
+        mLogs.info("SosActivity. loginToFacebook()");
+        if (!Utils.isNetworkConnected(activity, mLogs)) {
+            mLogs.info("SosActivity. loginToFacebook. No network");
             Utils.errorDialog(activity, Utils.DIALOG_NO_CONNECTION);
             return;
         }
         Session session = Session.getActiveSession();
         if (session == null) {
-            LOGS.info("SosActivity. No FB session. Opening a new one");
+            mLogs.info("SosActivity. No FB session. Opening a new one");
             Session.openActiveSession(activity, true, callback);
         }
         else if (!session.getState().isOpened() && !session.getState().isClosed()) {
-            LOGS.info("SosActivity. loginToFacebook. FB session not opened AND not closed. Opening for read");
+            mLogs.info("SosActivity. loginToFacebook. FB session not opened AND not closed. Opening for read");
             session.openForRead(new Session.OpenRequest(activity)
                     //.setPermissions(Const.FB_PERMISSIONS_READ)
                     .setCallback(callback));
         } else {
-            LOGS.info("SosActivity. loginToFacebook. FB session opened or closed. Opening a new one");
+            mLogs.info("SosActivity. loginToFacebook. FB session opened or closed. Opening a new one");
             Session.openActiveSession(activity, true, callback);
         }
     }

@@ -425,7 +425,7 @@ public class NetworkManager {
                         jsonLocation.put("longitude", loc.getLongitude());
                         json.put("location", jsonLocation);
                     } catch (Exception e) {
-                        // we have no location (GPS is off)
+                        LOGS.info("SosManager. UpdateEvent. Location is null. OK");
                     }
 
                     StringEntity se = new StringEntity(json.toString(), "UTF-8");

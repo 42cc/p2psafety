@@ -60,8 +60,10 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        LOGS.info("VideoRecordService.onStartCommand()");
         if (!mTimerOn) {
             // Create new SurfaceView, set its size to 1x1, move it to the top left corner and set this service as a callback
+            LOGS.info("VideoRecordService. Creating new surface for video");
             mWindowManager = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
             mSurfaceView = new SurfaceView(this);
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
@@ -74,8 +76,9 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
             mWindowManager.addView(mSurfaceView, layoutParams);
             mSurfaceView.getHolder().addCallback(this);
             mSurfaceView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        } {
+            LOGS.info("VideoRecordService. Record is already on");
         }
-
         return START_STICKY;
     }
 
@@ -84,6 +87,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        LOGS.info("VideoRecordService.surfaceChanged() Starting record");
         startRecording();
     }
 
@@ -98,6 +102,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
 
         @Override
         public void onFinish() {
+            LOGS.info("VideoRecordService. Record duration elapsed. Stoping record.");
             stopRecording(false);
         }
 
@@ -112,10 +117,14 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
     }
 
     public void startRecording() {
+        LOGS.info("VideoRecordService. Starting video record");
         try {
             mDuration = Prefs.getMediaRecordLength(getApplicationContext());
+            LOGS.info("VideoRecordService. Duration: " + mDuration);
 
+            LOGS.info("VideoRecordService. Preparing recorder");
             prepareRecorder();
+            LOGS.info("VideoRecordService. Starting recorder");
             mRecorder.start();
 
             mTimeLeft = mDuration;
@@ -123,6 +132,7 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
             mTimer.start();
             mTimerOn = true;
 
+            LOGS.info("VideoRecordService. Sending Notification");
             Notifications.notifVideoRecording(getApplicationContext(), mTimeLeft, mDuration);
         } catch (Exception e) {
             e.printStackTrace();
@@ -204,21 +214,30 @@ public class VideoRecordService extends Service implements SurfaceHolder.Callbac
         if (isAlarmStop)
             mTimerOn = false;
 
-        Utils.sendMailsWithAttachments(this, R.string.video, mRecordFile);
         if (Utils.isServerAuthenticated(this)) {
+            LOGS.info("VideoRecordService. User authenticated at server. Upload record");
             NetworkManager.updateEventWithAttachment(this, mRecordFile, false);
+        } else {
+            LOGS.info("VideoRecordService. User is NOT authenticated at server. " +  "" +
+                    "Send record by Email");
+            Utils.sendMailsWithAttachments(this, R.string.video, mRecordFile);
         }
 
+        LOGS.info("VideoRecordService. Changing Notifications");
         Notifications.removeNotification(getApplicationContext(), Notifications.NOTIF_VIDEO_RECORD_CODE);
         Notifications.notifVideoRecordingFinished(getApplicationContext());
 
-        if (!isAlarmStop)
+        if (!isAlarmStop) {
+            LOGS.info("VideoRecordService. SOS is still active. Start a new record.");
             startRecording();
+        }
     }
 
     @Override
     public void onDestroy() {
+        LOGS.info("VideoRecordService. Service shutdown");
         if (mTimerOn) {
+            LOGS.info("VideoRecordService. Record is on. Stop it");
             stopRecording(true);
         }
 

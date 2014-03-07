@@ -10,7 +10,6 @@ import java.util.Map;
 import ua.p2psafety.Network.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.sms.MessageResolver;
-import ua.p2psafety.sms.MyLocation;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
@@ -95,29 +94,32 @@ public class EventManager {
     }
 
     public void stopSos() {
+        logs.info("SosManager. StopSos()");
+
         // stop media recording
+        logs.info("SosManager. StopSos. Stop Media recording");
         mContext.stopService(new Intent(mContext, AudioRecordService.class));
         mContext.stopService(new Intent(mContext, VideoRecordService.class));
 
+        logs.info("SosManager. StopSos. Changing Notifications");
         Notifications.removeNotification(mContext, Notifications.NOTIF_SOS_STARTED_CODE);
         Notifications.notifSosCanceled(mContext);
 
         // TODO: send "i'm safe now" SMS and email messages (ask if needed)
 
         // report event to the server
-        if (Utils.isServerAuthenticated(mContext))
+        if (Utils.isServerAuthenticated(mContext)) {
+            logs.info("SosManager. StopSos. User is authenticated at server. Sendng stop SOS request");
             createNewEvent();
-        else
+        } else {
+            logs.info("SosManager. StopSos. User is NOT authenticated at server.");
             Utils.setLoading(mContext, false);
+        }
 
-        mContext.stopService(new Intent(mContext, PhoneCallService.class));
-        mContext.stopService(new Intent(mContext, LocationService.class));
+        logs.info("SosManager. StopSos. Stop PhoneCall and Location services");
 
         // start listening xmpp
         mContext.startService(new Intent(mContext, XmppService.class));
-
-        // stop sending location updates
-        mContext.startService(new Intent(mContext, LocationService.class));
 
         setSosStarted(false);
     }
@@ -140,6 +142,7 @@ public class EventManager {
     }
 
     public void setEvent(Event event) {
+        logs.info("SosManager. Set new event: " + event.getId());
         mEvent = event;
         Prefs.putEvent(mContext, mEvent);
         if (mEvent == null)
@@ -186,32 +189,26 @@ public class EventManager {
 
     private void serverActivateSos() {
         mEvent.setStatus(Event.STATUS_ACTIVE);
-        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
-            @Override
-            public void gotLocation(Location location) {
-                logs.info("EventManager. StartSos. Got location");
-                Map data = new HashMap();
-                if (location != null) {
-                    logs.info("EventManager. StartSos. Location is not null");
-                    data.put("loc", location);
-                } else {
-                    logs.info("EventManager. StartSos. Location is NULL");
-                }
-                data.put("text", Prefs.getMessage(mContext));
 
-                NetworkManager.updateEvent(mContext, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
-                    @Override
-                    public void deliver(Boolean aBoolean) {
-                        // start sending location updates
-                        logs.info("EventManager. StartSos. Event activated. Starting LocationService");
-                        mContext.startService(new Intent(mContext, LocationService.class));
-                        Utils.setLoading(mContext, false);
-                    }
-                });
+        Location location = LocationService.locationListener.getLastLocation(true);
+        logs.info("EventManager. StartSos. LocationResult");
+        Map data = new HashMap();
+        if (location != null) {
+            logs.info("EventManager. StartSos. Location is not null");
+            data.put("loc", location);
+        } else {
+            logs.info("EventManager. StartSos. Location is NULL");
+        }
+        data.put("text", Prefs.getMessage(mContext));
+
+        NetworkManager.updateEvent(mContext, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
+            @Override
+            public void deliver(Boolean aBoolean) {
+                // start sending location updates
+                logs.info("EventManager. StartSos. Event activated. Starting LocationService");
+                Utils.setLoading(mContext, false);
             }
-        };
-        MyLocation myLocation = new MyLocation(logs);
-        myLocation.getLocation(mContext, locationResult);
+        });
     }
 
     public void createNewEvent() {

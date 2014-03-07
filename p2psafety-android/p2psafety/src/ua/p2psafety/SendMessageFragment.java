@@ -136,6 +136,7 @@ public class SendMessageFragment extends Fragment {
         settingsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mLogs.info("SendMessageFragment. Settings button pressed. Showing SettingsFragment");
                 Fragment mFragment = new SettingsFragment();
                 FragmentManager mFragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
@@ -152,7 +153,9 @@ public class SendMessageFragment extends Fragment {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if( keyCode == KeyEvent.KEYCODE_BACK )
-                {   getActivity().finish();
+                {
+                    mLogs.info("SendMessageFragment. Back button pressed. Finishing activity");
+                    getActivity().finish();
                     return true;
                 }
                 return false;
@@ -197,6 +200,7 @@ public class SendMessageFragment extends Fragment {
 
     // builds dialog with password prompt
     private void askPasswordAndCancelSos() {
+        mLogs.info("SendMessageFragment. Showing password dialog");
         LayoutInflater li = LayoutInflater.from(mActivity);
         View promptsView = li.inflate(R.layout.password_dialog, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
