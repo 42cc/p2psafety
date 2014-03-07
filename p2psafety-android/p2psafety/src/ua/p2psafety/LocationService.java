@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -155,7 +156,8 @@ public class LocationService extends Service implements
     public void onConnected(Bundle bundle) {
         for (String provider : mLocationManager.getProviders(true)) {
             mLogs.info(provider.toUpperCase() + " is turned on");
-            mLocationManager.requestLocationUpdates(provider, 1000, 0, locationListener);
+            mLocationManager.requestLocationUpdates(provider, 1000, 0, locationListener,
+                    Looper.getMainLooper());
         }
     }
 
@@ -220,7 +222,7 @@ public class LocationService extends Service implements
             // start listening GPS if it is enabled
             if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0,
-                        locationListener);
+                        locationListener, Looper.getMainLooper());
             }
 
             // if some of providers are not active, then ask user to do it
