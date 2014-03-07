@@ -39,7 +39,7 @@ class Role(models.Model):
         verbose_name_plural = _('Roles')
 
     name = models.CharField(_('name'), max_length=30, unique=True)
-    users = models.ManyToManyField(User, related_name='roles')
+    users = models.ManyToManyField(User, related_name='roles', blank=True)
 
     def __unicode__(self):
         return unicode(self.name)
