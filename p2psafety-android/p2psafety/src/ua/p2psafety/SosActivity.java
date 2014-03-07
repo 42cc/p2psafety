@@ -87,6 +87,8 @@ public class SosActivity extends ActionBarActivity {
             fragment = new SendMessageFragment();
         }
 
+        setIntent(new Intent(this, SosActivity.class));
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().addToBackStack(null)
                 .replace(R.id.content_frame, fragment).commit();
