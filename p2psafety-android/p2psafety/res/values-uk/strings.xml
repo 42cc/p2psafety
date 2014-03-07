@@ -59,4 +59,6 @@
     <string name="movement_types">Тип пересування</string>
     <string name="set_your_roles">Виберіть Ваші ролі:</string>
     <string name="set_movement_types">Виберіть Ваші типи пересування:</string>
+    <string name="logged_out">Ви успішно вийшли</string>
+    <string name="login">Вхід (Login)</string>
 </resources>

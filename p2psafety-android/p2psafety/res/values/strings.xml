@@ -108,6 +108,8 @@
     <string name="movement_types">Movement types</string>
     <string name="set_your_roles">Set your roles:</string>
     <string name="set_movement_types">Set your movement types:</string>
+    <string name="logged_out">You are successfully logged out</string>
+    <string name="login">Login</string>
 
     <string-array name="media_types">
         <item>No</item>
