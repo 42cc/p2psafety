@@ -61,4 +61,9 @@
     <string name="set_movement_types">Виберіть Ваші типи пересування:</string>
     <string name="logged_out">Ви успішно вийшли</string>
     <string name="login">Вхід (Login)</string>
+    <string name="start">Старт</string>
+    <string name="login_with_FB">Війти через Facebook</string>
+    <string name="help_needed">У когоcь проблеми. Це недалеко. Допоможете?</string>
+    <string name="accept">Прийняти</string>
+    <string name="ignore">Відхилити</string>
 </resources>
