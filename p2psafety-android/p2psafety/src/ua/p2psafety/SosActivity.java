@@ -46,7 +46,6 @@ public class SosActivity extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_sosmain);
-        setSupportActionBar();
 
         mLogs = new Logs(this);
         mLogs.info("\n\n\n==========================\n==============================");
@@ -208,40 +207,5 @@ public class SosActivity extends ActionBarActivity {
             mLogs.info("SosActivity. loginToFacebook. FB session opened or closed. Opening a new one");
             Session.openActiveSession(activity, true, callback);
         }
-    }
-
-    private void setSupportActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("");
-        ImageView icon;
-        if (android.os.Build.VERSION.SDK_INT < 11)
-            icon = (ImageView) findViewById(R.id.home);
-        else
-            icon = (ImageView) findViewById(android.R.id.home);
-        FrameLayout.LayoutParams iconLp = (FrameLayout.LayoutParams) icon.getLayoutParams();
-        iconLp.topMargin = iconLp.bottomMargin = 0;
-        icon.setLayoutParams(iconLp);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-            case android.R.id.home:
-                if (new PhonesDatasourse(SosActivity.this).getAllPhones().size() == 0) {
-                    Toast.makeText(SosActivity.this, R.string.enter_phones, Toast.LENGTH_LONG).show();
-                    break;
-                }
-                Fragment fragment = new SendMessageFragment();
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                for (int i = 0; i < fragmentManager.getBackStackEntryCount(); ++i) {
-                    fragmentManager.popBackStack();
-                }
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                //fragmentTransaction.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_right_out, R.anim.slide_left_in, R.anim.slide_left_out);
-                fragmentTransaction.replace(R.id.content_frame, fragment).commit();
-                break;
-
-        }
-        return (super.onOptionsItemSelected(menuItem));
     }
 }

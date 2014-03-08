@@ -148,11 +148,12 @@ public class EventManager {
     }
 
     public void setEvent(Event event) {
-        logs.info("SosManager. Set new event: " + event.getId());
         mEvent = event;
         Prefs.putEvent(mContext, mEvent);
         if (mEvent == null)
             return;
+
+        logs.info("SosManager. Set new event: " + event.getId());
 
         if (mEvent.getStatus() == Event.STATUS_ACTIVE &&
             mEvent.getType() == Event.TYPE_VICTIM)
