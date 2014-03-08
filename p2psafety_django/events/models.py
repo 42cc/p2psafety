@@ -83,6 +83,13 @@ class Event(models.Model):
             return None
 
     @property
+    def latest_text(self):
+        try:
+            return self.updates.exclude(text='').latest().text
+        except EventUpdate.DoesNotExist:
+            return None
+
+    @property
     def related_users(self):
         """
         Returns user ids of self and all related events.
@@ -152,6 +159,7 @@ class EventUpdate(models.Model):
         permissions = (
             ("view_eventupdate", "Can view event update"),
         )
+        ordering = ('-timestamp',)
         get_latest_by = 'timestamp'
 
     user = models.ForeignKey(User, related_name='event_owner', blank=True, null=True)

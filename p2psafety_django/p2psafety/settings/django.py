@@ -139,6 +139,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 SECRET_KEY = 'CHANGE_THIS_KEY_BEFORE_USING_ON_PRODUCTION'
 
+TEST_RUNNER = 'p2psafety.utils.TestRunner'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,

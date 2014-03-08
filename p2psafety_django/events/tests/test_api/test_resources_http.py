@@ -66,11 +66,23 @@ class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
         self.login_as_granted_user()
         self.assertHttpOK(self.api_client.get(url, format='json'))
 
+    def test_event_suported(self):
+        self.login_as_granted_user()
+        event = EventFactory()
+        event2 = EventFactory()
+        event.supported.add(event2)
+        event2.supported.add(event)
+        url = self.events_list_url
+        resp = self.api_client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
 
 class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
-    required_model_fields = [u'id', u'user', u'type', u'status', u'resource_uri',
-                             u'latest_location', u'latest_update', u'supported',]
+    required_model_fields = [
+        u'id', u'user', u'type', u'status', u'resource_uri',
+        u'latest_location', u'latest_update', u'supported', u'latest_text',
+    ]
 
     def test_create(self):
         url = self.events_list_url
