@@ -2,8 +2,8 @@ package ua.p2psafety.util;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.ActivityManager;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Notification;
@@ -29,19 +29,15 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
-import android.view.View;
 
 import com.facebook.Session;
 
 import java.io.File;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
-import ua.p2psafety.AsyncTaskExecutionHelper;
 import ua.p2psafety.R;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
-import ua.p2psafety.sms.MessageResolver;
 
 /**
  * Created by Taras Melon on 10.01.14.
@@ -65,7 +61,7 @@ public class Utils {
     public static void showNoAccountDialog(Context context) {
         AlertDialog.Builder noEmailDialog = new AlertDialog.Builder(context);
         noEmailDialog.setMessage(context.getResources().getString(R.string.no_account_message))
-                .setNeutralButton("OK", null)
+                .setNeutralButton(android.R.string.ok, null)
                 .show();
     }
 
@@ -180,7 +176,7 @@ public class Utils {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(context.getString(R.string.location_services_not_active));
         builder.setMessage(context.getString(R.string.please_enable_location_services));
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogInterface, int i) {
                 // Show location settings when the user acknowledges the alert dialog
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);

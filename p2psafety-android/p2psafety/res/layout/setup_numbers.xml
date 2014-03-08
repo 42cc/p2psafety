@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:contentDescription="@string/protect_description"
+            android:contentDescription="@null"
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
             android:adjustViewBounds="true"
@@ -88,7 +88,7 @@
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
             android:adjustViewBounds="true"
-            android:contentDescription="@string/protect_description"
+            android:contentDescription="@null"
             android:padding="@dimen/st_padding"
             android:src="@drawable/add_sel"/>
 

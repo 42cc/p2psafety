@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:contentDescription="@string/protect_description"
+            android:contentDescription="@null"
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
             android:adjustViewBounds="true"

@@ -26,6 +26,7 @@ class UserResource(ApiMethodsMixin, ModelResource):
         detail_allowed_methods = []
         list_allowed_methods = []
         authentication = ApiKeyAuthentication()
+        include_resource_uri = False
 
     full_name = fields.CharField('get_full_name')
 

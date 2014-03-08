@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Нужно иметь аккаунт на p2psafety.net"
+        android:text="@string/you_need_account"
         android:textSize="14sp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:gravity="top"
@@ -19,7 +19,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Введите логин:"
+        android:text="@string/enter_login"
         android:textSize="14sp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:gravity="top" />
@@ -31,6 +31,7 @@
         android:id="@+id/ld_login_edit"
         android:focusable="true"
         android:focusableInTouchMode="true"
+        android:inputType="text"
         android:singleLine="true" />
 
     <TextView
@@ -57,7 +58,7 @@
         android:layout_marginLeft="40dp"
         android:layout_marginRight="10dp"
         android:adjustViewBounds="false"
-        android:contentDescription="@string/protect_description"
+        android:contentDescription="@null"
         android:src="@android:drawable/bottom_bar"
         android:cropToPadding="true"
         android:background="@drawable/btn_sel"

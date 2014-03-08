@@ -55,7 +55,6 @@
     <string name="protect_description">protect yourself</string>
     <string name="logout">Выход (Logout)</string>
 
-    <string name="sos">SOS</string>
     <string name="sos_after">SOS через #n# мин.</string>
     <string name="sos_activated">Тревога активирована!</string>
     <string name="sos_cancel">Отбой</string>
@@ -80,12 +79,15 @@
     <string name="bad_logs_files">Файлов с логами не существует</string>
     <string name="logs_successfully_sent">Файлы с логами успешно отправлены</string>
     <string name="please_write_a_description_of_issue">Пожалуйста, опишите проблему</string>
-    <string name="victim_text">Жертва: </string>
+    <string name="victim_text">Потерпевший: </string>
     <string name="upper_audio">Аудио</string>
     <string name="upper_video">Видео</string>
     <string name="finish_helping">Я закончил помогать</string>
     <string name="stop_media_record">Остановить #media#запись</string>
     <string name="start_media_record">Начать #media#запись</string>
+    <string name="media_record_error">Не получилось начать запись #media#</string>
+    <string name="not_supporter_mode">Вы должны быть в режиме поддержки</string>
+    <string name="you_need_account">Нужно иметь аккаунт на p2psafety.net</string>
 
     <string name="help_needed">У кого-то проблемы. Это недалеко. Поможете?</string>
     <string name="accept">Принять</string>
@@ -100,6 +102,12 @@
     <string name="movement_types">Тип передвижения</string>
     <string name="set_your_roles">Выберите Ваши роли:</string>
     <string name="set_movement_types">Выберите Ваши типы передвижения:</string>
+    <string name="logged_out">Вы успешно вышли</string>
+    <string name="login">Вход (Login)</string>
+    <string name="enter_login">Введите логин:</string>
+    <string name="bad_login_or_password">Неверный логин или пароль.</string>
+    <string name="unsuccessful_authorization">Не получилось авторизоваться.</string>
+    <string name="viction_name">Имя жертвы</string>
 
     <string-array name="media_types">
         <item>Нет</item>
