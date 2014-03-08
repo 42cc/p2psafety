@@ -7,7 +7,8 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
-from events.models import EventUpdate, Event
+from .models import EventUpdate, Event
+from . import jabber
 
 from annoying.decorators import render_to, ajax_request
 from livesettings import config_value
@@ -30,14 +31,48 @@ def map(request):
 @require_POST
 @permission_required('events.add_eventupdate', raise_exception=True)
 @ajax_request
-def operator_add_eventupdate(request):
+def map_add_eventupdate(request):
     try:
         data = json.loads(request.body)
         text = data['text']
         event_id = int(data['event_id'])
-    except KeyError, ValueError:
+    except (KeyError, ValueError):
         return HttpResponseBadRequest()
     else:
         event = get_object_or_404(Event, id=event_id)
         EventUpdate.objects.create(user=request.user, event=event, text=text)
+        return dict(success=True)
+
+
+@csrf_exempt
+@require_POST
+@permission_required('events.change_event', raise_exception=True)
+@ajax_request
+def map_close_event(request):
+    try:
+        data = json.loads(request.body)
+        event_id = int(data['event_id'])
+    except (KeyError, ValueError):
+        return HttpResponseBadRequest()
+    else:
+        event = get_object_or_404(Event, id=event_id)
+        event.status = Event.STATUS_FINISHED
+        event.save()
+        return dict(success=True)
+
+@csrf_exempt
+@require_POST
+@permission_required('events.change_event', raise_exception=True)
+@ajax_request
+def map_notify_supporters(request):
+    try:
+        data = json.loads(request.body)
+        event_id = int(data['event_id'])
+        radius = data.get('radius')
+        radius = float(radius) if radius else None
+    except (KeyError, ValueError):
+        return HttpResponseBadRequest()
+    else:
+        event = get_object_or_404(Event, id=event_id)
+        jabber.notify_supporters(event, radius=radius)
         return dict(success=True)

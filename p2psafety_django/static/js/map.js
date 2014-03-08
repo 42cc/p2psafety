@@ -70,16 +70,18 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       for (i in $scope.events) {
         var event_support = $scope.events[i];
         if(event_support.type=="support"){
-          for (i in event_support.supported){
-            var supported = event_support.supported[i];
-            if(supported.id == event.id){
-                $scope.selectedEventsupport[event_support.id] = event_support;
-            }
+          for (var i = 0; i<event_support.supported.length; i++){
+            var supported_id = parseFloat(event_support.supported[i].split('/')[4]);
+              var supported = $scope.events[supported_id];
+              if(supported.id == event.id){
+                  $scope.selectedEventsupport[event_support.id] = event_support;
+              }
           }
         }
       }
       for (var i = 0; i<event.supported.length; i++) {
-        var supported = event.supported[i];
+        var supported_id = parseFloat(event.supported[i].split('/')[4]);
+        var supported = $scope.events[supported_id];
         $scope.selectedEventsupported[supported.id] = supported;
       }
     };
@@ -140,7 +142,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.addEventUpdate = function() {
     var event = $scope.selectedEvent,
         text = $scope.fields.addEventUpdateText,
-        url = urls.operatorAddEventUpdate;
+        url = urls.addEventUpdate;
     $http.post(url, {"event_id":event.id, "text":text}).success(function(data) {
         var params = {event__id: event.id};
         $http.get(urls.eventupdates, {params: params}).success(function(data) {
@@ -156,7 +158,23 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     if (ctrlPressed && enterPressed && text.length) {
       $scope.addEventUpdate(text);
     }
-  }
+  };
+  $scope.closeEvent = function(event) {
+    $http.post(urls.closeEvent, {event_id: event.id}).success(function(data) {
+      $scope.select(null);
+      delete $scope.events[event.id];
+    });
+  };
+  $scope.notifySupporters = function(event) {
+    var data = {
+      event_id: $scope.selectedEvent.id,
+      radius: $scope.fields.notifySupportersRadius
+    };
+    $scope.isNotifyingSupporters = true;
+    $http.post(urls.notifySupporters, data).success(function(data) {
+      $scope.isNotifyingSupporters = false;
+    })
+  };
 
   setInterval(function() {
     document.getElementById('audiotag').play();
@@ -171,8 +189,10 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.events = {};
   $scope.fields = {
     addEventUpdateText: '',
+    notifySupportersRadius: '',
   };
 
+  $scope.isNotifyingSupporters = false;
   $scope.update(false, false, true);
 
   $interval(function() {

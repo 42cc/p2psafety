@@ -22,3 +22,12 @@ class EventsTestCase(TestCase):
                           [event_supporter])
         self.assertEquals(list(event_supporter.supported.order_by('id')),
                           [event_victim])
+
+    def test_latest_text(self):
+        event = EventFactory()
+        EventUpdateFactory(event=event)
+        EventUpdateFactory(event=event, text='123')
+        EventUpdateFactory(event=event, text='1234')
+        EventUpdateFactory(event=event)
+
+        self.assertEquals(event.latest_text, '1234')
