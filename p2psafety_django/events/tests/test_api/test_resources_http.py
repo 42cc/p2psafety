@@ -4,9 +4,7 @@ import tempfile
 from operator import itemgetter
 
 from django.contrib.gis.geos import Point
-from django.core.urlresolvers import reverse
 
-from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
 from users.tests.helpers import api_key_auth as auth
