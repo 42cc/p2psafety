@@ -145,7 +145,6 @@ class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
         data = {'id':66535, 'format':'json'}
         resp = self.api_client.get(url, data=data, **auth(user1))
         self.assertEqual(resp.status_code, 404)
-        import ipdb; ipdb.set_trace()
         self.assertTrue('not found' in resp.content)
 
         data = {'id':'blaah', 'format':'json'}
@@ -234,7 +233,7 @@ class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
         movement_types_list = self.deserialize(resp)
         self.assertEqual(movement_types_list, [mt2.id])
 
-    def test_roles_by_user_id_errors(self):
+    def test_movement_types_by_user_id_errors(self):
         """get list of user's mtypes by user id errors"""
         user1 = UserFactory()
         url = self.users_movement_types_url
