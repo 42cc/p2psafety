@@ -2,7 +2,9 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp">
 
     <LinearLayout
         android:orientation="vertical"
@@ -63,7 +65,14 @@
             android:id="@+id/supporter_map"
             android:layout_width="match_parent"
             android:layout_height="270dp"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="10dp" />
+
+        <ListView
+            android:id="@+id/lsv_comments"
+            android:layout_width="match_parent"
+            android:layout_height="125dp"
+            android:smoothScrollbar="true"
+            android:layout_weight="1" />
 
         <Button
             style="@style/TextButton"
@@ -77,9 +86,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="30dp"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:textSize="24sp"
+            android:textSize="21sp"
             android:minWidth="170dp"/>
 
         <Button
@@ -93,9 +100,7 @@
             android:singleLine="true"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:textSize="24sp"
+            android:textSize="21sp"
             android:minWidth="170dp"/>
 
         <Button
@@ -106,13 +111,11 @@
             android:id="@+id/btn_close_event"
             android:background="@drawable/btn_sel"
             android:padding="@dimen/st_padding"
-            android:layout_marginRight="10dp"
             android:singleLine="true"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:textSize="24sp"
-            android:minWidth="170dp"
-            android:layout_marginLeft="10dp" />
+            android:textSize="21sp"
+            android:minWidth="170dp" />
     </LinearLayout>
 
     </ScrollView>
