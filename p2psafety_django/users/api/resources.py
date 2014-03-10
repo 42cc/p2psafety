@@ -48,7 +48,9 @@ class UserResource(ApiMethodsMixin, ModelResource):
                 try:
                     user = User.objects.get(id=request.GET['id'])
                 except User.DoesNotExist:
-                    return http.HttpNotFound
+                    return  http.HttpNotFound("User not found")
+                except ValueError:
+                    return http.HttpBadRequest("Bad user Id")
             else:
                 user = request.user
 
@@ -83,7 +85,9 @@ class UserResource(ApiMethodsMixin, ModelResource):
                 try:
                     user = User.objects.get(id=request.GET['id'])
                 except User.DoesNotExist:
-                    return http.HttpNotFound
+                    return  http.HttpNotFound("User not found")
+                except ValueError:
+                    return http.HttpBadRequest("Bad user Id")
             else:
                 user = request.user
 
