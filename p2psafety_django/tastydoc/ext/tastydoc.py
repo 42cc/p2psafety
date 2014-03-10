@@ -1,6 +1,5 @@
 import simplejson
 
-from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 
@@ -16,7 +15,7 @@ def setup(app):
 class TastyDirective(Directive):
     """
     Sphinx directive for django-tastypie, based on fork:
-    
+
     https://github.com/socialize/django-tastypie
     """
 
@@ -33,10 +32,10 @@ class TastyDirective(Directive):
         parser = Parser()
         publisher = Publisher()
         request = HttpRequest()
-        top_level_response = api.top_level(request, None) 
+        top_level_response = api.top_level(request, None)
         top_level_doc = simplejson.loads(top_level_response.content)
 
-        for name in sorted(api._registry.keys()):        
+        for name in sorted(api._registry.keys()):
             resource = api._registry[name]
             top_level_doc[name]['schema'] = resource.build_schema()
             top_level_doc[name]['docstring'] = resource.__doc__

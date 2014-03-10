@@ -2,9 +2,7 @@
 import logging
 
 from django.conf import settings
-from django.conf.urls import url
 from django.contrib.auth.models import User
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from tastypie import http, fields
@@ -13,7 +11,6 @@ from tastypie.authentication import MultiAuthentication, ApiKeyAuthentication, \
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.resources import ModelResource
-from tastypie.utils import trailing_slash
 from tastypie.validation import Validation
 from schematics.models import Model as SchemaModel
 from schematics.types import IntType
@@ -66,38 +63,23 @@ class EventResource(ApiMethodsMixin, ModelResource):
     user = fields.ForeignKey(UserResource, 'user', full=True, readonly=True)
     type = fields.CharField('get_type_display', readonly=True)
     latest_location = GeoPointField('latest_location', null=True, readonly=True)
+    latest_text = fields.CharField('latest_text', null=True, readonly=True)
     latest_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
                                       'latest_update',
                                       full=True, null=True, readonly=True)
+    supported = fields.ManyToManyField('events.api.resources.EventResource', 'supported', full=False, readonly=True)
 
     @api_method(r'/(?P<pk>\d+)/support', name='api_events_support')
     def support(self):
         """
-        ***
-        TODO: replace ``user_id`` with ``request.user``.
-        ***
-
         Marks user as "supporter" for a given event.
         """
-        class PostParams(SchemaModel):
-            user_id = IntType(required=True)
-
-        @body_params(PostParams)
         def post(self, request, pk=None, params=None, **kwargs):
             """
-            Adds user with given ``user_id`` param to list of event's supporters.
-
-            Raises:
-
-            * **404** if user with given ``user_id`` or given event pk is not found.
+            Adds current user to list of event's supporters.
             """
-            try:
-                user = User.objects.get(id=params.user_id)
-            except User.DoesNotExist:
-                return http.HttpBadRequest()
-            else:
-                target_event = get_object_or_404(Event, id=pk)
-                target_event.support_by_user(user)
+            target_event = get_object_or_404(Event, id=pk)
+            target_event.support_by_user(request.user)
 
         return post
 

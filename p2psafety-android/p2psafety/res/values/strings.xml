@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Facebook App Id -->
-    <string name="app_id">575503025870783</string>
+    <string name="app_id">784584141570570</string>
 
     <string name="app_name">SOSMessage</string>
 
@@ -39,6 +39,7 @@
     <string name="retry">Retry</string>
 
     <string name="enter_password">Enter password:</string>
+    <string name="enter_login">Enter login:</string>
     <string name="lock_with_password">Lock with password</string>
     <string name="wrong_password">Wrong password</string>
     <string name="settings">Settings</string>
@@ -83,11 +84,38 @@
     <string name="logs_successfully_sent">Files with logs successfully sent</string>
     <string name="please_write_a_description_of_issue">Please write a description of issue</string>
     <string name="email_for_logs">talk@mail.khavr.com</string>
+    <string name="victim_text">Victim: </string>
+    <string name="upper_audio">Audio</string>
+    <string name="upper_video">Video</string>
+    <string name="finish_helping">I finished helping</string>
+    <string name="stop_media_record">Stop #media# record</string>
+    <string name="start_media_record">Start #media# record</string>
+    <string name="media_record_error">Cannot start #media# record</string>
+    <string name="not_supporter_mode">You are not in the Supporter mode</string>
+    <string name="you_need_account">You need an account on p2psafety.net</string>
+
+    <string name="help_needed">Somebody is in trouble. Can you help?</string>
+    <string name="accept">Accept</string>
+    <string name="ignore">Ignore</string>
+
 
     <string name="network_error">Something went wrong. Check your network connection.</string>
     <string name="connection">Connection</string>
     <string name="connection_is_out">Internet connection is not available, check the settings</string>
     <string name="connection_settings">Settings</string>
+
+    <string name="support_screen">Support screen</string>
+    <string name="movement_types">Movement types</string>
+    <string name="set_your_roles">Set your roles:</string>
+    <string name="set_movement_types">Set your movement types:</string>
+    <string name="logged_out">You are successfully logged out</string>
+    <string name="login">Login</string>
+    <string name="ex_time">67:00</string>
+    <string name="ex_victim_name">Luke Skywalker</string>
+    <string name="ex_role_name">Role name</string>
+    <string name="bad_login_or_password">Wrong login or password.</string>
+    <string name="unsuccessful_authorization">Unsuccessful authorization.</string>
+    <string name="viction_name">Victim name</string>
 
     <string-array name="media_types">
         <item>No</item>

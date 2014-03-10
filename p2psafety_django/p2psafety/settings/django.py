@@ -65,8 +65,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    'waffle.middleware.WaffleMiddleware',
 )
 
 INSTALLED_APPS = (
@@ -79,8 +77,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.staticfiles',
 
-    'waffle',
     'south',
+    'livesettings',
 
     'core',
     'events',
@@ -91,7 +89,8 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.google',
+    # TODO: wait for implementation on mobile apps 
+    # 'allauth.socialaccount.providers.google',
     'bootstrap3',
     'tastypie',
 )
@@ -139,6 +138,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 SECRET_KEY = 'CHANGE_THIS_KEY_BEFORE_USING_ON_PRODUCTION'
+
+TEST_RUNNER = 'p2psafety.utils.TestRunner'
 
 LOGGING = {
     'version': 1,

@@ -3,8 +3,11 @@ package ua.p2psafety.util;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,28 +16,28 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Color;
 import android.location.LocationManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
-import android.view.View;
 
 import com.facebook.Session;
 
 import java.io.File;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
-import ua.p2psafety.AsyncTaskExecutionHelper;
 import ua.p2psafety.R;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
-import ua.p2psafety.sms.MessageResolver;
 
 /**
  * Created by Taras Melon on 10.01.14.
@@ -58,7 +61,7 @@ public class Utils {
     public static void showNoAccountDialog(Context context) {
         AlertDialog.Builder noEmailDialog = new AlertDialog.Builder(context);
         noEmailDialog.setMessage(context.getResources().getString(R.string.no_account_message))
-                .setNeutralButton("OK", null)
+                .setNeutralButton(android.R.string.ok, null)
                 .show();
     }
 
@@ -127,6 +130,23 @@ public class Utils {
         AsyncTaskExecutionHelper.executeParallel(vibration, 2000);
     }
 
+    public static void playDefaultNotificationSound(Context context) {
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Ringtone r = RingtoneManager.getRingtone(context, notification);
+        r.play();
+    }
+
+    public static void blinkLED(Context context) {
+        NotificationManager notifMgr = (NotificationManager)
+                context.getSystemService(context.NOTIFICATION_SERVICE);
+        Notification notif = new Notification();
+        notif.ledARGB = Color.argb(255, 0, 255, 0);
+        notif.flags |= Notification.FLAG_SHOW_LIGHTS;
+        notif.ledOnMS = 300;
+        notif.ledOffMS = 200;
+        notifMgr.notify(999, notif);
+    }
+
     public static void sendMailsWithAttachments(final Context context, final int mediaId, final File file) {
         AsyncTask ast = new AsyncTask() {
             @Override
@@ -156,7 +176,7 @@ public class Utils {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(context.getString(R.string.location_services_not_active));
         builder.setMessage(context.getString(R.string.please_enable_location_services));
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogInterface, int i) {
                 // Show location settings when the user acknowledges the alert dialog
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -211,19 +231,20 @@ public class Utils {
                         Base64.encodeToString(md.digest(), Base64.DEFAULT));
             }
         }
-        catch (PackageManager.NameNotFoundException e) {
+        catch (Exception e) {
             logs.error("Can't get key hash", e);
-            Log.i("KeyHash:", "NameNotFound");
         }
-        catch (NoSuchAlgorithmException e) {
-            logs.error("Can't get key hash", e);
-            Log.i("KeyHash:", "NoAlgo");
+    }
+
+    public static boolean isServiceRunning(Context context, Class service) {
+        String service_name = service.getName();
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo running_service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            String running_service_name = running_service.service.getClassName();
+            if (running_service_name.equals(service_name))
+                return true;
         }
-        catch (NullPointerException e) {
-            logs.error("Can't get key hash", e);
-            Log.i(TAG, "NullPonterException  " +
-                    "SHOULD HAPPEN ONLY UNDER ROBOLECTRIC");
-        }
+        return false;
     }
 
     public static void errorDialog(final Context context, final int type) {

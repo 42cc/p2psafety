@@ -29,6 +29,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:id="@+id/arrowUpBtn"
+        android:contentDescription="@null"
         android:layout_gravity="center"
         android:src="@drawable/arrow_up"
         android:background="@color/White"
@@ -41,6 +42,7 @@
         android:id="@+id/arrowDownBtn"
         android:layout_gravity="center"
         android:src="@drawable/arrow_down"
+        android:contentDescription="@null"
         android:background="@color/White"
         android:scaleType="fitXY"
         android:padding="@dimen/st_padding" />
@@ -49,6 +51,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:id="@+id/ibtn_del"
+            android:contentDescription="@null"
             android:layout_gravity="center"
             android:src="@drawable/del_sel"
             android:adjustViewBounds="false"
