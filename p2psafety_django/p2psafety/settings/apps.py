@@ -27,6 +27,11 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 # Redirect to main after email confirmation
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/'
 
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+
+SOCIALACCOUNT_ADAPTER ='users.adapter.SocialAccountAdapter'
+
 #
 # PostGIS settings
 #

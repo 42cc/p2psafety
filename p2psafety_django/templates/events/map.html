@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load staticfiles %}
-{% load waffle_tags %}
+{% load config_tags %}
 
 {% block styles %}
   {{ block.super }}
@@ -24,10 +24,14 @@
       movement_types: "{% url 'api_dispatch_list' resource_name='movement_types' api_name='v1' %}",
       user_roles:"{% url 'api_users_roles' resource_name='users' api_name='v1' %}",
       user_movement_types:"{% url 'api_users_movement_types' resource_name='users' api_name='v1' %}",
+      addEventUpdate: "{% url 'events:map_add_eventupdate' %}",
+      closeEvent: "{% url 'events:map_close_event' %}",
+      notifySupporters: "{% url 'events:map_notify_supporters' %}",
     });
     mapApp.constant('mapSettings', {
-        highlight: {% switch 'eventsmap-newevent-highlight' %}true{% else %}false{% endswitch %},
-        sound: {% switch 'eventsmap-newevent-sound' %}true{% else %}false{% endswitch %},
+        highlight: {% if newevent_highlight %}true{% else %}false{% endif %},
+        sound: {% if newevent_sound %}true{% else %}false{% endif %},
+        wakeup_interval: {{ wakeup_interval }},
     });
   </script>
 {% endblock %}
@@ -42,41 +46,71 @@
   <div class="row">
     <div class="col-md-12">
       {% verbatim %}
-      <div ng-app="mapApp">       
+      <div ng-app="mapApp">
         <div ng-controller="EventListCtrl">
           <event-marker click="select(event)"
                         ng-repeat="event in events"
-                        ng-if="event.id != selectedEvent.id">
+                        ng-if="(event.id != selectedEvent.id) && (selectedEvent == null)">
             <div>
               <p ng-if="event.user.full_name != null">
                 <span class="glyphicon glyphicon-exclamation-sign"
                       ng-if="event.type == 'victim'"></span>
                 <span class="glyphicon glyphicon-user"
                       ng-if="event.type == 'support'"></span>
-                      {{ event.user.full_name }}
+                {{ event.user.full_name }}
               </p>
               <span class="badge">{{ event.latest_update.timestamp | date:'HH:mm' }}</span>
               {{ event.latest_update.text || "..." }}
             </div>
           </event-marker>
+          <support-marker ng-repeat="support in selectedEventsupport" click="select(support)">
+            <div>
+              <p ng-if="support.user.full_name != null">
+                <span class="glyphicon glyphicon-user"></span>
+                {{ support.user.full_name }}
+              </p>
+              <span class="badge">{{ support.latest_update.timestamp | date:'HH:mm' }}</span>
+              {{ support.latest_update.text || "..." }}
+            </div>
+          </support-marker>
           <div class="selected-event panel panel-primary"
                ng-if="selectedEvent != null">
-            <h4 class="panel-heading">Status:
-              <span class="label label-danger"
-                    ng-if="selectedEvent.status == 'A'">active</span>
-              <span class="label label-primary"
-                    ng-if="selectedEvent.status == 'P'">passive</span>
-              <span class="label label-default"
-                    ng-if="selectedEvent.status == 'F'">finished</span>
-              <button type="button" class="close"
-                      ng-click="select(null)">&times;</button>
+            <h4 class="panel-heading">
+              <span>Event info</span>
+              <div class="btn-group dispatcher-panel-buttons">
+                <button class="btn btn-success btn-sm"
+                        ng-click="select(null)">Back</button>
+                <button class="btn btn-warning btn-sm"
+                        ng-click="closeEvent(selectedEvent)">Close</button>
+              </div>
             </h4>
             <div class="panel-body">
               <div class="list-group">
+                <div class="list-group-item">
+                  <p>Add event update</p>
+                  <input class="form-control input-sm" type="text" placeholder="Text" 
+                         ng-model="fields.addEventUpdateText"
+                         ng-keydown="ctrlEnter($event)"/>
+                  <button class="btn btn-primary btn-sm button-add"
+                          ng-click="addEventUpdate()">Click or hit Ctrl+Enter</button>
+                </div>
+                <div class="list-group-item">
+                  <div class="form-inline notify-supporters">
+                    <div class="form-group">
+                      <input class="form-control input-sm" type="text" placeholder="Radius, km"
+                             ng-model="fields.notifySupportersRadius"/>
+                    </div>
+                    <div class="form-group">
+                      <button class="btn btn-success btn-sm"
+                              ng-disabled="{{ isNotifyingSupporters }}"
+                              ng-click="notifySupporters()">Notify supporters</button>
+                    </div>
+                  </div>
+                </div>
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
                   <eventupdate-marker click="focus(update.location)">
-                    <p>{{ update.timestamp | date:'dd.MM HH:mm' }}</p>
+                    <span>{{ update.timestamp | date:'dd.MM HH:mm' }}</span>
                   </eventupdate-marker>
                   <p class="list-group-item-heading">
                     <span class="badge">{{ update.timestamp | date:'dd.MM HH:mm' }}</span>
@@ -93,8 +127,59 @@
                      ng-click="focus(update.location)">
                     <span class="glyphicon glyphicon-map-marker"></span></a>
                 </div>
-              </div>
+                <br>
+                <div ng-repeat="support in selectedEventsupport"
+                        ng-if="selectedEvent.type == 'victim'">
+                  <p>{{ support.user.full_name }} - support</p>
+                  <div class="list-group-item">
+                    <p class="list-group-item-heading">
+                      <span class="badge">{{ support.latest_update.timestamp | date:'dd.MM HH:mm' }}</span>
+                      {{ support.latest_update.text || "..." }}
+                    </p>
+                    <a href="{{ support.latest_update.audio }}" class="btn btn-default"
+                       ng-if="support.latest_update.audio != null">
+                      <span class="glyphicon glyphicon-headphones"></span> Play</a>
+                    <a href="{{ support.latest_update.video }}" class="btn btn-default"
+                       ng-if="support.latest_update.video != null">
+                      <span class="glyphicon glyphicon-film"></span> Play</a>
+                    <a class="btn btn-success"
+                       ng-if="support.latest_location != null"
+                       ng-click="focus(support.latest_location)">
+                      <span class="glyphicon glyphicon-map-marker"></span></a>
+                  </div>
+                </div>
+                <div ng-repeat="supported in selectedEventsupported"
+                     ng-if="selectedEvent.type == 'support'">
+                <supported-marker click="select(supported)">
+                    <div>
+                      <p ng-if="supported.user.full_name != null">
+                        <span class="glyphicon glyphicon-user"></span>
+                        {{ supported.user.full_name }}
+                      </p>
+                      <span class="badge">{{ supported.latest_update.timestamp | date:'HH:mm' }}</span>
+                      {{ supported.latest_update.text || "..." }}
+                    </div>
+                </supported-marker>
+                <p>{{ supported.user.full_name }} - victim</p>
+                <div class="list-group-item">
+                  <p class="list-group-item-heading">
+                    <span class="badge">{{ supported.latest_update.timestamp | date:'dd.MM HH:mm' }}</span>
+                    {{ supported.latest_update.text || "..." }}
+                  </p>
+                  <a href="{{ supported.latest_update.audio }}" class="btn btn-default"
+                     ng-if="supported.latest_update.audio != null">
+                    <span class="glyphicon glyphicon-headphones"></span> Play</a>
+                  <a href="{{ supported.latest_update.video }}" class="btn btn-default"
+                     ng-if="supported.latest_update.video != null">
+                    <span class="glyphicon glyphicon-film"></span> Play</a>
+                  <a class="btn btn-success"
+                     ng-if="supported.latest_location != null"
+                     ng-click="focus(supported.latest_location)">
+                    <span class="glyphicon glyphicon-map-marker"></span></a>
+                </div>
+                </div>
             </div>
+          </div>
           </div>
           <div class="selected-event panel panel-primary " 
                 ng-if="selectedEvent == null">
@@ -159,9 +244,12 @@
                       </div>
                     </div>
                 </div>
+            <div class="legend">
+                <span><img src='http://maps.google.com/mapfiles/ms/micons/red-dot.png'> - victim</span>
+                <span><img src='http://maps.google.com/mapfiles/ms/micons/green-dot.png'> - support</span>
+            </div>
             </div>
           </div>
-        </div>
          <div id="map-canvas"></div>
       </div>
       {% endverbatim %}

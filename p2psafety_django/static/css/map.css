@@ -8,12 +8,12 @@
   overflow-y: auto;
   float: left;
 }
+.selected-event .notify-supporters input {
+  width: 100px;
+}
 .event-name{
     cursor: pointer;
     display: inline;
-}
-.event-panel{
-    padding:0;
 }
 .event-heading{
     margin-bottom: 0;
@@ -69,3 +69,13 @@
     margin-bottom:5px;
 }
 
+.legend {
+padding-left: 10px;
+}
+.button-add{
+    margin-top: 10px;
+}
+
+.dispatcher-panel-buttons {
+  margin-left: 65px;
+}

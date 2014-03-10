@@ -1,6 +1,22 @@
 from django.contrib import admin
 
-from models import Role, MovementType
+from . import models
 
-admin.site.register(Role, admin.ModelAdmin)
-admin.site.register(MovementType, admin.ModelAdmin)
+
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'phone_number')
+
+
+class RoleAdmin(admin.ModelAdmin):
+    fields = ('name',)
+    list_display = ('id', 'name')
+        
+
+class MovementTypeAdmin(admin.ModelAdmin):
+    fields = ('name',)
+    list_display = ('id', 'name')
+
+
+admin.site.register(models.Profile, ProfileAdmin)
+admin.site.register(models.Role, RoleAdmin)
+admin.site.register(models.MovementType, MovementTypeAdmin)

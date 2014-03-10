@@ -3,9 +3,9 @@ package ua.p2psafety.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import ua.p2psafety.Event;
+import ua.p2psafety.json.Event;
 import ua.p2psafety.R;
-import ua.p2psafety.User;
+import ua.p2psafety.json.User;
 
 /**
  * Created by ihorpysmennyi on 12/7/13.
