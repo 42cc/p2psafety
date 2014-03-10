@@ -310,6 +310,11 @@ class software {
     require => Class['apt']
   }
 
+  package { 'mercurial':
+    ensure => latest,
+    require => Class['apt']
+  }
+
   package { 'vim':
     ensure => latest,
     require => Class['apt']
