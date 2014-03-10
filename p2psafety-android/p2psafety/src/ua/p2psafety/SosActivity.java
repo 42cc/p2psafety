@@ -71,6 +71,17 @@ public class SosActivity extends ActionBarActivity {
 
         Fragment fragment;
 
+        // normal start
+        mLogs.info("SosActiviy. onCreate. Normal start. Opening SendMessageFragment");
+        fragment = new SendMessageFragment();
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (!Utils.isFragmentAdded(fragment, fragmentManager))
+        {
+            fragmentManager.beginTransaction().addToBackStack(fragment.getClass().getName())
+                    .replace(R.id.content_frame, fragment).commit();
+        }
+
         String fragmentClass = getIntent().getStringExtra(FRAGMENT_KEY);
         if (fragmentClass != null) {
             // activity started from outside
@@ -78,19 +89,12 @@ public class SosActivity extends ActionBarActivity {
             mLogs.info("SosActiviy. onCreate. Activity requested to open " + fragmentClass);
             fragment = Fragment.instantiate(this, fragmentClass);
             fragment.setArguments(getIntent().getExtras());
-        } else {
-            // normal start
-            mLogs.info("SosActiviy. onCreate. Normal start. Opening SendMessageFragment");
-            fragment = new SendMessageFragment();
-        }
 
-        setIntent(new Intent(this, SosActivity.class));
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        if (!Utils.isFragmentAdded(fragment, fragmentManager))
-        {
-            fragmentManager.beginTransaction().addToBackStack(fragment.getClass().getName())
-                .replace(R.id.content_frame, fragment).commit();
+            if (!Utils.isFragmentAdded(fragment, fragmentManager))
+            {
+                fragmentManager.beginTransaction().addToBackStack(fragment.getClass().getName())
+                        .replace(R.id.content_frame, fragment).commit();
+            }
         }
 
         if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, mLogs) && Prefs.getGmailToken(this) == null)
