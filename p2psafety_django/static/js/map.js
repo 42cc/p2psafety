@@ -123,7 +123,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
         }
       if (eventsAppeared && options.playSoundForNew)
         document.getElementById('audiotag').play();
-
       // Making map show all events
       if (options.centerMap) {
         var eventsBounds = new google.maps.LatLngBounds();
@@ -136,12 +135,16 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
         }
         $scope.gmap.fitBounds(eventsBounds);
       }
+      if (eventsAppeared){
+          $scope.updateUserAttrs(newEvents);
+      }
+
       if ('function' === typeof callback) callback();
     });
   };
 
-  $scope.updateUserAttrs = function(){
-    _.forEach($scope.events, function(event){
+  $scope.updateUserAttrs = function(events){
+    _.forEach(events, function(event){
       //clojure for ajax callback
       var clojr = function(pevent,field){
         return function(data){
@@ -244,11 +247,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     })
   };
 
-  setInterval(function() {
-    document.getElementById('audiotag').play();
-    alert('Do You sleep?');
-  }, mapSettings.wakeup_interval * 60 * 1000);
-
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;
   $scope.zoomedIn = false;
@@ -265,19 +263,22 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 
   $scope.getRoles();
   $scope.getMovementTypes();
-  $scope.update({playSoundForNew:false, highightNew:false, centerMap:true},
-    $scope.updateUserAttrs
-  );
+  $scope.update({playSoundForNew:false, highightNew:false, centerMap:true});
+
+  $interval(function() {
+    document.getElementById('audiotag').play();
+    alert('Do You sleep?');
+  }, mapSettings.wakeup_interval * 60 * 1000);
 
   $interval(function() {
     $scope.update({playSoundForNew:mapSettings.sound,
-        highightNew:mapSettings.highlight,
-        centerMap:false});
+      highightNew:mapSettings.highlight,
+      centerMap:false});
   }, $scope.updatePerSeconds * 1000);
 
   $interval(function() {
-    $scope.updateUserAttrs();
-  },15*1000);
+    $scope.updateUserAttrs($scope.events);
+  },30*1000);
 })
 .factory('markerFactory', function() {
   return function(scope, element, content, icon, location, map, onclick) {
