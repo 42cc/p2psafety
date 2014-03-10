@@ -71,17 +71,15 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
         var event_support = $scope.events[i];
         if(event_support.type=="support"){
           for (var i = 0; i<event_support.supported.length; i++){
-            var supported_id = parseFloat(event_support.supported[i].split('/')[4]);
-              var supported = $scope.events[supported_id];
-              if(supported.id == event.id){
-                  $scope.selectedEventsupport[event_support.id] = event_support;
-              }
+            var supported = $scope.events[event_support.supported[i].id];
+            if(supported.id == event.id){
+                $scope.selectedEventsupport[event_support.id] = event_support;
+            }
           }
         }
       }
       for (var i = 0; i<event.supported.length; i++) {
-        var supported_id = parseFloat(event.supported[i].split('/')[4]);
-        var supported = $scope.events[supported_id];
+        var supported = $scope.events[event.supported[i].id];
         $scope.selectedEventsupported[supported.id] = supported;
       }
     };
