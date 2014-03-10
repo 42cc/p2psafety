@@ -27,6 +27,8 @@ import android.os.AsyncTask;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Base64;
 import android.util.Log;
 
@@ -68,6 +70,33 @@ public class Utils {
     public static boolean isEmailAddress(String text) {
         String pattern = "^[_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,4})$";
         return text.matches(pattern);
+    }
+
+    // fragment.isAdded() checks in FragmentManager's backstack;
+    // this function checks in FragmentManager's maintain list
+    //
+    // sometimes we have fragment managed by FM, but in its backstack;
+    // this function helps find such fragments
+    //
+    // HINT: currently has no use but maybe will if we have some
+    // fragment backstack issues in future
+    public static boolean isFragmentAdded(Fragment frg, FragmentManager fm) {
+        if (frg == null || frg.getClass() == null
+                || frg.getClass().getName() == null)
+            return false;
+
+        if (fm.getFragments() == null)
+            return false;
+
+        for (Fragment f : fm.getFragments()) {
+            if (f != null && f.getClass() != null
+                    && f.getClass().getName() != null)
+                if (f.getClass().getName().equals(frg.getClass().getName())
+                        || f.getTag() != null
+                        && f.getTag().equals(frg.getClass().getName()))
+                    return true;
+        }
+        return false;
     }
 
     // checks if network connection is available and connected

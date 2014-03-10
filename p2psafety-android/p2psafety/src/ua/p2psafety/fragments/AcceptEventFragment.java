@@ -156,10 +156,13 @@ public class AcceptEventFragment extends Fragment {
                             Fragment fragment = new SupporterFragment();
                             fragment.setArguments(bundle);
                             FragmentManager fm = getFragmentManager();
-                            fm.popBackStackImmediate();
-                            fm.beginTransaction()
-                                    .addToBackStack(null)
+                            if (!Utils.isFragmentAdded(fragment, fm))
+                            {
+                                fm.popBackStackImmediate();
+                                fm.beginTransaction()
+                                    .addToBackStack(fragment.getClass().getName())
                                     .replace(R.id.content_frame, fragment).commit();
+                            }
                         }
                     }
                 });

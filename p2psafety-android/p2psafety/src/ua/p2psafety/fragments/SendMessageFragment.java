@@ -53,8 +53,11 @@ public class SendMessageFragment extends Fragment {
             switch (v.getId()) {
                 case R.id.delayedSosBtn:
                     mfragment = new DelayedSosFragment();
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                    if (!Utils.isFragmentAdded(mfragment, mfragmentManager))
+                    {
+                        fragmentTransaction.addToBackStack(mfragment.getClass().getName());
+                        fragmentTransaction.replace(R.id.content_frame, mfragment).commit();
+                    }
                     break;
             }
         }

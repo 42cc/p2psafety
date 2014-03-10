@@ -24,6 +24,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import ua.p2psafety.R;
+import ua.p2psafety.json.Event;
 import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.NetworkManager;
@@ -76,7 +77,7 @@ public class LocationService extends Service implements
         mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                if (mEventManager.isSosStarted() && Utils.isServerAuthenticated(LocationService.this))
+                if (mEventManager.getEvent().getStatus() == Event.STATUS_ACTIVE && Utils.isServerAuthenticated(LocationService.this))
                 {
                     mLogs.info("LocationService. Checking if we need to send new location");
                     getCurrentLoc();
