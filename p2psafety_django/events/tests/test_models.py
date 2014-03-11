@@ -49,7 +49,7 @@ class EventTestCase(TestCase):
 
 
 class EventUpdateTestCase(TestCase):
-    
+
     @mock.patch('events.jabber.clients.EventsNotifierClient')
     def test_save(self, MockClient):
         set_livesettings_value('Events', 'supporters-autonotify', True)        
