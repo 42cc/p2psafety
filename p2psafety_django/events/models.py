@@ -175,6 +175,7 @@ class EventUpdate(models.Model):
 
     def save(self, *args, **kwargs):
         created = self.pk is None
+        super(EventUpdate, self).save(*args, **kwargs)
 
         if created:
             #
@@ -188,4 +189,3 @@ class EventUpdate(models.Model):
                 if config_value('Events', 'supporters-autonotify'):
                     self.event.notify_supporters()
 
-            super(EventUpdate, self).save(*args, **kwargs)
