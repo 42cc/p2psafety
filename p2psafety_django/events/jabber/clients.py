@@ -18,6 +18,10 @@ from users.utils import get_api_key
 logger = logging.getLogger('events.jabber')
 
 
+class ClientException(Exception):
+    pass
+
+
 class BaseConfig(object):
     """
     Base class for jabber clients configurations.
@@ -67,7 +71,9 @@ class BaseClient(object):
         for plugin_num in required_plugins:
             self._client.register_plugin(self._get_plugin_name(plugin_num))
 
+        self._client.add_event_handler('failed_auth', self._on_failed_auth, threaded=True)
         self._client.add_event_handler('session_start', self._on_start, threaded=True)
+        self._on_auth_event = threading.Event()
         self._on_start_event = threading.Event()
 
     def __enter__(self):
@@ -82,7 +88,13 @@ class BaseClient(object):
 
     def _on_start(self, event):
         logger.debug('session has been started')
+        self._authorized = True
+        self._on_auth_event.set()
         self._on_start_event.set()
+
+    def _on_failed_auth(self, event):
+        self._authorized = False
+        self._on_auth_event.set()
 
     def _get_plugin_name(self, plugin_num):
         return 'xep_' + str(plugin_num).rjust(4, '0')
@@ -101,9 +113,17 @@ class BaseClient(object):
     def connect(self):
         logger.debug('connecting as %s', self.config.jid)
         if self._client.connect():
+            logger.debug('connected')
             self._client.process(block=False)
-            # Make sure session was started
-            self._on_start_event.wait()
+            
+            # Make sure we got authorized
+            self._on_auth_event.wait()
+            if self._authorized:
+                # Make sure session was started
+                self._on_start_event.wait()
+            else:
+                message = 'Server has rejected the provided login credentials'
+                raise ClientException(message)
         else:
             logger.error('failed to connect')
 
