@@ -50,9 +50,9 @@ class EventTestCase(TestCase):
 
 class EventUpdateTestCase(TestCase):
     
-    @mock.patch.object(clients, 'EventsNotifierClient')
+    @mock.patch('events.jabber.clients.EventsNotifierClient')
     def test_save(self, MockClient):
-        set_livesettings_value('Events', 'supporters-autonotify', True)
+        set_livesettings_value('Events', 'supporters-autonotify', True)        
         mocked_client = MockClient.return_value = MockedEventsNotifierClient()
         event = EventFactory()
 
@@ -62,5 +62,3 @@ class EventUpdateTestCase(TestCase):
         mocked_client.assert_published_once()
         self.assertIn('Test', mocked_client.payload_string)
         self.assertIn('location type="hash"', mocked_client.payload_string)
-
-
