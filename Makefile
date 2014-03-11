@@ -32,10 +32,10 @@ shell:
 	$(MANAGE) shell
 
 test:
-	TESTING=1 $(MANAGE) test --noinput $(TEST_OPTIONS)
+	TESTING=1 $(TEST) --noinput $(TEST_OPTIONS) -v 2
 
 testone:
-	$(TEST) $(MANAGE) test $(filter-out $@,$(MAKECMDGOALS))
+	$(TEST) $(filter-out $@,$(MAKECMDGOALS))
 
 clean:
 	@echo Cleaning up...
