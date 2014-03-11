@@ -38,12 +38,24 @@ class MockedEventsNotifierClient(clients.EventsNotifierClient):
         self.config = clients.EventsNotifierClient.Config(cfg)
         self._pubsub_plugin = mock.MagicMock()
 
+    def __enter__(self):
+        return self
+
+    def connect(self, **kwargs):
+        return True
+
+    def disconnect(self): pass
+
     def get_plugin(self, num):
         return self._pubsub_plugin    
 
     @property
     def payload(self):
         return self._pubsub.publish.call_args[1].get('payload')
+
+    @property
+    def payload_string(self):
+        return ET.tostring(self.payload)
 
     @property
     def payload_list(self):
@@ -56,8 +68,9 @@ class MockedEventsNotifierClient(clients.EventsNotifierClient):
     def reset_mock(self):
         self._pubsub.publish.reset_mock()
 
-    def assert_published_once_with(self, expected_payload):
+    def assert_published_once(self):
         assert (self.publish_count == 1)
+
+    def assert_published_once_with(self, expected_payload):
+        self.assert_published_once()
         assertXMLEqual(self.payload, expected_payload)
-
-
