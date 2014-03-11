@@ -163,51 +163,43 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 
   $scope.getRoles = function() {
     //populate list of avail roles for matching
-    $scope.roles={};
+    $scope.filters.roles={};
     $http.get(urls.roles).success(function(data) {
       _.forEach(data.objects, function(role){
-        $scope.roles[role.id] = role;
-        $scope.userFiltersVisible.roles.push(role.id)
+        role.enabled = true;
+        $scope.filters.roles[role.id] = role;
       });
     });
   }
 
   $scope.getMovementTypes = function() {
     //populate list of avail movement_types for matching
-    $scope.movement_types={};
+    $scope.filters.movement_types={};
     $http.get(urls.movement_types).success(function(data) {
       _.forEach(data.objects, function(mt){
-        $scope.movement_types[mt.id] = mt;
-        $scope.userFiltersVisible.movement_types.push(mt.id)
+        mt.enabled = true;
+        $scope.filters.movement_types[mt.id] = mt;
       });
     });
   }
 
-  $scope.toggleUserFilter = function(filter) {
-    // accept filter type and id, add or remove type:id from elemets that are shown
-    if (_.contains($scope.userFiltersVisible[filter.type],filter.id)){
-      _.pull($scope.userFiltersVisible[filter.type],filter.id)
-    }else{
-        $scope.userFiltersVisible[filter.type].push(filter.id)
-    }
-  }
   $scope.userFilters = function(event) {
       // filter events for attrs event.user.role or event.user.movement_type
       // if user has no attr - do not filter him.
-      var user = event.user;
-      isVisible = true;
+      roles = event.user.roles;
+      movement_types = event.user.movement_types;
+      //do not filter elements without attrs
+      if (_.isEmpty(roles) && _.isEmpty(movement_types)) return true;
 
-      if(!_.isEmpty(user.roles)
-        && _.isEmpty(_.intersection(
-          user.roles, $scope.userFiltersVisible.roles))){
-            isVisible = false;
-      }
-      if(!_.isEmpty(user.movement_types)
-        && _.isEmpty(_.intersection(
-          user.movement_types, $scope.userFiltersVisible.movement_types))){
-            isVisible = false;
-      }
-      return isVisible
+      var hasRoles = _.any(roles, function(role_id){
+        return $scope.filters.roles[role_id].enabled
+      });
+
+      var hasMovementTypes = _.any(movement_types, function(mtype_id){
+        return $scope.filters.movement_types[mtype_id].enabled
+      });
+
+      return (hasRoles&&hasMovementTypes)
   }
 
   $scope.addEventUpdate = function() {
@@ -255,12 +247,12 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.events = {};
   $scope.isNotifyingSupporters = false;
   $scope.showFilterPanel = false;
-  $scope.userFiltersVisible = {'roles':[],'movement_types':[]};
   $scope.fields = {
     addEventUpdateText: '',
     notifySupportersRadius: '',
   };
 
+  $scope.filters = {};
   $scope.getRoles();
   $scope.getMovementTypes();
   $scope.update({playSoundForNew:false, highightNew:false, centerMap:true});

@@ -191,22 +191,20 @@
                 ng-click="showFilterPanel= !showFilterPanel"> Filters <span class="caret"> 
               </button>
                 <div ng-show="showFilterPanel" class="filter-panel list-group">
-                  <div ng-if="roles" class="list-group-item">
+                  <div ng-if="filters.roles" class="list-group-item">
                     <h6> Roles: </h6>
-                    <label  ng-repeat="role in roles"  class="checkbox-inline">
+                    <label  ng-repeat="role in filters.roles"  class="checkbox-inline">
                     <input 
-                      ng-click="toggleUserFilter({type:'roles', id:role.id})"
-                      ng-checked="userFiltersVisible.roles.indexOf(role)"
+                      ng-model="role.enabled"
                       type="checkbox" 
                       value="{{role.id}}"/>{{role.name}}</input>
                     </label>
                   </div>
-                  <div ng-if="movement_types" class="list-group-item">
+                  <div ng-if="filters.movement_types" class="list-group-item">
                     <h6> Movement: </h6>
-                    <label  ng-repeat="mt in movement_types"  class="checkbox-inline">
+                    <label  ng-repeat="mt in filters.movement_types"  class="checkbox-inline">
                     <input
-                      ng-click="toggleUserFilter({type:'movement_types', id:mt.id})"
-                      ng-checked="userFiltersVisible.movement_types.indexOf(mt)"
+                      ng-model="mt.enabled"
                       type="checkbox"
                       value="{{mt.id}}"/>{{mt.name}}</input>
                     </label>
@@ -231,14 +229,14 @@
                            <span ng-if="event.user.roles">roles: </span>
                            <li class="event-role"
                              ng-repeat="role in event.user.roles">
-                             {{roles[role].name}}
+                             {{filters.roles[role].name}}
                            </li>
                          </ul>
                          <ul class='event-movement_types small'>
                            <span ng-if="event.user.movement_types">on: </span>
                            <li class="event-movement_type"
                              ng-repeat="mt in event.user.movement_types">
-                             {{movement_types[mt].name}}
+                             {{filters.movement_types[mt].name}}
                            </li>
                          </ul>
                       </div>
