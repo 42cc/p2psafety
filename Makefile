@@ -32,7 +32,7 @@ shell:
 	$(MANAGE) shell
 
 test:
-	TESTING=1 $(TEST) --noinput $(TEST_OPTIONS) -v 2
+	TESTING=1 $(TEST) --noinput $(TEST_OPTIONS)
 
 testone:
 	$(TEST) $(filter-out $@,$(MAKECMDGOALS))
