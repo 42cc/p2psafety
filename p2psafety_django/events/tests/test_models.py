@@ -1,3 +1,4 @@
+from django.contrib.gis.geos import Point
 from django.test import TestCase
 
 from .helpers.factories import EventFactory, EventUpdateFactory
@@ -31,3 +32,12 @@ class EventsTestCase(TestCase):
         EventUpdateFactory(event=event)
 
         self.assertEquals(event.latest_text, '1234')
+
+    def test_latest_location(self):
+        event = EventFactory()
+        EventUpdateFactory(event=event)
+        EventUpdateFactory(event=event, location=Point(1, 2))
+        EventUpdateFactory(event=event, location=Point(3, 4))
+        EventUpdateFactory(event=event)        
+
+        self.assertEquals(event.latest_location, Point(3, 4))
