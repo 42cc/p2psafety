@@ -40,9 +40,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :forwarded_port, guest: 80, host: 8080
   config.vm.network :forwarded_port, guest: 8000, host: 8000
   config.vm.network :forwarded_port, guest: 5222, host: 5222
-  config.vm.synced_folder "../", "/home/vagrant/p2psafety", type: "nfs", nfs_version:4
-  config.nfs.map_uid = Process.uid
-  config.nfs.map_gid = Process.gid
+  if (/darwin/ =~ RUBY_PLATFORM) != nil
+      config.vm.synced_folder "../", "/home/vagrant/p2psafety", type: "nfs", nfs_version:3
+      config.nfs.map_uid = Process.uid
+      config.nfs.map_gid = Process.gid
+  else
+      config.vm.synced_folder "../", "/home/vagrant/p2psafety", type: "nfs", nfs_version:4
+  end
 
   # Share an additional folder to the guest VM. The first argument is
   # an identifier, the second is the path on the guest to mount the
