@@ -17,6 +17,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.fragments.SendMessageFragment;
+import ua.p2psafety.json.Event;
 import ua.p2psafety.services.LocationService;
 import ua.p2psafety.services.PowerButtonService;
 import ua.p2psafety.services.XmppService;
@@ -95,6 +96,8 @@ public class SosActivity extends ActionBarActivity {
                 fragmentManager.beginTransaction().addToBackStack(fragment.getClass().getName())
                         .replace(R.id.content_frame, fragment).commit();
             }
+
+            //setIntent(new Intent(this, SosActivity.class));
         }
 
         if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, mLogs) && Prefs.getGmailToken(this) == null)
@@ -157,7 +160,8 @@ public class SosActivity extends ActionBarActivity {
     protected void onStop() {
         super.onStop();
 
-        if (!EventManager.getInstance(this).isSosStarted())
+        if (!(EventManager.getInstance(this).getEvent().getStatus() == Event.STATUS_ACTIVE &&
+                Utils.isServerAuthenticated(this)))
             stopService(new Intent(this, LocationService.class));
     }
 

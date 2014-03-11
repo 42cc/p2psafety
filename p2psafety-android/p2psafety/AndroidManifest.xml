@@ -102,10 +102,10 @@
         <receiver android:name=".widget.Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerTick"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerFinish"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerCancel"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerChange"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerTick"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerFinish"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerCancel"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerChange"/>
             </intent-filter>
 
             <meta-data
