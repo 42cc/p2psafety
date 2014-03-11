@@ -93,8 +93,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       var eventsAppeared = false, newEvents = {};
       for (i in data.objects) {
         var event = data.objects[i];
-
-
         newEvents[event.id] = event;
       }
       // Deleting old events
@@ -112,7 +110,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
             } else {
               new_event.isNew = false
             }
-          new_event.isVisible = true;
           $scope.events[newEventId] = new_event;
           eventsAppeared = true;
         }
@@ -170,7 +167,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     $http.get(urls.roles).success(function(data) {
       _.forEach(data.objects, function(role){
         $scope.roles[role.id] = role;
-        $scope.shownFilters.roles.push(role.id)
+        $scope.userFiltersVisible.roles.push(role.id)
       });
     });
   }
@@ -181,33 +178,33 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     $http.get(urls.movement_types).success(function(data) {
       _.forEach(data.objects, function(mt){
         $scope.movement_types[mt.id] = mt;
-        $scope.shownFilters.movement_types.push(mt.id)
+        $scope.userFiltersVisible.movement_types.push(mt.id)
       });
     });
   }
 
   $scope.toggleFilter = function(filter) {
-    if (_.contains($scope.shownFilters[filter.type],filter.id)){
-      _.pull($scope.shownFilters[filter.type],filter.id)
+    if (_.contains($scope.userFiltersVisible[filter.type],filter.id)){
+      _.pull($scope.userFiltersVisible[filter.type],filter.id)
     }else{
-        $scope.shownFilters[filter.type].push(filter.id)
+        $scope.userFiltersVisible[filter.type].push(filter.id)
     }
-    _.forEach($scope.events, function(event){
-
+  }
+  $scope.userFilters = function(event) {
       var user = event.user;
-      event.isVisible = true
+      isVisible = true;
 
       if(!_.isEmpty(user.roles)
         && _.isEmpty(_.intersection(
-          user.roles, $scope.shownFilters.roles))){
-            event.isVisible = false;
+          user.roles, $scope.userFiltersVisible.roles))){
+            isVisible = false;
       }
       if(!_.isEmpty(user.movement_types)
         && _.isEmpty(_.intersection(
-          user.movement_types, $scope.shownFilters.movement_types))){
-            event.isVisible = false;
+          user.movement_types, $scope.userFiltersVisible.movement_types))){
+            isVisible = false;
       }
-    });
+      return isVisible
   }
 
   $scope.addEventUpdate = function() {
@@ -255,7 +252,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.events = {};
   $scope.isNotifyingSupporters = false;
   $scope.showFilterPanel = false;
-  $scope.shownFilters = {'roles':[],'movement_types':[]};
+  $scope.userFiltersVisible = {'roles':[],'movement_types':[]};
   $scope.fields = {
     addEventUpdateText: '',
     notifySupportersRadius: '',
@@ -330,10 +327,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       scope.$watch('event.isNew', function(isNew) {
         var animation = (isNew) ? google.maps.Animation.BOUNCE : null;
         marker.setAnimation(animation);
-      });
-      scope.$watch('event.isVisible', function (isVisible) {
-          if (isVisible) marker.setVisible(true)
-          else marker.setVisible(false);
       });
     }
   };

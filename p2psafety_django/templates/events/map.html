@@ -49,7 +49,7 @@
       <div ng-app="mapApp">
         <div ng-controller="EventListCtrl">
           <event-marker click="select(event)"
-                        ng-repeat="event in events"
+                        ng-repeat="event in events|filter:userFilters"
                         ng-if="(event.id != selectedEvent.id) && (selectedEvent == null)">
             <div>
               <p ng-if="event.user.full_name != null">
@@ -196,7 +196,7 @@
                     <label  ng-repeat="role in roles"  class="checkbox-inline">
                     <input 
                       ng-click="toggleFilter({type:'roles', id:role.id})"
-                      ng-checked="shownFilters.roles.indexOf(role)"
+                      ng-checked="userFiltersVisible.roles.indexOf(role)"
                       type="checkbox" 
                       value="{{role.id}}"/>{{role.name}}</input>
                     </label>
@@ -206,7 +206,7 @@
                     <label  ng-repeat="mt in movement_types"  class="checkbox-inline">
                     <input
                       ng-click="toggleFilter({type:'movement_types', id:mt.id})"
-                      ng-checked="shownFilters.movement_types.indexOf(mt)"
+                      ng-checked="userFiltersVisible.movement_types.indexOf(mt)"
                       type="checkbox"
                       value="{{mt.id}}"/>{{mt.name}}</input>
                     </label>
@@ -218,8 +218,8 @@
                     <div class="list-group-item"
                          ng-class="{'list-group-item-warning': event.isNew}"
                          ng-click="event.isNew = false"
-                         ng-repeat="event in events"
-                         ng-if="event.isVisible">
+                         ng-repeat="event in events|filter:userFilters"
+                    >
                          <a class="btn type-{{event.type}}" ng-click="focus(event.latest_location)">
                            <span class="glyphicon glyphicon-map-marker"></span>
                          </a>
