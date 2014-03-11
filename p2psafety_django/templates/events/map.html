@@ -195,7 +195,7 @@
                     <h6> Roles: </h6>
                     <label  ng-repeat="role in roles"  class="checkbox-inline">
                     <input 
-                      ng-click="toggleFilter({type:'roles', id:role.id})"
+                      ng-click="toggleUserFilter({type:'roles', id:role.id})"
                       ng-checked="userFiltersVisible.roles.indexOf(role)"
                       type="checkbox" 
                       value="{{role.id}}"/>{{role.name}}</input>
@@ -205,7 +205,7 @@
                     <h6> Movement: </h6>
                     <label  ng-repeat="mt in movement_types"  class="checkbox-inline">
                     <input
-                      ng-click="toggleFilter({type:'movement_types', id:mt.id})"
+                      ng-click="toggleUserFilter({type:'movement_types', id:mt.id})"
                       ng-checked="userFiltersVisible.movement_types.indexOf(mt)"
                       type="checkbox"
                       value="{{mt.id}}"/>{{mt.name}}</input>

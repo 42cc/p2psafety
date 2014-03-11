@@ -183,7 +183,8 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     });
   }
 
-  $scope.toggleFilter = function(filter) {
+  $scope.toggleUserFilter = function(filter) {
+    // accept filter type and id, add or remove type:id from elemets that are shown
     if (_.contains($scope.userFiltersVisible[filter.type],filter.id)){
       _.pull($scope.userFiltersVisible[filter.type],filter.id)
     }else{
@@ -191,6 +192,8 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     }
   }
   $scope.userFilters = function(event) {
+      // filter events for attrs event.user.role or event.user.movement_type
+      // if user has no attr - do not filter him.
       var user = event.user;
       isVisible = true;
 
