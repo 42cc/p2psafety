@@ -50,7 +50,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   #hack for OSX
   if (/darwin/ =~ RUBY_PLATFORM) != nil
-      config.vm.synced_folder "../", "/home/vagrant/p2psafety", type: "nfs", nfs_version:3
+      config.vm.synced_folder "../", "/home/vagrant/p2psafety", type: "nfs", nfs_version:3,
+:bsd__nfs_options => ["-maproot=0:0"]
       config.nfs.map_uid = Process.uid
       config.nfs.map_gid = Process.gid
   else
