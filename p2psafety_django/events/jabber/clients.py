@@ -140,9 +140,10 @@ class UsersClient(BaseClient):
         else:
             registered_users = User.objects.only('id', 'username').order_by('id')
             registered_jids = [item[0] for item in items['disco_items']['items']]
+            registered_jids_names = [j.split('@')[0] for j in registered_jids]
             name_user_map = dict((u.username, u) for u in registered_users)
             users_to_create = [name_user_map[name] for name in name_user_map
-                               if name not in registered_jids]
+                               if name not in registered_jids_names]
             if users_to_create:
                 logger.debug('%d jabber profiles are missing', len(users_to_create))
                 created_count = sum(map(self.create_account, users_to_create))
