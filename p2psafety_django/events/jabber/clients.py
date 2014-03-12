@@ -61,7 +61,7 @@ class BaseClient(object):
 
     def __init__(self, config_dict):
         self.config = self.Config(config_dict)
-        self._client = ClientXMPP(self.config.jid, self.config.password)
+        self._client = self._create_xmpp_client(self.config.jid, self.config.password)
 
         required_plugins = set(self.base_required_plugins + self.required_plugins)
         for plugin_num in required_plugins:
@@ -69,6 +69,9 @@ class BaseClient(object):
 
         self._client.add_event_handler('session_start', self._on_start, threaded=True)
         self._on_start_event = threading.Event()
+
+    def _create_xmpp_client(self, *args, **kwargs):
+        return ClientXMPP(*args, **kwargs)
 
     def __enter__(self):
         self.connect()

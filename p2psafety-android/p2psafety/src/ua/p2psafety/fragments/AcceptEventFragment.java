@@ -31,11 +31,14 @@ import ua.p2psafety.util.Utils;
 
 public class AcceptEventFragment extends Fragment {
     TextView mEventInfo;
+    TextView mVictimNameText;
     Button mAcceptBtn, mIgnoreBtn;
     Activity mActivity;
 
     Location mEventLocation;
     String mEventSupportUrl;
+    String mLastComment;
+    String mVictimName;
 
     Boolean mAccepted = false;
 
@@ -63,6 +66,8 @@ public class AcceptEventFragment extends Fragment {
         mEventInfo = (TextView) view.findViewById(R.id.txt_info);
         mAcceptBtn = (Button) view.findViewById(R.id.btn_accept);
         mIgnoreBtn = (Button) view.findViewById(R.id.btn_ignore);
+        mEventInfo = (TextView) view.findViewById(R.id.txt_info);
+        mVictimNameText = (TextView) view.findViewById(R.id.txt_victim_name);
 
         mMapView = (P2PMapView) view.findViewById(R.id.fae_map);
         mMapView.onCreate(savedInstanceState);
@@ -105,6 +110,11 @@ public class AcceptEventFragment extends Fragment {
         Bundle bundle = getArguments();
         mEventLocation = (Location) bundle.get(XmppService.LOCATION_KEY);
         mEventSupportUrl = bundle.getString(XmppService.SUPPORTER_URL_KEY);
+        mLastComment = bundle.getString(XmppService.LAST_COMMENT_KEY);
+        mVictimName = bundle.getString(XmppService.VICTIM_NAME_KEY);
+
+        mEventInfo.setText(mLastComment);
+        mVictimNameText.setText(mVictimName);
 
         System.out.println("onViewCreated. location: " + mEventLocation);
         System.out.println("onViewCreated. url: " + mEventSupportUrl);
@@ -136,17 +146,23 @@ public class AcceptEventFragment extends Fragment {
                             EventManager.getInstance(mActivity).getEvent().setType(Event.TYPE_SUPPORT);
                             EventManager.getInstance(mActivity).getEvent().setStatus(Event.STATUS_ACTIVE);
                             XmppService.processing_event = false;
+
                             // open Supporter screen
                             Bundle bundle = new Bundle();
                             bundle.putString(XmppService.SUPPORTER_URL_KEY, mEventSupportUrl);
                             bundle.putParcelable(XmppService.LOCATION_KEY, mEventLocation);
+                            bundle.putString(XmppService.VICTIM_NAME_KEY, mVictimName);
+
                             Fragment fragment = new SupporterFragment();
                             fragment.setArguments(bundle);
                             FragmentManager fm = getFragmentManager();
-                            fm.popBackStackImmediate();
-                            fm.beginTransaction()
-                                    .addToBackStack(null)
+                            if (!Utils.isFragmentAdded(fragment, fm))
+                            {
+                                fm.popBackStackImmediate();
+                                fm.beginTransaction()
+                                    .addToBackStack(fragment.getClass().getName())
                                     .replace(R.id.content_frame, fragment).commit();
+                            }
                         }
                     }
                 });

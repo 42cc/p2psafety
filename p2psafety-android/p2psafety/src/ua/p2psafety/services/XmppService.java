@@ -42,10 +42,11 @@ public class XmppService extends Service {
     private static final String HOST = "p2psafety.net";
 
     public static final String SUPPORTER_URL_KEY = "SUPPORTER_URL";
-    //public static final String RADIUS_KEY = "RADIUS";
     public static final String LOCATION_KEY = "LOCATION";
+    public static final String LAST_COMMENT_KEY = "LAST_COMMENT";
+    public static final String VICTIM_NAME_KEY = "VICTIM_NAME";
 
-    // while asking user accept some event,
+    // while asking user to accept some event,
     // don't ask him about other events
     public static boolean processing_event = false;
 
@@ -60,6 +61,8 @@ public class XmppService extends Service {
 
     // parsed data from xmpp-message
     String mSupportUrl = "";
+    String mLastComment = "";
+    String mVictimName = "";
     Long mRadius;
     Location mEventLocation;
 
@@ -266,6 +269,10 @@ public class XmppService extends Service {
                             mEventLocation.setLatitude(Double.valueOf(parser.getText()));
                         else if (name.equalsIgnoreCase("longitude"))
                             mEventLocation.setLongitude(Double.valueOf(parser.getText()));
+                        else if (name.equalsIgnoreCase("text"))
+                            mLastComment = parser.getText();
+                        else if (name.equalsIgnoreCase("full_name"))
+                            mVictimName = parser.getText();
                         break;
                 }
                 eventType = parser.next();
@@ -275,6 +282,8 @@ public class XmppService extends Service {
             System.out.println("support_url: " + mSupportUrl);
             System.out.println("radius: " + mRadius);
             System.out.println("loc: " + mEventLocation.toString());
+            System.out.println("victim name: " + mVictimName);
+            System.out.println("last comment: " + mLastComment);
 
         } catch (Exception e) {}
     }
@@ -302,8 +311,9 @@ public class XmppService extends Service {
         i.putExtra(SosActivity.FRAGMENT_KEY, AcceptEventFragment.class.getName());
         // put parsed data
         i.putExtra(SUPPORTER_URL_KEY, mSupportUrl);
-        //i.putExtra(RADIUS_KEY, mRadius);
         i.putExtra(LOCATION_KEY, mEventLocation);
+        i.putExtra(VICTIM_NAME_KEY, mVictimName);
+        i.putExtra(LAST_COMMENT_KEY, mLastComment);
         startActivity(i);
     }
 

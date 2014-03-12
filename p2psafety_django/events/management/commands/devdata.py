@@ -25,7 +25,7 @@ class Command(BaseCommand):
                       Role.objects.get_or_create(name="journalist")[0]],
             'movement_types': [MovementType.objects.get_or_create(name="feet")[0],
                               MovementType.objects.get_or_create(name="car")[0]],
-            'timestamp_start': datetime.datetime.now(),
+            'timestamp_start': datetime.datetime.now() - datetime.timedelta(days=5),
             'location_start': geos.Point(390.56, 50.43),
         }
         data['supporter_user'].roles.add(data['roles'][0])
