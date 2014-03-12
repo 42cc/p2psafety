@@ -21,7 +21,7 @@ class EventsNotifierTestCase(TestCase):
         payload = ("""
             <object>
               <text type="null"></text>
-              <support>/api/v1/events/1/support/</support>
+              <support>/api/v1/events/%s/support/</support>
               <radius type="integer">123</radius>
               <user>
                 <id type="integer">1</id>
@@ -29,7 +29,7 @@ class EventsNotifierTestCase(TestCase):
               </user>
               <location type="null"/>
             </object>
-            """ % (user.username,)
+            """ % (event.id, user.username,)
         )
 
         client.publish(event, 123)
