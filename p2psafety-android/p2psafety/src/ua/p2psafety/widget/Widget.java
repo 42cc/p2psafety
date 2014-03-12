@@ -11,11 +11,13 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
-import ua.p2psafety.DelayedSosFragment;
-import ua.p2psafety.DelayedSosService;
-import ua.p2psafety.EventManager;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
+import ua.p2psafety.fragments.DelayedSosFragment;
+import ua.p2psafety.services.DelayedSosService;
+import ua.p2psafety.services.LocationService;
+import ua.p2psafety.util.EventManager;
+import ua.p2psafety.util.NetworkManager;
 
 public class Widget extends AppWidgetProvider {
     private static final String WIDGET_CLICKED = "ua.p2psafety.widget";
@@ -26,6 +28,8 @@ public class Widget extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+        NetworkManager.init(context);
+        context.startService(new Intent(context, LocationService.class));
         mRemoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
         mWatchWidget = new ComponentName(context, Widget.class);
         mContext = context;
@@ -58,13 +62,12 @@ public class Widget extends AppWidgetProvider {
                 Intent i = new Intent(context, SosActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 i.putExtra(SosActivity.FRAGMENT_KEY, DelayedSosFragment.class.getName());
-                context.startActivity(i);
+                mContext.startActivity(i);
             }
             else if (EventManager.getInstance(mContext).isSosStarted()) {
                 // if normal sos is already on - inform user
-                String msg = mContext.getResources().getString(R.string.sos_already_active);
-                Toast.makeText(mContext, msg, Toast.LENGTH_LONG)
-                     .show();
+                Toast.makeText(mContext, mContext.getString(R.string.sos_already_active),
+                        Toast.LENGTH_LONG).show();
             } else {
                 // if sos is off - start delay timer
                 context.startService(new Intent(context, DelayedSosService.class));

@@ -9,7 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
 from django.utils import timezone
 
-import waffle
+from livesettings import config_value
+
 
 try:
     from hashlib import sha1
@@ -60,7 +61,8 @@ class Event(models.Model):
     key = models.CharField(max_length=128, blank=True, default='', db_index=True)
     status = models.CharField(max_length=1, choices=STATUS, default=STATUS_PASSIVE)
     type = models.IntegerField(choices=EVENT_TYPE, default=TYPE_VICTIM)
-    supported = models.ManyToManyField('self', symmetrical=False, related_name='supporters')
+    supported = models.ManyToManyField('self', symmetrical=False,
+        related_name='supporters', blank=True)
 
     def __unicode__(self):
         return u"{} event by {}".format(self.status, self.user)
@@ -77,6 +79,13 @@ class Event(models.Model):
         try:
             updates = self.updates.filter(location__isnull=False)
             return updates.latest().location
+        except EventUpdate.DoesNotExist:
+            return None
+
+    @property
+    def latest_text(self):
+        try:
+            return self.updates.exclude(text='').latest().text
         except EventUpdate.DoesNotExist:
             return None
 
@@ -150,8 +159,10 @@ class EventUpdate(models.Model):
         permissions = (
             ("view_eventupdate", "Can view event update"),
         )
+        ordering = ('-timestamp',)
         get_latest_by = 'timestamp'
 
+    user = models.ForeignKey(User, related_name='event_owner', blank=True, null=True)
     event = models.ForeignKey(Event, related_name='updates')
     timestamp = models.DateTimeField(default=timezone.now)
 
@@ -174,7 +185,7 @@ class EventUpdate(models.Model):
             if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
                 self.event.status = Event.STATUS_ACTIVE
                 self.event.save()
-                if waffle.switch_is_active('supporters-autonotify'):
+                if config_value('Events', 'supporters-autonotify'):
                     self.event.notify_supporters()
 
             super(EventUpdate, self).save(*args, **kwargs)
