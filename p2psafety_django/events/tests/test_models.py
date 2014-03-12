@@ -6,7 +6,6 @@ from django.test.utils import override_settings
 
 from core.utils import set_livesettings_value
 from .helpers.factories import EventFactory, EventUpdateFactory
-from ..jabber import clients
 from ..jabber.tests.helpers import MockedEventsNotifierClient
 from ..models import Event
 from users.tests.helpers import UserFactory

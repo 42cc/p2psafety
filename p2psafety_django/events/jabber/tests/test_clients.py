@@ -1,13 +1,6 @@
-import mock
-import contextlib
-
 from django.test import TestCase
 
-from sleekxmpp.xmlstream import ET
-from lxml import etree
-
 from .helpers import MockedEventsNotifierClient
-from .. import clients
 from ...tests.helpers.factories import EventFactory
 from users.tests.helpers import UserFactory
 
