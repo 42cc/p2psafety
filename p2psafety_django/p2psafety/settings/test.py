@@ -1,7 +1,12 @@
 from .django import *
 from .apps import *
 from .site import *
-from .local import *
+
+try:
+    from .local import *
+except:
+    pass
+
 
 DEBUG = False
 TEMPLATE_DEBUG = False
