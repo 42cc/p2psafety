@@ -25,7 +25,6 @@ def notify_supporters(event, radius=None):
 
     :type event: :class:`events.models.Event`
     """
-
     if radius is None:
         radius = settings.XMPP_EVENTS_NOTIFICATION_RADIUS
 

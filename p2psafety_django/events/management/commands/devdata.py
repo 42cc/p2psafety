@@ -18,7 +18,7 @@ class Command(BaseCommand):
     def setup(self):
         data = {
             'main_user': User.objects.get_or_create(username="devdata_user")[0],
-            'timestamp_start': datetime.datetime.now(),
+            'timestamp_start': datetime.datetime.now() - datetime.timedelta(days=5),
             'location_start': geos.Point(390.56, 50.43),
         }
         return data
