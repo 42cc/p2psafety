@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.gis import geos
 
 from events.tests.helpers.factories import EventFactory, EventUpdateFactory
+from events.models import Event
 from users.tests.helpers import UserFactory
 from users.models import Role, MovementType
 
@@ -89,10 +90,14 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         cfg = self.setup()
         event = EventFactory(user=cfg['main_user'])
-        supporting_event = EventFactory(user=cfg['supporter_user'], type=1)
-        supporting_event.supported.add(event)
+        supporting_event = EventFactory(user=cfg['supporter_user'],
+                type=Event.TYPE_SUPPORT,
+                status=Event.STATUS_ACTIVE)
+        event.support_by_user(supporting_event.user)
 
-        another_event = EventFactory(user=cfg['another_user'], type=1)
+        another_event = EventFactory(user=cfg['another_user'],
+                type=Event.TYPE_SUPPORT,
+                status=Event.STATUS_ACTIVE)
         another_event.supported.add(event)
 
         created = []
