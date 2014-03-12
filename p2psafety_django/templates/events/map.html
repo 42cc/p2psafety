@@ -186,14 +186,23 @@
             <h4 class="panel-heading event-heading">Dispatcher panel</h4>
 
             <div class="panel-body">
-              <button class="btn-filter-panel btn btn-xs"
+              <button class="btn-filter-panel btn-block btn btn-xs"
                 ng-class="{false:'btn-default',true:'btn-success'}[showFilterPanel]"
                 ng-click="showFilterPanel= !showFilterPanel"> Filters <span class="caret"> 
               </button>
                 <div ng-show="showFilterPanel" class="filter-panel list-group">
                   <div ng-if="filters.roles" class="list-group-item">
-                    <h6> Roles: </h6>
-                    <label  ng-repeat="role in filters.roles"  class="checkbox-inline">
+                    <div class="filter-control"> <h6>Roles:</h6>
+                    <div class="filterbtns text-right btn-group btn-group-xs">
+                      <button
+                        ng-click="setFiltersTo(filters.roles, true)"
+                        type="button" class="btn btn-default btn-xs">All</button>
+                      <button
+                        ng-click="setFiltersTo(filters.roles, false)"
+                        type="button" class="btn btn-default btn-xs">None</button>
+                    </div>
+                    </div>
+                    <label  ng-repeat="role in filters.roles"  class="filter-checkbox">
                     <input 
                       ng-model="role.enabled"
                       type="checkbox" 
@@ -201,8 +210,17 @@
                     </label>
                   </div>
                   <div ng-if="filters.movement_types" class="list-group-item">
-                    <h6> Movement: </h6>
-                    <label  ng-repeat="mt in filters.movement_types"  class="checkbox-inline">
+                    <div class="filter-control"> <h6>Movement:</h6>
+                    <div class="filterbtns text-right btn-group btn-group-xs">
+                      <button
+                        ng-click="setFiltersTo(filters.movement_types, true)"
+                        type="button" class="btn btn-default btn-xs">All</button>
+                      <button
+                        ng-click="setFiltersTo(filters.movement_types, false)"
+                        type="button" class="btn btn-default btn-xs">None</button>
+                    </div>
+                    </div>
+                    <label  ng-repeat="mt in filters.movement_types"  class="filter-checkbox">
                     <input
                       ng-model="mt.enabled"
                       type="checkbox"

@@ -182,6 +182,10 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       });
     });
   }
+  $scope.setFiltersTo=function(filters,value){
+      //set array of user filters to be disabled or enabled, all at once
+      _.map(filters,function(el){el.enabled=value});
+  }
 
   $scope.userFilters = function(event) {
       // filter events for attrs event.user.role or event.user.movement_type
