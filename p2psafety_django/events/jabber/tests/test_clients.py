@@ -24,12 +24,12 @@ class EventsNotifierTestCase(TestCase):
               <support>/api/v1/events/%s/support/</support>
               <radius type="integer">123</radius>
               <user>
-                <id type="integer">1</id>
+                <id type="integer">%s</id>
                 <full_name>%s</full_name>
               </user>
               <location type="null"/>
             </object>
-            """ % (event.id, user.username,)
+            """ % (event.id, user.id, user.username,)
         )
 
         client.publish(event, 123)
