@@ -1,17 +1,10 @@
 from .django import *
 from .apps import *
 from .site import *
-
+from .local import *
 
 DEBUG = False
 TEMPLATE_DEBUG = False
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'p2psafety',
-    }
-}
 
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.MD5PasswordHasher',
