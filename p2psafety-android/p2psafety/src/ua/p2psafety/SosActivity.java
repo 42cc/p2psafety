@@ -6,14 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.MenuItem;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -21,16 +15,16 @@ import com.facebook.UiLifecycleHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.fragments.SendMessageFragment;
+import ua.p2psafety.json.Event;
 import ua.p2psafety.services.LocationService;
 import ua.p2psafety.services.PowerButtonService;
 import ua.p2psafety.services.XmppService;
 import ua.p2psafety.util.EventManager;
-import ua.p2psafety.util.NetworkManager;
-import ua.p2psafety.data.PhonesDatasourse;
-import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.GmailOAuth2Sender;
 import ua.p2psafety.util.Logs;
+import ua.p2psafety.util.NetworkManager;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -78,6 +72,17 @@ public class SosActivity extends ActionBarActivity {
 
         Fragment fragment;
 
+        // normal start
+        mLogs.info("SosActiviy. onCreate. Normal start. Opening SendMessageFragment");
+        fragment = new SendMessageFragment();
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (!Utils.isFragmentAdded(fragment, fragmentManager))
+        {
+            fragmentManager.beginTransaction().addToBackStack(fragment.getClass().getName())
+                    .replace(R.id.content_frame, fragment).commit();
+        }
+
         String fragmentClass = getIntent().getStringExtra(FRAGMENT_KEY);
         if (fragmentClass != null) {
             // activity started from outside
@@ -85,17 +90,15 @@ public class SosActivity extends ActionBarActivity {
             mLogs.info("SosActiviy. onCreate. Activity requested to open " + fragmentClass);
             fragment = Fragment.instantiate(this, fragmentClass);
             fragment.setArguments(getIntent().getExtras());
-        } else {
-            // normal start
-            mLogs.info("SosActiviy. onCreate. Normal start. Opening SendMessageFragment");
-            fragment = new SendMessageFragment();
+
+            if (!Utils.isFragmentAdded(fragment, fragmentManager))
+            {
+                fragmentManager.beginTransaction().addToBackStack(fragment.getClass().getName())
+                        .replace(R.id.content_frame, fragment).commit();
+            }
+
+            //setIntent(new Intent(this, SosActivity.class));
         }
-
-        setIntent(new Intent(this, SosActivity.class));
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().addToBackStack(null)
-                .replace(R.id.content_frame, fragment).commit();
 
         if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, mLogs) && Prefs.getGmailToken(this) == null)
         {
@@ -143,13 +146,13 @@ public class SosActivity extends ActionBarActivity {
         Session currentSession = Session.getActiveSession();
         if (currentSession == null || currentSession.getState() != SessionState.OPENING) {
             super.onBackPressed();
+
+            FragmentManager fm = getSupportFragmentManager();
+            if (fm.getBackStackEntryCount() == 0) {
+                finish();
+            }
         } else {
             mLogs.info("SosActivity. onBackPressed. Ignoring");
-        }
-
-        FragmentManager fm = getSupportFragmentManager();
-        if (fm.getBackStackEntryCount() == 0) {
-            finish();
         }
     }
 
@@ -157,7 +160,8 @@ public class SosActivity extends ActionBarActivity {
     protected void onStop() {
         super.onStop();
 
-        if (!EventManager.getInstance(this).isSosStarted())
+        if (!(EventManager.getInstance(this).getEvent().getStatus() == Event.STATUS_ACTIVE &&
+                Utils.isServerAuthenticated(this)))
             stopService(new Intent(this, LocationService.class));
     }
 

@@ -349,9 +349,12 @@ public class SettingsFragment extends Fragment {
         FragmentManager mfragmentManager = getFragmentManager();
         if (mfragmentManager != null)
         {
-            final FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.replace(R.id.content_frame, fragment).commit();
+            if (!Utils.isFragmentAdded(fragment, mfragmentManager))
+            {
+                FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
+                fragmentTransaction.addToBackStack(fragment.getClass().getName());
+                fragmentTransaction.replace(R.id.content_frame, fragment).commit();
+            }
         } else {
             mLogs.error("FragmentManager is null :(");
         }
