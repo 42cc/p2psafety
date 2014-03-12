@@ -68,21 +68,17 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
         window.location.hash = event.id;
         $scope.selectedEvent.isNew = false;
       });
-      for (i in $scope.events) {
-        var event_support = $scope.events[i];
-        if(event_support.type=="support"){
-          for (var i = 0; i<event_support.supported.length; i++){
-            var supported = $scope.events[event_support.supported[i].id];
-            if(supported.id == event.id){
-                $scope.selectedEventsupport[event_support.id] = event_support;
-            }
-          }
+
+      var supportEvents = _.filter($scope.events, {"type": "support"});
+      _.forEach(supportEvents,function (support) {
+        if (_.any(support.supported,{"id":event.id})){
+          $scope.selectedEventsupport[support.id] = support;
         }
-      }
-      for (var i = 0; i<event.supported.length; i++) {
-        var supported = $scope.events[event.supported[i].id];
-        $scope.selectedEventsupported[supported.id] = supported;
-      }
+        });
+      _.forEach(event.supported, function(supported){
+        $scope.selectedEventsupported[supported.id] = $scope.events[supported.id];
+      });
+
     };
   };
   $scope.update = function(options, callback) {
