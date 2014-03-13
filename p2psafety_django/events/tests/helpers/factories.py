@@ -13,6 +13,3 @@ class EventFactory(DjangoModelFactory):
 
 class EventUpdateFactory(DjangoModelFactory):
     FACTORY_FOR = EventUpdate
-
-    audio = FileField()
-    video = FileField()

@@ -64,10 +64,18 @@
         android:name="android.hardware.wifi"
         android:required="false" />
 
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:anyDensity="true" />
+
     <application
             android:allowBackup="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/app_name"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@style/AppTheme">
 
         <service android:name=".services.DelayedSosService" />
@@ -81,20 +89,24 @@
         <activity
                 android:name=".SosActivity"
                 android:screenOrientation="portrait"
-                android:launchMode="singleTask">
+                android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+                android:launchMode="singleTop"
+                android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
+        <activity android:name="com.facebook.LoginActivity" />
+
         <receiver android:name=".widget.Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerTick"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerFinish"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerCancel"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerChange"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerTick"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerFinish"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerCancel"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerChange"/>
             </intent-filter>
 
             <meta-data
