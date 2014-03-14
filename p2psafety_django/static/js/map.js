@@ -237,9 +237,9 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     })
   };
   $scope.createTestEvent = function() {
-    $http.post(urls.createTestEvent).success(function(data) {
-      
-    });
+    var center = $scope.gmap.getCenter(),
+        data = {longitude: center.lng(), latitude: center.lat()};
+    $http.post(urls.createTestEvent, data);
   };
 
   $scope.updatePerSeconds = 5;

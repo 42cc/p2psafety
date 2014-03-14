@@ -91,8 +91,8 @@ def map_notify_supporters(request):
 def map_create_test_event(request):
     try:
         data = json.loads(request.body)
-        longitude = int(data['longitude'])
-        latitude = int(data['latitude'])
+        longitude = float(data['longitude'])
+        latitude = float(data['latitude'])
     except (KeyError, ValueError):
         return HttpResponseBadRequest()
     else:
