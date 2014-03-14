@@ -89,13 +89,20 @@ def map_notify_supporters(request):
 @permission_required('events.add_eventupdate', raise_exception=True)
 @ajax_request
 def map_create_test_event(request):
-    user, created = User.objects.get_or_create(username='test_user')
-    if not created:
-        EventUpdate.objects.filter(event__user=user).delete()
-        Event.objects.filter(user=user).delete()
+    try:
+        data = json.loads(request.body)
+        longitude = int(data['longitude'])
+        latitude = int(data['latitude'])
+    except (KeyError, ValueError):
+        return HttpResponseBadRequest()
+    else:
+        user, created = User.objects.get_or_create(username='test_user')
+        if not created:
+            EventUpdate.objects.filter(event__user=user).delete()
+            Event.objects.filter(user=user).delete()
 
-    event = Event.objects.create(user=user)
-    point = Point(50, 50)
-    kwargs = dict(event=event, location=point, text='Help me!')
-    event_update = EventUpdate.objects.create(**kwargs)
-    return dict(success=True)
+        event = Event.objects.create(user=user)
+        point = Point(longitude, latitude)
+        kwargs = dict(event=event, location=point, text='Help me!')
+        EventUpdate.objects.create(**kwargs)
+        return dict(success=True)

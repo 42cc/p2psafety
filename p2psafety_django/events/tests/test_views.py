@@ -140,16 +140,18 @@ class MapTestCase(UsersMixin, ResourceTestCase):
         url = reverse('events:map_create_test_event')
         users_count, events_count = User.objects.count(), Event.objects.count()
         eventupdates_count = EventUpdate.objects.count()
+        data = dict(longitude=1, latitude=2)
         
         self.login_as_superuser()
 
-        self.assertHttpOK(self.api_client.post(url))
+        self.assertHttpOK(self.api_client.post(url, data=data))
         self.assertEqual(User.objects.count(), users_count + 1)
         self.assertEqual(Event.objects.count(), events_count + 1)
         self.assertEqual(EventUpdate.objects.count(), eventupdates_count + 1)
         last_update = EventUpdate.objects.latest()
         self.assertNotEqual(last_update.text, '')
-        self.assertIsNotNone(last_update.location)
+        self.assertEqual(last_update.location.x, 1)
+        self.assertEqual(last_update.location.y, 2)
 
     def test_create_test_event_errors(self):
         url = reverse('events:map_create_test_event')
@@ -162,3 +164,10 @@ class MapTestCase(UsersMixin, ResourceTestCase):
 
         # Bad request method
         self.assertHttpMethodNotAllowed(self.api_client.get(url))
+
+        # Invalid data
+        data = dict(longitude=1)
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
+
+        data = dict(longitude='asd', latitude='dsa')
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
