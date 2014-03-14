@@ -1,7 +1,10 @@
 import json
+import random
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.gis.geos import Point
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
@@ -80,6 +83,19 @@ def map_notify_supporters(request):
 
 
 @csrf_exempt
+@require_POST
+@permission_required('auth.add_user', raise_exception=True)
+@permission_required('events.add_event', raise_exception=True)
+@permission_required('events.add_eventupdate', raise_exception=True)
 @ajax_request
 def map_create_test_event(request):
-    return dict()
+    user, created = User.objects.get_or_create(username='test_user')
+    if not created:
+        EventUpdate.objects.filter(event__user=user).delete()
+        Event.objects.filter(user=user).delete()
+
+    event = Event.objects.create(user=user)
+    point = Point(50, 50)
+    kwargs = dict(event=event, location=point, text='Help me!')
+    event_update = EventUpdate.objects.create(**kwargs)
+    return dict(success=True)

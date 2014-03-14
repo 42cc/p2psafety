@@ -161,4 +161,4 @@ class MapTestCase(UsersMixin, ResourceTestCase):
         self.login_as_superuser()
 
         # Bad request method
-        self.assertHttpBadRequest(self.api_client.get(url))
+        self.assertHttpMethodNotAllowed(self.api_client.get(url))
