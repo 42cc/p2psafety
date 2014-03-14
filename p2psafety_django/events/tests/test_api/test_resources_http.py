@@ -74,7 +74,11 @@ class PermissionTestCase(UsersMixin, ModelsMixin, ResourceTestCase):
         event2.supported.add(event)
         url = self.events_list_url
         resp = self.api_client.get(url)
-        self.assertEqual(resp.status_code, 200)
+        self.assertValidJSONResponse(resp)
+        objects = self.deserialize(resp)['objects']
+        self.assertEqual(len(objects), 2)
+        self.assertEqual(objects[0]['supported'][0]['id'], objects[1]['id'])
+        self.assertEqual(objects[1]['supported'][0]['id'], objects[0]['id'])
 
 
 class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):

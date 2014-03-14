@@ -1,12 +1,17 @@
+import mock
+
+from django.contrib.gis.geos import Point
 from django.test import TestCase
+from django.test.utils import override_settings
 
+from core.utils import set_livesettings_value
 from .helpers.factories import EventFactory, EventUpdateFactory
+from ..jabber.tests.helpers import MockedEventsNotifierClient
 from ..models import Event
-
 from users.tests.helpers import UserFactory
 
 
-class EventsTestCase(TestCase):
+class EventTestCase(TestCase):
 
     def test_support_by_user(self):
         user_victim, user_supporter = UserFactory(), UserFactory()
@@ -31,3 +36,28 @@ class EventsTestCase(TestCase):
         EventUpdateFactory(event=event)
 
         self.assertEquals(event.latest_text, '1234')
+
+    def test_latest_location(self):
+        event = EventFactory()
+        EventUpdateFactory(event=event)
+        EventUpdateFactory(event=event, location=Point(1, 2))
+        EventUpdateFactory(event=event, location=Point(3, 4))
+        EventUpdateFactory(event=event)        
+
+        self.assertEquals(event.latest_location, Point(3, 4))
+
+
+class EventUpdateTestCase(TestCase):
+
+    @mock.patch('events.jabber.clients.EventsNotifierClient')
+    def test_save(self, MockClient):
+        set_livesettings_value('Events', 'supporters-autonotify', True)        
+        mocked_client = MockClient.return_value = MockedEventsNotifierClient()
+        event = EventFactory()
+
+        with override_settings(JABBER_DRY_RUN=False):
+            EventUpdateFactory(event=event, text='Test', location=Point(1, 2))
+        
+        mocked_client.assert_published_once()
+        self.assertIn('Test', mocked_client.payload_string)
+        self.assertIn('location type="hash"', mocked_client.payload_string)

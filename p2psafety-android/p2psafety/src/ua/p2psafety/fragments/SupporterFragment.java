@@ -8,9 +8,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -19,6 +21,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import ua.p2psafety.adapters.StableArrayAdapter;
 import ua.p2psafety.util.EventManager;
 import ua.p2psafety.P2PMapView;
 import ua.p2psafety.R;
@@ -42,14 +46,16 @@ import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
 public class SupporterFragment extends Fragment {
+    String mVictimName;
 
-    TextView mEventInfo;
+    TextView mVictimNameText;
     Button mAudioBtn, mVideoBtn;
     Button mCloseEventBtn;
     Activity mActivity;
     Event mEvent;
     P2PMapView mMapView;
     GoogleMap mMap;
+    ListView mCommentsList;
 
     ScheduledExecutorService mExecutor;
 
@@ -70,22 +76,13 @@ public class SupporterFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.frag_supporter, container, false);
 
-        mEventInfo = (TextView) view.findViewById(R.id.txt_info);
         mAudioBtn = (Button) view.findViewById(R.id.btn_audio);
         mVideoBtn = (Button) view.findViewById(R.id.btn_video);
         mCloseEventBtn = (Button) view.findViewById(R.id.btn_close_event);
+        mCommentsList = (ListView) view.findViewById(R.id.lsv_comments);
+        mVictimNameText = (TextView) view.findViewById(R.id.txt_victim_name);
 
         mEvent = Prefs.getEvent(mActivity);
-
-//        mActivity.getIntent().putExtra("event_id", mEvent.getId());
-
-//        NetworkManager.getInfoAboutEvent(mActivity, mActivity.getIntent().getStringExtra("event_id")
-//                , new NetworkManager.DeliverResultRunnable<Boolean>() {
-//            @Override
-//            public void deliver(Boolean aBoolean) {
-//                //good
-//            }
-//        });
 
         mMapView = (P2PMapView) view.findViewById(R.id.supporter_map);
         mMapView.onCreate(savedInstanceState);
@@ -139,10 +136,30 @@ public class SupporterFragment extends Fragment {
             }
         });
 
+        mCommentsList.setOnTouchListener(new ListView.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        break;
+                }
+                v.onTouchEvent(event);
+                return true;
+            }
+        });
+
         Bundle bundle = getArguments();
         if (bundle != null) {
             mSupportUrl = bundle.getString(XmppService.SUPPORTER_URL_KEY);
             mEventLocation = (Location) bundle.get(XmppService.LOCATION_KEY);
+            mVictimName = bundle.getString(XmppService.VICTIM_NAME_KEY);
+
+            mVictimNameText.setText(mVictimName);
 
             LatLng eventLatLng = new LatLng(mEventLocation.getLatitude(), mEventLocation.getLongitude());
             mMap.addMarker(new MarkerOptions()
@@ -212,25 +229,18 @@ public class SupporterFragment extends Fragment {
                             }
                         }
 
+                        List<String> comments = new ArrayList<String>();
                         // try to get latest event info
                         for (Event update: updates) {
                             Log.i("SupporterFragment", "update id: " + update.getId());
                             String text = update.getText();
                             if (text != null && !text.isEmpty()) {
-                               mEventInfo.setText(text);
-
-                               break;
+                               comments.add(update.getText());
                             }
                         }
-
-                        NetworkManager.getEvent(mActivity, event_id,
-                                new NetworkManager.DeliverResultRunnable<Event>() {
-                                    @Override
-                                    public void deliver(Event event) {
-                                        NetworkManager.getUserByEvent(mActivity, event_id,
-                                                new NetworkManager.DeliverResultRunnable<User>());
-                                    }
-                                });
+                        StableArrayAdapter adapter = new StableArrayAdapter(mActivity,
+                                android.R.layout.simple_list_item_1, comments);
+                        mCommentsList.setAdapter(adapter);
                     }
                 });
     }
@@ -293,5 +303,4 @@ public class SupporterFragment extends Fragment {
         super.onLowMemory();
         mMapView.onLowMemory();
     }
-
 }

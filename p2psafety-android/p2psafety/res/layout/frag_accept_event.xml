@@ -9,28 +9,43 @@
     android:focusableInTouchMode="true"
     android:clickable="true">
 
-        <LinearLayout
-            android:orientation="horizontal"
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text=""
+        android:id="@+id/txt_info"
+        android:layout_gravity="center"
+        android:textSize="24sp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/victim_text"
+            android:id="@+id/txt_victim_caption"
+            android:textSize="18sp"
+            android:layout_marginRight="10dp"
+            android:textStyle="bold" />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center_horizontal"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="@string/help_needed"
-                android:id="@+id/txt_info"
-                android:layout_gravity="center"
-                android:textSize="24sp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_weight="0" />
-
-        </LinearLayout>
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text=""
+            android:id="@+id/txt_victim_name"
+            android:textSize="18sp"
+            android:layout_marginRight="10dp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <ua.p2psafety.P2PMapView
         android:id="@+id/fae_map"
