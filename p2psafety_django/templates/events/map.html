@@ -11,12 +11,19 @@
 {% block scripts %}
   {{ block.super }}
   <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&sensor=false&language=uk"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-animate.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+  <script src="{% static 'js/angular_lodash.js' %}"></script>
   <script src="{% static 'js/map.js' %}"></script>
   <script>
     mapApp.constant('urls', {
       events: "{% url 'api_dispatch_list' resource_name='events' api_name='v1' %}",
       eventupdates: "{% url 'api_dispatch_list' resource_name='eventupdates' api_name='v1' %}",
+      roles: "{% url 'api_dispatch_list' resource_name='roles' api_name='v1' %}",
+      movement_types: "{% url 'api_dispatch_list' resource_name='movement_types' api_name='v1' %}",
+      user_roles:"{% url 'api_users_roles' resource_name='users' api_name='v1' %}",
+      user_movement_types:"{% url 'api_users_movement_types' resource_name='users' api_name='v1' %}",
       addEventUpdate: "{% url 'events:map_add_eventupdate' %}",
       closeEvent: "{% url 'events:map_close_event' %}",
       notifySupporters: "{% url 'events:map_notify_supporters' %}",
@@ -42,7 +49,7 @@
       <div ng-app="mapApp">
         <div ng-controller="EventListCtrl">
           <event-marker click="select(event)"
-                        ng-repeat="event in events"
+                        ng-repeat="event in events|filter:userFilters"
                         ng-if="(event.id != selectedEvent.id) && (selectedEvent == null)">
             <div>
               <p ng-if="event.user.full_name != null">
@@ -177,24 +184,86 @@
           <div class="selected-event panel panel-primary " 
                 ng-if="selectedEvent == null">
             <h4 class="panel-heading event-heading">Dispatcher panel</h4>
+
             <div class="panel-body">
+              <button class="btn-filter-panel btn-block btn btn-xs"
+                ng-class="{false:'btn-default',true:'btn-success'}[showFilterPanel]"
+                ng-click="showFilterPanel= !showFilterPanel"> Filters <span class="caret"> 
+              </button>
+                <div ng-show="showFilterPanel" class="filter-panel list-group">
+                  <div ng-if="filters.roles" class="list-group-item">
+                    <div class="filter-control"> <h6>Roles:</h6>
+                    <div class="filterbtns text-right btn-group btn-group-xs">
+                      <button
+                        ng-click="setFiltersTo(filters.roles, true)"
+                        type="button" class="btn btn-default btn-xs">All</button>
+                      <button
+                        ng-click="setFiltersTo(filters.roles, false)"
+                        type="button" class="btn btn-default btn-xs">None</button>
+                    </div>
+                    </div>
+                    <label  ng-repeat="role in filters.roles"  class="filter-checkbox">
+                    <input 
+                      ng-model="role.enabled"
+                      type="checkbox" 
+                      value="{{role.id}}"/>{{role.name}}</input>
+                    </label>
+                  </div>
+                  <div ng-if="filters.movement_types" class="list-group-item">
+                    <div class="filter-control"> <h6>Movement:</h6>
+                    <div class="filterbtns text-right btn-group btn-group-xs">
+                      <button
+                        ng-click="setFiltersTo(filters.movement_types, true)"
+                        type="button" class="btn btn-default btn-xs">All</button>
+                      <button
+                        ng-click="setFiltersTo(filters.movement_types, false)"
+                        type="button" class="btn btn-default btn-xs">None</button>
+                    </div>
+                    </div>
+                    <label  ng-repeat="mt in filters.movement_types"  class="filter-checkbox">
+                    <input
+                      ng-model="mt.enabled"
+                      type="checkbox"
+                      value="{{mt.id}}"/>{{mt.name}}</input>
+                    </label>
+                  </div>
+              </div>
+                <hr>
+
                 <div class="list-group">
                     <div class="list-group-item"
                          ng-class="{'list-group-item-warning': event.isNew}"
                          ng-click="event.isNew = false"
-                         ng-repeat="event in events">
-                      <a class="btn btn-success" ng-click="focus(event.latest_location)">
-                        <span class="glyphicon glyphicon-map-marker"></span>
-                      </a>
-                      <div class="event-name"
+                         ng-repeat="event in events|filter:userFilters"
+                    >
+                         <a class="btn type-{{event.type}}" ng-click="focus(event.latest_location)">
+                           <span class="glyphicon glyphicon-map-marker"></span>
+                         </a>
+                         <div class="event-name"
                            ng-click="select(event)"
                            ng-bind="event.user.full_name"></div>
+
+                         <ul class='event-roles small'>
+                           <span ng-if="event.user.roles">roles: </span>
+                           <li class="event-role"
+                             ng-repeat="role in event.user.roles">
+                             {{filters.roles[role].name}}
+                           </li>
+                         </ul>
+                         <ul class='event-movement_types small'>
+                           <span ng-if="event.user.movement_types">on: </span>
+                           <li class="event-movement_type"
+                             ng-repeat="mt in event.user.movement_types">
+                             {{filters.movement_types[mt].name}}
+                           </li>
+                         </ul>
+                      </div>
                     </div>
                 </div>
-            </div>
             <div class="legend">
                 <span><img src='http://maps.google.com/mapfiles/ms/micons/red-dot.png'> - victim</span>
                 <span><img src='http://maps.google.com/mapfiles/ms/micons/green-dot.png'> - support</span>
+            </div>
             </div>
           </div>
          <div id="map-canvas"></div>
