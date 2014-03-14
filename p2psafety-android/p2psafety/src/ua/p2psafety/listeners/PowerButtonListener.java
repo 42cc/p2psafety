@@ -4,10 +4,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import ua.p2psafety.util.EventManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.services.AudioRecordService;
+import ua.p2psafety.services.LocationService;
 import ua.p2psafety.services.VideoRecordService;
+import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.Utils;
 
 public class PowerButtonListener extends BroadcastReceiver{
@@ -50,12 +51,14 @@ public class PowerButtonListener extends BroadcastReceiver{
             //if current pressCount==3 then we start vibration
             if (mPressCount == 3) {
                 Utils.startVibration(context);
+                context.startService(new Intent(context, LocationService.class));
             }
         }
         else
         {
             //else mPressCount=0 and we start again all functionality with first time clicked button
             mPressCount = 0;
+            context.stopService(new Intent(context, LocationService.class));
             mainFunctionality(context);
         }
         //save current time

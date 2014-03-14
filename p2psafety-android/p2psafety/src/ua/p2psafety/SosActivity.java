@@ -51,7 +51,6 @@ public class SosActivity extends ActionBarActivity {
         NetworkManager.init(this);
         mLogs.info("SosActiviy. onCreate. Starting PowerButtonService");
         startService(new Intent(this, PowerButtonService.class));
-        startService(new Intent(this, LocationService.class));
         if (!Utils.isServiceRunning(this, XmppService.class) &&
             Utils.isServerAuthenticated(this) &&
             !EventManager.getInstance(this).isEventActive())
@@ -162,7 +161,9 @@ public class SosActivity extends ActionBarActivity {
 
         if (!(EventManager.getInstance(this).getEvent().getStatus() == Event.STATUS_ACTIVE &&
                 Utils.isServerAuthenticated(this)))
-            stopService(new Intent(this, LocationService.class));
+            //stop service few times, because it can be started more than one time
+            for (int i=0; i<5; i++)
+                stopService(new Intent(this, LocationService.class));
     }
 
     @Override
