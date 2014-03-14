@@ -57,6 +57,7 @@ public class SosActivity extends ActionBarActivity {
         {
             startService(new Intent(this, XmppService.class));
         }
+        Prefs.setProgramRunning(true, this);
     }
 
     @Override
@@ -137,6 +138,7 @@ public class SosActivity extends ActionBarActivity {
         mLogs.info("\n\n\n==========================\n==============================");
         mUiHelper.onDestroy();
         mLogs.close();
+        Prefs.setProgramRunning(false, this);
     }
 
     @Override

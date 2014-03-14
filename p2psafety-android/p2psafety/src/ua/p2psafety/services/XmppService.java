@@ -193,7 +193,8 @@ public class XmppService extends Service {
                 public void handlePublishedItems(ItemPublishEvent items) {
                     if (items.isDelayed())
                     {
-                        stopService(new Intent(XmppService.this, LocationService.class));
+                        if (!Prefs.isProgramRunning(XmppService.this))
+                            stopService(new Intent(XmppService.this, LocationService.class));
                         return; // old event
                     }
 

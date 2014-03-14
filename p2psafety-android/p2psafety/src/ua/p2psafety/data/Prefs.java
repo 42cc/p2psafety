@@ -3,8 +3,8 @@ package ua.p2psafety.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import ua.p2psafety.json.Event;
 import ua.p2psafety.R;
+import ua.p2psafety.json.Event;
 import ua.p2psafety.json.User;
 
 /**
@@ -29,6 +29,10 @@ public class Prefs {
 
     private static final String IS_SUPPORTER_MODE = "IS_SUPPORTER_MODE";
     private static final String SUPPORT_URL = "SUPPORT_URL";
+
+    private static final String USER_IDENTIFIER = "USER_IDENTIFIER";
+
+    private static final String IS_PROGRAM_RUNNING = "IS_PROGRAM_RUNNING";
 
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
@@ -60,6 +64,14 @@ public class Prefs {
 
     public static void putMediaRecordLength(Context context, long val) {
         getPrefs(context).edit().putLong(MEDIA_RECORD_LENGTH, val).commit();
+    }
+
+    public static String getUserIdentifier(Context context) {
+        return getPrefs(context).getString(USER_IDENTIFIER, null);
+    }
+
+    public static void putUserIdentifier(Context context, String uid) {
+        getPrefs(context).edit().putString(USER_IDENTIFIER, uid).commit();
     }
 
     public static void putSosStarted(Context context, boolean val) {
@@ -223,5 +235,14 @@ public class Prefs {
         user.setUri(uri);
 
         return user;
+    }
+
+    public static boolean isProgramRunning(Context context) {
+        return getPrefs(context).getBoolean(IS_PROGRAM_RUNNING, false);
+    }
+
+    public static void setProgramRunning(boolean val, Context context)
+    {
+        getPrefs(context).edit().putBoolean(IS_PROGRAM_RUNNING, val).commit();
     }
 }

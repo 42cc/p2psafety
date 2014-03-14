@@ -97,7 +97,7 @@ public class LocationService extends Service implements
 
         mLocationClient.connect();
 
-        return Service.START_STICKY;
+        return Service.START_NOT_STICKY;
     }
 
     private void initValues() {

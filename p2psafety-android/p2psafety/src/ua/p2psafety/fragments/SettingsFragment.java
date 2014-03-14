@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +19,12 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.bugsense.trace.BugSenseHandler;
+import com.facebook.Request;
+import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
+import com.facebook.model.GraphUser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -214,7 +219,7 @@ public class SettingsFragment extends Fragment {
                                 Utils.setLoading(mActivity, true);
                                 NetworkManager.loginAtServer(mActivity,
                                         userLogin.getText().toString(),
-                                        userPassword.getText().toString(), new MyDeliverResultRunnable());
+                                        userPassword.getText().toString(), new MyDeliverResultRunnable("notFB"));
                             }
                         })
                 .setNegativeButton(android.R.string.cancel,
@@ -238,9 +243,10 @@ public class SettingsFragment extends Fragment {
                         if (state.isOpened()) {
                             mLogs.info("SettingsFragment. FB session is opened. Login at server");
                             Utils.setLoading(mActivity, true);
+                            Utils.getFbUserInfo(mActivity);
                             NetworkManager.loginAtServer(mActivity,
                                     Session.getActiveSession().getAccessToken(),
-                                    NetworkManager.FACEBOOK, new MyDeliverResultRunnable());
+                                    NetworkManager.FACEBOOK, new MyDeliverResultRunnable("FB"));
                         }
                     }
                 };
@@ -295,6 +301,14 @@ public class SettingsFragment extends Fragment {
     // if login completed successfully, open Servers screen;
     // otherwise build new dialog with retry/cancel buttons
     private class MyDeliverResultRunnable extends NetworkManager.DeliverResultRunnable<Boolean> {
+
+        private String type;
+
+        public MyDeliverResultRunnable(String type)
+        {
+            this.type = type;
+        }
+
         @Override
         public void deliver(final Boolean success) {
             mLogs.info("SettingsFragment. Login succeed");
@@ -302,6 +316,10 @@ public class SettingsFragment extends Fragment {
                 @Override
                 public void run() {
                     Utils.setLoading(mActivity, false);
+
+                    if (!type.equals("FB"))
+                        BugSenseHandler.setUserIdentifier(Prefs.getApiUsername(mActivity));
+
                     setupOptions();
                     mActivity.startService(new Intent(mActivity, XmppService.class));
                     if (mDoAfterLogin != null)

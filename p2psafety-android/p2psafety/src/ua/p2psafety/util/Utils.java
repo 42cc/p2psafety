@@ -32,7 +32,11 @@ import android.support.v4.app.FragmentManager;
 import android.util.Base64;
 import android.util.Log;
 
+import com.bugsense.trace.BugSenseHandler;
+import com.facebook.Request;
+import com.facebook.Response;
 import com.facebook.Session;
+import com.facebook.model.GraphUser;
 
 import java.io.File;
 import java.security.MessageDigest;
@@ -328,5 +332,29 @@ public class Utils {
                 }
             });
         } catch (Exception e) {}
+    }
+
+    public static void getFbUserInfo(final Context context)
+    {
+        Request.newMeRequest(Session.getActiveSession(), new Request.GraphUserCallback() {
+            @Override
+            public void onCompleted(GraphUser user, Response response) {
+                // got user info
+                if (user != null) {
+                    String uid = user.getId();
+
+                    Prefs.putUserIdentifier(context, uid);
+                    putUidToBugSense(uid);
+                } else {
+                    // otherwise - try again
+                    getFbUserInfo(context);
+                }
+            }
+        }).executeAsync();
+    }
+
+    public static void putUidToBugSense(String uid) {
+        BugSenseHandler.setUserIdentifier(new StringBuilder()
+                .append("https://facebook.com/").append(uid).toString());
     }
 }
