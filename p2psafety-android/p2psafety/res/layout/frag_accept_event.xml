@@ -16,7 +16,7 @@
         android:text=""
         android:id="@+id/txt_info"
         android:layout_gravity="center"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp" />
 
