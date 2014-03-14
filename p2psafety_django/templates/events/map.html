@@ -27,6 +27,7 @@
       addEventUpdate: "{% url 'events:map_add_eventupdate' %}",
       closeEvent: "{% url 'events:map_close_event' %}",
       notifySupporters: "{% url 'events:map_notify_supporters' %}",
+      createTestEvent: "{% url 'events:map_create_test_event' %}",
     });
     mapApp.constant('mapSettings', {
         highlight: {% if newevent_highlight %}true{% else %}false{% endif %},
@@ -259,10 +260,12 @@
                          </ul>
                       </div>
                     </div>
-                </div>
+              <button class="btn btn-success btn-block"
+                      ng-click="createTestEvent()">Create test event</button>
+            </div>
             <div class="legend">
-                <span><img src='http://maps.google.com/mapfiles/ms/micons/red-dot.png'> - victim</span>
-                <span><img src='http://maps.google.com/mapfiles/ms/micons/green-dot.png'> - support</span>
+              <span><img src='http://maps.google.com/mapfiles/ms/micons/red-dot.png'> - victim</span>
+              <span><img src='http://maps.google.com/mapfiles/ms/micons/green-dot.png'> - support</span>
             </div>
             </div>
           </div>

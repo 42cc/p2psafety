@@ -236,6 +236,11 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       $scope.isNotifyingSupporters = false;
     })
   };
+  $scope.createTestEvent = function() {
+    $http.post(urls.createTestEvent).success(function(data) {
+      
+    });
+  };
 
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;
