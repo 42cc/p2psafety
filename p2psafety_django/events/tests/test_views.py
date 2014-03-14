@@ -1,5 +1,6 @@
 import mock
 
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -7,7 +8,7 @@ from tastypie.test import ResourceTestCase
 
 from .helpers.mixins import UsersMixin
 from .helpers.factories import EventFactory
-from ..models import Event
+from ..models import Event, EventUpdate
 from .. import jabber
 from users.tests.helpers import UserFactory
 
@@ -134,3 +135,30 @@ class MapTestCase(UsersMixin, ResourceTestCase):
         # No such event
         data = dict(valid_data, event_id=event.id + 1)
         self.assertHttpNotFound(self.api_client.post(url, data=data))
+
+    def test_create_test_event_ok(self):
+        url = reverse('events:map_create_test_event')
+        users_count, events_count = User.objects.count(), Event.objects.count()
+        eventupdates_count = EventUpdate.objects.count()
+        
+        self.login_as_superuser()
+
+        self.assertHttpOK(self.api_client.post(url))
+        self.assertEqual(User.objects.count(), users_count + 1)
+        self.assertEqual(Event.objects.count(), events_count + 1)
+        self.assertEqual(EventUpdate.objects.count(), eventupdates_count + 1)
+        last_update = EventUpdate.objects.latest()
+        self.assertNotEqual(last_update.text, '')
+        self.assertIsNotNone(last_update.location)
+
+    def test_create_test_event_errors(self):
+        url = reverse('events:map_create_test_event')
+
+        # No permissions
+        self.login_as_user()
+        self.assertHttpForbidden(self.api_client.post(url))
+
+        self.login_as_superuser()
+
+        # Bad request method
+        self.assertHttpBadRequest(self.api_client.get(url))

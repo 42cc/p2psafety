@@ -60,6 +60,7 @@ def map_close_event(request):
         event.save()
         return dict(success=True)
 
+
 @csrf_exempt
 @require_POST
 @permission_required('events.change_event', raise_exception=True)
@@ -76,3 +77,9 @@ def map_notify_supporters(request):
         event = get_object_or_404(Event, id=event_id)
         jabber.notify_supporters(event, radius=radius)
         return dict(success=True)
+
+
+@csrf_exempt
+@ajax_request
+def map_create_test_event(request):
+    return dict()
