@@ -54,6 +54,7 @@ public class EventManager {
 
         // stop listening XMPP
         mContext.stopService(new Intent(mContext, XmppService.class));
+        XmppService.processing_event = false;
 
         // send SMS and email messages
         logs.info("EventManager. StartSos. Send SMS and mail messages");

@@ -211,9 +211,12 @@ public class XmppService extends Service {
                     if (location == null || mRadius == 0 ||
                             location.distanceTo(mEventLocation) <= mRadius)
                     {
-                        if (!processing_event
-                                   && Utils.isServerAuthenticated(XmppService.this)
-                                   && !EventManager.getInstance(XmppService.this).isEventActive())
+                        Log.i("pubsub", "processing_event: " + String.valueOf(processing_event));
+                        Log.i("pubsub", "is server authed: " + String.valueOf(Utils.isServerAuthenticated(XmppService.this)));
+                        Log.i("pubsub", "isEventActive: " + String.valueOf(EventManager.getInstance(XmppService.this).isEventActive()));
+                        if (!processing_event &&
+                            Utils.isServerAuthenticated(XmppService.this) &&
+                            !EventManager.getInstance(XmppService.this).isEventActive())
                         {
                             openAcceptEventScreen();
                             processing_event = true;
@@ -326,6 +329,7 @@ public class XmppService extends Service {
             mConnection.removePacketListener(mPacketListener);
             mNode.removeItemEventListener(mItemEventListener);
             mConnection.disconnect();
+            processing_event = false;
             logs.info("XmppService stopped");
             logs.close();
         } catch (Exception e) {}

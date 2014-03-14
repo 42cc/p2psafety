@@ -97,7 +97,7 @@ public class SosActivity extends ActionBarActivity {
                         .replace(R.id.content_frame, fragment).commit();
             }
 
-            //setIntent(new Intent(this, SosActivity.class));
+            setIntent(new Intent(this, SosActivity.class));
         }
 
         if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, mLogs) && Prefs.getGmailToken(this) == null)
