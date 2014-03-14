@@ -263,6 +263,8 @@ public class SettingsFragment extends Fragment {
         Prefs.putApiKey(mActivity, null);
         Prefs.putApiUsername(mActivity, null);
 
+        XmppService.processing_event = false;
+
         Toast.makeText(mActivity, R.string.logged_out, Toast.LENGTH_SHORT)
                 .show();
 
