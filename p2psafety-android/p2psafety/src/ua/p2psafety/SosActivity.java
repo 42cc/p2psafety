@@ -160,9 +160,12 @@ public class SosActivity extends ActionBarActivity {
     protected void onStop() {
         super.onStop();
 
-        if (!(EventManager.getInstance(this).getEvent().getStatus() == Event.STATUS_ACTIVE &&
-                Utils.isServerAuthenticated(this)))
+        if (!(Utils.isServerAuthenticated(this) &&
+              EventManager.getInstance(this).getEvent() != null &&
+              EventManager.getInstance(this).isEventActive()))
+        {
             stopService(new Intent(this, LocationService.class));
+        }
     }
 
     @Override
