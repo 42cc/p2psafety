@@ -166,7 +166,7 @@ class uwsgi {
 class postgis {
   $db_command = "psql -d template1 -U postgres -c"
   #$create_db_cmd = "CREATE DATABASE ${db_name} WITH ENCODING 'UTF8';"
-  $create_db_cmd = "CREATE DATABASE ${db_name}';"
+  $create_db_cmd = "CREATE DATABASE ${db_name};"
   $create_user_cmd = "CREATE USER ${db_user} WITH PASSWORD '${db_password}';"
   $grant_db_cmd = "ALTER ROLE ${db_user} SUPERUSER;"
   

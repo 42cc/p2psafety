@@ -50,23 +50,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   #hack for OSX
   if (/darwin/ =~ RUBY_PLATFORM) != nil
-      config.vm.synced_folder "../", "/home/vagrant/p2psafety", type: "nfs", nfs_version:3,
-:bsd__nfs_options => ["-maproot=0:0"]
-      config.nfs.map_uid = Process.uid
-      config.nfs.map_gid = Process.gid
+      config.vm.synced_folder "./", "/home/vagrant/p2psafety", type: "nfs", nfs_version:3
   else
-      config.vm.synced_folder "../", "/home/vagrant/p2psafety", type: "nfs", nfs_version:4
+      config.vm.synced_folder "./", "/home/vagrant/p2psafety", type: "nfs", nfs_version:4
   end
 
 
   # Enable provisioning with Puppet stand alone. 
   #
   config.vm.provision :puppet do |puppet|
-    puppet.manifests_path = "manifests"
+    puppet.manifests_path = "p2psafety_vagrant"
     puppet.manifest_file  = "p2psafety.pp"
-    puppet.facter = {
-      "FACTER_uid" => "#{config.nfs.map_uid}",
-      "FACTER_gid" => "#{config.nfs.map_gid}",
-    }
   end
 end
