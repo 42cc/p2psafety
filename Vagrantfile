@@ -59,7 +59,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Enable provisioning with Puppet stand alone. 
   #
   config.vm.provision :puppet do |puppet|
-    puppet.manifests_path = "p2psafety_vagrant"
+    puppet.manifests_path = "./p2psafety_vagrant"
     puppet.manifest_file  = "p2psafety.pp"
   end
 end

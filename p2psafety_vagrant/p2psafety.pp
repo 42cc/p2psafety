@@ -1,7 +1,7 @@
 Exec { path => '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin' }
 
 # Global variables
-$inc_file_path = '/vagrant/manifests/files' # Absolute path to the files directory (If you're using vagrant, you can leave it alone.)
+$inc_file_path = '/vagrant/p2psafety_vagrant/files' # Absolute path to the files directory (If you're using vagrant, you can leave it alone.)
 $tz = 'Europe/Kiev' # Timezone
 $project = 'p2psafety' # Used in nginx and uwsgi
 $django_path = "${project}/p2psafety_django"
