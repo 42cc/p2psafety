@@ -58,7 +58,10 @@ public class PowerButtonListener extends BroadcastReceiver{
         {
             //else mPressCount=0 and we start again all functionality with first time clicked button
             mPressCount = 0;
-            context.stopService(new Intent(context, LocationService.class));
+            if (!Prefs.isSupporterMode(context))
+            {
+                context.stopService(new Intent(context, LocationService.class));
+            }
             mainFunctionality(context);
         }
         //save current time
