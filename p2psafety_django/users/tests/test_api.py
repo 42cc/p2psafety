@@ -117,6 +117,41 @@ class UsersRolesTestCase(ModelsMixin, ResourceTestCase):
         resp = self.api_client.post(url, data='invalid data', **auth(user))
         self.assertEqual(resp.status_code, 400)
 
+    def test_roles_by_user_id(self):
+        """get list of user's roles by user id"""
+        user1, user2 = UserFactory(),UserFactory()
+        url = self.users_roles_url
+        role1, role2 = RoleFactory(), RoleFactory()
+        user1.roles.add(role1)
+        user2.roles.add(role2)
+
+        data = {'id':user1.id, 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertValidJSONResponse(resp)
+        roles_list = self.deserialize(resp)
+        self.assertEqual(roles_list, [role1.id])
+
+        data = {'id':user2.id, 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertValidJSONResponse(resp)
+        roles_list = self.deserialize(resp)
+        self.assertEqual(roles_list, [role2.id])
+
+    def test_roles_by_user_id_errors(self):
+        """get list of user's roles by user id"""
+        user1 = UserFactory()
+        url = self.users_roles_url
+
+        data = {'id':66535, 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertEqual(resp.status_code, 404)
+        self.assertTrue('not found' in resp.content)
+
+        data = {'id':'blaah', 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertEqual(resp.status_code, 400)
+        self.assertTrue('Bad' in resp.content)
+
 
 class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
 
@@ -177,6 +212,41 @@ class UsersMovementTypesTestCase(ModelsMixin, ResourceTestCase):
         # Invalid body
         resp = self.api_client.post(url, data='invalid data', **auth(user))
         self.assertEqual(resp.status_code, 400)      
+
+    def test_movement_types_by_user_id(self):
+        """get list of user's mt-s by user id"""
+        user1, user2 = UserFactory(),UserFactory()
+        url = self.users_movement_types_url
+        mt1, mt2 = MovementTypeFactory(), MovementTypeFactory()
+        user1.movement_types.add(mt1)
+        user2.movement_types.add(mt2)
+
+        data = {'id':user1.id, 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertValidJSONResponse(resp)
+        movement_types_list = self.deserialize(resp)
+        self.assertEqual(movement_types_list, [mt1.id])
+
+        data = {'id':user2.id, 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertValidJSONResponse(resp)
+        movement_types_list = self.deserialize(resp)
+        self.assertEqual(movement_types_list, [mt2.id])
+
+    def test_movement_types_by_user_id_errors(self):
+        """get list of user's mtypes by user id errors"""
+        user1 = UserFactory()
+        url = self.users_movement_types_url
+
+        data = {'id':66535, 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertEqual(resp.status_code, 404)
+        self.assertTrue('not found' in resp.content)
+
+        data = {'id':'blaah', 'format':'json'}
+        resp = self.api_client.get(url, data=data, **auth(user1))
+        self.assertEqual(resp.status_code, 400)
+        self.assertTrue('Bad' in resp.content)
 
 
 class RolesTestCase(ModelsMixin, ResourceTestCase):
