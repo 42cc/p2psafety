@@ -309,8 +309,10 @@ public class XmppService extends Service {
 
     public void openAcceptEventScreen() {
         logs.info("opening AcceptEvent screen");
+        Log.i("XMPP", "opening AcceptEventScreen");
         Intent i = new Intent(this, SosActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // fix for navigation bug
         i.putExtra(SosActivity.FRAGMENT_KEY, AcceptEventFragment.class.getName());
         // put parsed data
         i.putExtra(SUPPORTER_URL_KEY, mSupportUrl);
