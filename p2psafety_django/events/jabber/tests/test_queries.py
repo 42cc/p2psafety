@@ -3,8 +3,8 @@ from mock import patch
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from .helpers.factories import EventFactory
-from ..jabber import queries, clients
+from events.tests.helpers.factories import EventFactory
+from .. import queries, clients
 
 
 @override_settings(JABBER_DRY_RUN=True)
