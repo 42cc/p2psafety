@@ -163,9 +163,7 @@ public class SosActivity extends ActionBarActivity {
 
         if (!(EventManager.getInstance(this).getEvent().getStatus() == Event.STATUS_ACTIVE &&
                 Utils.isServerAuthenticated(this)))
-            //stop service few times, because it can be started more than one time
-            for (int i=0; i<5; i++)
-                stopService(new Intent(this, LocationService.class));
+            stopService(new Intent(this, LocationService.class));
     }
 
     @Override

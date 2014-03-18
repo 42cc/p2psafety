@@ -69,6 +69,9 @@ public class DelayedSosService extends Service {
         @Override
         public void onTick(long millisUntilFinished) {
             mTimeLeft = millisUntilFinished;
+            //if SOS starts after 5 seconds, then we have to turn on LocationService
+            if (millisUntilFinished == 5 * 1000)
+                startService(new Intent(DelayedSosService.this, LocationService.class));
             Intent i = new Intent(SOS_DELAY_TICK);
             sendBroadcast(i);
         }
@@ -79,6 +82,8 @@ public class DelayedSosService extends Service {
         if (mTimerOn) {
             mTimer.cancel();
             mTimerOn = false;
+            //if we cancel delayed sos, then we don't need LocationService
+            stopService(new Intent(this, LocationService.class));
             Intent i = new Intent(SOS_DELAY_CANCEL);
             sendBroadcast(i);
         }
