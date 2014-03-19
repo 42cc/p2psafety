@@ -164,8 +164,9 @@ public class EventManager {
             mSosStarted = false;
     }
 
-    public Event getEvent() {
-        return mEvent;
+    public Event getEvent() throws Exception {
+        if (mEvent != null) return mEvent;
+        else throw new NullPointerException();
     }
 
     private void serverStartSos() {

@@ -75,11 +75,8 @@ public class SosActivity extends ActionBarActivity {
             showErrorDialog(result);
         }
 
-        Event event = mEventManager.getEvent();
-
-        if (!((event != null && event.getStatus() == Event.STATUS_ACTIVE &&
-                Utils.isServerAuthenticated(this)) || mEventManager.isSosStarted()) &&
-                !Utils.isServiceRunning(this, LocationService.class))
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted()) &&
+            !Utils.isServiceRunning(this, LocationService.class))
         {
             startService(new Intent(this, LocationService.class));
         }
@@ -144,11 +141,8 @@ public class SosActivity extends ActionBarActivity {
         mLogs.info("SosActiviy.onPause");
         mUiHelper.onPause();
 
-        Event event = mEventManager.getEvent();
-
-        if (!((event !=null && event.getStatus() == Event.STATUS_ACTIVE &&
-                Utils.isServerAuthenticated(this)) || mEventManager.isSosStarted())
-                && Utils.isServiceRunning(this, LocationService.class))
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted())
+            && Utils.isServiceRunning(this, LocationService.class))
         {
             stopService(new Intent(this, LocationService.class));
         }
@@ -184,11 +178,8 @@ public class SosActivity extends ActionBarActivity {
     protected void onStop() {
         super.onStop();
 
-        Event event = mEventManager.getEvent();
-
-        if (!((event !=null && event.getStatus() == Event.STATUS_ACTIVE &&
-                Utils.isServerAuthenticated(this)) || mEventManager.isSosStarted())
-                && Utils.isServiceRunning(this, LocationService.class))
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted())
+            && Utils.isServiceRunning(this, LocationService.class))
         {
             stopService(new Intent(this, LocationService.class));
         }
@@ -198,11 +189,8 @@ public class SosActivity extends ActionBarActivity {
     protected void onStart() {
         super.onStart();
 
-        Event event = mEventManager.getEvent();
-
-        if (!(((event != null && event.getStatus() == Event.STATUS_ACTIVE &&
-                Utils.isServerAuthenticated(this)) || mEventManager.isSosStarted()))
-                && !Utils.isServiceRunning(this, LocationService.class))
+        if (!((mEventManager.isEventActive() || mEventManager.isSosStarted())) &&
+            !Utils.isServiceRunning(this, LocationService.class))
         {
             startService(new Intent(this, LocationService.class));
         }

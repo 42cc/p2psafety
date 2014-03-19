@@ -176,6 +176,15 @@ public class Prefs {
                     .commit();
 
             putUser(context, event.getUser());
+        } else {
+            getPrefs(context).edit()
+                    .putString(EVENT_ID, null)
+                    .putString(EVENT_KEY, null)
+                    .putString(EVENT_STATUS, null)
+                    .putString(EVENT_URI, null)
+                    .commit();
+
+            putUser(context, null);
         }
     }
 
@@ -210,11 +219,19 @@ public class Prefs {
     private static final String USER_URI = "USER_URI";
 
     private static void putUser(Context context, User user) {
-        getPrefs(context).edit()
-                .putString(USER_ID, user.getId())
-                .putString(USER_FULL_NAME, user.getUsername())
-                .putString(USER_URI, user.getUri())
-                .commit();
+        if (user != null) {
+            getPrefs(context).edit()
+                    .putString(USER_ID, user.getId())
+                    .putString(USER_FULL_NAME, user.getUsername())
+                    .putString(USER_URI, user.getUri())
+                    .commit();
+        } else {
+            getPrefs(context).edit()
+                    .putString(USER_ID, null)
+                    .putString(USER_FULL_NAME, null)
+                    .putString(USER_URI, null)
+                    .commit();
+        }
     }
 
     private static User getUser(Context context) {

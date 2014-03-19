@@ -185,28 +185,29 @@ public class SendMessageFragment extends Fragment {
             mSosBtn.setText(getString(R.string.sos));
         }
 
-        if (EventManager.getInstance(mActivity).getEvent() == null
-            && Utils.isServerAuthenticated(mActivity))
-        {
-            mLogs.info("SendMessageFragment.onResume() No event, trying to create one");
-            Utils.setLoading(mActivity, true);
-            NetworkManager.createEvent(mActivity,
-                    new NetworkManager.DeliverResultRunnable<Event>() {
-                        @Override
-                        public void deliver(Event event) {
-                            //sometimes event is null :\
-                            if (event != null)
-                            {
-                                mLogs.info("SendMessageFragment.onResume() event created: " +
-                                        event.getId()); // TODO: make event.toString()
-                                EventManager.getInstance(mActivity).setEvent(event);
+        try { EventManager.getInstance(mActivity).getEvent(); }
+        catch (Exception e) {
+            if (Utils.isServerAuthenticated(mActivity)){
+                mLogs.info("SendMessageFragment.onResume() No event, trying to create one");
+                Utils.setLoading(mActivity, true);
+                NetworkManager.createEvent(mActivity,
+                        new NetworkManager.DeliverResultRunnable<Event>() {
+                            @Override
+                            public void deliver(Event event) {
+                                //sometimes event is null :\
+                                if (event != null)
+                                {
+                                    mLogs.info("SendMessageFragment.onResume() event created: " +
+                                            event.getId()); // TODO: make event.toString()
+                                    EventManager.getInstance(mActivity).setEvent(event);
+                                }
+                                Utils.setLoading(mActivity, false);
                             }
-                            Utils.setLoading(mActivity, false);
-                        }
-                    });
+                        });
 
-            //NetworkManager.getEvents(mActivity, null);
-       }
+                //NetworkManager.getEvents(mActivity, null);
+           }
+        }
     }
 
     // builds dialog with password prompt

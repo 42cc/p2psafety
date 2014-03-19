@@ -42,6 +42,7 @@ import ua.p2psafety.fragments.settings.SetPhoneFragment;
 import ua.p2psafety.fragments.settings.SetRolesFragment;
 import ua.p2psafety.fragments.settings.SetServersFragment;
 import ua.p2psafety.services.XmppService;
+import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.NetworkManager;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Logs;
@@ -266,6 +267,7 @@ public class SettingsFragment extends Fragment {
         if (Session.getActiveSession() != null)
             Session.getActiveSession().closeAndClearTokenInformation();
         Session.setActiveSession(null);
+        EventManager.getInstance(mActivity).setEvent(null);
         Prefs.putApiKey(mActivity, null);
         Prefs.putApiUsername(mActivity, null);
 
