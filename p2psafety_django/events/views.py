@@ -97,10 +97,7 @@ def map_create_test_event(request):
         return HttpResponseBadRequest()
     else:
         user, created = User.objects.get_or_create(username='test_user')
-        if not created:
-            EventUpdate.objects.filter(event__user=user).delete()
-            Event.objects.filter(user=user).delete()
-
+        Event.objects.filter(user=user).delete() if not created else None
         event = Event.objects.create(user=user)
         point = Point(longitude, latitude)
         kwargs = dict(event=event, location=point, text='Help me!')
