@@ -3,6 +3,7 @@ package ua.p2psafety;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -36,6 +37,7 @@ public class SosActivity extends ActionBarActivity {
 
     private UiLifecycleHelper mUiHelper;
     public static Logs mLogs;
+    private EventManager mEventManager;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,17 +49,20 @@ public class SosActivity extends ActionBarActivity {
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
+        mEventManager = EventManager.getInstance(this);
+
         mLogs.info("SosActiviy. onCreate. Initiating NetworkManager");
         NetworkManager.init(this);
         mLogs.info("SosActiviy. onCreate. Starting PowerButtonService");
         startService(new Intent(this, PowerButtonService.class));
         if (!Utils.isServiceRunning(this, XmppService.class) &&
             Utils.isServerAuthenticated(this) &&
-            !EventManager.getInstance(this).isEventActive())
+            !mEventManager.isEventActive())
         {
             startService(new Intent(this, XmppService.class));
         }
         Prefs.setProgramRunning(true, this);
+
     }
 
     @Override
@@ -69,6 +74,13 @@ public class SosActivity extends ActionBarActivity {
         if (result != ConnectionResult.SUCCESS) {
             showErrorDialog(result);
         }
+
+        Event event = mEventManager.getEvent();
+
+        if (!((event != null && event.getStatus() == Event.STATUS_ACTIVE &&
+                Utils.isServerAuthenticated(this)) || mEventManager.isSosStarted()) &&
+                !Utils.isServiceRunning(this, LocationService.class))
+            startService(new Intent(this, LocationService.class));
 
         Fragment fragment;
 
@@ -97,7 +109,7 @@ public class SosActivity extends ActionBarActivity {
                         .replace(R.id.content_frame, fragment).commit();
             }
 
-            //setIntent(new Intent(this, SosActivity.class));
+            setIntent(new Intent(this, SosActivity.class));
         }
 
         if (Utils.getEmail(this) != null && Utils.isNetworkConnected(this, mLogs) && Prefs.getGmailToken(this) == null)
@@ -129,6 +141,13 @@ public class SosActivity extends ActionBarActivity {
         super.onPause();
         mLogs.info("SosActiviy.onPause");
         mUiHelper.onPause();
+
+        Event event = mEventManager.getEvent();
+
+        if (!((event !=null && event.getStatus() == Event.STATUS_ACTIVE &&
+                Utils.isServerAuthenticated(this)) || mEventManager.isSosStarted())
+                && Utils.isServiceRunning(this, LocationService.class))
+            stopService(new Intent(this, LocationService.class));
     }
 
     @Override
@@ -161,8 +180,11 @@ public class SosActivity extends ActionBarActivity {
     protected void onStop() {
         super.onStop();
 
-        if (!(EventManager.getInstance(this).getEvent().getStatus() == Event.STATUS_ACTIVE &&
-                Utils.isServerAuthenticated(this)))
+        Event event = mEventManager.getEvent();
+
+        if (!((event !=null && event.getStatus() == Event.STATUS_ACTIVE &&
+                Utils.isServerAuthenticated(this)) || mEventManager.isSosStarted())
+                && Utils.isServiceRunning(this, LocationService.class))
             stopService(new Intent(this, LocationService.class));
     }
 
@@ -170,7 +192,11 @@ public class SosActivity extends ActionBarActivity {
     protected void onStart() {
         super.onStart();
 
-        if (!EventManager.getInstance(this).isSosStarted())
+        Event event = mEventManager.getEvent();
+
+        if (!(((event != null && event.getStatus() == Event.STATUS_ACTIVE &&
+                Utils.isServerAuthenticated(this)) || mEventManager.isSosStarted()))
+                && !Utils.isServiceRunning(this, LocationService.class))
             startService(new Intent(this, LocationService.class));
     }
 

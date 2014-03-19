@@ -194,9 +194,12 @@ public class SendMessageFragment extends Fragment {
                     new NetworkManager.DeliverResultRunnable<Event>() {
                         @Override
                         public void deliver(Event event) {
-                            mLogs.info("SendMessageFragment.onResume() event created: " +
-                                    event.getId()); // TODO: make event.toString()
-                            EventManager.getInstance(mActivity).setEvent(event);
+                            if (event != null)
+                            {
+                                mLogs.info("SendMessageFragment.onResume() event created: " +
+                                        event.getId()); // TODO: make event.toString()
+                                EventManager.getInstance(mActivity).setEvent(event);
+                            }
                             Utils.setLoading(mActivity, false);
                         }
                     });
