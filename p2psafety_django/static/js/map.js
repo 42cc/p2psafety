@@ -236,6 +236,11 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       $scope.isNotifyingSupporters = false;
     })
   };
+  $scope.createTestEvent = function() {
+    var center = $scope.gmap.getCenter(),
+        data = {longitude: center.lng(), latitude: center.lat()};
+    $http.post(urls.createTestEvent, data);
+  };
 
   $scope.updatePerSeconds = 5;
   $scope.selectedEvent = null;

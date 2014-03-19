@@ -13,4 +13,6 @@ urlpatterns = patterns('',
         name='map_close_event'),
     url(r'^map/notify_supporters/$', views.map_notify_supporters,
         name='map_notify_supporters'),
+    url(r'^map/create_test_event/$', views.map_create_test_event,
+        name='map_create_test_event')
 )
