@@ -15,7 +15,6 @@ import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.fragments.DelayedSosFragment;
 import ua.p2psafety.services.DelayedSosService;
-import ua.p2psafety.services.LocationService;
 import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.NetworkManager;
 
@@ -29,7 +28,6 @@ public class Widget extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         NetworkManager.init(context);
-        context.startService(new Intent(context, LocationService.class));
         mRemoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
         mWatchWidget = new ComponentName(context, Widget.class);
         mContext = context;

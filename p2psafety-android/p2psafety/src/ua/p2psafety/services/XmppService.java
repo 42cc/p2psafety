@@ -30,10 +30,10 @@ import java.io.StringReader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import ua.p2psafety.util.EventManager;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.fragments.AcceptEventFragment;
+import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
@@ -192,8 +192,11 @@ public class XmppService extends Service {
                 @Override
                 public void handlePublishedItems(ItemPublishEvent items) {
                     if (items.isDelayed())
+                    {
                         return; // old event
+                    }
 
+                    startService(new Intent(XmppService.this, LocationService.class));
                     Log.i("got pubsub message", "Item count: " + items.getItems().size());
                     Log.i("===================", items.toString());
                     Log.i("===================", items.getItems().get(0).toString());
