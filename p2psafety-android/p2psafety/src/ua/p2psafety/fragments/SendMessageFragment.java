@@ -194,6 +194,7 @@ public class SendMessageFragment extends Fragment {
                     new NetworkManager.DeliverResultRunnable<Event>() {
                         @Override
                         public void deliver(Event event) {
+                            //sometimes event is null :\
                             if (event != null)
                             {
                                 mLogs.info("SendMessageFragment.onResume() event created: " +
