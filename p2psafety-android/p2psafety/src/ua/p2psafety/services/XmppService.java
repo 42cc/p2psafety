@@ -214,9 +214,12 @@ public class XmppService extends Service {
                     if (location == null || mRadius == 0 ||
                             location.distanceTo(mEventLocation) <= mRadius)
                     {
-                        if (!processing_event
-                                   && Utils.isServerAuthenticated(XmppService.this)
-                                   && !EventManager.getInstance(XmppService.this).isEventActive())
+                        Log.i("pubsub", "processing_event: " + String.valueOf(processing_event));
+                        Log.i("pubsub", "is server authed: " + String.valueOf(Utils.isServerAuthenticated(XmppService.this)));
+                        Log.i("pubsub", "isEventActive: " + String.valueOf(EventManager.getInstance(XmppService.this).isEventActive()));
+                        if (!processing_event &&
+                            Utils.isServerAuthenticated(XmppService.this) &&
+                            !EventManager.getInstance(XmppService.this).isEventActive())
                         {
                             openAcceptEventScreen();
                             processing_event = true;
@@ -309,8 +312,10 @@ public class XmppService extends Service {
 
     public void openAcceptEventScreen() {
         logs.info("opening AcceptEvent screen");
+        Log.i("XMPP", "opening AcceptEventScreen");
         Intent i = new Intent(this, SosActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // fix for navigation bug
         i.putExtra(SosActivity.FRAGMENT_KEY, AcceptEventFragment.class.getName());
         // put parsed data
         i.putExtra(SUPPORTER_URL_KEY, mSupportUrl);
@@ -329,6 +334,7 @@ public class XmppService extends Service {
             mConnection.removePacketListener(mPacketListener);
             mNode.removeItemEventListener(mItemEventListener);
             mConnection.disconnect();
+            processing_event = false;
             logs.info("XmppService stopped");
             logs.close();
         } catch (Exception e) {}

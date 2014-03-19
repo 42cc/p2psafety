@@ -186,6 +186,7 @@ public class SosActivity extends ActionBarActivity {
                 Utils.isServerAuthenticated(this)) || mEventManager.isSosStarted())
                 && Utils.isServiceRunning(this, LocationService.class))
             stopService(new Intent(this, LocationService.class));
+        }
     }
 
     @Override
