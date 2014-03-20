@@ -64,6 +64,8 @@ class Event(models.Model):
     supported = models.ManyToManyField('self', symmetrical=False,
         related_name='supporters', blank=True)
 
+    watchdog_task_id = models.CharField(max_length=36,blank=True,null=True)
+
     def __unicode__(self):
         return u"{} event by {}".format(self.status, self.user)
 
@@ -188,3 +190,10 @@ class EventUpdate(models.Model):
                     self.event.save()
                     if config_value('Events', 'supporters-autonotify'):
                         self.event.notify_supporters()
+            else:
+                if not self.event.watchdog_task_id:
+                    from .tasks import eventupdate_watchdog
+                    res = eventupdate_watchdog.delay(self.event.id, 1) #TODO
+                    self.event.watchdog_task_id=res.task_id
+                    self.event.save()
+                    #passive events create watchdogs unless there's other one

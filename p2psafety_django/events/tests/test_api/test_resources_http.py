@@ -11,7 +11,7 @@ from tastypie.test import ResourceTestCase
 
 from users.tests.helpers import api_key_auth as auth
 from ..helpers.factories import EventFactory, EventUpdateFactory, UserFactory
-from ..helpers.mixins import ModelsMixin, UsersMixin
+from ..helpers.mixins import ModelsMixin, UsersMixin, CeleryMixin
 from ...models import Event, EventUpdate
 
 
@@ -175,7 +175,10 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertEqual(support_by_user_mock.call_count, 0)
 
 
-class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
+class EventUpdateTestCase(ModelsMixin,
+                          UsersMixin,
+                          CeleryMixin,
+                          ResourceTestCase):
 
     def test_create(self):
         url = self.eventupdates_list_url
@@ -240,7 +243,6 @@ class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertEqual(eu.event, event)
         self.assertEqual(eu.text, 'passive')
         self.assertEqual(eu.event.status, 'P')
-
 
     def test_get_list(self):
         url = self.eventupdates_list_url

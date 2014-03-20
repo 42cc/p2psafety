@@ -7,11 +7,13 @@ from django.test.utils import override_settings
 from core.utils import set_livesettings_value
 from .helpers.factories import EventFactory, EventUpdateFactory
 from ..jabber.tests.helpers import MockedEventsNotifierClient
-from ..models import Event
+from ..models import Event, EventUpdate
 from users.tests.helpers import UserFactory
+from .helpers.mixins import CeleryMixin
+from ..tasks import eventupdate_watchdog
 
 
-class EventTestCase(TestCase):
+class EventTestCase(CeleryMixin, TestCase):
 
     def test_support_by_user(self):
         user_victim, user_supporter = UserFactory(), UserFactory()
@@ -46,6 +48,35 @@ class EventTestCase(TestCase):
 
         self.assertEquals(event.latest_location, Point(3, 4))
 
+    def test_auto_activate_with_watchdog(self):
+        """Test watchdog mode
+        create passive event (passive mode)
+        start watchdog(celery task in real life),
+        it will check for updates with passive=true to come
+        while updates come -> even stays passive
+        if no updates in timeout -> activate alarm
+        """
+
+        event = EventFactory()
+        EventUpdateFactory(event=event,active=False)
+
+        self.assert_task_sent(eventupdate_watchdog, event.id, 1)
+        self.assertEquals(len(self.applied_tasks),1)
+        self.assertTrue(event.watchdog_task_id)
+        #new passive update
+        EventUpdateFactory(event=event,active=False)
+        #but only one watchdog
+        self.assertEquals(len(self.applied_tasks),1)
+        event = Event.objects.get(id=event.id)
+        self.assertEquals(event.status,Event.STATUS_PASSIVE)
+        #so we run watchdog now
+        #no events,
+        eventupdate_watchdog(event.id,1)
+        eu = EventUpdate.objects.latest('id')
+        event = Event.objects.get(id=event.id)
+        self.assertEquals(event.status,Event.STATUS_ACTIVE)
+        
+
 
 class EventUpdateTestCase(TestCase):
 
@@ -61,3 +92,4 @@ class EventUpdateTestCase(TestCase):
         mocked_client.assert_published_once()
         self.assertIn('Test', mocked_client.payload_string)
         self.assertIn('location type="hash"', mocked_client.payload_string)
+

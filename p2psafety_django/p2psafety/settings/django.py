@@ -79,6 +79,7 @@ INSTALLED_APPS = (
 
     'south',
     'livesettings',
+    'djcelery',
 
     'core',
     'events',
