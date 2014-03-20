@@ -119,6 +119,7 @@
     <string name="unsuccessful_authorization">Unsuccessful authorization.</string>
     <string name="viction_name">Victim name</string>
     <string name="passive_sos">Passive SOS</string>
+    <string name="sos_reason">SOS reason</string>
 
     <string-array name="media_types">
         <item>No</item>

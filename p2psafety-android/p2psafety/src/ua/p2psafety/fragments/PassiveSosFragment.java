@@ -64,22 +64,24 @@ public class PassiveSosFragment extends Fragment {
         mTimerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (DelayedSosService.isTimerOn()) {
-                    // stop timer
-                    if (!Prefs.getUsePassword(mActivity)) {
-                        mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
-                        onTimerStop();
-                    } else {
-                        askPasswordAndStopTimer();
-                    }
-                } else if (EventManager.getInstance(mActivity).isSosStarted()) {
-                    Toast.makeText(mActivity, R.string.sos_already_active, Toast.LENGTH_LONG)
-                         .show();
-                } else {
-                    // start timer
-                    mActivity.startService(new Intent(mActivity, DelayedSosService.class));
-                    onTimerStart();
-                }
+//                if (DelayedSosService.isTimerOn()) {
+//                    // stop timer
+//                    if (!Prefs.getUsePassword(mActivity)) {
+//                        mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
+//                        onTimerStop();
+//                    } else {
+//                        askPasswordAndStopTimer();
+//                    }
+//                } else if (EventManager.getInstance(mActivity).isSosStarted()) {
+//                    Toast.makeText(mActivity, R.string.sos_already_active, Toast.LENGTH_LONG)
+//                         .show();
+//                } else {
+//                    // start timer
+//                    mActivity.startService(new Intent(mActivity, DelayedSosService.class));
+//                    onTimerStart();
+//                }
+
+                askSosReason();
             }
         });
 
@@ -89,7 +91,7 @@ public class PassiveSosFragment extends Fragment {
                 long sosDelay = DelayedSosService.getSosDelay(mActivity);
                 sosDelay += 1*60*1000; // +1 min
                 sosDelay = Math.min(sosDelay, 120 * 60 * 1000); // max 120 min
-                DelayedSosService.setSosDelay(mActivity, sosDelay);
+                //DelayedSosService.setSosDelay(mActivity, sosDelay);
                 showSosDelay(sosDelay);
             }
         });
@@ -100,27 +102,24 @@ public class PassiveSosFragment extends Fragment {
                 long sosDelay = DelayedSosService.getSosDelay(mActivity);
                 sosDelay -= 1*60*1000; // -1 min
                 sosDelay = Math.max(sosDelay, 1*60*1000); // min 1 min
-                DelayedSosService.setSosDelay(mActivity, sosDelay);
+                //DelayedSosService.setSosDelay(mActivity, sosDelay);
                 showSosDelay(sosDelay);
             }
         });
     }
 
-    // builds dialog with password prompt
-    private void askPasswordAndStopTimer() {
+    private void askSosReason() {
         LayoutInflater li = LayoutInflater.from(mActivity);
-        View promptsView = li.inflate(R.layout.password_dialog, null);
+        View promptsView = li.inflate(R.layout.sos_reason_dialog, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
         alertDialogBuilder.setView(promptsView);
-
-        final EditText userInput = (EditText) promptsView.findViewById(R.id.pd_password_edit);
 
         alertDialogBuilder
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                checkPasswordAndStopTimer(userInput.getText().toString());
+                                // TODO: start PassiveSosService
                             }
                         })
                 .setNegativeButton(android.R.string.cancel,
@@ -134,11 +133,12 @@ public class PassiveSosFragment extends Fragment {
         alertDialog.show();
         alertDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 
+        final EditText userInput = (EditText) promptsView.findViewById(R.id.srd_sos_reason_edit);
         userInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    checkPasswordAndStopTimer(userInput.getText().toString());
+                    // TODO: start passive SOS service
                     alertDialog.dismiss();
                 }
                 return true;
@@ -146,44 +146,84 @@ public class PassiveSosFragment extends Fragment {
         });
     }
 
-    // stops timer or builds dialog with retry/cancel buttons
-    private void checkPasswordAndStopTimer(String password) {
-        if (password.equals(Prefs.getPassword(mActivity)))
-        {
-            mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
-            onTimerStop();
-        }
-        else{
-            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-            builder.setTitle(R.string.wrong_password);
-            builder.setNegativeButton(android.R.string.cancel, null);
-            builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    askPasswordAndStopTimer();
-                }
-            });
-            builder.create().show();
-        }
-    }
+//    // builds dialog with password prompt
+//    private void askPasswordAndStopTimer() {
+//        LayoutInflater li = LayoutInflater.from(mActivity);
+//        View promptsView = li.inflate(R.layout.password_dialog, null);
+//        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
+//        alertDialogBuilder.setView(promptsView);
+//
+//        final EditText userInput = (EditText) promptsView.findViewById(R.id.pd_password_edit);
+//
+//        alertDialogBuilder
+//                .setCancelable(false)
+//                .setPositiveButton(android.R.string.ok,
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int id) {
+//                                checkPasswordAndStopTimer(userInput.getText().toString());
+//                            }
+//                        })
+//                .setNegativeButton(android.R.string.cancel,
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int id) {
+//                                dialog.cancel();
+//                            }
+//                        });
+//
+//        final AlertDialog alertDialog = alertDialogBuilder.create();
+//        alertDialog.show();
+//        alertDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+//
+//        userInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+//                if (actionId == EditorInfo.IME_ACTION_DONE) {
+//                    checkPasswordAndStopTimer(userInput.getText().toString());
+//                    alertDialog.dismiss();
+//                }
+//                return true;
+//            }
+//        });
+//    }
+//
+//    // stops timer or builds dialog with retry/cancel buttons
+//    private void checkPasswordAndStopTimer(String password) {
+//        if (password.equals(Prefs.getPassword(mActivity)))
+//        {
+//            mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
+//            onTimerStop();
+//        }
+//        else{
+//            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+//            builder.setTitle(R.string.wrong_password);
+//            builder.setNegativeButton(android.R.string.cancel, null);
+//            builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    askPasswordAndStopTimer();
+//                }
+//            });
+//            builder.create().show();
+//        }
+//    }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        DelayedSosService.registerReceiver(mActivity, mBroadcastReceiver);
-
-        if (DelayedSosService.isTimerOn())
-            onTimerStart();
-        else
-            onTimerStop();
+//        DelayedSosService.registerReceiver(mActivity, mBroadcastReceiver);
+//
+//        if (DelayedSosService.isTimerOn())
+//            onTimerStart();
+//        else
+//            onTimerStop();
     }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        mActivity.unregisterReceiver(mBroadcastReceiver);
+//        mActivity.unregisterReceiver(mBroadcastReceiver);
     }
 
     private void onTimerStart() {
@@ -219,18 +259,18 @@ public class PassiveSosFragment extends Fragment {
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (action.equals(DelayedSosService.SOS_DELAY_TICK)) {
-                // show time left
-                showSosDelay(DelayedSosService.getTimeLeft());
-            }
-            else if (action.equals(DelayedSosService.SOS_DELAY_FINISH)) {
-                onTimerStop();
-            }
-            else if (action.equals(DelayedSosService.SOS_DELAY_CANCEL)) {
-                onTimerStop();
-            }
+//            String action = intent.getAction();
+//
+//            if (action.equals(DelayedSosService.SOS_DELAY_TICK)) {
+//                // show time left
+//                showSosDelay(DelayedSosService.getTimeLeft());
+//            }
+//            else if (action.equals(DelayedSosService.SOS_DELAY_FINISH)) {
+//                onTimerStop();
+//            }
+//            else if (action.equals(DelayedSosService.SOS_DELAY_CANCEL)) {
+//                onTimerStop();
+//            }
         }
     };
 }
