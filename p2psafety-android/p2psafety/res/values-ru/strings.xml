@@ -108,6 +108,7 @@
     <string name="bad_login_or_password">Неверный логин или пароль.</string>
     <string name="unsuccessful_authorization">Не получилось авторизоваться.</string>
     <string name="viction_name">Имя жертвы</string>
+    <string name="passive_sos">Пассивная тревога</string>
 
     <string-array name="media_types">
         <item>Нет</item>

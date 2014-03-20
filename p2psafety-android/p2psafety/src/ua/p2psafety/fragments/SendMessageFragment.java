@@ -36,8 +36,9 @@ import ua.p2psafety.util.Utils;
  */
 public class SendMessageFragment extends Fragment {
     Button mDelayedSosBtn;
-    Button mSosBtn;
     Button mSupportScreenBtn;
+    Button mPassiveSosBtn;
+    Button mSosBtn;
     Activity mActivity;
 
     Logs mLogs;
@@ -48,8 +49,6 @@ public class SendMessageFragment extends Fragment {
             Fragment mfragment;
             FragmentManager mfragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = mfragmentManager.beginTransaction();
-            //fragmentTransaction.setCustomAnimations(R.anim.slide_left_in, R.anim.slide_left_out, R.anim.slide_right_in, R.anim.slide_right_out);
-
             switch (v.getId()) {
                 case R.id.delayedSosBtn:
                     mfragment = new DelayedSosFragment();
@@ -135,6 +134,19 @@ public class SendMessageFragment extends Fragment {
                     Toast.makeText(mActivity, R.string.not_supporter_mode, Toast.LENGTH_LONG)
                          .show();
                 }
+            }
+        });
+
+        mPassiveSosBtn = (Button) rootView.findViewById(R.id.btn_passive_sos);
+        mPassiveSosBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mLogs.info("SendMessageFragment. Passive SOS button pressed. Showing PassiveSosFragment");
+                getFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack(null)
+                        .replace(R.id.content_frame, new PassiveSosFragment())
+                        .commit();
             }
         });
 
