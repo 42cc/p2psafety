@@ -165,6 +165,7 @@ class EventUpdate(models.Model):
     user = models.ForeignKey(User, related_name='event_owner', blank=True, null=True)
     event = models.ForeignKey(Event, related_name='updates')
     timestamp = models.DateTimeField(default=timezone.now)
+    active = models.BooleanField(default=True)
 
     text = models.TextField(blank=True)
     location = geomodels.PointField(srid=settings.SRID['default'], blank=True, null=True)
@@ -178,14 +179,12 @@ class EventUpdate(models.Model):
         super(EventUpdate, self).save(*args, **kwargs)
 
         if created:
-            #
-            # Event that received an update becomes active.
-            #
-            all_events_are_finished = not self.event.user.events.filter(
-                status__in=[Event.STATUS_PASSIVE, Event.STATUS_ACTIVE]).exists()
-            if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
-                self.event.status = Event.STATUS_ACTIVE
-                self.event.save()
-                if config_value('Events', 'supporters-autonotify'):
-                    self.event.notify_supporters()
-
+            # Event that received an acitve update becomes active.
+            if self.active:
+                all_events_are_finished = not self.event.user.events.filter(
+                    status__in=[Event.STATUS_PASSIVE, Event.STATUS_ACTIVE]).exists()
+                if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
+                    self.event.status = Event.STATUS_ACTIVE
+                    self.event.save()
+                    if config_value('Events', 'supporters-autonotify'):
+                        self.event.notify_supporters()

@@ -225,6 +225,23 @@ class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
             self.assertEqual(eu.event, event)
             self.assertTrue(eu.video)
 
+    def test_passive_updates(self):
+        """Updates that come in passive mode don't trigger event to be active
+        """
+        url = self.eventupdates_list_url
+        self.login_as_user()
+        event = EventFactory()
+        data = {'key':event.key}
+        data['text'] = 'passive'
+        data['active'] = 0
+        self.assertHttpCreated(self.api_client.post(url, data=data))
+        eu = EventUpdate.objects.latest('id')
+        self.assertFalse(eu.active)
+        self.assertEqual(eu.event, event)
+        self.assertEqual(eu.text, 'passive')
+        self.assertEqual(eu.event.status, 'P')
+
+
     def test_get_list(self):
         url = self.eventupdates_list_url
         event = EventFactory(user=self.user)
