@@ -1,6 +1,7 @@
 import mock
 
 from django.contrib.gis.geos import Point
+from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -60,7 +61,7 @@ class EventTestCase(CeleryMixin, TestCase):
         event = EventFactory()
         EventUpdateFactory(event=event,active=False)
 
-        self.assert_task_sent(eventupdate_watchdog, event.id, 1)
+        self.assert_task_sent(eventupdate_watchdog, event.id, settings.WATCHDOG_DELAY)
         self.assertEquals(len(self.applied_tasks),1)
         self.assertTrue(event.watchdog_task_id)
         #new passive update

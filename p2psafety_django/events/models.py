@@ -63,8 +63,7 @@ class Event(models.Model):
     type = models.IntegerField(choices=EVENT_TYPE, default=TYPE_VICTIM)
     supported = models.ManyToManyField('self', symmetrical=False,
         related_name='supporters', blank=True)
-
-    watchdog_task_id = models.CharField(max_length=36,blank=True,null=True)
+    watchdog_task_id = models.CharField(max_length=36, blank=True, null=True)
 
     def __unicode__(self):
         return u"{} event by {}".format(self.status, self.user)
@@ -176,6 +175,27 @@ class EventUpdate(models.Model):
 
     objects = geomodels.GeoManager()
 
+    def activate_event(self):
+        """Activate event if it was passive"""
+        all_events_are_finished = not self.event.user.events.filter(
+            status__in=[Event.STATUS_PASSIVE, Event.STATUS_ACTIVE]).exists()
+        if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
+            self.event.status = Event.STATUS_ACTIVE
+            self.event.save()
+            if config_value('Events', 'supporters-autonotify'):
+                self.event.notify_supporters()
+
+    def start_watchdog(self):
+        """Start watchdog (passive safe mode)
+        before calling you should check is there no other watchdog for this event
+        if  not self.event.watchdog_task_id:
+        """
+        from .tasks import eventupdate_watchdog
+        delay = self.delay if hasattr(self,'delay') else settings.WATCHDOG_DELAY
+        res = eventupdate_watchdog.delay(self.event.id, delay)
+        self.event.watchdog_task_id=res.task_id
+        self.event.save()
+
     def save(self, *args, **kwargs):
         created = self.pk is None
         super(EventUpdate, self).save(*args, **kwargs)
@@ -183,17 +203,7 @@ class EventUpdate(models.Model):
         if created:
             # Event that received an acitve update becomes active.
             if self.active:
-                all_events_are_finished = not self.event.user.events.filter(
-                    status__in=[Event.STATUS_PASSIVE, Event.STATUS_ACTIVE]).exists()
-                if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
-                    self.event.status = Event.STATUS_ACTIVE
-                    self.event.save()
-                    if config_value('Events', 'supporters-autonotify'):
-                        self.event.notify_supporters()
-            else:
-                if not self.event.watchdog_task_id:
-                    from .tasks import eventupdate_watchdog
-                    res = eventupdate_watchdog.delay(self.event.id, 1) #TODO
-                    self.event.watchdog_task_id=res.task_id
-                    self.event.save()
-                    #passive events create watchdogs unless there's other one
+                self.activate_event()
+             #passive update
+            elif not self.active and not self.event.watchdog_task_id:
+                self.start_watchdog()
