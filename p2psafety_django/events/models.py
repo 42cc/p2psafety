@@ -204,6 +204,6 @@ class EventUpdate(models.Model):
             # Event that received an acitve update becomes active.
             if self.active:
                 self.activate_event()
-             #passive update
+            #passive update
             elif not self.active and not self.event.watchdog_task_id:
                 self.start_watchdog()

@@ -24,7 +24,4 @@ def eventupdate_watchdog(event_id,delay_seconds):
                             str(delay)
             ).save() #to call db hooks
         time.sleep(delay_seconds)
-    #exit from main loop
-    #event.watchdog_task_id=None
-    #event.save()
 

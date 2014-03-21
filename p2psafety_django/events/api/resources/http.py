@@ -144,7 +144,4 @@ class EventUpdateResource(MultipartResource, ModelResource):
             #bind data to object. no db field here
             bundle.obj.delay = delay
 
-
-
-
         return bundle

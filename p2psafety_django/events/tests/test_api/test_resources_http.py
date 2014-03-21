@@ -228,7 +228,7 @@ class EventUpdateTestCase(ModelsMixin,
             self.assertEqual(eu.event, event)
             self.assertTrue(eu.video)
 
-    def test_passive_update_not_trigger(self):
+    def test_passive_update_dont_trigger(self):
         """Updates that come in passive mode don't trigger event to be active
         """
         url = self.eventupdates_list_url

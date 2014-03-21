@@ -77,7 +77,6 @@ class CeleryMixin(object):
         self.applied_tasks = []
 
         self.task_apply_async_orig = Task.apply_async
-        Task.mmm = 1
 
         @classmethod
         def new_apply_async(task_class, args=None, kwargs=None, **options):
