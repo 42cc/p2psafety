@@ -3,6 +3,7 @@ package ua.p2psafety;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -36,6 +37,7 @@ public class SosActivity extends ActionBarActivity {
 
     private UiLifecycleHelper mUiHelper;
     public static Logs mLogs;
+    private EventManager mEventManager;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,17 +49,20 @@ public class SosActivity extends ActionBarActivity {
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
+        mEventManager = EventManager.getInstance(this);
+
         mLogs.info("SosActiviy. onCreate. Initiating NetworkManager");
         NetworkManager.init(this);
         mLogs.info("SosActiviy. onCreate. Starting PowerButtonService");
         startService(new Intent(this, PowerButtonService.class));
-        startService(new Intent(this, LocationService.class));
         if (!Utils.isServiceRunning(this, XmppService.class) &&
             Utils.isServerAuthenticated(this) &&
-            !EventManager.getInstance(this).isEventActive())
+            !mEventManager.isEventActive())
         {
             startService(new Intent(this, XmppService.class));
         }
+        Prefs.setProgramRunning(true, this);
+
     }
 
     @Override
@@ -68,6 +73,12 @@ public class SosActivity extends ActionBarActivity {
         int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (result != ConnectionResult.SUCCESS) {
             showErrorDialog(result);
+        }
+
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted()) &&
+            !Utils.isServiceRunning(this, LocationService.class))
+        {
+            startService(new Intent(this, LocationService.class));
         }
 
         Fragment fragment;
@@ -129,6 +140,12 @@ public class SosActivity extends ActionBarActivity {
         super.onPause();
         mLogs.info("SosActiviy.onPause");
         mUiHelper.onPause();
+
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted())
+            && Utils.isServiceRunning(this, LocationService.class))
+        {
+            stopService(new Intent(this, LocationService.class));
+        }
     }
 
     @Override
@@ -138,6 +155,7 @@ public class SosActivity extends ActionBarActivity {
         mLogs.info("\n\n\n==========================\n==============================");
         mUiHelper.onDestroy();
         mLogs.close();
+        Prefs.setProgramRunning(false, this);
     }
 
     @Override
@@ -160,9 +178,8 @@ public class SosActivity extends ActionBarActivity {
     protected void onStop() {
         super.onStop();
 
-        if (!(Utils.isServerAuthenticated(this) &&
-              EventManager.getInstance(this).getEvent() != null &&
-              EventManager.getInstance(this).isEventActive()))
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted())
+            && Utils.isServiceRunning(this, LocationService.class))
         {
             stopService(new Intent(this, LocationService.class));
         }
@@ -172,8 +189,11 @@ public class SosActivity extends ActionBarActivity {
     protected void onStart() {
         super.onStart();
 
-        if (!EventManager.getInstance(this).isSosStarted())
+        if (!((mEventManager.isEventActive() || mEventManager.isSosStarted())) &&
+            !Utils.isServiceRunning(this, LocationService.class))
+        {
             startService(new Intent(this, LocationService.class));
+        }
     }
 
     @Override

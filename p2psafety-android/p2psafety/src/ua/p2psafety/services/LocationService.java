@@ -77,7 +77,7 @@ public class LocationService extends Service implements
         mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                if (mEventManager.getEvent().getStatus() == Event.STATUS_ACTIVE && Utils.isServerAuthenticated(LocationService.this))
+                if (mEventManager.isEventActive())
                 {
                     mLogs.info("LocationService. Checking if we need to send new location");
                     getCurrentLoc();
@@ -97,7 +97,7 @@ public class LocationService extends Service implements
 
         mLocationClient.connect();
 
-        return Service.START_STICKY;
+        return Service.START_NOT_STICKY;
     }
 
     private void initValues() {

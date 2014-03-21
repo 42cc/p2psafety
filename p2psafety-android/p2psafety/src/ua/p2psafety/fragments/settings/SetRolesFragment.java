@@ -74,16 +74,20 @@ public class SetRolesFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Utils.setLoading(mActivity, true);
-                NetworkManager.setRoles(mActivity,
-                        EventManager.getInstance(mActivity).getEvent().getUser(),
-                        mRoles, new NetworkManager.DeliverResultRunnable<Boolean>() {
-                    @Override
-                    public void deliver(Boolean success) {
-                        Utils.setLoading(mActivity, false);
-                        if (success)
-                            Toast.makeText(mActivity, R.string.save, Toast.LENGTH_LONG).show();
-                    }
-                });
+                try {
+                    NetworkManager.setRoles(mActivity,
+                            EventManager.getInstance(mActivity).getEvent().getUser(),
+                            mRoles, new NetworkManager.DeliverResultRunnable<Boolean>() {
+                        @Override
+                        public void deliver(Boolean success) {
+                            Utils.setLoading(mActivity, false);
+                            if (success)
+                                Toast.makeText(mActivity, R.string.save, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } catch (Exception e) { // should never happen
+                    Utils.setLoading(mActivity, false);
+                }
             }
         });
 
