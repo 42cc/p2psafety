@@ -62,13 +62,16 @@ public class DelayedSosService extends Service {
             Intent i = new Intent(SOS_DELAY_FINISH);
             sendBroadcast(i);
 
-            EventManager.getInstance(getApplicationContext()).startSos();
+            EventManager.getInstance(DelayedSosService.this).startSos();
             mTimerOn = false;
         }
 
         @Override
         public void onTick(long millisUntilFinished) {
             mTimeLeft = millisUntilFinished;
+            //if SOS starts in 5 seconds, then we have to turn on LocationService
+            if (millisUntilFinished >= 5 * 1000 && millisUntilFinished <= 6 * 1000)
+                startService(new Intent(DelayedSosService.this, LocationService.class));
             Intent i = new Intent(SOS_DELAY_TICK);
             sendBroadcast(i);
         }

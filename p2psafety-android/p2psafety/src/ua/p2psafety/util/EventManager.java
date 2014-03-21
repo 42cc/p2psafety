@@ -54,6 +54,7 @@ public class EventManager {
 
         // stop listening XMPP
         mContext.stopService(new Intent(mContext, XmppService.class));
+        XmppService.processing_event = false;
 
         // send SMS and email messages
         logs.info("EventManager. StartSos. Send SMS and mail messages");
@@ -128,7 +129,7 @@ public class EventManager {
     }
 
     public boolean isSosStarted() {
-        return mSosStarted;
+        return Prefs.getSosStarted(mContext);
     }
 
     public boolean isSupportStarted() {
@@ -163,8 +164,9 @@ public class EventManager {
             mSosStarted = false;
     }
 
-    public Event getEvent() {
-        return mEvent;
+    public Event getEvent() throws Exception {
+        if (mEvent != null) return mEvent;
+        else throw new NullPointerException();
     }
 
     private void serverStartSos() {
@@ -197,7 +199,7 @@ public class EventManager {
     private void serverActivateSos() {
         mEvent.setStatus(Event.STATUS_ACTIVE);
 
-        Location location = LocationService.locationListener.getLastLocation(true);
+        Location location = LocationService.locationListener.getLastLocation(false);
         logs.info("EventManager. StartSos. LocationResult");
         Map data = new HashMap();
         if (location != null) {

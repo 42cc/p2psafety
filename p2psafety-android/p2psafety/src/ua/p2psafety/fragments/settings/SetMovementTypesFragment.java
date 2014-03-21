@@ -79,16 +79,20 @@ public class SetMovementTypesFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Utils.setLoading(mActivity, true);
-                NetworkManager.setMovementTypes(mActivity,
-                        EventManager.getInstance(mActivity).getEvent().getUser(),
-                        mRoles, new NetworkManager.DeliverResultRunnable<Boolean>() {
-                    @Override
-                    public void deliver(Boolean success) {
-                        Utils.setLoading(mActivity, false);
-                        if (success)
-                            Toast.makeText(mActivity, getString(R.string.save), Toast.LENGTH_LONG).show();
-                    }
-                });
+                try {
+                    NetworkManager.setMovementTypes(mActivity,
+                            EventManager.getInstance(mActivity).getEvent().getUser(),
+                            mRoles, new NetworkManager.DeliverResultRunnable<Boolean>() {
+                        @Override
+                        public void deliver(Boolean success) {
+                            Utils.setLoading(mActivity, false);
+                            if (success)
+                                Toast.makeText(mActivity, getString(R.string.save), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } catch (Exception e) { // should never happen
+                    Utils.setLoading(mActivity, false);
+                }
             }
         });
 

@@ -6,6 +6,8 @@
 
     <string name="app_name">SOSMessage</string>
 
+    <string name="bugsense_key">46e31f4f</string>
+
     <string name="action_settings">Settings</string>
     <string-array name="items_array">
         <item>Phones</item>
