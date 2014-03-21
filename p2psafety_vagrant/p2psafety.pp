@@ -18,6 +18,7 @@ include uwsgi
 include postgis
 include python
 include virtualenv
+include rabbitmq
 include pildeps
 include software
 include locale
@@ -55,30 +56,28 @@ class user {
 }
 
 class apt {
-  exec { 'apt-get update':
-    timeout => 0
-  }
-
   package { 'python-software-properties':
     ensure => latest,
-    require => Exec['apt-get update']
   }
 
   exec { 'add-apt-repository ppa:nginx/stable':
     require => Package['python-software-properties'],
-    before => Exec['last ppa']
+    before => Exec['last ppa'],
+    unless => 'ls /etc/apt/sources.list.d/ | grep nginx-stable-saucy'
   }
 
   exec { 'add-apt-repository ppa:ubuntugis/ubuntugis-unstable':
-    before => Exec['last ppa']
+    before => Exec['last ppa'],
+    unless => 'ls /etc/apt/sources.list.d/ | grep ubuntugis-unstable'
   }
 
   exec { 'last ppa':
     command => 'add-apt-repository ppa:git-core/ppa',
-    require => Package['python-software-properties']
+    require => Package['python-software-properties'],
+    unless => 'ls /etc/apt/sources.list.d/ | grep git-core'
   }
 
-  exec { 'apt-get update again':
+  exec { 'apt-get update ':
     command => 'apt-get update',
     timeout => 0,
     require => Exec['last ppa']
@@ -213,6 +212,19 @@ class postgis {
     user => "postgres",
     unless => "psql ${db_name} -c \"select count(*) from spatial_ref_sys\"",
     require => Service['postgresql']
+  }
+
+}
+
+class rabbitmq{
+  package { 'rabbitmq-server':
+    ensure => latest,
+    require => Class['apt']
+  }
+  service { 'rabbitmq-server':
+    ensure => running,
+    enable => true,
+    require => Package['rabbitmq-server']
   }
 
 }
