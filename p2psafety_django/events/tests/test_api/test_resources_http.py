@@ -11,7 +11,7 @@ from tastypie.test import ResourceTestCase
 
 from users.tests.helpers import api_key_auth as auth
 from ..helpers.factories import EventFactory, EventUpdateFactory, UserFactory
-from ..helpers.mixins import ModelsMixin, UsersMixin
+from ..helpers.mixins import ModelsMixin, UsersMixin, CeleryMixin
 from ...models import Event, EventUpdate
 
 
@@ -175,7 +175,10 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
         self.assertEqual(support_by_user_mock.call_count, 0)
 
 
-class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
+class EventUpdateTestCase(ModelsMixin,
+                          UsersMixin,
+                          CeleryMixin,
+                          ResourceTestCase):
 
     def test_create(self):
         url = self.eventupdates_list_url
@@ -224,6 +227,38 @@ class EventUpdateTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
             eu = EventUpdate.objects.latest('id')
             self.assertEqual(eu.event, event)
             self.assertTrue(eu.video)
+
+    def test_passive_update_dont_trigger(self):
+        """Updates that come in passive mode don't trigger event to be active
+        """
+        url = self.eventupdates_list_url
+        self.login_as_user()
+        event = EventFactory()
+        data = {'key':event.key}
+        data['text'] = 'passive'
+        data['active'] = 0
+        self.assertHttpCreated(self.api_client.post(url, data=data))
+        eu = EventUpdate.objects.latest('id')
+        self.assertFalse(eu.active)
+        self.assertEqual(eu.event, event)
+        self.assertEqual(eu.text, 'passive')
+        self.assertEqual(eu.event.status, 'P')
+
+    def test_passive_start_watchdog(self):
+        """check that passing delay arg will start watchdog command
+        with this delay"""
+        from events.tasks import eventupdate_watchdog
+        delay = 320 #seconds
+        url = self.eventupdates_list_url
+        self.login_as_user()
+        event = EventFactory()
+        data = {'key':event.key}
+        data['text'] = 'passive event'
+        data['active'] = 0
+        data['delay'] = delay
+        self.assertHttpCreated(self.api_client.post(url, data=data))
+        self.assert_task_sent(eventupdate_watchdog, event.id, delay)
+        self.assertEquals(len(self.applied_tasks),1)
 
     def test_get_list(self):
         url = self.eventupdates_list_url
