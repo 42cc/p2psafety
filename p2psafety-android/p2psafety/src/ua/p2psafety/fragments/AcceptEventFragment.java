@@ -120,6 +120,8 @@ public class AcceptEventFragment extends Fragment {
         System.out.println("onViewCreated. url: " + mEventSupportUrl);
 
         LatLng eventLatLng = new LatLng(mEventLocation.getLatitude(), mEventLocation.getLongitude());
+        Log.i("AcceptEventFragment", "loc: \n" + mEventLocation);
+        Log.i("AcceptEventFragment", "latLng: \n" + eventLatLng);
         mMap.addMarker(new MarkerOptions()
                 .position(eventLatLng)
                 .title(getString(R.string.victim_text).replace(": ", "")));
@@ -142,9 +144,13 @@ public class AcceptEventFragment extends Fragment {
                     public void run() {
                         Utils.setLoading(mActivity, false);
                         //mActivity.onBackPressed();
-                        if (true) {
-                            EventManager.getInstance(mActivity).getEvent().setType(Event.TYPE_SUPPORT);
-                            EventManager.getInstance(mActivity).getEvent().setStatus(Event.STATUS_ACTIVE);
+                        if (true) { // TODO: find out what is supposed to be here
+                            try {
+                                EventManager.getInstance(mActivity).getEvent().setType(Event.TYPE_SUPPORT);
+                                EventManager.getInstance(mActivity).getEvent().setStatus(Event.STATUS_ACTIVE);
+                            } catch (Exception e) {
+                                // should never happen
+                            }
                             XmppService.processing_event = false;
 
                             // open Supporter screen
