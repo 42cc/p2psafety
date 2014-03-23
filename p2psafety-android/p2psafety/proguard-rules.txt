@@ -134,6 +134,7 @@
 -dontskipnonpubliclibraryclassmembers
 
 -keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable
+-keepattributes Signature
 
 -dontwarn javax.xml.**
 -dontwarn javax.xml.stream.events.**
@@ -142,6 +143,9 @@
 -dontwarn java.beans.Beans
 -dontwarn javax.security.**
 -dontwarn com.fasterxml.jackson.databind.**
+-dontwarn com.facebook.**
+-dontwarn org.apache.http.**
+-dontwarn com.squareup.okhttp.**
 
 -keep class org.apache.http.** { *; }
 -keep class com.google.gson.** { *; }
@@ -153,6 +157,4 @@
 -keep class com.fasterxml.jackson.** { *; }
 -keep class org.jivesoftware.** { *; }
 -keep class android.support.v4.** { *; }
-
--dontwarn org.apache.http.**
--dontwarn com.squareup.okhttp.**
+-keep class com.facebook.** { *; }
