@@ -92,7 +92,7 @@ class CeleryMixin(object):
         Task.apply_async = self.task_apply_async_orig
 
     def handle_apply_async(self, task_class, args=None, kwargs={}, **options):
-        self.applied_tasks.append((task_class, tuple(args), kwargs))
+        self.applied_tasks.append((task_class, tuple(args), kwargs,options))
         return self.generate_task_id()
 
     def generate_task_id(self):

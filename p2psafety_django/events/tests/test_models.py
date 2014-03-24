@@ -6,6 +6,7 @@ from django.contrib.gis.geos import Point
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import timezone
 
 from core.utils import set_livesettings_value
 from .helpers.factories import EventFactory, EventUpdateFactory
@@ -81,6 +82,7 @@ class EventTestCase(CeleryMixin, TestCase):
         self.assertEquals(event.status,Event.STATUS_PASSIVE)
         self.assertEquals(len(self.applied_tasks),2)
         task = self.applied_tasks[1]
+        self.assertTrue(task[3]['eta'] > timezone.now())
         #last update will fit into time window and new watchdog will start
         time.sleep(1)
         eventupdate_watchdog(event.id,timedelta(seconds=1))
