@@ -1,4 +1,5 @@
 import mock
+import time
 
 from django.contrib.gis.geos import Point
 from django.conf import settings
@@ -72,6 +73,7 @@ class EventTestCase(CeleryMixin, TestCase):
         self.assertEquals(event.status,Event.STATUS_PASSIVE)
         #so we run watchdog now
         #no events,
+        time.sleep(1)
         eventupdate_watchdog(event.id,1)
         eu = EventUpdate.objects.latest('id')
         event = Event.objects.get(id=event.id)

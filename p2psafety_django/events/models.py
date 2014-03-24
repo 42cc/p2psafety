@@ -192,7 +192,7 @@ class EventUpdate(models.Model):
         """
         from .tasks import eventupdate_watchdog
         delay = self.delay if hasattr(self,'delay') else settings.WATCHDOG_DELAY
-        res = eventupdate_watchdog.delay(self.event.id, delay)
+        res = eventupdate_watchdog.apply_async((self.event.id, delay),countdown=delay)
         self.event.watchdog_task_id=res.task_id
         self.event.save()
 

@@ -79,7 +79,7 @@ class CeleryMixin(object):
         self.task_apply_async_orig = Task.apply_async
 
         @classmethod
-        def new_apply_async(task_class, args=None, kwargs=None, **options):
+        def new_apply_async(task_class, args=None, kwargs={}, **options):
             return self.handle_apply_async(task_class, args, kwargs, **options)
 
         # monkey patch the regular apply_sync with our method
@@ -91,7 +91,7 @@ class CeleryMixin(object):
         # Reset the monkey patch to the original method
         Task.apply_async = self.task_apply_async_orig
 
-    def handle_apply_async(self, task_class, args=None, kwargs=None, **options):
+    def handle_apply_async(self, task_class, args=None, kwargs={}, **options):
         self.applied_tasks.append((task_class, tuple(args), kwargs))
         return self.generate_task_id()
 
@@ -102,8 +102,10 @@ class CeleryMixin(object):
 
     def assert_task_sent(self, task_class, *args, **kwargs):
         nm = lambda n: n.name.split('.')[-1]
-        was_sent = any(nm(task_class) == nm(task[0]) and args == task[1] and kwargs == task[2]
-                       for task in self.applied_tasks)
+        was_sent = any(nm(task_class) == nm(task[0])\
+                   and args == task[1]\
+                   and kwargs == task[2]
+           for task in self.applied_tasks)
         self.assertTrue(was_sent, 'Task not called w/class %s and args %s' % (task_class, args))
 
     def assert_task_not_sent(self, task_class):
