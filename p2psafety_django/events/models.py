@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import uuid
 import hmac
+import datetime
 
 from django.db import models
 from django.dispatch import receiver
@@ -192,7 +193,9 @@ class EventUpdate(models.Model):
         """
         from .tasks import eventupdate_watchdog
         delay = self.delay if hasattr(self,'delay') else settings.WATCHDOG_DELAY
-        res = eventupdate_watchdog.apply_async((self.event.id, delay),countdown=delay)
+        delay = datetime.timedelta(seconds=delay)
+        eta = datetime.datetime.now()+delay
+        res = eventupdate_watchdog.apply_async((self.event.id, delay),eta=eta)
         self.event.watchdog_task_id=res.task_id
         self.event.save()
 

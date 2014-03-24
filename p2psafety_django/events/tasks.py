@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta
-
 from django.utils import timezone
 from p2psafety.celery import app
 
@@ -8,12 +6,11 @@ from .models import Event, EventUpdate
 
 
 @app.task
-def eventupdate_watchdog(event_id,delay_seconds):
+def eventupdate_watchdog(event_id,delay):
     """Task is run with
-    eventupdate_watchdog.apply_async((event_id,delay_seconds),countdown=delay)
+    eventupdate_watchdog.apply_async((event_id,delay),eta=now()+delay)
     and checks for new updates during the delay
     """
-    delay = timedelta(seconds=delay_seconds)
     event=Event.objects.get(id=event_id)
     if event.status == Event.STATUS_PASSIVE:
         time_pased = timezone.now() - event.latest_update.timestamp
@@ -26,5 +23,6 @@ def eventupdate_watchdog(event_id,delay_seconds):
                             str(delay)
             ).save() #to call db hooks
         else:
+            new_eta = event.latest_update.timestamp
             eventupdate_watchdog.apply_async(
-                    (event_id,delay_seconds),countdown=delay_seconds)
+                    (event_id,delay_seconds),eta=new_eta)

@@ -1,6 +1,7 @@
 import mock
 import time
 
+from datetime import timedelta
 from django.contrib.gis.geos import Point
 from django.conf import settings
 from django.test import TestCase
@@ -62,7 +63,9 @@ class EventTestCase(CeleryMixin, TestCase):
         event = EventFactory()
         EventUpdateFactory(event=event,active=False)
 
-        self.assert_task_sent(eventupdate_watchdog, event.id, settings.WATCHDOG_DELAY)
+        self.assert_task_sent(eventupdate_watchdog,
+                event.id,
+                timedelta(seconds=settings.WATCHDOG_DELAY))
         self.assertEquals(len(self.applied_tasks),1)
         self.assertTrue(event.watchdog_task_id)
         #new passive update
@@ -74,7 +77,7 @@ class EventTestCase(CeleryMixin, TestCase):
         #so we run watchdog now
         #no events,
         time.sleep(1)
-        eventupdate_watchdog(event.id,1)
+        eventupdate_watchdog(event.id,timedelta(seconds=1))
         eu = EventUpdate.objects.latest('id')
         event = Event.objects.get(id=event.id)
         self.assertEquals(event.status,Event.STATUS_ACTIVE)
