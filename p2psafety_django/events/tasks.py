@@ -23,6 +23,6 @@ def eventupdate_watchdog(event_id,delay):
                             str(delay)
             ).save() #to call db hooks
         else:
-            new_eta = event.latest_update.timestamp
+            new_eta = event.latest_update.timestamp+delay
             eventupdate_watchdog.apply_async(
-                    (event_id,delay_seconds),eta=new_eta)
+                    (event_id,delay),eta=new_eta)

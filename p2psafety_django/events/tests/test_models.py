@@ -76,6 +76,12 @@ class EventTestCase(CeleryMixin, TestCase):
         self.assertEquals(event.status,Event.STATUS_PASSIVE)
         #so we run watchdog now
         #no events,
+        eventupdate_watchdog(event.id,timedelta(seconds=60))
+        event = Event.objects.get(id=event.id)
+        self.assertEquals(event.status,Event.STATUS_PASSIVE)
+        self.assertEquals(len(self.applied_tasks),2)
+        task = self.applied_tasks[1]
+        #last update will fit into time window and new watchdog will start
         time.sleep(1)
         eventupdate_watchdog(event.id,timedelta(seconds=1))
         eu = EventUpdate.objects.latest('id')
