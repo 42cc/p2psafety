@@ -9,8 +9,9 @@ from .models import Event, EventUpdate
 
 @app.task
 def eventupdate_watchdog(event_id,delay_seconds):
-    """Task is run with apply_async(delay=delay) and checks
-    for new updates during the delay
+    """Task is run with
+    eventupdate_watchdog.apply_async((event_id,delay_seconds),countdown=delay)
+    and checks for new updates during the delay
     """
     delay = timedelta(seconds=delay_seconds)
     event=Event.objects.get(id=event_id)
