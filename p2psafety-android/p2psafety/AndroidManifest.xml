@@ -117,7 +117,7 @@
                     android:resource="@xml/wprovider"/>
         </receiver>
 
-        <receiver android:name=".BootCompletedReceiver" android:enabled="true" android:exported="false">
+        <receiver android:name=".listeners.BootCompletedReceiver" android:enabled="true" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>

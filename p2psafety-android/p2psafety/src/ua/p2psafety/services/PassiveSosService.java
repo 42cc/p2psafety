@@ -26,6 +26,7 @@ public class PassiveSosService extends Service {
 
     private ScheduledExecutorService mExecutor;
 
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mPassiveSosInterval = Prefs.getPassiveSosInterval(this);
