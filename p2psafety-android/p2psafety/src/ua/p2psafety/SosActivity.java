@@ -17,9 +17,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.fragments.PassiveSosFragment;
 import ua.p2psafety.fragments.SendMessageFragment;
 import ua.p2psafety.json.Event;
 import ua.p2psafety.services.LocationService;
+import ua.p2psafety.services.PassiveSosService;
 import ua.p2psafety.services.PowerButtonService;
 import ua.p2psafety.services.XmppService;
 import ua.p2psafety.util.EventManager;
@@ -62,7 +64,6 @@ public class SosActivity extends ActionBarActivity {
             startService(new Intent(this, XmppService.class));
         }
         Prefs.setProgramRunning(true, this);
-
     }
 
     @Override
@@ -106,6 +107,10 @@ public class SosActivity extends ActionBarActivity {
             {
                 fragmentManager.beginTransaction().addToBackStack(fragment.getClass().getName())
                         .replace(R.id.content_frame, fragment).commit();
+            }
+            else if (fragmentClass.equals(PassiveSosFragment.class.getName()))
+            {
+                sendBroadcast(new Intent(PassiveSosService.PASSIVE_SOS_PASSWORD));
             }
 
             setIntent(new Intent(this, SosActivity.class));

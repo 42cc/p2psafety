@@ -27,13 +27,13 @@ import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.listeners.OnTouchContinuousListener;
-import ua.p2psafety.services.DelayedSosService;
-import ua.p2psafety.util.EventManager;
+import ua.p2psafety.services.PassiveSosService;
 
 public class PassiveSosFragment extends Fragment {
     TextView mTimerText;
     Button mTimerBtn;
     ImageButton mArrowUpBtn, mArrowDownBtn;
+    private AlertDialog mAlertDialog;
 
     Activity mActivity;
 
@@ -61,37 +61,43 @@ public class PassiveSosFragment extends Fragment {
 
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
+        PassiveSosService.registerReceiver(mActivity, mBroadcastReceiver);
+        showSosDelay(Prefs.getPassiveSosInterval(mActivity));
+
+        if (Prefs.isPassiveSosStarted(mActivity)) {
+            onTimerStart();
+        } else {
+            onTimerStop();
+        }
+
         mTimerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (DelayedSosService.isTimerOn()) {
-//                    // stop timer
-//                    if (!Prefs.getUsePassword(mActivity)) {
-//                        mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
-//                        onTimerStop();
-//                    } else {
-//                        askPasswordAndStopTimer();
-//                    }
-//                } else if (EventManager.getInstance(mActivity).isSosStarted()) {
-//                    Toast.makeText(mActivity, R.string.sos_already_active, Toast.LENGTH_LONG)
-//                         .show();
-//                } else {
-//                    // start timer
-//                    mActivity.startService(new Intent(mActivity, DelayedSosService.class));
-//                    onTimerStart();
-//                }
-
-                askSosReason();
+                if (Prefs.isPassiveSosStarted(mActivity)) {
+                    // stop timer
+                    mActivity.stopService(new Intent(mActivity, PassiveSosService.class));
+                    onTimerStop();
+                    Prefs.setPassiveSosStarted(mActivity, false);
+                    Toast.makeText(mActivity, "Passive SOS stopped", Toast.LENGTH_SHORT).show();
+                } else {
+                    // start timer
+                    mActivity.startService(new Intent(mActivity, PassiveSosService.class));
+                    onTimerStart();
+                    Prefs.setPassiveSosStarted(mActivity, true);
+                    askSosReason();
+                    Toast.makeText(mActivity, "Passive SOS started", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         mArrowUpBtn.setOnTouchListener(new OnTouchContinuousListener() {
             @Override
             public void onTouchRepeat(View view) {
-                long sosDelay = DelayedSosService.getSosDelay(mActivity);
+                long sosDelay = Prefs.getPassiveSosInterval(mActivity);
                 sosDelay += 1*60*1000; // +1 min
                 sosDelay = Math.min(sosDelay, 120 * 60 * 1000); // max 120 min
                 //DelayedSosService.setSosDelay(mActivity, sosDelay);
+                Prefs.setPassiveSosInterval(mActivity, sosDelay);
                 showSosDelay(sosDelay);
             }
         });
@@ -99,13 +105,74 @@ public class PassiveSosFragment extends Fragment {
         mArrowDownBtn.setOnTouchListener(new OnTouchContinuousListener() {
             @Override
             public void onTouchRepeat(View view) {
-                long sosDelay = DelayedSosService.getSosDelay(mActivity);
+                long sosDelay = Prefs.getPassiveSosInterval(mActivity);
                 sosDelay -= 1*60*1000; // -1 min
                 sosDelay = Math.max(sosDelay, 1*60*1000); // min 1 min
                 //DelayedSosService.setSosDelay(mActivity, sosDelay);
+                Prefs.setPassiveSosInterval(mActivity, sosDelay);
                 showSosDelay(sosDelay);
             }
         });
+
+        Bundle bundle = getArguments();
+        if (bundle != null)
+        {
+            if (bundle.getBoolean(PassiveSosService.ASK_FOR_PASSWORD))
+            {
+                askForPassword();
+            }
+        }
+    }
+
+    private void askForPassword() {
+        LayoutInflater li = LayoutInflater.from(mActivity);
+        View promptsView = li.inflate(R.layout.password_dialog, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
+        alertDialogBuilder.setView(promptsView);
+
+        final EditText userInput = (EditText) promptsView.findViewById(R.id.pd_password_edit);
+
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                checkPassword(userInput.getText().toString());
+                                mAlertDialog.dismiss();
+                            }
+                        });
+
+        mAlertDialog = alertDialogBuilder.create();
+        mAlertDialog.show();
+        mAlertDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+        userInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    checkPassword(userInput.getText().toString());
+                    mAlertDialog.dismiss();
+                }
+                return true;
+            }
+        });
+    }
+
+    // stops timer or builds dialog with retry/cancel buttons
+    private void checkPassword(String password) {
+        String savedPassword = Prefs.getPassword(mActivity);
+        if (!savedPassword.equals("") && !password.equals(savedPassword))
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+            builder.setTitle(R.string.wrong_password);
+            builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    askForPassword();
+                }
+            });
+            builder.create().show();
+        }
     }
 
     private void askSosReason() {
@@ -160,7 +227,7 @@ public class PassiveSosFragment extends Fragment {
 //                .setPositiveButton(android.R.string.ok,
 //                        new DialogInterface.OnClickListener() {
 //                            public void onClick(DialogInterface dialog, int id) {
-//                                checkPasswordAndStopTimer(userInput.getText().toString());
+//                                checkPassword(userInput.getText().toString());
 //                            }
 //                        })
 //                .setNegativeButton(android.R.string.cancel,
@@ -178,7 +245,7 @@ public class PassiveSosFragment extends Fragment {
 //            @Override
 //            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 //                if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                    checkPasswordAndStopTimer(userInput.getText().toString());
+//                    checkPassword(userInput.getText().toString());
 //                    alertDialog.dismiss();
 //                }
 //                return true;
@@ -187,7 +254,7 @@ public class PassiveSosFragment extends Fragment {
 //    }
 //
 //    // stops timer or builds dialog with retry/cancel buttons
-//    private void checkPasswordAndStopTimer(String password) {
+//    private void checkPassword(String password) {
 //        if (password.equals(Prefs.getPassword(mActivity)))
 //        {
 //            mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
@@ -207,27 +274,15 @@ public class PassiveSosFragment extends Fragment {
 //        }
 //    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-//        DelayedSosService.registerReceiver(mActivity, mBroadcastReceiver);
-//
-//        if (DelayedSosService.isTimerOn())
-//            onTimerStart();
-//        else
-//            onTimerStop();
-    }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
 
-//        mActivity.unregisterReceiver(mBroadcastReceiver);
+        mActivity.unregisterReceiver(mBroadcastReceiver);
     }
 
     private void onTimerStart() {
-        showSosDelay(DelayedSosService.getTimeLeft());
         mArrowUpBtn.setEnabled(false);
         mArrowDownBtn.setEnabled(false);
         mArrowUpBtn.setImageDrawable(
@@ -238,7 +293,6 @@ public class PassiveSosFragment extends Fragment {
     }
 
     private void onTimerStop() {
-        showSosDelay(DelayedSosService.getSosDelay(mActivity));
         mArrowUpBtn.setEnabled(true);
         mArrowDownBtn.setEnabled(true);
         mArrowUpBtn.setImageDrawable(
@@ -259,18 +313,11 @@ public class PassiveSosFragment extends Fragment {
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-//            String action = intent.getAction();
-//
-//            if (action.equals(DelayedSosService.SOS_DELAY_TICK)) {
-//                // show time left
-//                showSosDelay(DelayedSosService.getTimeLeft());
-//            }
-//            else if (action.equals(DelayedSosService.SOS_DELAY_FINISH)) {
-//                onTimerStop();
-//            }
-//            else if (action.equals(DelayedSosService.SOS_DELAY_CANCEL)) {
-//                onTimerStop();
-//            }
+            String action = intent.getAction();
+
+            if (action.equals(PassiveSosService.PASSIVE_SOS_PASSWORD)) {
+                askForPassword();
+            }
         }
     };
 }

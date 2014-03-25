@@ -87,6 +87,7 @@
         <service android:name=".services.PhoneCallService"/>
         <service android:name=".services.XmppService"/>
         <service android:name=".services.LocationService"/>
+        <service android:name=".services.PassiveSosService"/>
 
         <activity
                 android:name=".SosActivity"

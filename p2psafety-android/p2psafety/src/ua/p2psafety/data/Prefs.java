@@ -33,6 +33,8 @@ public class Prefs {
     private static final String USER_IDENTIFIER = "USER_IDENTIFIER";
 
     private static final String IS_PROGRAM_RUNNING = "IS_PROGRAM_RUNNING";
+    private static final String PASSIVE_SOS_INTERVAL = "PASSIVE_SOS_INTERVAL";
+    private static final String PASSIVE_SOS_STARTED = "PASSIVE_SOS_STARTED";
 
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
@@ -261,5 +263,23 @@ public class Prefs {
     public static void setProgramRunning(boolean val, Context context)
     {
         getPrefs(context).edit().putBoolean(IS_PROGRAM_RUNNING, val).commit();
+    }
+
+    public static long getPassiveSosInterval(Context context) {
+        return getPrefs(context).getLong(PASSIVE_SOS_INTERVAL, 2000);
+    }
+
+    public static void setPassiveSosInterval(Context context, long val)
+    {
+        getPrefs(context).edit().putLong(PASSIVE_SOS_INTERVAL, val).commit();
+    }
+
+    public static boolean isPassiveSosStarted(Context context) {
+        return getPrefs(context).getBoolean(PASSIVE_SOS_STARTED, false);
+    }
+
+    public static void setPassiveSosStarted(Context context, boolean val)
+    {
+        getPrefs(context).edit().putBoolean(PASSIVE_SOS_STARTED, val).commit();
     }
 }
