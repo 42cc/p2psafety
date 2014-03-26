@@ -29,6 +29,7 @@ import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.listeners.OnTouchContinuousListener;
 import ua.p2psafety.services.PassiveSosService;
+import ua.p2psafety.services.XmppService;
 import ua.p2psafety.util.EventManager;
 
 public class PassiveSosFragment extends Fragment {
@@ -80,7 +81,15 @@ public class PassiveSosFragment extends Fragment {
                 if (Prefs.isPassiveSosStarted(mActivity)) {
                     // stop timer
                     stopPassiveSos();
-                } else {
+                } else if (EventManager.getInstance(mActivity).isSosStarted()) {
+                    Toast.makeText(mActivity, R.string.sos_already_active, Toast.LENGTH_LONG)
+                            .show();
+                } else if (EventManager.getInstance(mActivity).isSupportStarted())
+                {
+                    Toast.makeText(mActivity, R.string.supporter_mode, Toast.LENGTH_LONG)
+                            .show();
+                }
+                else {
                     // start timer
                     askSosReason();
                 }
@@ -128,6 +137,7 @@ public class PassiveSosFragment extends Fragment {
         mActivity.startService(new Intent(mActivity, PassiveSosService.class));
         onTimerStart();
         Prefs.setPassiveSosStarted(mActivity, true);
+        XmppService.processing_event = false;
         Toast.makeText(mActivity, "Passive SOS started", Toast.LENGTH_SHORT).show();
     }
 
@@ -297,10 +307,7 @@ public class PassiveSosFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
 
-        if (mTimerOn) {
-            mTimer.cancel();
-            mTimerOn = false;
-        }
+        stopTimer();
 
         mActivity.unregisterReceiver(mBroadcastReceiver);
     }
@@ -335,7 +342,10 @@ public class PassiveSosFragment extends Fragment {
     public static void stopTimer()
     {
         if (mTimerOn)
+        {
             mTimer.cancel();
+            mTimerOn = false;
+        }
     }
 
     // Broadcast from DelayedSosService timer
@@ -345,7 +355,7 @@ public class PassiveSosFragment extends Fragment {
             String action = intent.getAction();
 
             if (action.equals(PassiveSosService.PASSIVE_SOS_PASSWORD)) {
-                mTimer = new PassiveSosTimer(10 * 1000, 1000);
+                mTimer = new PassiveSosTimer(55 * 1000, 1000);
                 mTimer.start();
                 mTimerOn = true;
                 askForPassword();
@@ -366,7 +376,6 @@ public class PassiveSosFragment extends Fragment {
 
         @Override
         public void onFinish() {
-            mActivity.stopService(new Intent(mActivity, PassiveSosService.class));
             stopPassiveSos();
             if (mAlertDialog != null)
                 mAlertDialog.dismiss();

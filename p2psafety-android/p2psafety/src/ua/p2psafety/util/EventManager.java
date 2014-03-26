@@ -3,6 +3,7 @@ package ua.p2psafety.util;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import ua.p2psafety.Notifications;
 import ua.p2psafety.json.Event;
 import ua.p2psafety.services.AudioRecordService;
 import ua.p2psafety.services.LocationService;
+import ua.p2psafety.services.PassiveSosService;
 import ua.p2psafety.services.PhoneCallService;
 import ua.p2psafety.services.VideoRecordService;
 import ua.p2psafety.services.XmppService;
@@ -48,6 +50,14 @@ public class EventManager {
     }
 
     public void startSos() {
+
+        if (Prefs.isPassiveSosStarted(mContext))
+        {
+            mContext.stopService(new Intent(mContext, PassiveSosService.class));
+            Prefs.setPassiveSosStarted(mContext, false);
+            Toast.makeText(mContext, "Passive SOS stopped", Toast.LENGTH_SHORT).show();
+        }
+
         logs.info("EventManager. StartSos()");
         logs.info("EventManager. StartSos. Start vibration");
         Utils.startVibration(mContext);

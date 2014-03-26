@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.fragments.PassiveSosFragment;
+import ua.p2psafety.util.Utils;
 
 /**
  * Created by Taras Melon on 25.03.14.
@@ -35,6 +36,9 @@ public class PassiveSosService extends Service {
         mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
+                Utils.startVibration(PassiveSosService.this);
+                Utils.playDefaultNotificationSound(PassiveSosService.this);
+                Utils.blinkLED(PassiveSosService.this);
                 openPassiveSosFragment();
        }}, mPassiveSosInterval, mPassiveSosInterval, TimeUnit.MILLISECONDS);
 

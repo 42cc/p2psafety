@@ -266,7 +266,7 @@ public class Prefs {
     }
 
     public static long getPassiveSosInterval(Context context) {
-        return getPrefs(context).getLong(PASSIVE_SOS_INTERVAL, 2000);
+        return getPrefs(context).getLong(PASSIVE_SOS_INTERVAL, 2 * 60 * 1000);
     }
 
     public static void setPassiveSosInterval(Context context, long val)

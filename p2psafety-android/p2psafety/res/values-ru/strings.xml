@@ -110,6 +110,7 @@
     <string name="viction_name">Имя жертвы</string>
     <string name="passive_sos">Пассивная тревога</string>
     <string name="sos_reason">Причина тревоги</string>
+    <string name="supporter_mode">Вы находитесь в режиме поддержки</string>
 
     <string-array name="media_types">
         <item>Нет</item>

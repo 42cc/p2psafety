@@ -191,7 +191,7 @@ public class XmppService extends Service {
             mNode.addItemEventListener(new ItemEventListener() {
                 @Override
                 public void handlePublishedItems(ItemPublishEvent items) {
-                    if (items.isDelayed())
+                    if (items.isDelayed() || Prefs.isPassiveSosStarted(XmppService.this))
                     {
                         return; // old event
                     }
