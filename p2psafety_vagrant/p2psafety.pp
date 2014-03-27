@@ -10,6 +10,7 @@ $db_name = 'p2psafety' # Mysql database name to create
 $db_user = 'vagrant' # Mysql username to create
 $db_password = 'vagrant' # Mysql password for $db_user
 
+include swapfile
 include timezone
 include user
 include apt
@@ -35,8 +36,15 @@ class timezone {
   }
 }
 
-class user {
+class swapfile {
+    #when we have not enough mem for copilation, we do swap
+  exec { "bash ${inc_file_path}/bash/swapfile.sh":
+    unless => 'grep -q "swapfile" /etc/fstab',
+    before => Class['python']
+  }
+}
 
+class user {
   # Prepare user's project directories
   file { ["/home/vagrant/virtualenvs",
           "/home/vagrant/${project}",

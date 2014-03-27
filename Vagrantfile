@@ -48,9 +48,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # folder, and the third is the path on the host to the actual folder.
   # config.vm.share_folder "v-data", "/vagrant_data", "../data"
 
-  #hack for OSX
+  #OSX has bug with nfs
   if (/darwin/ =~ RUBY_PLATFORM) != nil
-      config.vm.synced_folder "./", "/home/vagrant/p2psafety", type: "nfs", nfs_version:3
+      config.vm.synced_folder "./", "/home/vagrant/p2psafety"
   else
       config.vm.synced_folder "./", "/home/vagrant/p2psafety", type: "nfs", nfs_version:4
   end
