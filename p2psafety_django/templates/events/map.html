@@ -115,7 +115,8 @@
                 </div>
                 <div class="list-group-item"
                      ng-repeat="update in selectedEvent.updates">
-                  <eventupdate-marker click="focus(update.location)">
+                  <eventupdate-marker click="focus(update.location)"
+                                      reliability="{{$index / selectedEvent.updates.length}}">
                     <span>{{ update.timestamp | date:'dd.MM HH:mm' }}</span>
                   </eventupdate-marker>
                   <p class="list-group-item-heading">

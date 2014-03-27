@@ -1,11 +1,5 @@
 var mapApp = angular.module('mapApp', ["angular-lodash","ngAnimate"]);
 
-mapApp.constant('ICONS', {
-  RED: 'http://maps.google.com/mapfiles/ms/micons/red-dot.png',
-  GREEN: 'http://maps.google.com/mapfiles/ms/micons/green-dot.png',
-  BLUE: 'http://maps.google.com/mapfiles/ms/micons/blue-dot.png',
-});
-
 mapApp.controller('EventListCtrl', function($scope, $http, $interval,
                                             urls, mapSettings, ensurePath) {
   $scope.$location = window.location
@@ -341,14 +335,39 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
     return marker;
   };
 })
-.directive('eventMarker', function(markerFactory, ICONS) {
+.factory('iconGenerator', function() {
+  /*
+    Returns icon url by given color.
+
+    @param arg: color name like 'blue', 'yellow' or
+                hex string like 'AADDFF'. 
+   */
+  var baseColorUrl = 'http://maps.google.com/mapfiles/ms/micons/%ARG-dot.png';
+  var baseHexUrl = 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|%ARG';
+  var generator = function(arg) {
+    var value = parseFloat(arg);
+    if (isNaN(value)) {
+      return baseColorUrl.replace('%ARG', arg);
+    }
+    else {
+      if ((value != null)  && (value >= 0) && (value <= 1)) {
+        value = Math.floor(64 + value * 192).toString(16);
+        value = value + value + 'EE';
+      }
+      return baseHexUrl.replace('%ARG', value);
+    }
+  };
+  return generator;
+})
+.directive('eventMarker', function(markerFactory, iconGenerator) {
   var linker = function(scope, element, attrs) {
     var content = element.children().detach()[0];
     var location = scope.event.latest_location;
 
     if (location) {
       var map = scope.$parent.gmap;
-      var icon = (scope.event.type == 'victim') ? ICONS.RED : ICONS.GREEN;
+      var colorName = (scope.event.type == 'victim') ? 'red' : 'green';
+      var icon = iconGenerator(colorName);
       var marker = markerFactory(scope, element, content, icon, location,
                                  map, attrs.click);
 
@@ -365,14 +384,15 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
     link: linker,
   };
 })
-.directive('supportMarker', function(markerFactory, ICONS) {
+.directive('supportMarker', function(markerFactory, iconGenerator) {
   var linker = function(scope, element, attrs) {
     var content = element.children().detach()[0];
     var location = scope.support.latest_location;
 
     if (location) {
       var map = scope.$parent.gmap;
-      var marker = markerFactory(scope, element, content, ICONS.GREEN, location,
+      var icon = iconGenerator('green');
+      var marker = markerFactory(scope, element, content, location,
                                  map, attrs.click);
     }
   };
@@ -383,14 +403,15 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
     link: linker,
   };
 })
-.directive('eventupdateMarker', function(markerFactory, ICONS) {
+.directive('eventupdateMarker', function(markerFactory, iconGenerator) {
   var linker = function(scope, element, attrs) {
     var content = element.children().detach()[0];
     var location = scope.update.location != null;
 
     if (location) {
       var map = scope.$parent.gmap;
-      var marker = markerFactory(scope, element, content, ICONS.BLUE,
+      var icon = iconGenerator(attrs.reliability);
+      var marker = markerFactory(scope, element, content, icon,
                                  scope.update.location, map);
     }
   };
@@ -401,14 +422,15 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
     link: linker,
   };
 })
-.directive('supportedMarker', function(markerFactory, ICONS) {
+.directive('supportedMarker', function(markerFactory, iconGenerator) {
   var linker = function(scope, element, attrs) {
     var content = element.children().detach()[0];
     var location = scope.supported.latest_location;
 
     if (location) {
       var map = scope.$parent.gmap;
-      var marker = markerFactory(scope, element, content, ICONS.RED, location,
+      var icon = iconGenerator('red');
+      var marker = markerFactory(scope, element, content, icon, location,
                                  map, attrs.click);
     }
   };
