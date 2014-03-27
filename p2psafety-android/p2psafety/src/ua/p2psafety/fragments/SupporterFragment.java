@@ -30,19 +30,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import ua.p2psafety.adapters.StableArrayAdapter;
-import ua.p2psafety.util.EventManager;
 import ua.p2psafety.P2PMapView;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
+import ua.p2psafety.adapters.StableArrayAdapter;
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.json.Event;
-import ua.p2psafety.json.User;
 import ua.p2psafety.services.AudioRecordService;
-import ua.p2psafety.services.LocationService;
 import ua.p2psafety.services.VideoRecordService;
 import ua.p2psafety.services.XmppService;
+import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.NetworkManager;
-import ua.p2psafety.data.Prefs;
 import ua.p2psafety.util.Utils;
 
 public class SupporterFragment extends Fragment {
@@ -153,24 +151,19 @@ public class SupporterFragment extends Fragment {
             }
         });
 
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            mSupportUrl = bundle.getString(XmppService.SUPPORTER_URL_KEY);
-            mEventLocation = (Location) bundle.get(XmppService.LOCATION_KEY);
-            mVictimName = bundle.getString(XmppService.VICTIM_NAME_KEY);
+        mSupportUrl = XmppService.VICTIM_DATA.getSupporterUrl();
+        mEventLocation = XmppService.VICTIM_DATA.getLocation();
+        mVictimName = XmppService.VICTIM_DATA.getName();
 
-            mVictimNameText.setText(mVictimName);
+        mVictimNameText.setText(mVictimName);
 
-            LatLng eventLatLng = new LatLng(mEventLocation.getLatitude(), mEventLocation.getLongitude());
-            mMap.addMarker(new MarkerOptions()
-                    .position(eventLatLng)
-                    .title(getString(R.string.victim_text).replace(": ", "")));
+        LatLng eventLatLng = new LatLng(mEventLocation.getLatitude(), mEventLocation.getLongitude());
+        mMap.addMarker(new MarkerOptions()
+                .position(eventLatLng)
+                .title(mVictimName));
 
-            MapsInitializer.initialize(mActivity);
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 15.0f));
-        } else {
-            mSupportUrl = Prefs.getSupportUrl(mActivity);
-        }
+        MapsInitializer.initialize(mActivity);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 15.0f));
 
         Log.i("SupporterFragment", "url: " + String.valueOf(mSupportUrl));
         Log.i("SupporterFragment", "location: " + String.valueOf(mEventLocation));
@@ -222,7 +215,7 @@ public class SupporterFragment extends Fragment {
                                 Log.i("SupporterFragment", "new loc on map: " + loc);
                                 LatLng latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
                                 mMap.addMarker(new MarkerOptions()
-                                        .position(latLng).title(getString(R.string.viction_name)));
+                                        .position(latLng).title(mVictimName));
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
 
                                 break;

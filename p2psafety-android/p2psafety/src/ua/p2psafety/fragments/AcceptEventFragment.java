@@ -107,11 +107,10 @@ public class AcceptEventFragment extends Fragment {
         Utils.playDefaultNotificationSound(mActivity);
         Utils.blinkLED(mActivity);
 
-        Bundle bundle = getArguments();
-        mEventLocation = (Location) bundle.get(XmppService.LOCATION_KEY);
-        mEventSupportUrl = bundle.getString(XmppService.SUPPORTER_URL_KEY);
-        mLastComment = bundle.getString(XmppService.LAST_COMMENT_KEY);
-        mVictimName = bundle.getString(XmppService.VICTIM_NAME_KEY);
+        mEventLocation = XmppService.VICTIM_DATA.getLocation();
+        mEventSupportUrl = XmppService.VICTIM_DATA.getSupporterUrl();
+        mLastComment = XmppService.VICTIM_DATA.getLastComment();
+        mVictimName = XmppService.VICTIM_DATA.getName();
 
         mEventInfo.setText(mLastComment);
         mVictimNameText.setText(mVictimName);
@@ -154,13 +153,8 @@ public class AcceptEventFragment extends Fragment {
                             XmppService.processing_event = false;
 
                             // open Supporter screen
-                            Bundle bundle = new Bundle();
-                            bundle.putString(XmppService.SUPPORTER_URL_KEY, mEventSupportUrl);
-                            bundle.putParcelable(XmppService.LOCATION_KEY, mEventLocation);
-                            bundle.putString(XmppService.VICTIM_NAME_KEY, mVictimName);
 
                             Fragment fragment = new SupporterFragment();
-                            fragment.setArguments(bundle);
                             FragmentManager fm = getFragmentManager();
                             if (!Utils.isFragmentAdded(fragment, fm))
                             {
