@@ -23,6 +23,7 @@ include rabbitmq
 include pildeps
 include software
 include locale
+include ejabberd
 
 class timezone {
   package { "tzdata":
@@ -254,7 +255,7 @@ class python {
   }
 
   package { ['libssl-dev','libxml2-dev', 'libxslt-dev']:
-    ensure => latest,
+    ensure => installed,
     require => Class['apt']
   }
 
@@ -343,19 +344,40 @@ class software {
 }
 
 class locale{
-    package{ "locales":
-        ensure => latest,
-    }
-    file { "/var/lib/locales/supported.d/local":
-        content=> "en_US.UTF-8 UTF-8\nen_GB.UTF-8 UTF-8\nuk_UA.UTF-8 UTF-8\npl.UTF-8 UTF-8",
-        owner => "root",
-        group => "root",
-        mode => 644,
-        require => Package[locales],
-    }
-    exec { "/usr/sbin/locale-gen":
-        subscribe => File["/var/lib/locales/supported.d/local"],
-        refreshonly => true,
-        require => [Package[locales],File["/var/lib/locales/supported.d/local"]],
-    }
+  package{ "locales":
+    ensure => latest,
+  }
+  file { "/var/lib/locales/supported.d/local":
+    content=> "en_US.UTF-8 UTF-8\nen_GB.UTF-8 UTF-8\nuk_UA.UTF-8 UTF-8\npl.UTF-8 UTF-8",
+    owner => "root",
+    group => "root",
+    mode => 644,
+    require => Package[locales],
+  }
+  exec { "/usr/sbin/locale-gen":
+    subscribe => File["/var/lib/locales/supported.d/local"],
+    refreshonly => true,
+    require => [Package[locales],File["/var/lib/locales/supported.d/local"]],
+  }
+}
+class ejabberd {
+  package{'ejabberd':
+    ensure => installed,
+  }
+
+  #file{'/etc/ejabberd/ejabberd.cfg':
+    #require => Package['ejabberd'],
+    #notify => Service['ejabberd'],
+    #owner => 'root',
+    #group => 'ejabberd',
+    #mode => '0640',
+    #source => "${inc_file_path}/ejabberd/ejabberd.cfg"
+  #}
+
+  service{'ejabberd':
+    ensure => running,
+    enable => true,
+    hasstatus => true,
+    require => Package['ejabberd'],
+  }
 }
