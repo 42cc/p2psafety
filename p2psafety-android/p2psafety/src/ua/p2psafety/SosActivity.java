@@ -63,15 +63,15 @@ public class SosActivity extends ActionBarActivity {
             startService(new Intent(this, XmppService.class));
         }
         Prefs.setProgramRunning(true, this);
-
-        mStartedFromHistory = (getIntent().getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
-                == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
     }
 
     @Override
     public void onResume() {
         super.onResume();
         mUiHelper.onResume();
+
+        mStartedFromHistory = (getIntent().getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+                == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
 
         int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (result != ConnectionResult.SUCCESS) {
