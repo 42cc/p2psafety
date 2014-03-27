@@ -96,13 +96,19 @@
                 </div>
                 <div class="list-group-item">
                   <div class="form-inline notify-supporters">
+                    <div class="alert alert-success" ng-show="values.notifiedSupporters == 'ok'">
+                      <span>Notified successfully</span>
+                    </div>
+                    <div class="alert alert-danger" ng-show="values.notifiedSupporters == 'error'">
+                      <span>Error occured</span>
+                    </div>
                     <div class="form-group">
                       <input class="form-control input-sm" type="text" placeholder="Radius, km"
                              ng-model="fields.notifySupportersRadius"/>
                     </div>
                     <div class="form-group">
                       <button class="btn btn-success btn-sm"
-                              ng-disabled="{{ isNotifyingSupporters }}"
+                              ng-disabled="values.notifiedSupporters == 'running'"
                               ng-click="notifySupporters()">Notify supporters</button>
                     </div>
                   </div>

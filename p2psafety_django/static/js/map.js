@@ -227,10 +227,12 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       event_id: $scope.selectedEvent.id,
       radius: $scope.fields.notifySupportersRadius
     };
-    $scope.isNotifyingSupporters = true;
+    $scope.values.notifiedSupporters = 'running';
     $http.post(urls.notifySupporters, data).success(function(data) {
-      $scope.isNotifyingSupporters = false;
-    })
+      $scope.values.notifiedSupporters = 'ok';
+    }).error(function() {
+      $scope.values.notifiedSupporters = 'error';
+    });
   };
   $scope.createTestEvent = function() {
     var center = $scope.gmap.getCenter(),
@@ -244,14 +246,20 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.zoomScale = 1;
   $scope.initGoogleMap(document.getElementById("map-canvas"));
   $scope.events = {};
-  $scope.isNotifyingSupporters = false;
   $scope.showFilterPanel = false;
+  //
+  // TODO: Move next global variables to local scopes
+  //
   $scope.fields = {
     addEventUpdateText: '',
     notifySupportersRadius: '',
   };
-
+  $scope.values = {
+    // Possible values: initial, running, ok, error
+    notifiedSupporters: 'initial',
+  }
   $scope.filters = {};
+
   $scope.getRoles();
   $scope.getMovementTypes();
   $scope.update({playSoundForNew:false, highightNew:false, centerMap:true}, function() {
