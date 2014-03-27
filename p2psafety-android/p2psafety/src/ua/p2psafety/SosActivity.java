@@ -38,6 +38,7 @@ public class SosActivity extends ActionBarActivity {
     private UiLifecycleHelper mUiHelper;
     public static Logs mLogs;
     private EventManager mEventManager;
+    private boolean mStartedFromHistory = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,13 +63,15 @@ public class SosActivity extends ActionBarActivity {
             startService(new Intent(this, XmppService.class));
         }
         Prefs.setProgramRunning(true, this);
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
         mUiHelper.onResume();
+
+        mStartedFromHistory = (getIntent().getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+                == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
 
         int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (result != ConnectionResult.SUCCESS) {
@@ -95,7 +98,7 @@ public class SosActivity extends ActionBarActivity {
         }
 
         String fragmentClass = getIntent().getStringExtra(FRAGMENT_KEY);
-        if (fragmentClass != null) {
+        if (fragmentClass != null && !mStartedFromHistory) {
             // activity started from outside
             // and requested to show specific fragment
             mLogs.info("SosActiviy. onCreate. Activity requested to open " + fragmentClass);

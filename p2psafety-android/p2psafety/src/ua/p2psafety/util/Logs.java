@@ -270,4 +270,14 @@ public class Logs {
 
         return files;
     }
+
+    public boolean isTodayFile(File file)
+    {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
+        Calendar cal = Calendar.getInstance();
+        //today
+        cal.add(Calendar.DATE, 0);
+        String date = dateFormat.format(cal.getTime());
+        return file.getName().equals((FILENAME+date+FILE_EXTENSION).substring(1));
+    }
 }

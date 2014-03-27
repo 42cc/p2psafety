@@ -52,6 +52,12 @@ public class SendLogsFragment extends Fragment {
                 String text = descriptionOfIssue.getText().toString();
                 if (!text.equals(""))
                 {
+                    if (!Utils.isNetworkConnected(mActivity, SosActivity.mLogs))
+                    {
+                        SosActivity.mLogs.info("SosActivity. sendLogs. No network");
+                        Utils.errorDialog(mActivity, Utils.DIALOG_NO_CONNECTION);
+                        return;
+                    }
                     Utils.setLoading(mActivity, true);
                     List<File> files = SosActivity.mLogs.getFiles();
                     AsyncTaskExecutionHelper.executeParallel(new SendReportAsyncTask(files, text));
@@ -109,7 +115,9 @@ public class SendLogsFragment extends Fragment {
             if (o) {
                 Toast.makeText(mActivity, R.string.logs_successfully_sent, Toast.LENGTH_SHORT)
                      .show();
-                // delete sent logs from device
+                // delete sent logs from device, except today file
+                if (SosActivity.mLogs.isTodayFile(files.get(0)))
+                    files.remove(0);
                 for (File f: files)
                     f.delete();
             }

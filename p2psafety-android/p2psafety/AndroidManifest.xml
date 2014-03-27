@@ -92,8 +92,7 @@
                 android:name=".SosActivity"
                 android:screenOrientation="portrait"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
-                android:launchMode="singleTop"
-                android:excludeFromRecents="true">
+                android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
