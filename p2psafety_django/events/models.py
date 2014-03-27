@@ -183,7 +183,8 @@ class EventUpdate(models.Model):
         if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
             self.event.status = Event.STATUS_ACTIVE
             self.event.save()
-            if config_value('Events', 'supporters-autonotify'):
+            if (self.event.type == Event.TYPE_VICTIM and
+                config_value('Events', 'supporters-autonotify')):
                 self.event.notify_supporters()
 
     def start_watchdog(self):
