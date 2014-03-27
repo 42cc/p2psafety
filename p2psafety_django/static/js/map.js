@@ -383,9 +383,9 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   var linker = function(scope, element, attrs) {
     var content = element.children().detach()[0];
     var location = scope.update.location != null;
-    var map = scope.$parent.gmap;
 
     if (location) {
+      var map = scope.$parent.gmap;
       var marker = markerFactory(scope, element, content, ICONS.BLUE,
                                  scope.update.location, map);
     }
