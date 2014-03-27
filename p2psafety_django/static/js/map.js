@@ -108,10 +108,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
           eventsAppeared = true;
         }
       }
-      if ($scope.$location.hash!=""){
-          var id = parseFloat($scope.$location.hash.split('#')[1])
-          $scope.select( $scope.events[id])
-        }
       if (eventsAppeared && options.playSoundForNew)
         document.getElementById('audiotag').play();
       // Making map show all events
@@ -258,7 +254,12 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.filters = {};
   $scope.getRoles();
   $scope.getMovementTypes();
-  $scope.update({playSoundForNew:false, highightNew:false, centerMap:true});
+  $scope.update({playSoundForNew:false, highightNew:false, centerMap:true}, function() {
+    if ($scope.$location.hash != "") {
+      var id = parseInt($scope.$location.hash.split('#')[1]);
+      $scope.select($scope.events[id]);      
+    }
+  });  
 
   $interval(function() {
     document.getElementById('audiotag').play();
