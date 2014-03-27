@@ -54,6 +54,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.select = function(event) {
     if (event == null) {
       $scope.zoomOut();
+      $scope.selectedEvent.path.setMap(null);
       $scope.selectedEvent = null;
       $scope.selectedEventsupport = {};
       $scope.selectedEventsupported = {};
@@ -67,6 +68,8 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
         $scope.selectedEvent = event;
         window.location.hash = event.id;
         $scope.selectedEvent.isNew = false;
+        event.path =  $scope.buildPath(event.updates);
+        event.path.setMap($scope.gmap);
       });
 
       var supportEvents = _.filter($scope.events, {"type": "support"});
@@ -234,6 +237,20 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       $scope.values.notifiedSupporters = 'error';
     });
   };
+  $scope.buildPath = function(eventUpdates) {
+    var coordinates = _.compact(_.map(eventUpdates,function(eu){
+      if (eu.location != null){
+        return new google.maps.LatLng(eu.location.latitude,eu.location.longitude)
+      }}));
+    var path = new google.maps.Polyline({
+      path: coordinates,
+      geodesic: false,
+      strokeColor: '#3083FF',
+      strokeOpacity: 0.5,
+      strokeWeight: 3
+    });
+    return path;
+  }
   $scope.createTestEvent = function() {
     var center = $scope.gmap.getCenter(),
         data = {longitude: center.lng(), latitude: center.lat()};
@@ -366,9 +383,9 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   var linker = function(scope, element, attrs) {
     var content = element.children().detach()[0];
     var location = scope.update.location != null;
+    var map = scope.$parent.gmap;
 
     if (location) {
-      var map = scope.$parent.gmap;
       var marker = markerFactory(scope, element, content, ICONS.BLUE,
                                  scope.update.location, map);
     }
