@@ -6,7 +6,8 @@ mapApp.constant('ICONS', {
   BLUE: 'http://maps.google.com/mapfiles/ms/micons/blue-dot.png',
 });
 
-mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapSettings) {
+mapApp.controller('EventListCtrl', function($scope, $http, $interval,
+                                            urls, mapSettings, ensurePath) {
   $scope.$location = window.location
   $scope.selectedEventsupport = {}
   $scope.selectedEventsupported = {}
@@ -54,7 +55,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $scope.select = function(event) {
     if (event == null) {
       $scope.zoomOut();
-      $scope.selectedEvent.path.setMap(null);
+      $scope.selectedEvent.updates.path.setMap(null);
       $scope.selectedEvent = null;
       $scope.selectedEventsupport = {};
       $scope.selectedEventsupported = {};
@@ -62,14 +63,14 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
     } else {
       var params = {event__id: event.id};
       $http.get(urls.eventupdates, {params: params}).success(function(data) {
+        event.isNew = false;
         event.updates = data.objects;
+        window.location.hash = event.id;
         $scope.focus(event.latest_location);
         $scope.zoomIn();
         $scope.selectedEvent = event;
-        window.location.hash = event.id;
-        $scope.selectedEvent.isNew = false;
-        event.path =  $scope.buildPath(event.updates);
-        event.path.setMap($scope.gmap);
+        ensurePath(event.updates);
+        event.updates.path.setMap($scope.gmap);
       });
 
       var supportEvents = _.filter($scope.events, {"type": "support"});
@@ -81,7 +82,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       _.forEach(event.supported, function(supported){
         $scope.selectedEventsupported[supported.id] = $scope.events[supported.id];
       });
-
     };
   };
   $scope.update = function(options, callback) {
@@ -132,7 +132,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       if ('function' === typeof callback) callback();
     });
   };
-
   $scope.updateUserAttrs = function(events){
     _.forEach(events, function(event){
       //clojure for ajax callback
@@ -148,12 +147,10 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
         {params:{id:event.user.id}}).success(clojr(event,'movement_types'))
     });
   }
-
   $scope.focus = function(location) {
     $scope.gmap.panTo(new google.maps.LatLng(location.latitude,
                                              location.longitude));
   };
-
   $scope.getRoles = function() {
     //populate list of avail roles for matching
     $scope.filters.roles={};
@@ -164,7 +161,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       });
     });
   }
-
   $scope.getMovementTypes = function() {
     //populate list of avail movement_types for matching
     $scope.filters.movement_types={};
@@ -179,7 +175,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       //set array of user filters to be disabled or enabled, all at once
       _.map(filters,function(el){el.enabled=value});
   }
-
   $scope.userFilters = function(event) {
       // filter events for attrs event.user.role or event.user.movement_type
       // if user has no attr - do not filter him.
@@ -198,7 +193,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
 
       return (hasRoles&&hasMovementTypes)
   }
-
   $scope.addEventUpdate = function() {
     var event = $scope.selectedEvent,
         text = $scope.fields.addEventUpdateText,
@@ -237,20 +231,6 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
       $scope.values.notifiedSupporters = 'error';
     });
   };
-  $scope.buildPath = function(eventUpdates) {
-    var coordinates = _.compact(_.map(eventUpdates,function(eu){
-      if (eu.location != null){
-        return new google.maps.LatLng(eu.location.latitude,eu.location.longitude)
-      }}));
-    var path = new google.maps.Polyline({
-      path: coordinates,
-      geodesic: false,
-      strokeColor: '#3083FF',
-      strokeOpacity: 0.5,
-      strokeWeight: 3
-    });
-    return path;
-  }
   $scope.createTestEvent = function() {
     var center = $scope.gmap.getCenter(),
         data = {longitude: center.lng(), latitude: center.lat()};
@@ -300,6 +280,30 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval, urls, mapS
   $interval(function() {
     $scope.updateUserAttrs($scope.events);
   },30*1000);
+})
+.factory('ensurePath', function() {
+  /*
+     Constructs proper polyline object and adds it to given list as 
+     'path' attribute
+  */
+  var polylineOptions = {
+    geodesic: false,
+    strokeColor: '#3083FF',
+    strokeOpacity: 0.9,
+    strokeWeight: 6,
+  };
+  return function(objList) {
+    var objWithLocation = _.filter(objList, function(obj) {
+      return obj.location != null;
+    });
+    if (objList.path == undefined) {
+      var latlngList = _.map(_.pluck(objWithLocation, 'location'), function(loc) {
+        return new google.maps.LatLng(loc.latitude, loc.longitude);
+      });
+      objList.path = new google.maps.Polyline(polylineOptions);
+      objList.path.setPath(latlngList);
+    }
+  };
 })
 .factory('markerFactory', function() {
   return function(scope, element, content, icon, location, map, onclick) {
