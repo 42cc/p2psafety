@@ -48,10 +48,10 @@ import java.util.concurrent.Executors;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 
-import ua.p2psafety.json.Event;
-import ua.p2psafety.json.User;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.json.Event;
 import ua.p2psafety.json.Role;
+import ua.p2psafety.json.User;
 
 import static ua.p2psafety.util.Utils.errorDialog;
 
@@ -423,6 +423,12 @@ public class NetworkManager {
                         json.put("location", jsonLocation);
                     } catch (Exception e) {
                         LOGS.info("SosManager. UpdateEvent. Location is null. OK");
+                        //for emulator testing
+//                        Random rand = new Random();
+//                        JSONObject jsonLocation = new JSONObject();
+//                        jsonLocation.put("latitude", rand.nextInt(100));
+//                        jsonLocation.put("longitude", rand.nextInt(100));
+//                        json.put("location", jsonLocation);
                     }
 
                     StringEntity se = new StringEntity(json.toString(), "UTF-8");
