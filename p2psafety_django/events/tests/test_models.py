@@ -95,10 +95,19 @@ class EventTestCase(CeleryMixin, TestCase):
 class EventUpdateTestCase(TestCase):
 
     @mock.patch('events.jabber.clients.EventsNotifierClient')
-    def test_save(self, MockClient):
+    def test_save_supporter(self, MockClient):
         set_livesettings_value('Events', 'supporters-autonotify', True)        
         mocked_client = MockClient.return_value = MockedEventsNotifierClient()
-        event = EventFactory()
+        event = EventFactory(type=Event.TYPE_SUPPORT)
+
+        EventUpdateFactory(event=event, text='Test', location=Point(1, 2))
+        self.assertEqual(mocked_client.publish_count, 0)
+
+    @mock.patch('events.jabber.clients.EventsNotifierClient')
+    def test_save_victim(self, MockClient):
+        set_livesettings_value('Events', 'supporters-autonotify', True)        
+        mocked_client = MockClient.return_value = MockedEventsNotifierClient()
+        event = EventFactory(type=Event.TYPE_VICTIM)
 
         with override_settings(JABBER_DRY_RUN=False):
             EventUpdateFactory(event=event, text='Test', location=Point(1, 2))
@@ -106,4 +115,3 @@ class EventUpdateTestCase(TestCase):
         mocked_client.assert_published_once()
         self.assertIn('Test', mocked_client.payload_string)
         self.assertIn('location type="hash"', mocked_client.payload_string)
-
