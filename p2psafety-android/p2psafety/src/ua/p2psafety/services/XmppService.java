@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.fragments.AcceptEventFragment;
+import ua.p2psafety.json.VictimData;
 import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
@@ -60,11 +61,7 @@ public class XmppService extends Service {
     String mUserJid;
 
     // parsed data from xmpp-message
-    String mSupportUrl = "";
-    String mLastComment = "";
-    String mVictimName = "";
-    Long mRadius;
-    Location mEventLocation;
+    public static VictimData VICTIM_DATA = new VictimData();
 
     Logs logs;
     SmackAndroid mSmackAndroid;
@@ -156,8 +153,9 @@ public class XmppService extends Service {
 
                     // check if event is in acceptable distance and if so show it
                     Location location = LocationService.locationListener.getLastLocation(false);
-                    if (location == null || mRadius == 0 ||
-                            location.distanceTo(mEventLocation) <= mRadius)
+                    Long radius = VICTIM_DATA.getRadius();
+                    if (location == null || radius == 0 ||
+                            location.distanceTo(VICTIM_DATA.getLocation()) <= radius)
                     {
                         if (!processing_event
                                 && !EventManager.getInstance(XmppService.this).isEventActive())
@@ -191,7 +189,7 @@ public class XmppService extends Service {
             mNode.addItemEventListener(new ItemEventListener() {
                 @Override
                 public void handlePublishedItems(ItemPublishEvent items) {
-                    if (items.isDelayed())
+                    if (items.isDelayed() || EventManager.getInstance(XmppService.this).isSupportStarted())
                     {
                         return; // old event
                     }
@@ -211,8 +209,9 @@ public class XmppService extends Service {
 
                     // check if event is in acceptable distance and if so show it
                     Location location = LocationService.locationListener.getLastLocation(false);
-                    if (location == null || mRadius == 0 ||
-                            location.distanceTo(mEventLocation) <= mRadius)
+                    Long radius = VICTIM_DATA.getRadius();
+                    if (location == null || radius == 0 ||
+                            location.distanceTo(VICTIM_DATA.getLocation()) <= radius)
                     {
                         Log.i("pubsub", "processing_event: " + String.valueOf(processing_event));
                         Log.i("pubsub", "is server authed: " + String.valueOf(Utils.isServerAuthenticated(XmppService.this)));
@@ -251,9 +250,9 @@ public class XmppService extends Service {
     }
 
     public void parseXml(String xml) {
-        mSupportUrl = "";
-        mRadius = Long.valueOf(0);
-        mEventLocation = new Location("");
+        VICTIM_DATA.setSupporterUrl("");
+        VICTIM_DATA.setRadius(Long.valueOf(0));
+        VICTIM_DATA.setLocation(new Location(""));
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setInput(new StringReader(xml));
@@ -268,28 +267,28 @@ public class XmppService extends Service {
                         String text = parser.getText();
                         System.out.println("name: " + name + "  text: " + text);
                         if (name.equalsIgnoreCase("support"))
-                            mSupportUrl = parser.getText();
+                            VICTIM_DATA.setSupporterUrl(parser.getText());
                         else if (name.equalsIgnoreCase("radius"))
-                            mRadius = Long.valueOf(parser.getText());
+                            VICTIM_DATA.setRadius(Long.valueOf(parser.getText()));
                         else if (name.equalsIgnoreCase("latitude"))
-                            mEventLocation.setLatitude(Double.valueOf(parser.getText()));
+                            VICTIM_DATA.getLocation().setLatitude(Double.valueOf(parser.getText()));
                         else if (name.equalsIgnoreCase("longitude"))
-                            mEventLocation.setLongitude(Double.valueOf(parser.getText()));
+                            VICTIM_DATA.getLocation().setLongitude(Double.valueOf(parser.getText()));
                         else if (name.equalsIgnoreCase("text"))
-                            mLastComment = parser.getText();
+                            VICTIM_DATA.setLastComment(parser.getText());
                         else if (name.equalsIgnoreCase("full_name"))
-                            mVictimName = parser.getText();
+                            VICTIM_DATA.setName(parser.getText());
                         break;
                 }
                 eventType = parser.next();
             }
             System.out.println("End document");
 
-            System.out.println("support_url: " + mSupportUrl);
-            System.out.println("radius: " + mRadius);
-            System.out.println("loc: " + mEventLocation.toString());
-            System.out.println("victim name: " + mVictimName);
-            System.out.println("last comment: " + mLastComment);
+            System.out.println("support_url: " + VICTIM_DATA.getSupporterUrl());
+            System.out.println("radius: " + VICTIM_DATA.getRadius());
+            System.out.println("loc: " + VICTIM_DATA.getLocation().toString());
+            System.out.println("victim name: " + VICTIM_DATA.getName());
+            System.out.println("last comment: " + VICTIM_DATA.getLastComment());
 
         } catch (Exception e) {}
     }
@@ -317,11 +316,6 @@ public class XmppService extends Service {
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // fix for navigation bug
         i.putExtra(SosActivity.FRAGMENT_KEY, AcceptEventFragment.class.getName());
-        // put parsed data
-        i.putExtra(SUPPORTER_URL_KEY, mSupportUrl);
-        i.putExtra(LOCATION_KEY, mEventLocation);
-        i.putExtra(VICTIM_NAME_KEY, mVictimName);
-        i.putExtra(LAST_COMMENT_KEY, mLastComment);
         startActivity(i);
     }
 
