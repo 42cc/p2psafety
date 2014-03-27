@@ -52,6 +52,12 @@ public class SendLogsFragment extends Fragment {
                 String text = descriptionOfIssue.getText().toString();
                 if (!text.equals(""))
                 {
+                    if (!Utils.isNetworkConnected(mActivity, SosActivity.mLogs))
+                    {
+                        SosActivity.mLogs.info("SosActivity. sendLogs. No network");
+                        Utils.errorDialog(mActivity, Utils.DIALOG_NO_CONNECTION);
+                        return;
+                    }
                     Utils.setLoading(mActivity, true);
                     List<File> files = SosActivity.mLogs.getFiles();
                     AsyncTaskExecutionHelper.executeParallel(new SendReportAsyncTask(files, text));

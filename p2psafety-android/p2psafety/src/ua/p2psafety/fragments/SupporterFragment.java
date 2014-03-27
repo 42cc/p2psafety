@@ -215,7 +215,7 @@ public class SupporterFragment extends Fragment {
                                 Log.i("SupporterFragment", "new loc on map: " + loc);
                                 LatLng latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
                                 mMap.addMarker(new MarkerOptions()
-                                        .position(latLng).title(getString(R.string.viction_name)));
+                                        .position(latLng).title(mVictimName));
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
 
                                 break;
