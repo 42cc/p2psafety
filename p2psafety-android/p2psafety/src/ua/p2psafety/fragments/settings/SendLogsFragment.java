@@ -115,7 +115,9 @@ public class SendLogsFragment extends Fragment {
             if (o) {
                 Toast.makeText(mActivity, R.string.logs_successfully_sent, Toast.LENGTH_SHORT)
                      .show();
-                // delete sent logs from device
+                // delete sent logs from device, except today file
+                if (SosActivity.mLogs.isTodayFile(files.get(0)))
+                    files.remove(0);
                 for (File f: files)
                     f.delete();
             }
