@@ -3,6 +3,7 @@ package ua.p2psafety;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,7 +16,16 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import ua.p2psafety.adapters.StableArrayAdapter;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.fragments.SendMessageFragment;
 import ua.p2psafety.json.Event;
@@ -34,6 +44,7 @@ import ua.p2psafety.util.Utils;
 public class SosActivity extends ActionBarActivity {
     public static final String FRAGMENT_KEY = "fragmentKey";
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private static final String ACTION_SYNCHRONIZE = "ua.p2psafety.action.SYNCHRONIZE";
 
     private UiLifecycleHelper mUiHelper;
     public static Logs mLogs;
@@ -63,6 +74,9 @@ public class SosActivity extends ActionBarActivity {
         }
         Prefs.setProgramRunning(true, this);
 
+        Intent intent = new Intent();
+        intent.setAction(ACTION_SYNCHRONIZE);
+        sendBroadcast(intent);
     }
 
     @Override

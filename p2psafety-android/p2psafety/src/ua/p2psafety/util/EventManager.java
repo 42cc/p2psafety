@@ -169,7 +169,7 @@ public class EventManager {
         else throw new NullPointerException();
     }
 
-    private void serverStartSos() {
+    public void serverStartSos() {
         // if you have no event try to create one on server
         // (you must have an event at this point though)
         if (mEvent == null || mEvent.getType() == Event.TYPE_SUPPORT) {
@@ -229,6 +229,21 @@ public class EventManager {
                     @Override
                     public void deliver(Event event) {
                         setEvent(event);
+                        Utils.setLoading(mContext, false);
+                    }
+                });
+    }
+
+    public void createNewEvent(final Runnable moreOperations) {
+        if (mEvent != null)
+            mEvent.setStatus(Event.STATUS_FINISHED);
+
+        NetworkManager.createEvent(mContext,
+                new NetworkManager.DeliverResultRunnable<Event>() {
+                    @Override
+                    public void deliver(Event event) {
+                        setEvent(event);
+                        moreOperations.run();
                         Utils.setLoading(mContext, false);
                     }
                 });

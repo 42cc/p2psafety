@@ -253,11 +253,12 @@ public class NetworkManager {
 //    }
 
     public static void getInfoAboutEvent(final Context context, final String id,
-                                          final DeliverResultRunnable<Boolean> postRunnable) {
+                                          final DeliverResultRunnable<Event> postRunnable) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
                 final String TAG = "createEventSupport";
+                final int CODE_SUCCESS = 200;
 
                 if (!Utils.isNetworkConnected(context, LOGS)) {
 //                    errorDialog(context, DIALOG_NO_CONNECTION);
@@ -300,14 +301,18 @@ public class NetworkManager {
                     Log.i(TAG, "responseContent: " + responseContent);
 
                     if (responseCode == CODE_SUCCESS) {
-                        postRunnable.setResult(true);
+                        Map<String, Object> data = mapper.readValue(responseContent, Map.class);
+                        Event event = JsonHelper.jsonToEvent(data);
+                        data.clear();
+
+                        LOGS.info("EventManager. CreateEvent. Success");
+                        postRunnable.setResult(event);
                     } else {
-                        postRunnable.setResult(false);
+                        LOGS.info("EventManager. CreateEvent. Failure");
+                        postRunnable.setResult(null);
                     }
 
-                    if (postRunnable != null) {
-                        postRunnable.run();
-                    }
+                    executeRunnable(context, postRunnable);
                 } catch (Exception e) {
                     NetworkManager.LOGS.error("Can't create event", e);
                     //errorDialog(context, DIALOG_NETWORK_ERROR);

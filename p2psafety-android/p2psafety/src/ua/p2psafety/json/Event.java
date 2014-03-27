@@ -2,8 +2,6 @@ package ua.p2psafety.json;
 
 import android.location.Location;
 
-import ua.p2psafety.json.User;
-
 public class Event {
     public static String STATUS_PASSIVE  = "P";
     public static String STATUS_ACTIVE   = "A";
@@ -20,6 +18,20 @@ public class Event {
     User mUser;
     Location mLocation;
     String mText;
+
+    public Event() {}
+
+    public Event(Event elemToCopy)
+    {
+        this.mId = elemToCopy.getId();
+        this.mKey = elemToCopy.getKey();
+        this.mUri = elemToCopy.getUri();
+        this.mStatus = elemToCopy.getStatus();
+        this.mType = elemToCopy.getType();
+        this.mUser = elemToCopy.getUser();
+        this.mLocation = elemToCopy.getLocation();
+        this.mText = elemToCopy.getText();
+    }
 
     public void setId(String id) {
         mId = id;
