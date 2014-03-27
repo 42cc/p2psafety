@@ -392,7 +392,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
     if (location) {
       var map = scope.$parent.gmap;
       var icon = iconGenerator('green');
-      var marker = markerFactory(scope, element, content, location,
+      var marker = markerFactory(scope, element, content, icon, location,
                                  map, attrs.click);
     }
   };
