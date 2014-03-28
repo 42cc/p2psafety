@@ -74,6 +74,12 @@ public class SosActivity extends ActionBarActivity {
             startService(new Intent(this, XmppService.class));
         }
         Prefs.setProgramRunning(true, this);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
         Intent intent = new Intent();
         intent.setAction(ACTION_SYNCHRONIZE);
         sendBroadcast(intent);

@@ -24,7 +24,6 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
             {
                 final EventManager eventManager = EventManager.getInstance(context);
                 try {
-                    //myEvent = eventManager.getEvent();
                     NetworkManager.getInfoAboutEvent(context, eventManager.getEvent().getId(),
                             new NetworkManager.DeliverResultRunnable<Event>() {
                         @Override
@@ -62,6 +61,11 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                                             }
                                             else if (event.getType().equals(Event.TYPE_VICTIM))
                                             {
+                                                //can not be handle in real life, because we can not
+                                                //create situation, when on mobile device we turn on support
+                                                // mode without internet, but on server you are victim
+
+                                                //but let code remain
                                                 eventManager.createNewEvent(new Runnable() {
                                                     @Override
                                                     public void run() {
@@ -72,6 +76,11 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                                         }
                                         else
                                         {
+                                            //can not be handle in real life, because we can not
+                                            //create situation, when on mobile device we turn on support
+                                            // mode without internet, but on server you are victim
+
+                                            //but let code remain
                                             NetworkManager.supportEvent(context, XmppService.VICTIM_DATA.getSupporterUrl(), null);
                                         }
                                     }
@@ -91,13 +100,7 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                         }
                     });
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    eventManager.createNewEvent(new Runnable() {
-                        @Override
-                        public void run() {
-                            onReceive(context, intent);
-                        }
-                    });
+                    eventManager.createNewEvent();
                 }
             }
         }

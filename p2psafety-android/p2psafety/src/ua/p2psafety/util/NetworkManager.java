@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.util.Log;
 
-import com.facebook.Session;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.http.HttpResponse;
@@ -268,8 +267,6 @@ public class NetworkManager {
                     }
                     return;
                 }
-
-                String access_token = Session.getActiveSession().getAccessToken();
 
                 try {
                     HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
