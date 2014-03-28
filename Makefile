@@ -21,6 +21,9 @@ run:
 mailserver:
 	python -m smtpd -n -c DebuggingServer $(BIND_TO):$(MAILSERVER_PORT)
 
+celery:
+	celery -A p2psafety_django.p2psafety worker -l info
+
 syncdb:
 	@echo Syncing...
 	$(MANAGE) syncdb --noinput

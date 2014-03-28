@@ -2,8 +2,6 @@ package ua.p2psafety.json;
 
 import android.location.Location;
 
-import ua.p2psafety.json.User;
-
 public class Event {
     public static String STATUS_PASSIVE  = "P";
     public static String STATUS_ACTIVE   = "A";
@@ -20,6 +18,8 @@ public class Event {
     User mUser;
     Location mLocation;
     String mText;
+
+    public Event() {}
 
     public void setId(String id) {
         mId = id;

@@ -107,6 +107,8 @@ public class SendMessageFragment extends Fragment {
                         mLogs.info("SendMessageFragment. Delayed SOS active. Stoping it");
                         mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
                     }
+                    if (eventManager.isSupportStarted())
+                        mSupportScreenBtn.setBackgroundColor(Color.GRAY);
                     // start normal sos
                     Utils.setLoading(mActivity, true);
                     mLogs.info("SendMessageFragment. Starting SOS");

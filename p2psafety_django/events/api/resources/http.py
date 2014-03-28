@@ -57,7 +57,7 @@ class EventResource(ApiMethodsMixin, ModelResource):
             'id': ALL,
             'status': ALL,
         }
-        detail_allowed_methods = []
+        detail_allowed_methods = ['get', ]
         always_return_data = True
 
     class SupportedEventResource(ModelResource):
@@ -131,11 +131,17 @@ class EventUpdateResource(MultipartResource, ModelResource):
 
     location = GeoPointField('location', null=True)
     event = fields.ForeignKey(EventResource, 'event', readonly=True)
+    delay = fields.IntegerField(null=True)
 
     def hydrate(self, bundle):
         key = bundle.data.get('key')
         if key:
             event = get_object_or_404(Event, key=key)
             bundle.obj.event = event
+
+        delay = bundle.data.get('delay')
+        if delay:
+            #bind data to object. no db field here
+            bundle.obj.delay = delay
 
         return bundle

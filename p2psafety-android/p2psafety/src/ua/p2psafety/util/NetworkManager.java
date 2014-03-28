@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.util.Log;
 
-import com.facebook.Session;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.http.HttpResponse;
@@ -48,10 +47,10 @@ import java.util.concurrent.Executors;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 
-import ua.p2psafety.json.Event;
-import ua.p2psafety.json.User;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.json.Event;
 import ua.p2psafety.json.Role;
+import ua.p2psafety.json.User;
 
 import static ua.p2psafety.util.Utils.errorDialog;
 
@@ -253,11 +252,12 @@ public class NetworkManager {
 //    }
 
     public static void getInfoAboutEvent(final Context context, final String id,
-                                          final DeliverResultRunnable<Boolean> postRunnable) {
+                                          final DeliverResultRunnable<Event> postRunnable) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                final String TAG = "createEventSupport";
+                final String TAG = "getInfoAboutEvent";
+                final int CODE_SUCCESS = 200;
 
                 if (!Utils.isNetworkConnected(context, LOGS)) {
 //                    errorDialog(context, DIALOG_NO_CONNECTION);
@@ -267,8 +267,6 @@ public class NetworkManager {
                     }
                     return;
                 }
-
-                String access_token = Session.getActiveSession().getAccessToken();
 
                 try {
                     HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
@@ -300,16 +298,20 @@ public class NetworkManager {
                     Log.i(TAG, "responseContent: " + responseContent);
 
                     if (responseCode == CODE_SUCCESS) {
-                        postRunnable.setResult(true);
+                        Map<String, Object> data = mapper.readValue(responseContent, Map.class);
+                        Event event = JsonHelper.jsonToEvent(data);
+                        data.clear();
+
+                        LOGS.info("NetworkManager. GetInfoAboutEvent. Success");
+                        postRunnable.setResult(event);
                     } else {
-                        postRunnable.setResult(false);
+                        LOGS.info("NetworkManager. GetInfoAboutEvent. Failure");
+                        postRunnable.setResult(null);
                     }
 
-                    if (postRunnable != null) {
-                        postRunnable.run();
-                    }
+                    executeRunnable(context, postRunnable);
                 } catch (Exception e) {
-                    NetworkManager.LOGS.error("Can't create event", e);
+                    NetworkManager.LOGS.error("Can't get info about event", e);
                     //errorDialog(context, DIALOG_NETWORK_ERROR);
                     if (postRunnable != null) {
                         postRunnable.setResult(null);
@@ -423,6 +425,12 @@ public class NetworkManager {
                         json.put("location", jsonLocation);
                     } catch (Exception e) {
                         LOGS.info("SosManager. UpdateEvent. Location is null. OK");
+                        //for emulator testing
+//                        Random rand = new Random();
+//                        JSONObject jsonLocation = new JSONObject();
+//                        jsonLocation.put("latitude", rand.nextInt(100));
+//                        jsonLocation.put("longitude", rand.nextInt(100));
+//                        json.put("location", jsonLocation);
                     }
 
                     StringEntity se = new StringEntity(json.toString(), "UTF-8");
