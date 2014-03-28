@@ -52,8 +52,9 @@ Also you have nginx+uwsgi set up for project, binded to 127.0.0.1:8080
 
 ###problems?
 If you mess your VM, you can always do:
-`vagrant destroy && vagrant up` and start over
-also, do `vagrant provision` once someone introduces new libs or cofiguration to project.
+`vagrant destroy && vagrant up` and start over.
+
+Also, do `vagrant provision` once someone introduces new libs or cofiguration to project.
 
 ## Note
 
