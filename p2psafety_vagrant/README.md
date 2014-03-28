@@ -19,6 +19,7 @@ Puppet provisions:
 - uWSGI
 - Postgis
 - Ejabberd
+- Rabbitmq
 - Python
 - Virtualenv
 - Django
