@@ -40,6 +40,7 @@ That's it! You are all set. Now do syncdb, edit code and have fun.
 
 *p2psafety folder in VM is synced with local folder on your computer. So you can develop editing local files.*
 
+once done you can do `vagrant shutdown` or `vagrant suspend`.
 ###runserver
 in VM:
 
