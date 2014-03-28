@@ -57,7 +57,7 @@ class EventResource(ApiMethodsMixin, ModelResource):
             'id': ALL,
             'status': ALL,
         }
-        detail_allowed_methods = []
+        detail_allowed_methods = ['get', ]
         always_return_data = True
 
     class SupportedEventResource(ModelResource):

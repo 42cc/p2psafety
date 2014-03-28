@@ -2,6 +2,7 @@ import json
 import mock
 import tempfile
 from operator import itemgetter
+from datetime import timedelta
 
 from django.contrib.gis.geos import Point
 from django.core.urlresolvers import reverse
@@ -257,7 +258,7 @@ class EventUpdateTestCase(ModelsMixin,
         data['active'] = 0
         data['delay'] = delay
         self.assertHttpCreated(self.api_client.post(url, data=data))
-        self.assert_task_sent(eventupdate_watchdog, event.id, delay)
+        self.assert_task_sent(eventupdate_watchdog, event.id, timedelta(seconds=delay))
         self.assertEquals(len(self.applied_tasks),1)
 
     def test_get_list(self):

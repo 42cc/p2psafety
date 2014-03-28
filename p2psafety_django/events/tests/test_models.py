@@ -1,9 +1,12 @@
 import mock
+import time
 
+from datetime import timedelta
 from django.contrib.gis.geos import Point
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import timezone
 
 from core.utils import set_livesettings_value
 from .helpers.factories import EventFactory, EventUpdateFactory
@@ -61,7 +64,9 @@ class EventTestCase(CeleryMixin, TestCase):
         event = EventFactory()
         EventUpdateFactory(event=event,active=False)
 
-        self.assert_task_sent(eventupdate_watchdog, event.id, settings.WATCHDOG_DELAY)
+        self.assert_task_sent(eventupdate_watchdog,
+                event.id,
+                timedelta(seconds=settings.WATCHDOG_DELAY))
         self.assertEquals(len(self.applied_tasks),1)
         self.assertTrue(event.watchdog_task_id)
         #new passive update
@@ -72,7 +77,15 @@ class EventTestCase(CeleryMixin, TestCase):
         self.assertEquals(event.status,Event.STATUS_PASSIVE)
         #so we run watchdog now
         #no events,
-        eventupdate_watchdog(event.id,1)
+        eventupdate_watchdog(event.id,timedelta(seconds=60))
+        event = Event.objects.get(id=event.id)
+        self.assertEquals(event.status,Event.STATUS_PASSIVE)
+        self.assertEquals(len(self.applied_tasks),2)
+        task = self.applied_tasks[1]
+        self.assertTrue(task[3]['eta'] > timezone.now())
+        #last update will fit into time window and new watchdog will start
+        time.sleep(1)
+        eventupdate_watchdog(event.id,timedelta(seconds=1))
         eu = EventUpdate.objects.latest('id')
         event = Event.objects.get(id=event.id)
         self.assertEquals(event.status,Event.STATUS_ACTIVE)
@@ -82,10 +95,19 @@ class EventTestCase(CeleryMixin, TestCase):
 class EventUpdateTestCase(TestCase):
 
     @mock.patch('events.jabber.clients.EventsNotifierClient')
-    def test_save(self, MockClient):
+    def test_save_supporter(self, MockClient):
         set_livesettings_value('Events', 'supporters-autonotify', True)        
         mocked_client = MockClient.return_value = MockedEventsNotifierClient()
-        event = EventFactory()
+        event = EventFactory(type=Event.TYPE_SUPPORT)
+
+        EventUpdateFactory(event=event, text='Test', location=Point(1, 2))
+        self.assertEqual(mocked_client.publish_count, 0)
+
+    @mock.patch('events.jabber.clients.EventsNotifierClient')
+    def test_save_victim(self, MockClient):
+        set_livesettings_value('Events', 'supporters-autonotify', True)        
+        mocked_client = MockClient.return_value = MockedEventsNotifierClient()
+        event = EventFactory(type=Event.TYPE_VICTIM)
 
         with override_settings(JABBER_DRY_RUN=False):
             EventUpdateFactory(event=event, text='Test', location=Point(1, 2))
@@ -93,4 +115,3 @@ class EventUpdateTestCase(TestCase):
         mocked_client.assert_published_once()
         self.assertIn('Test', mocked_client.payload_string)
         self.assertIn('location type="hash"', mocked_client.payload_string)
-

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import uuid
 import hmac
+import datetime
 
 from django.db import models
 from django.dispatch import receiver
@@ -182,7 +183,8 @@ class EventUpdate(models.Model):
         if self.event.status == Event.STATUS_PASSIVE or all_events_are_finished:
             self.event.status = Event.STATUS_ACTIVE
             self.event.save()
-            if config_value('Events', 'supporters-autonotify'):
+            if (self.event.type == Event.TYPE_VICTIM and
+                config_value('Events', 'supporters-autonotify')):
                 self.event.notify_supporters()
 
     def start_watchdog(self):
@@ -192,7 +194,9 @@ class EventUpdate(models.Model):
         """
         from .tasks import eventupdate_watchdog
         delay = self.delay if hasattr(self,'delay') else settings.WATCHDOG_DELAY
-        res = eventupdate_watchdog.delay(self.event.id, delay)
+        delay = datetime.timedelta(seconds=delay)
+        eta = datetime.datetime.now()+delay
+        res = eventupdate_watchdog.apply_async((self.event.id, delay),eta=eta)
         self.event.watchdog_task_id=res.task_id
         self.event.save()
 

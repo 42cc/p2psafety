@@ -53,7 +53,7 @@ DATABASES = {
 }
 
 #rabbitmq celery broker
-BROKER_URL = 'amqp://vagrant:vagrant@localhost:5672//'
+BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
