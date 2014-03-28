@@ -50,10 +50,15 @@ and it will be visible on your machine: http://127.0.0.1:8000
 
 Also you have nginx+uwsgi set up for project, binded to 127.0.0.1:8080
 
+###problems?
+If you mess your VM, you can always do:
+`vagrant destroy && vagrant up` and start over
+also, do `vagrant provision` once someone introduces new libs or cofiguration to project.
 
 ## Note
 
 You may want to:
 
-- Run `git config --global` to set your `user.name` and `user.email`
+- Run `git config --global` to set your `user.name` and `user.email` in vm
+- Add ssh keys there
 - [Set up](http://www.jetbrains.com/pycharm/quickstart/configuring_for_vm.html) your favorite pycharm to work with vagrant
