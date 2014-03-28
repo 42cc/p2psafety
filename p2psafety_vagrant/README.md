@@ -36,9 +36,8 @@ in project folder:
 - `vagrant ssh`
 
 That's it! You are all set. Now do syncdb, edit code and have fun.
-*
-P2psafety folder in virtual machine is synced with local folder on host. So you can develop editing local files.
-*
+
+*p2psafety folder in VM is synced with local folder on your computer. So you can develop editing local files.*
 
 ###runserver
 in VM:
@@ -46,7 +45,7 @@ in VM:
 - `cd p2psafety/p2psafety_django`
 - `python manage.py runserver 0.0.0.0:8000`
 
-and it will be visible on your local machine: http://127.0.0.1:8000
+and it will be visible on your machine: http://127.0.0.1:8000
 
 Also you have nginx+uwsgi set up for project, binded to 127.0.0.1:8080
 
