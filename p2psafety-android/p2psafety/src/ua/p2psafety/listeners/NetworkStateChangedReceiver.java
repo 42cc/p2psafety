@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import ua.p2psafety.json.Event;
+import ua.p2psafety.services.XmppService;
 import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.NetworkManager;
@@ -64,14 +65,14 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                                                 eventManager.createNewEvent(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        //NetworkManager.supportEvent(context, myEvent.getUri(), null);
+                                                        NetworkManager.supportEvent(context, XmppService.VICTIM_DATA.getSupporterUrl(), null);
                                                     }
                                                 });
                                             }
                                         }
                                         else
                                         {
-                                            //NetworkManager.supportEvent(context, myEvent.getUri(), null);
+                                            NetworkManager.supportEvent(context, XmppService.VICTIM_DATA.getSupporterUrl(), null);
                                         }
                                     }
                                     else
