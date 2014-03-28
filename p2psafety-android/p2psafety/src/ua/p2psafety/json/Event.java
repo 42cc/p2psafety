@@ -21,18 +21,6 @@ public class Event {
 
     public Event() {}
 
-    public Event(Event elemToCopy)
-    {
-        this.mId = elemToCopy.getId();
-        this.mKey = elemToCopy.getKey();
-        this.mUri = elemToCopy.getUri();
-        this.mStatus = elemToCopy.getStatus();
-        this.mType = elemToCopy.getType();
-        this.mUser = elemToCopy.getUser();
-        this.mLocation = elemToCopy.getLocation();
-        this.mText = elemToCopy.getText();
-    }
-
     public void setId(String id) {
         mId = id;
     }

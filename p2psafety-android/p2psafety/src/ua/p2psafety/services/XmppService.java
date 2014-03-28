@@ -193,7 +193,7 @@ public class XmppService extends Service {
                     if (items.isDelayed() || eventManager.isSupportStarted()
                             || eventManager.isSosStarted())
                     {
-                        return; // old event
+                        return; // old event or support started or sos started
                     }
 
                     startService(new Intent(XmppService.this, LocationService.class));

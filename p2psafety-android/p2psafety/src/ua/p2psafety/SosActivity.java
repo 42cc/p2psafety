@@ -61,6 +61,7 @@ public class SosActivity extends ActionBarActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            mLogs.info("SosActivity. Got action from NetworkStateChangedReceiver: " + action);
             if (action.equals(ACTION_SET_LOADING))
             {
                 Utils.setLoading(SosActivity.this, true);
@@ -78,15 +79,15 @@ public class SosActivity extends ActionBarActivity {
 
         mLogs = new Logs(this);
         mLogs.info("\n\n\n==========================\n==============================");
-        mLogs.info("SosActiviy. onCreate()");
+        mLogs.info("SosActivity. onCreate()");
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
         mEventManager = EventManager.getInstance(this);
 
-        mLogs.info("SosActiviy. onCreate. Initiating NetworkManager");
+        mLogs.info("SosActivity. onCreate. Initiating NetworkManager");
         NetworkManager.init(this);
-        mLogs.info("SosActiviy. onCreate. Starting PowerButtonService");
+        mLogs.info("SosActivity. onCreate. Starting PowerButtonService");
         startService(new Intent(this, PowerButtonService.class));
         if (!Utils.isServiceRunning(this, XmppService.class) &&
             Utils.isServerAuthenticated(this) &&
@@ -107,6 +108,7 @@ public class SosActivity extends ActionBarActivity {
         Intent intent = new Intent();
         intent.setAction(ACTION_SYNCHRONIZE);
         sendBroadcast(intent);
+        mLogs.info("SosActivity. onPostCreate(). Action SYNCHRONIZE was sent");
     }
 
     @Override

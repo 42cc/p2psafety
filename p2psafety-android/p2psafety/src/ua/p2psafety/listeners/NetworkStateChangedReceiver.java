@@ -18,6 +18,7 @@ import ua.p2psafety.util.Utils;
 public class NetworkStateChangedReceiver extends BroadcastReceiver {
 
     private Context mContext;
+    private Logs mLogs;
 
     private Runnable mUnsetLoading = new Runnable() {
         @Override
@@ -47,12 +48,15 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
     public void onReceive(final Context context, final Intent intent) {
         if (Utils.isServerAuthenticated(context))
         {
-            if (Utils.isNetworkConnected(context, new Logs(context)))
+            mLogs = new Logs(context);
+            if (Utils.isNetworkConnected(context, mLogs))
             {
+                mLogs.info("NetworkStateChangedReceiver. We are starting");
                 mContext = context;
                 setLoading();
                 final EventManager eventManager = EventManager.getInstance(context);
                 try {
+                    mLogs.info("NetworkStateChangedReceiver. execute getInfoAboutEvent()");
                     NetworkManager.getInfoAboutEvent(context, eventManager.getEvent().getId(),
                             new NetworkManager.DeliverResultRunnable<Event>() {
                         @Override
@@ -60,22 +64,33 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                             if (event != null) {
                                 NetworkManager.init(context);
 
+                                mLogs.info("NetworkStateChangedReceiver. getInfoAboutEvent() " +
+                                        "returned good event");
+
                                 if (eventManager.isSosStarted())
                                 {
+                                    mLogs.info("NetworkStateChangedReceiver. Sos started on device");
+                                    mLogs.info("NetworkStateChangedReceiver. Sos status on server is "
+                                            + event.getStatus());
+                                    mLogs.info("NetworkStateChangedReceiver. Sos type on server is "
+                                            + event.getType());
                                     if (event.getStatus().equals(Event.STATUS_ACTIVE))
                                     {
                                         if (event.getType().equals(Event.TYPE_SUPPORT))
                                         {
+                                            mLogs.info("NetworkStateChangedReceiver. Execute serverStartSos()");
                                             eventManager.serverStartSos(mUnsetLoading);
                                         }
                                         else if (event.getType().equals(Event.TYPE_VICTIM))
                                         {
+                                            mLogs.info("NetworkStateChangedReceiver. Execute unsetLoading()");
                                             unsetLoading();
                                             //good enough
                                         }
                                     }
                                     else
                                     {
+                                        mLogs.info("NetworkStateChangedReceiver. Execute serverStartSos()");
                                         eventManager.serverStartSos(mUnsetLoading);
                                     }
                                 }
@@ -83,10 +98,16 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                                 {
                                     if (eventManager.isSupportStarted())
                                     {
+                                        mLogs.info("NetworkStateChangedReceiver. Support started on device");
+                                        mLogs.info("NetworkStateChangedReceiver. Support status on server is "
+                                                + event.getStatus());
+                                        mLogs.info("NetworkStateChangedReceiver. Support type on server is "
+                                                + event.getType());
                                         if (event.getStatus().equals(Event.STATUS_ACTIVE))
                                         {
                                             if (event.getType().equals(Event.TYPE_SUPPORT))
                                             {
+                                                mLogs.info("NetworkStateChangedReceiver. Execute unsetLoading()");
                                                 unsetLoading();
                                                 //good enough
                                             }
@@ -97,10 +118,13 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                                                 // mode without internet, but on server you are victim
 
                                                 //but let code remain
+                                                mLogs.info("NetworkStateChangedReceiver. Execute createnewEvent() and supportEvent()");
                                                 eventManager.createNewEvent(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        NetworkManager.supportEvent(context, XmppService.VICTIM_DATA.getSupporterUrl(), mUnsetLoadingOnDeliver);
+                                                        NetworkManager.supportEvent(context,
+                                                                XmppService.VICTIM_DATA.getSupporterUrl(),
+                                                                mUnsetLoadingOnDeliver);
                                                     }
                                                 });
                                             }
@@ -112,22 +136,36 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                                             // mode without internet, but on server you are victim
 
                                             //but let code remain
-                                            NetworkManager.supportEvent(context, XmppService.VICTIM_DATA.getSupporterUrl(), mUnsetLoadingOnDeliver);
+                                            mLogs.info("NetworkStateChangedReceiver. Execute supportEvent()");
+                                            NetworkManager.supportEvent(context,
+                                                    XmppService.VICTIM_DATA.getSupporterUrl(),
+                                                    mUnsetLoadingOnDeliver);
                                         }
                                     }
                                     else
                                     {
+                                        mLogs.info("NetworkStateChangedReceiver. Sos and support did not start");
+                                        mLogs.info("NetworkStateChangedReceiver. Support status on server is "
+                                                + event.getStatus());
+                                        mLogs.info("NetworkStateChangedReceiver. Support type on server is "
+                                                + event.getType());
                                         if (event.getStatus().equals(Event.STATUS_ACTIVE))
                                         {
+                                            mLogs.info("NetworkStateChangedReceiver. Execute createNewEvent()");
                                             eventManager.createNewEvent(mUnsetLoading);
                                         }
                                         else
                                         {
+                                            mLogs.info("NetworkStateChangedReceiver. Execute unsetLoading()");
                                             unsetLoading();
                                             //good enough
                                         }
                                     }
                                 }
+                            }
+                            else
+                            {
+                                mLogs.info("NetworkStateChangedReceiver. getInfoAboutEvent() returned null");
                             }
                         }
                     });
@@ -142,11 +180,13 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
         Intent intent = new Intent();
         intent.setAction(SosActivity.ACTION_SET_LOADING);
         mContext.sendBroadcast(intent);
+        mLogs.info("NetworkStateChangedReceiver. Set loading");
     }
 
     private void unsetLoading() {
         Intent intent = new Intent();
         intent.setAction(SosActivity.ACTION_UNSET_LOADING);
         mContext.sendBroadcast(intent);
+        mLogs.info("NetworkStateChangedReceiver. Unset loading");
     }
 }
