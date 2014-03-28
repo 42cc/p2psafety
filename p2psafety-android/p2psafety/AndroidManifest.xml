@@ -92,8 +92,7 @@
                 android:name=".SosActivity"
                 android:screenOrientation="portrait"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
-                android:launchMode="singleTop"
-                android:excludeFromRecents="true">
+                android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -116,9 +115,16 @@
                     android:resource="@xml/wprovider"/>
         </receiver>
 
-        <receiver android:name=".BootCompletedReceiver" android:enabled="true" android:exported="false">
+        <receiver android:name=".listeners.BootCompletedReceiver" android:enabled="true" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".listeners.NetworkStateChangedReceiver" android:enabled="true" android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+                <action android:name="ua.p2psafety.action.SYNCHRONIZE"/>
             </intent-filter>
         </receiver>
 
