@@ -2,7 +2,10 @@ package ua.p2psafety;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -45,11 +48,29 @@ public class SosActivity extends ActionBarActivity {
     public static final String FRAGMENT_KEY = "fragmentKey";
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final String ACTION_SYNCHRONIZE = "ua.p2psafety.action.SYNCHRONIZE";
+    public static final String ACTION_SET_LOADING = "ua.p2psafety.action.SET_LOADING";
+    public static final String ACTION_UNSET_LOADING = "ua.p2psafety.action.UNSET_LOADING";
 
     private UiLifecycleHelper mUiHelper;
     public static Logs mLogs;
     private EventManager mEventManager;
     private boolean mStartedFromHistory = false;
+
+    private IntentFilter mIntentFilter;
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(ACTION_SET_LOADING))
+            {
+                Utils.setLoading(SosActivity.this, true);
+            }
+            else if (action.equals(ACTION_UNSET_LOADING))
+            {
+                Utils.setLoading(SosActivity.this, false);
+            }
+        }
+    };
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +95,9 @@ public class SosActivity extends ActionBarActivity {
             startService(new Intent(this, XmppService.class));
         }
         Prefs.setProgramRunning(true, this);
+
+        mIntentFilter = new IntentFilter(ACTION_SET_LOADING);
+        mIntentFilter.addAction(ACTION_UNSET_LOADING);
     }
 
     @Override
@@ -89,6 +113,7 @@ public class SosActivity extends ActionBarActivity {
     public void onResume() {
         super.onResume();
         mUiHelper.onResume();
+        registerReceiver(mBroadcastReceiver, mIntentFilter);
 
         mStartedFromHistory = (getIntent().getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
                 == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
@@ -163,6 +188,7 @@ public class SosActivity extends ActionBarActivity {
         super.onPause();
         mLogs.info("SosActiviy.onPause");
         mUiHelper.onPause();
+        unregisterReceiver(mBroadcastReceiver);
 
         if (!(mEventManager.isEventActive() || mEventManager.isSosStarted())
             && Utils.isServiceRunning(this, LocationService.class))

@@ -164,7 +164,7 @@ public class EventManager {
             mSosStarted = false;
     }
 
-    public Event getEvent() throws Exception {
+    public synchronized Event getEvent() throws Exception {
         if (mEvent != null) return mEvent;
         else throw new NullPointerException();
     }
@@ -196,6 +196,33 @@ public class EventManager {
         }
     }
 
+    public void serverStartSos(final Runnable moreOperations) {
+        // if you have no event try to create one on server
+        // (you must have an event at this point though)
+        if (mEvent == null || mEvent.getType() == Event.TYPE_SUPPORT) {
+            logs.info("EventManager. StartSos. We don't have Victim event, trying to create one.");
+            NetworkManager.createEvent(mContext,
+                    new NetworkManager.DeliverResultRunnable<Event>() {
+                        @Override
+                        public void deliver(Event event) {
+                            if (event != null) {
+                                logs.info("EventManager. StartSos. Event created: " +
+                                        event.getId());
+                                setEvent(event);
+                                logs.info("EventManager. StartSos. Activating event");
+                                serverActivateSos(moreOperations); // make this event active
+                            } else {
+                                logs.info("EventManager. StartSos. We were unable to create event");
+                                moreOperations.run();
+                            }
+                        }
+                    });
+        } else {
+            logs.info("EventManager. StartSos. We have event, activating it");
+            serverActivateSos(moreOperations);
+        }
+    }
+
     private void serverActivateSos() {
         mEvent.setStatus(Event.STATUS_ACTIVE);
 
@@ -216,6 +243,30 @@ public class EventManager {
                 // start sending location updates
                 logs.info("EventManager. StartSos. Event activated. Starting LocationService");
                 Utils.setLoading(mContext, false);
+            }
+        });
+    }
+
+    private void serverActivateSos(final Runnable moreOperations) {
+        mEvent.setStatus(Event.STATUS_ACTIVE);
+
+        Location location = LocationService.locationListener.getLastLocation(false);
+        logs.info("EventManager. StartSos. LocationResult");
+        Map data = new HashMap();
+        if (location != null) {
+            logs.info("EventManager. StartSos. Location is not null");
+            data.put("loc", location);
+        } else {
+            logs.info("EventManager. StartSos. Location is NULL");
+        }
+        data.put("text", Prefs.getMessage(mContext));
+
+        NetworkManager.updateEvent(mContext, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
+            @Override
+            public void deliver(Boolean aBoolean) {
+                // start sending location updates
+                logs.info("EventManager. StartSos. Event activated. Starting LocationService");
+                moreOperations.run();
             }
         });
     }

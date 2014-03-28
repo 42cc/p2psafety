@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import ua.p2psafety.SosActivity;
 import ua.p2psafety.json.Event;
 import ua.p2psafety.services.XmppService;
 import ua.p2psafety.util.EventManager;
@@ -16,12 +17,40 @@ import ua.p2psafety.util.Utils;
  */
 public class NetworkStateChangedReceiver extends BroadcastReceiver {
 
+    private Context mContext;
+
+    private Runnable mUnsetLoading = new Runnable() {
+        @Override
+        public void run() {
+            unsetLoading();
+        }
+    };
+
+    private NetworkManager.DeliverResultRunnable<Boolean> mUnsetLoadingOnDeliver = new NetworkManager.DeliverResultRunnable<Boolean>()
+    {
+        @Override
+        public void deliver(Boolean aBoolean) {
+            super.deliver(aBoolean);
+
+            unsetLoading();
+        }
+
+        @Override
+        public void onError(int errorCode) {
+            super.onError(errorCode);
+
+            unsetLoading();
+        }
+    };
+
     @Override
     public void onReceive(final Context context, final Intent intent) {
         if (Utils.isServerAuthenticated(context))
         {
             if (Utils.isNetworkConnected(context, new Logs(context)))
             {
+                mContext = context;
+                setLoading();
                 final EventManager eventManager = EventManager.getInstance(context);
                 try {
                     NetworkManager.getInfoAboutEvent(context, eventManager.getEvent().getId(),
@@ -37,16 +66,17 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                                     {
                                         if (event.getType().equals(Event.TYPE_SUPPORT))
                                         {
-                                            eventManager.serverStartSos();
+                                            eventManager.serverStartSos(mUnsetLoading);
                                         }
                                         else if (event.getType().equals(Event.TYPE_VICTIM))
                                         {
+                                            unsetLoading();
                                             //good enough
                                         }
                                     }
                                     else
                                     {
-                                        eventManager.serverStartSos();
+                                        eventManager.serverStartSos(mUnsetLoading);
                                     }
                                 }
                                 else
@@ -57,6 +87,7 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                                         {
                                             if (event.getType().equals(Event.TYPE_SUPPORT))
                                             {
+                                                unsetLoading();
                                                 //good enough
                                             }
                                             else if (event.getType().equals(Event.TYPE_VICTIM))
@@ -69,7 +100,7 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                                                 eventManager.createNewEvent(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        NetworkManager.supportEvent(context, XmppService.VICTIM_DATA.getSupporterUrl(), null);
+                                                        NetworkManager.supportEvent(context, XmppService.VICTIM_DATA.getSupporterUrl(), mUnsetLoadingOnDeliver);
                                                     }
                                                 });
                                             }
@@ -81,17 +112,18 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                                             // mode without internet, but on server you are victim
 
                                             //but let code remain
-                                            NetworkManager.supportEvent(context, XmppService.VICTIM_DATA.getSupporterUrl(), null);
+                                            NetworkManager.supportEvent(context, XmppService.VICTIM_DATA.getSupporterUrl(), mUnsetLoadingOnDeliver);
                                         }
                                     }
                                     else
                                     {
                                         if (event.getStatus().equals(Event.STATUS_ACTIVE))
                                         {
-                                            eventManager.createNewEvent();
+                                            eventManager.createNewEvent(mUnsetLoading);
                                         }
                                         else
                                         {
+                                            unsetLoading();
                                             //good enough
                                         }
                                     }
@@ -100,9 +132,21 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                         }
                     });
                 } catch (Exception e) {
-                    eventManager.createNewEvent();
+                    eventManager.createNewEvent(mUnsetLoading);
                 }
             }
         }
+    }
+
+    private void setLoading() {
+        Intent intent = new Intent();
+        intent.setAction(SosActivity.ACTION_SET_LOADING);
+        mContext.sendBroadcast(intent);
+    }
+
+    private void unsetLoading() {
+        Intent intent = new Intent();
+        intent.setAction(SosActivity.ACTION_UNSET_LOADING);
+        mContext.sendBroadcast(intent);
     }
 }
