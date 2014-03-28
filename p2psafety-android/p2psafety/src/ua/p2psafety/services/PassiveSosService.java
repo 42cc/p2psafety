@@ -36,7 +36,7 @@ public class PassiveSosService extends Service {
         mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                Utils.startVibration(PassiveSosService.this);
+                //Utils.startVibration(PassiveSosService.this);
                 Utils.playDefaultNotificationSound(PassiveSosService.this);
                 Utils.blinkLED(PassiveSosService.this);
                 openPassiveSosFragment();

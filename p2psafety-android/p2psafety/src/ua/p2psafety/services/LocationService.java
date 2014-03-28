@@ -77,7 +77,7 @@ public class LocationService extends Service implements
         mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                if (mEventManager.isEventActive())
+                if (mEventManager.isEventActive() || Prefs.isPassiveSosStarted(LocationService.this))
                 {
                     mLogs.info("LocationService. Checking if we need to send new location");
                     getCurrentLoc();
