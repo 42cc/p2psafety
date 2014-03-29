@@ -8,8 +8,10 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "lodash": "~2.4.1",
     "angular-lodash": "~0.1.0",
-    "angularjs-bower": "*",
-    "lodash": "~2.4.1"
+    "angular": "~1.2.15",
+    "angular-mocks": "~1.2.15",
+    "angular-animate": "~1.2.15"
   }
 }
