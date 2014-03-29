@@ -1,0 +1,15 @@
+{
+  "name": "p2psafety_django",
+  "version": "3.0.1",
+  "homepage": "https://github.com/42cc/p2psafety",
+  "authors": [
+    "Anton Yatsenko <anton.yaсenko@gmail.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular-lodash": "~0.1.0",
+    "angularjs-bower": "*",
+    "lodash": "~2.4.1"
+  }
+}

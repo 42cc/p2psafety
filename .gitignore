@@ -86,6 +86,9 @@ Makefile.def
 # Media, uploaded files, collected static
 p2psafety_django/static_media
 
+# FE resources
+p2psafety_django/bower_components
+
 # Sphinx docs build
 p2psafety_django/docs/build/
 
