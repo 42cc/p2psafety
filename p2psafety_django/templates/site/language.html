@@ -1,0 +1,25 @@
+{% load i18n %}
+
+<div class="language pull-right">
+    <form action="{#{% url 'set_language' %}#}" method="post">
+        <div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Action <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                {% get_language_info_list for LANGUAGES as languages %}
+                {% for language in languages %}
+                    <li>
+                        <a>Action</a>
+                        <select name="language">
+                            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected="selected"{% endif %}>
+                                {{ language.name_local }} ({{ language.code }})
+                            </option>
+                        </select>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% csrf_token %}
+        <input type="submit" value="Go" />
+    </form>
+</div>
