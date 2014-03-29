@@ -92,7 +92,7 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
-    # TODO: wait for implementation on mobile apps 
+    # TODO: wait for implementation on mobile apps
     # 'allauth.socialaccount.providers.google',
     'bootstrap3',
     'tastypie',
