@@ -189,9 +189,11 @@ public class XmppService extends Service {
             mNode.addItemEventListener(new ItemEventListener() {
                 @Override
                 public void handlePublishedItems(ItemPublishEvent items) {
-                    if (items.isDelayed() || EventManager.getInstance(XmppService.this).isSupportStarted())
+                    EventManager eventManager = EventManager.getInstance(XmppService.this);
+                    if (items.isDelayed() || eventManager.isSupportStarted()
+                            || eventManager.isSosStarted())
                     {
-                        return; // old event
+                        return; // old event or support started or sos started
                     }
 
                     startService(new Intent(XmppService.this, LocationService.class));

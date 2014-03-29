@@ -2,7 +2,11 @@ package ua.p2psafety;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,7 +19,16 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import ua.p2psafety.adapters.StableArrayAdapter;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.fragments.SendMessageFragment;
 import ua.p2psafety.json.Event;
@@ -34,11 +47,31 @@ import ua.p2psafety.util.Utils;
 public class SosActivity extends ActionBarActivity {
     public static final String FRAGMENT_KEY = "fragmentKey";
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private static final String ACTION_SYNCHRONIZE = "ua.p2psafety.action.SYNCHRONIZE";
+    public static final String ACTION_SET_LOADING = "ua.p2psafety.action.SET_LOADING";
+    public static final String ACTION_UNSET_LOADING = "ua.p2psafety.action.UNSET_LOADING";
 
     private UiLifecycleHelper mUiHelper;
     public static Logs mLogs;
     private EventManager mEventManager;
     private boolean mStartedFromHistory = false;
+
+    private IntentFilter mIntentFilter;
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            mLogs.info("SosActivity. Got action from NetworkStateChangedReceiver: " + action);
+            if (action.equals(ACTION_SET_LOADING))
+            {
+                Utils.setLoading(SosActivity.this, true);
+            }
+            else if (action.equals(ACTION_UNSET_LOADING))
+            {
+                Utils.setLoading(SosActivity.this, false);
+            }
+        }
+    };
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,15 +79,15 @@ public class SosActivity extends ActionBarActivity {
 
         mLogs = new Logs(this);
         mLogs.info("\n\n\n==========================\n==============================");
-        mLogs.info("SosActiviy. onCreate()");
+        mLogs.info("SosActivity. onCreate()");
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
         mEventManager = EventManager.getInstance(this);
 
-        mLogs.info("SosActiviy. onCreate. Initiating NetworkManager");
+        mLogs.info("SosActivity. onCreate. Initiating NetworkManager");
         NetworkManager.init(this);
-        mLogs.info("SosActiviy. onCreate. Starting PowerButtonService");
+        mLogs.info("SosActivity. onCreate. Starting PowerButtonService");
         startService(new Intent(this, PowerButtonService.class));
         if (!Utils.isServiceRunning(this, XmppService.class) &&
             Utils.isServerAuthenticated(this) &&
@@ -63,12 +96,26 @@ public class SosActivity extends ActionBarActivity {
             startService(new Intent(this, XmppService.class));
         }
         Prefs.setProgramRunning(true, this);
+
+        mIntentFilter = new IntentFilter(ACTION_SET_LOADING);
+        mIntentFilter.addAction(ACTION_UNSET_LOADING);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        Intent intent = new Intent();
+        intent.setAction(ACTION_SYNCHRONIZE);
+        sendBroadcast(intent);
+        mLogs.info("SosActivity. onPostCreate(). Action SYNCHRONIZE was sent");
     }
 
     @Override
     public void onResume() {
         super.onResume();
         mUiHelper.onResume();
+        registerReceiver(mBroadcastReceiver, mIntentFilter);
 
         mStartedFromHistory = (getIntent().getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
                 == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
@@ -143,6 +190,7 @@ public class SosActivity extends ActionBarActivity {
         super.onPause();
         mLogs.info("SosActiviy.onPause");
         mUiHelper.onPause();
+        unregisterReceiver(mBroadcastReceiver);
 
         if (!(mEventManager.isEventActive() || mEventManager.isSosStarted())
             && Utils.isServiceRunning(this, LocationService.class))
