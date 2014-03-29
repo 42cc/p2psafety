@@ -86,7 +86,8 @@ class EventTestCase(ModelsMixin, UsersMixin, ResourceTestCase):
 
     required_model_fields = [
         u'id', u'user', u'type', u'status', u'resource_uri',
-        u'latest_location', u'latest_update', u'supported', u'latest_text',
+        u'latest_location', u'latest_update', u'supported', u'supporters',
+        u'latest_text',
     ]
 
     def test_create(self):
