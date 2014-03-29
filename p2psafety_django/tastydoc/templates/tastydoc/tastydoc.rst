@@ -28,7 +28,15 @@ JSON Response ::
 {% for method_name, method_data in endpoint.extra_actions.items %}
 {{ method_data.url }}
 -----------------------------------------------------------
-    {{ method_data.description }}
+
+{{ method_data.description }}
+
+**Methods**:
+    {% for sub_method_data in method_data.methods %}
+    :{{ sub_method_data.name|upper }}:
+
+    {{ sub_method_data.description}}
+    {% endfor %}
 {% endfor %}
 
 {% endfor %}

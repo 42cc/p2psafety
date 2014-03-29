@@ -3,9 +3,9 @@ package ua.p2psafety.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import ua.p2psafety.Event;
 import ua.p2psafety.R;
-import ua.p2psafety.User;
+import ua.p2psafety.json.Event;
+import ua.p2psafety.json.User;
 
 /**
  * Created by ihorpysmennyi on 12/7/13.
@@ -24,6 +24,15 @@ public class Prefs {
     private static final String MEDIA_RECORD_LENGTH = "MEDIA_RECORD_LENGTH";
 
     private static final String GMAIL_TOKEN = "GMAIL_TOKEN";
+    private static final String API_KEY = "API_KEY";
+    private static final String API_USERNAME = "API_USERNAME";
+
+    private static final String IS_SUPPORTER_MODE = "IS_SUPPORTER_MODE";
+    private static final String SUPPORT_URL = "SUPPORT_URL";
+
+    private static final String USER_IDENTIFIER = "USER_IDENTIFIER";
+
+    private static final String IS_PROGRAM_RUNNING = "IS_PROGRAM_RUNNING";
 
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
@@ -57,8 +66,32 @@ public class Prefs {
         getPrefs(context).edit().putLong(MEDIA_RECORD_LENGTH, val).commit();
     }
 
+    public static String getUserIdentifier(Context context) {
+        return getPrefs(context).getString(USER_IDENTIFIER, null);
+    }
+
+    public static void putUserIdentifier(Context context, String uid) {
+        getPrefs(context).edit().putString(USER_IDENTIFIER, uid).commit();
+    }
+
     public static void putSosStarted(Context context, boolean val) {
         getPrefs(context).edit().putBoolean(SOS_STARTED_KEY, val).commit();
+    }
+
+    public static void putApiKey(Context context, String val) {
+        getPrefs(context).edit().putString(API_KEY, val).commit();
+    }
+
+    public static void putApiUsername(Context context, String val) {
+        getPrefs(context).edit().putString(API_USERNAME, val).commit();
+    }
+
+    public static void putSupporterMode(Context context, boolean val) {
+        getPrefs(context).edit().putBoolean(IS_SUPPORTER_MODE, val).commit();
+    }
+
+    public static void putSupportUrl(Context context, String val) {
+        getPrefs(context).edit().putString(SUPPORT_URL, val).commit();
     }
 
     public static boolean getIsLoc(Context context) {
@@ -110,6 +143,22 @@ public class Prefs {
         return getPrefs(context).getBoolean(SOS_STARTED_KEY, false);
     }
 
+    public static String getApiKey(Context context) {
+        return getPrefs(context).getString(API_KEY, null);
+    }
+
+    public static String getApiUsername(Context context) {
+        return getPrefs(context).getString(API_USERNAME, null);
+    }
+
+    public static boolean isSupporterMode(Context context) {
+        return getPrefs(context).getBoolean(IS_SUPPORTER_MODE, false);
+    }
+
+    public static String getSupportUrl(Context context) {
+        return getPrefs(context).getString(SUPPORT_URL, null);
+    }
+
 
     //============= EVENT SAVING =========================
     private static final String EVENT_ID = "EVENT_ID";
@@ -127,6 +176,15 @@ public class Prefs {
                     .commit();
 
             putUser(context, event.getUser());
+        } else {
+            getPrefs(context).edit()
+                    .putString(EVENT_ID, null)
+                    .putString(EVENT_KEY, null)
+                    .putString(EVENT_STATUS, null)
+                    .putString(EVENT_URI, null)
+                    .commit();
+
+            putUser(context, null);
         }
     }
 
@@ -161,11 +219,19 @@ public class Prefs {
     private static final String USER_URI = "USER_URI";
 
     private static void putUser(Context context, User user) {
-        getPrefs(context).edit()
-                .putString(USER_ID, user.getId())
-                .putString(USER_FULL_NAME, user.getFullName())
-                .putString(USER_URI, user.getUri())
-                .commit();
+        if (user != null) {
+            getPrefs(context).edit()
+                    .putString(USER_ID, user.getId())
+                    .putString(USER_FULL_NAME, user.getUsername())
+                    .putString(USER_URI, user.getUri())
+                    .commit();
+        } else {
+            getPrefs(context).edit()
+                    .putString(USER_ID, null)
+                    .putString(USER_FULL_NAME, null)
+                    .putString(USER_URI, null)
+                    .commit();
+        }
     }
 
     private static User getUser(Context context) {
@@ -186,5 +252,14 @@ public class Prefs {
         user.setUri(uri);
 
         return user;
+    }
+
+    public static boolean isProgramRunning(Context context) {
+        return getPrefs(context).getBoolean(IS_PROGRAM_RUNNING, false);
+    }
+
+    public static void setProgramRunning(boolean val, Context context)
+    {
+        getPrefs(context).edit().putBoolean(IS_PROGRAM_RUNNING, val).commit();
     }
 }

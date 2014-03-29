@@ -1,6 +1,5 @@
 import simplejson
 
-from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 
@@ -16,7 +15,7 @@ def setup(app):
 class TastyDirective(Directive):
     """
     Sphinx directive for django-tastypie, based on fork:
-    
+
     https://github.com/socialize/django-tastypie
     """
 
@@ -33,10 +32,10 @@ class TastyDirective(Directive):
         parser = Parser()
         publisher = Publisher()
         request = HttpRequest()
-        top_level_response = api.top_level(request, None) 
+        top_level_response = api.top_level(request, None)
         top_level_doc = simplejson.loads(top_level_response.content)
 
-        for name in sorted(api._registry.keys()):        
+        for name in sorted(api._registry.keys()):
             resource = api._registry[name]
             top_level_doc[name]['schema'] = resource.build_schema()
             top_level_doc[name]['docstring'] = resource.__doc__
@@ -48,10 +47,26 @@ class TastyDirective(Directive):
         return doctree.children
 
     def build_extra_actions(self, resource, list_endpoint):
-        result = getattr(resource._meta, 'extra_actions', {})
-        for method_name, method_cfg in result.iteritems():
-            method_cfg['url'] = list_endpoint + method_cfg.get('url', '').lstrip('/')
-            method = getattr(resource, method_name, None)
-            if method:
-                method_cfg['description'] = method.__doc__
+        result = {}
+        for url in resource.prepend_urls():
+            method = url.callback
+            method_name = method.__name__
+            if hasattr(method, 'view_methods'):
+                method_cfg = {
+                    'url': self.join_urls(list_endpoint, method.view_url),
+                    'description': method.__doc__,
+                    'methods': []
+                }
+                sub_methods = method.view_methods
+                for sub_method_name, sub_method in sub_methods.iteritems():
+                    method_cfg['methods'].append({
+                        'name': sub_method_name,
+                        'description': sub_method.__doc__,
+                    })
+                result[method_name] = method_cfg
         return result
+
+    def join_urls(self, *urls):
+        urls = map(lambda s: s.strip('/'), urls)
+        urls.insert(0, ''), urls.append('')
+        return '/'.join(urls)

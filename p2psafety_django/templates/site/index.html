@@ -10,6 +10,7 @@
 {% block content %}
     <div class="row">
         <div class="col-md-12 page-header">
+            {% include "account/login_button_block.html" %}
             <h1>{% trans "P2P Safety" %}</h1>
         </div>
     </div>
@@ -56,8 +57,8 @@
         </div>
     </div>
     <div class="row well">
-        <div class="col-md-4">
-            <h3>{% trans "Download the app" %}</h3>
+        <div class="col-md-3">
+            <h4>{% trans "Download the app" %}</h4>
             <a href="https://play.google.com/store/apps/details?id=ua.p2psafety" class="btn btn-default btn-lg" target="_blank">
                 <img alt="Колективна безпека на Google Play"
                    src="{% static "img/google_play.png" %}" />
@@ -71,21 +72,25 @@
                 </a>
             {% endcomment %}
         </div>
-        <div class="col-md-4">
-            <h3>{% trans "Join the discussion" %}</h3>
+        <div class="col-md-3">
+            <h4>{% trans "Join the discussion" %}</h4>
             <a href="https://www.facebook.com/groups/p2psafety/" class="btn btn-default btn-lg" target="_blank">
                 <img alt="Колективна безпека на фейсбуці"
                    src="{% static "img/facebook.png" %}" />
                 {% trans "P2P Safety" %}
             </a>
        </div>
-        <div class="col-md-4">
-            <h3>{% trans "Track our progress" %}</h3>
+        <div class="col-md-3">
+            <h4>{% trans "Track our progress" %}</h4>
             <a href="https://github.com/42cc/p2psafety/" class="btn btn-default btn-lg" target="_blank">
               <img alt="Колективна безпека на гітхабі"
                    src="{% static "img/github.png" %}" />
                42cc/p2psafety/
             </a>
+        </div>
+        <div class="col-md-3">
+            <h4>{% trans "Donate BTC" %}</h4>
+            16WYhBSXR7ypujASMiwX2TjhNtibP8on1R
         </div>
     </div>
 

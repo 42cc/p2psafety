@@ -21,6 +21,9 @@ run:
 mailserver:
 	python -m smtpd -n -c DebuggingServer $(BIND_TO):$(MAILSERVER_PORT)
 
+celery:
+	celery -A p2psafety_django.p2psafety worker -l info
+
 syncdb:
 	@echo Syncing...
 	$(MANAGE) syncdb --noinput
@@ -32,14 +35,14 @@ shell:
 	$(MANAGE) shell
 
 test:
-	TESTING=1 $(MANAGE) test $(TEST_OPTIONS)
+	TESTING=1 $(TEST) --noinput $(TEST_OPTIONS)
 
 testone:
-	$(TEST) $(MANAGE) test $(filter-out $@,$(MAKECMDGOALS))
+	$(TEST) $(filter-out $@,$(MAKECMDGOALS))
 
 clean:
 	@echo Cleaning up...
-	find ./survey | grep '\.pyc$$' | xargs -I {} rm {}
+	find . -name "*.pyc" -exec rm -rf {} \;
 	@echo Done
 
 migrate:

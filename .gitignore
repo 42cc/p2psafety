@@ -82,3 +82,5 @@ p2psafety_django/static_media
 # Sphinx docs build
 p2psafety_django/docs/build/
 
+.env/
+*.log

@@ -1,0 +1,8 @@
+<div class="login pull-right">
+    {% if request.user.is_authenticated  %}
+        <a href="{% url 'account_logout' %}">Log out</a>&nbsp;&nbsp;
+        <a class="btn btn-danger" href="{% url 'emergency_logout' %}">Emergency log out</a>
+    {% else %}
+        <a href="{% url 'account_login' %}">Log in / Register</a>
+    {% endif %}
+</div>

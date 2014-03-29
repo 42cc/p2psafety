@@ -1,5 +1,6 @@
 from django import *
 from apps import *
+from site import *
 
 try:
     from local import *

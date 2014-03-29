@@ -22,11 +22,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="67:00"
+        android:text="@string/ex_time"
         android:id="@+id/timer_text"
         android:textSize="50sp"
         android:layout_below="@+id/btn_run"
-        android:autoText="false"
         android:layout_alignParentTop="false"
         android:layout_alignParentStart="false"
         android:textAlignment="gravity"

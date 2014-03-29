@@ -1,3 +1,14 @@
+# Email settings:
+
+# For local development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# For staging & production
+# EMAIL_HOST = 'localhost'
+# EMAIL_PORT = 25
+# EMAIL_HOST_USER = 'user'
+# EMAIL_HOST_PASSWORD = 'password'
+
 # Please, specify secret key for your application. Check link below for details
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 
@@ -6,5 +17,5 @@ SECRET_KEY = 'scmfn9lw^^t99ybk%-7lsy$5)sl_u&3pcnnp@6q-p70pwmo0fw'
 
 GOOGLE_API_KEY = 'AIzaSyDgDO4OE5pBLiFfm2yG4AgRLAPdSFtM-nU'
 
-SOCIAL_AUTH_FACEBOOK_KEY = '575503025870783'
-SOCIAL_AUTH_FACEBOOK_SECRET = 'a2d02ca69326841adedb5f5ebd2863fa'
+# Set to False to enable jabber calls
+JABBER_DRY_RUN = True

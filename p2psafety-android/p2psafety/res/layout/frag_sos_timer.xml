@@ -9,14 +9,9 @@
     android:focusableInTouchMode="true"
     android:clickable="true">
 
-    <FrameLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom">
-
         <LinearLayout
             android:orientation="horizontal"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center_horizontal"
@@ -27,6 +22,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/arrowUpBtn"
+                android:contentDescription="@null"
                 android:layout_gravity="center"
                 android:src="@drawable/arrow_up"
                 android:background="@color/White"
@@ -37,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="67:00"
+                android:text="@string/ex_time"
                 android:id="@+id/timerText"
                 android:layout_gravity="center"
                 android:textSize="70sp"
@@ -49,6 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/arrowDownBtn"
+                android:contentDescription="@null"
                 android:layout_gravity="center"
                 android:src="@drawable/arrow_down"
                 android:background="@color/White"
@@ -56,13 +53,11 @@
                 android:scaleType="fitXY" />
         </LinearLayout>
 
-    </FrameLayout>
-
     <Button
         style="@style/TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Старт"
+        android:text="@string/start"
         android:id="@+id/timerBtn"
         android:background="@drawable/btn_sel"
         android:padding="@dimen/st_padding"
@@ -71,7 +66,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:textSize="24dp"
+        android:textSize="24sp"
         android:minWidth="170dp" />
 
     <LinearLayout
@@ -80,15 +75,11 @@
         android:id="@+id/linearLayout"
         android:background="@color/SOSRed">
 
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1" />
-
         <ImageView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/imageView2"
+            android:contentDescription="@null"
             android:adjustViewBounds="true"
             android:layout_weight="4" />
     </LinearLayout>
