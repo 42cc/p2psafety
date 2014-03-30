@@ -24,6 +24,7 @@ include pildeps
 include software
 include locale
 include ejabberd
+include nodejs
 
 class timezone {
   package { "tzdata":
@@ -78,6 +79,11 @@ class apt {
   exec { 'add-apt-repository ppa:ubuntugis/ubuntugis-unstable':
     before => Exec['last ppa'],
     unless => 'ls /etc/apt/sources.list.d/ | grep ubuntugis-unstable'
+  }
+
+  exec { 'add-apt-repository ppa:chris-lea/node.js':
+    before => Exec['last ppa'],
+    unless => 'ls /etc/apt/sources.list.d/ | grep node'
   }
 
   exec { 'last ppa':
@@ -303,12 +309,30 @@ class virtualenv {
   }
 }
 
-class pildeps {
-  package { ['python-imaging', 'libjpeg-dev', 'libfreetype6-dev', 'fontconfig']:
-    ensure => latest,
-    require => Class['apt'],
-    before => Exec['pil png', 'pil jpg', 'pil freetype']
-  }
+class nodejs {
+    package {'nodejs':
+        ensure=>latest,
+        require=>Class['apt']
+    }
+
+    exec {'npm install -g bower karma karma-jasmine karma-phantomjs-launcher':
+        require=>Package['nodejs'],
+        before=>Exec['bower install'],
+    }
+
+
+    file {'/usr/bin/karma':
+        ensure=>'link',
+        target=>'/usr/lib/node_modules/karma/bin/karma'
+    }
+
+    exec {'bower install':
+        cwd=>"/home/vagrant/${django_path}",
+        user=>'vagrant'
+    }
+}
+
+class pildeps { package { ['python-imaging', 'libjpeg-dev', 'libfreetype6-dev', 'fontconfig']: ensure => latest, require => Class['apt'], before => Exec['pil png', 'pil jpg', 'pil freetype'] }
 
   exec { 'pil png':
     command => 'sudo ln -s /usr/lib/`uname -i`-linux-gnu/libz.so /usr/lib/',
