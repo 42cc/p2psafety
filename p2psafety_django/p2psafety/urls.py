@@ -35,6 +35,7 @@ urlpatterns = patterns('',
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}),
     url(r'^accounts/emergency_logout/', 'users.views.emergency_logout', name='emergency_logout'),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^i18n/', include('django.conf.urls.i18n')),
 )
 
 if settings.DEBUG:

@@ -3,20 +3,10 @@
 }
 
 
+/* lang block */
+
 .language {
     margin-left: 10px;
 }
 
-.language .dropdown-menu {
-    min-width: 20px;
-}
-
-.flag {
-    width: 16px;
-    height: 11px;
-    background:url("../img/flags.png") no-repeat
-}
-
-.flag.flag-pl {background-position: -16px 0}
-.flag.flag-uk {background-position: 0 -11px}
-.flag.flag-en {background-position: -16px -11px}
+/* lang block ends */

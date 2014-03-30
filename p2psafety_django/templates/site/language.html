@@ -1,16 +1,16 @@
 {% load i18n %}
 
 <div class="language pull-right">
-    <div class="btn-group">
-        <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"><img src="blank.gif" class="flag flag-{{ request.LANGUAGE_CODE }}" alt="{{ request.LANGUAGE_CODE }}" /> {{ request.LANGUAGE_CODE }} <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" role="menu">
+    <form action="{% url 'set_language' %}" method="post" id="lang-form" >
+        {% csrf_token %}
+        <input name="next" type="hidden" value="{{ redirect_to }}" />
+        <select  onchange="parentNode.submit();"class="form-control" name="language">
             {% get_language_info_list for LANGUAGES as languages %}
             {% for language in languages %}
-                <li>
-                    <a><img src="blank.gif" class="flag flag-{{ language.code }}" alt="{{ language.code }}" /> {{ language.code }} </a>
-                </li>
+            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected="selected"{% endif %}>
+                {{ language.name_local }} ({{ language.code }})
+            </option>
             {% endfor %}
-        </ul>
-    </div>
+        </select>
+    </form>
 </div>
