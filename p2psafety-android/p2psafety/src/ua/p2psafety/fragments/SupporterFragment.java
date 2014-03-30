@@ -21,15 +21,20 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import ua.p2psafety.ObservableScrollView;
 import ua.p2psafety.P2PMapView;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
@@ -43,7 +48,7 @@ import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.NetworkManager;
 import ua.p2psafety.util.Utils;
 
-public class SupporterFragment extends Fragment {
+public class SupporterFragment extends Fragment implements ObservableScrollView.ScrollViewListener {
     String mVictimName;
 
     TextView mVictimNameText;
@@ -59,6 +64,9 @@ public class SupporterFragment extends Fragment {
 
     String mSupportUrl;
     Location mEventLocation;
+
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private static final Calendar cal = Calendar.getInstance(Locale.getDefault());
 
     public SupporterFragment() {
         super();
@@ -82,6 +90,9 @@ public class SupporterFragment extends Fragment {
 
         mEvent = Prefs.getEvent(mActivity);
 
+        ObservableScrollView observableScrollView = (ObservableScrollView) view.findViewById(R.id.scroll_view);
+        observableScrollView.setScrollViewListener(this);
+
         mMapView = (P2PMapView) view.findViewById(R.id.supporter_map);
         mMapView.onCreate(savedInstanceState);
 
@@ -93,6 +104,12 @@ public class SupporterFragment extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onScrollChanged(ObservableScrollView sv, int x, int y, int oldx, int oldy) {
+        sv.setVisibility(View.GONE);
+        sv.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -160,7 +177,7 @@ public class SupporterFragment extends Fragment {
         LatLng eventLatLng = new LatLng(mEventLocation.getLatitude(), mEventLocation.getLongitude());
         mMap.addMarker(new MarkerOptions()
                 .position(eventLatLng)
-                .title(mVictimName));
+                .title(mVictimName + ": " + dateFormat.format(cal.getTime())));
 
         MapsInitializer.initialize(mActivity);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 15.0f));
@@ -178,7 +195,7 @@ public class SupporterFragment extends Fragment {
             public void run() {
                 updateMap(support_url);
             }
-        }, 0, 60*1000, TimeUnit.MILLISECONDS); // update map every 60 sec
+        }, 0, 10*1000, TimeUnit.MILLISECONDS); // update map every 60 sec
     }
 
     private void stopAutoUpdates() {
@@ -211,11 +228,11 @@ public class SupporterFragment extends Fragment {
                             Log.i("SupporterFragment", "update id: " + update.getId());
                             Location loc = update.getLocation();
                             if (loc != null) {
-                                mMap.clear();
                                 Log.i("SupporterFragment", "new loc on map: " + loc);
                                 LatLng latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
                                 mMap.addMarker(new MarkerOptions()
-                                        .position(latLng).title(mVictimName));
+                                        .position(latLng).title(mVictimName  + ": " +
+                                                dateFormat.format(cal.getTime())));
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
 
                                 break;
@@ -236,6 +253,15 @@ public class SupporterFragment extends Fragment {
                         mCommentsList.setAdapter(adapter);
                     }
                 });
+
+        NetworkManager.getSupportEventUpdates(mActivity, event_id, new NetworkManager.DeliverResultRunnable<List<Event>>() {
+            @Override
+            public void deliver(List<Event> events) {
+                super.deliver(events);
+                //TODO: adding supporter to map
+                String x = "";
+            }
+        });
     }
 
     private void closeEvent() {

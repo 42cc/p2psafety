@@ -611,6 +611,64 @@ public class NetworkManager {
         });
     }
 
+    public static void getSupportEventUpdates(final Context context, final String support_event_id,
+                                       final DeliverResultRunnable<List<Event>> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final int CODE_SUCCESS = 200;
+                final String TAG = "getSupportEventUpdates";
+                try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+
+                    StringBuilder url = new StringBuilder()
+                            .append(SERVER_URL).append("/api/v1/")
+                            .append("events?supported=").append(support_event_id);
+
+                    HttpGet httpGet = new HttpGet(url.toString());
+                    addAuthHeader(context, httpGet);
+                    addUserAgentHeader(context, httpGet);
+                    httpGet.setHeader("Accept", "application/json");
+                    httpGet.setHeader("Content-type", "application/json");
+
+                    Log.i(TAG, "request: " + httpGet.getRequestLine().toString());
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpGet);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute get request", e);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity(), "UTF-8");
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        List<Event> result = JsonHelper.jsonResponseToEvents(responseContent);
+
+                        postRunnable.setResult(result);
+                    } else {
+                        postRunnable.setResult(null);
+                    }
+
+                    executeRunnable(context, postRunnable);
+                } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't get roles", e);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(null);
+                    executeRunnable(context, postRunnable);
+                }
+            }
+        });
+    }
+
     public static void getEvent(final Context context, final String event_id,
                                 final DeliverResultRunnable<Event> postRunnable) {
         executor.execute(new Runnable() {

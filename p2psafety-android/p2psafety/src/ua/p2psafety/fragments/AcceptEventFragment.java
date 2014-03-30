@@ -19,6 +19,11 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
 import ua.p2psafety.json.Event;
 import ua.p2psafety.util.EventManager;
 import ua.p2psafety.P2PMapView;
@@ -46,6 +51,8 @@ public class AcceptEventFragment extends Fragment {
     GoogleMap mMap;
 
     Logs mLogs;
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private static final Calendar cal = Calendar.getInstance(Locale.getDefault());
 
     public AcceptEventFragment() {
         super();
@@ -123,7 +130,7 @@ public class AcceptEventFragment extends Fragment {
         Log.i("AcceptEventFragment", "latLng: \n" + eventLatLng);
         mMap.addMarker(new MarkerOptions()
                 .position(eventLatLng)
-                .title(getString(R.string.victim_text).replace(": ", "")));
+                .title(mVictimName + ": " + dateFormat.format(cal.getTime())));
 
         MapsInitializer.initialize(mActivity);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 15.0f));
