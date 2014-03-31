@@ -256,9 +256,9 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
   $scope.update({playSoundForNew:false, highightNew:false, centerMap:true}, function() {
     if ($scope.$location.hash != "") {
       var id = parseInt($scope.$location.hash.split('#')[1]);
-      $scope.select($scope.events[id]);      
+      $scope.select($scope.events[id]);
     }
-  });  
+  });
 
   $interval(function() {
     document.getElementById('audiotag').play();
@@ -277,7 +277,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
 })
 .factory('ensurePath', function() {
   /*
-     Constructs proper polyline object and adds it to given list as 
+     Constructs proper polyline object and adds it to given list as
      'path' attribute
   */
   var polylineOptions = {
@@ -340,10 +340,10 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
     Returns icon url by given color.
 
     @param arg: color name like 'blue', 'yellow' or
-                hex string like 'AADDFF'. 
+                hex string like 'AADDFF'.
    */
-  var baseColorUrl = 'http://maps.google.com/mapfiles/ms/micons/%ARG-dot.png';
-  var baseHexUrl = 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|%ARG';
+  var baseColorUrl = '//maps.google.com/mapfiles/ms/micons/%ARG-dot.png';
+  var baseHexUrl = '//chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|%ARG';
   var generator = function(arg) {
     var value = parseFloat(arg);
     if (isNaN(value)) {

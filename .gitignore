@@ -68,6 +68,13 @@ build
 # android apk-signing files
 *keystore
 
+#vim
+*.swp
+*.swo
+
+#vagrant
+.vagrant
+
 # ************* #
 # Project files #
 # ************* #
