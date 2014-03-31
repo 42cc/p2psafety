@@ -2,6 +2,7 @@ package ua.p2psafety.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -177,7 +179,9 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
         LatLng eventLatLng = new LatLng(mEventLocation.getLatitude(), mEventLocation.getLongitude());
         mMap.addMarker(new MarkerOptions()
                 .position(eventLatLng)
-                .title(mVictimName + ": " + dateFormat.format(cal.getTime())));
+                .title(mVictimName + ": " + dateFormat.format(cal.getTime()))
+                .icon(BitmapDescriptorFactory.defaultMarker(
+                        BitmapDescriptorFactory.HUE_YELLOW)));
 
         MapsInitializer.initialize(mActivity);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 15.0f));
@@ -195,7 +199,7 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
             public void run() {
                 updateMap(support_url);
             }
-        }, 0, 10*1000, TimeUnit.MILLISECONDS); // update map every 60 sec
+        }, 0, 60*1000, TimeUnit.MILLISECONDS); // update map every 60 sec
     }
 
     private void stopAutoUpdates() {
@@ -223,29 +227,43 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
                             }
                         });
 
-                        // try to get latest loc
-                        for (Event update: updates) {
+                        // add markers for victims path
+                        mMap.clear();
+                        MarkerOptions latestPosition = null;
+                        for (int i = 0; i < updates.size(); ++i) {
+                            Event update = updates.get(i);
                             Log.i("SupporterFragment", "update id: " + update.getId());
                             Location loc = update.getLocation();
                             if (loc != null) {
                                 Log.i("SupporterFragment", "new loc on map: " + loc);
                                 LatLng latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
-                                mMap.addMarker(new MarkerOptions()
-                                        .position(latLng).title(mVictimName  + ": " +
-                                                dateFormat.format(cal.getTime())));
-                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
+                                MarkerOptions marker = new MarkerOptions();
+                                marker.position(latLng)
+                                      .title(mVictimName + ": " + dateFormat.format(cal.getTime()));
 
-                                break;
+                                if (latestPosition == null)
+                                    latestPosition = marker;
+                                else
+                                    mMap.addMarker(marker);
                             }
+                        }
+                        // draw latest position after all others
+                        // so this marker is always on top
+                        if (latestPosition != null) {
+                            latestPosition.icon(BitmapDescriptorFactory.defaultMarker(
+                                    BitmapDescriptorFactory.HUE_YELLOW));
+                            mMap.addMarker(latestPosition);
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                                    latestPosition.getPosition(), 15.0f));
                         }
 
                         List<String> comments = new ArrayList<String>();
                         // try to get latest event info
-                        for (Event update: updates) {
+                        for (Event update : updates) {
                             Log.i("SupporterFragment", "update id: " + update.getId());
                             String text = update.getText();
                             if (text != null && !text.isEmpty()) {
-                               comments.add(update.getText());
+                                comments.add(update.getText());
                             }
                         }
                         StableArrayAdapter adapter = new StableArrayAdapter(mActivity,
