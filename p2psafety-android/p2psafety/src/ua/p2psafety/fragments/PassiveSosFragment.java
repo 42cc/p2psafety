@@ -260,68 +260,6 @@ public class PassiveSosFragment extends Fragment {
         });
     }
 
-//    // builds dialog with password prompt
-//    private void askPasswordAndStopTimer() {
-//        LayoutInflater li = LayoutInflater.from(mActivity);
-//        View promptsView = li.inflate(R.layout.password_dialog, null);
-//        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
-//        alertDialogBuilder.setView(promptsView);
-//
-//        final EditText userInput = (EditText) promptsView.findViewById(R.id.pd_password_edit);
-//
-//        alertDialogBuilder
-//                .setCancelable(false)
-//                .setPositiveButton(android.R.string.ok,
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int id) {
-//                                checkPassword(userInput.getText().toString());
-//                            }
-//                        })
-//                .setNegativeButton(android.R.string.cancel,
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int id) {
-//                                dialog.cancel();
-//                            }
-//                        });
-//
-//        final AlertDialog alertDialog = alertDialogBuilder.create();
-//        alertDialog.show();
-//        alertDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-//
-//        userInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-//                if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                    checkPassword(userInput.getText().toString());
-//                    alertDialog.dismiss();
-//                }
-//                return true;
-//            }
-//        });
-//    }
-//
-//    // stops timer or builds dialog with retry/cancel buttons
-//    private void checkPassword(String password) {
-//        if (password.equals(Prefs.getPassword(mActivity)))
-//        {
-//            mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
-//            onTimerStop();
-//        }
-//        else{
-//            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-//            builder.setTitle(R.string.wrong_password);
-//            builder.setNegativeButton(android.R.string.cancel, null);
-//            builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    askPasswordAndStopTimer();
-//                }
-//            });
-//            builder.create().show();
-//        }
-//    }
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();
