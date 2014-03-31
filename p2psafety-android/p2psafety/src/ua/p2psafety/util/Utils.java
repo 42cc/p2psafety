@@ -2,8 +2,8 @@ package ua.p2psafety.util;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.ActivityManager;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Notification;
@@ -27,21 +27,23 @@ import android.os.AsyncTask;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Base64;
 import android.util.Log;
-import android.view.View;
 
+import com.bugsense.trace.BugSenseHandler;
+import com.facebook.Request;
+import com.facebook.Response;
 import com.facebook.Session;
+import com.facebook.model.GraphUser;
 
 import java.io.File;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
-import ua.p2psafety.AsyncTaskExecutionHelper;
 import ua.p2psafety.R;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
-import ua.p2psafety.sms.MessageResolver;
 
 /**
  * Created by Taras Melon on 10.01.14.
@@ -65,13 +67,40 @@ public class Utils {
     public static void showNoAccountDialog(Context context) {
         AlertDialog.Builder noEmailDialog = new AlertDialog.Builder(context);
         noEmailDialog.setMessage(context.getResources().getString(R.string.no_account_message))
-                .setNeutralButton("OK", null)
+                .setNeutralButton(android.R.string.ok, null)
                 .show();
     }
 
     public static boolean isEmailAddress(String text) {
         String pattern = "^[_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,4})$";
         return text.matches(pattern);
+    }
+
+    // fragment.isAdded() checks in FragmentManager's backstack;
+    // this function checks in FragmentManager's maintain list
+    //
+    // sometimes we have fragment managed by FM, but in its backstack;
+    // this function helps find such fragments
+    //
+    // HINT: currently has no use but maybe will if we have some
+    // fragment backstack issues in future
+    public static boolean isFragmentAdded(Fragment frg, FragmentManager fm) {
+        if (frg == null || frg.getClass() == null
+                || frg.getClass().getName() == null)
+            return false;
+
+        if (fm.getFragments() == null)
+            return false;
+
+        for (Fragment f : fm.getFragments()) {
+            if (f != null && f.getClass() != null
+                    && f.getClass().getName() != null)
+                if (f.getClass().getName().equals(frg.getClass().getName())
+                        || f.getTag() != null
+                        && f.getTag().equals(frg.getClass().getName()))
+                    return true;
+        }
+        return false;
     }
 
     // checks if network connection is available and connected
@@ -180,7 +209,7 @@ public class Utils {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(context.getString(R.string.location_services_not_active));
         builder.setMessage(context.getString(R.string.please_enable_location_services));
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogInterface, int i) {
                 // Show location settings when the user acknowledges the alert dialog
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -303,5 +332,29 @@ public class Utils {
                 }
             });
         } catch (Exception e) {}
+    }
+
+    public static void getFbUserInfo(final Context context)
+    {
+        Request.newMeRequest(Session.getActiveSession(), new Request.GraphUserCallback() {
+            @Override
+            public void onCompleted(GraphUser user, Response response) {
+                // got user info
+                if (user != null) {
+                    String uid = user.getId();
+
+                    Prefs.putUserIdentifier(context, uid);
+                    putUidToBugSense(uid);
+                } else {
+                    // otherwise - try again
+                    getFbUserInfo(context);
+                }
+            }
+        }).executeAsync();
+    }
+
+    public static void putUidToBugSense(String uid) {
+        BugSenseHandler.setUserIdentifier(new StringBuilder()
+                .append("https://facebook.com/").append(uid).toString());
     }
 }

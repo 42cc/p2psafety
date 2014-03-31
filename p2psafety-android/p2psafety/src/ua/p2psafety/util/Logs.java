@@ -1,6 +1,7 @@
 package ua.p2psafety.util;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.Log;
 
@@ -135,7 +136,13 @@ public class Logs {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String currentDateandTime = sdf.format(new Date());
 
-        StringBuilder builder = new StringBuilder().append(currentDateandTime).append(" "+level.toString()).append(": "+message);
+        StringBuilder builder = new StringBuilder();
+        try {
+            builder.append("[" + mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0).versionName + "] ");
+        } catch (PackageManager.NameNotFoundException e) {
+            //in this case we just not add version
+        }
+        builder.append(currentDateandTime).append(" "+level.toString()).append(": " + message);
 
         if (throwable != null) {
             throwable.printStackTrace();
@@ -262,5 +269,15 @@ public class Logs {
         }
 
         return files;
+    }
+
+    public boolean isTodayFile(File file)
+    {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
+        Calendar cal = Calendar.getInstance();
+        //today
+        cal.add(Calendar.DATE, 0);
+        String date = dateFormat.format(cal.getTime());
+        return file.getName().equals((FILENAME+date+FILE_EXTENSION).substring(1));
     }
 }

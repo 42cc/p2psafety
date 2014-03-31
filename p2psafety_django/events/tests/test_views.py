@@ -1,5 +1,6 @@
 import mock
 
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -7,7 +8,7 @@ from tastypie.test import ResourceTestCase
 
 from .helpers.mixins import UsersMixin
 from .helpers.factories import EventFactory
-from ..models import Event
+from ..models import Event, EventUpdate
 from .. import jabber
 from users.tests.helpers import UserFactory
 
@@ -134,3 +135,39 @@ class MapTestCase(UsersMixin, ResourceTestCase):
         # No such event
         data = dict(valid_data, event_id=event.id + 1)
         self.assertHttpNotFound(self.api_client.post(url, data=data))
+
+    def test_create_test_event_ok(self):
+        url = reverse('events:map_create_test_event')
+        users_count, events_count = User.objects.count(), Event.objects.count()
+        eventupdates_count = EventUpdate.objects.count()
+        data = dict(longitude=1.2, latitude=2.3)
+        
+        self.login_as_superuser()
+
+        self.assertHttpOK(self.api_client.post(url, data=data))
+        self.assertEqual(User.objects.count(), users_count + 1)
+        self.assertEqual(Event.objects.count(), events_count + 1)
+        self.assertEqual(EventUpdate.objects.count(), eventupdates_count + 1)
+        last_update = EventUpdate.objects.latest()
+        self.assertNotEqual(last_update.text, '')
+        self.assertEqual(last_update.location.x, 1.2)
+        self.assertEqual(last_update.location.y, 2.3)
+
+    def test_create_test_event_errors(self):
+        url = reverse('events:map_create_test_event')
+
+        # No permissions
+        self.login_as_user()
+        self.assertHttpForbidden(self.api_client.post(url))
+
+        self.login_as_superuser()
+
+        # Bad request method
+        self.assertHttpMethodNotAllowed(self.api_client.get(url))
+
+        # Invalid data
+        data = dict(longitude=1)
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))
+
+        data = dict(longitude='asd', latitude='dsa')
+        self.assertHttpBadRequest(self.api_client.post(url, data=data))

@@ -18,6 +18,10 @@ from users.utils import get_api_key
 logger = logging.getLogger('events.jabber')
 
 
+class ClientException(Exception):
+    pass
+
+
 class BaseConfig(object):
     """
     Base class for jabber clients configurations.
@@ -61,14 +65,19 @@ class BaseClient(object):
 
     def __init__(self, config_dict):
         self.config = self.Config(config_dict)
-        self._client = ClientXMPP(self.config.jid, self.config.password)
+        self._client = self._create_xmpp_client(self.config.jid, self.config.password)
 
         required_plugins = set(self.base_required_plugins + self.required_plugins)
         for plugin_num in required_plugins:
             self._client.register_plugin(self._get_plugin_name(plugin_num))
 
+        self._client.add_event_handler('failed_auth', self._on_failed_auth, threaded=True)
         self._client.add_event_handler('session_start', self._on_start, threaded=True)
+        self._on_auth_event = threading.Event()
         self._on_start_event = threading.Event()
+
+    def _create_xmpp_client(self, *args, **kwargs):
+        return ClientXMPP(*args, **kwargs)
 
     def __enter__(self):
         self.connect()
@@ -82,7 +91,13 @@ class BaseClient(object):
 
     def _on_start(self, event):
         logger.debug('session has been started')
+        self._authorized = True
+        self._on_auth_event.set()
         self._on_start_event.set()
+
+    def _on_failed_auth(self, event):
+        self._authorized = False
+        self._on_auth_event.set()
 
     def _get_plugin_name(self, plugin_num):
         return 'xep_' + str(plugin_num).rjust(4, '0')
@@ -101,9 +116,17 @@ class BaseClient(object):
     def connect(self):
         logger.debug('connecting as %s', self.config.jid)
         if self._client.connect():
+            logger.debug('connected')
             self._client.process(block=False)
-            # Make sure session was started
-            self._on_start_event.wait()
+            
+            # Make sure we got authorized
+            self._on_auth_event.wait()
+            if self._authorized:
+                # Make sure session was started
+                self._on_start_event.wait()
+            else:
+                message = 'Server has rejected the provided login credentials'
+                raise ClientException(message)
         else:
             logger.error('failed to connect')
 
@@ -140,9 +163,10 @@ class UsersClient(BaseClient):
         else:
             registered_users = User.objects.only('id', 'username').order_by('id')
             registered_jids = [item[0] for item in items['disco_items']['items']]
+            registered_jids_names = [j.split('@')[0] for j in registered_jids]
             name_user_map = dict((u.username, u) for u in registered_users)
             users_to_create = [name_user_map[name] for name in name_user_map
-                               if name not in registered_jids]
+                               if name not in registered_jids_names]
             if users_to_create:
                 logger.debug('%d jabber profiles are missing', len(users_to_create))
                 created_count = sum(map(self.create_account, users_to_create))

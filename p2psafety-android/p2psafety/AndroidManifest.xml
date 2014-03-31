@@ -27,6 +27,7 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -64,29 +65,34 @@
         android:name="android.hardware.wifi"
         android:required="false" />
 
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:anyDensity="true" />
+
     <application
+            android:name=".MyApplication"
             android:allowBackup="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/app_name"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@style/AppTheme">
 
-        <service android:name=".DelayedSosService" />
-        <service android:name=".AudioRecordService" />
-        <service android:name=".VideoRecordService" />
-        <service android:name=".PowerButtonService" />
-        <service android:name=".PhoneCallService"/>
-        <service android:name=".XmppService"/>
-        <service android:name=".LocationService"/>
-
-        <activity
-            android:name=".LoginActivity"
-            android:screenOrientation="portrait">
-        </activity>
+        <service android:name=".services.DelayedSosService" />
+        <service android:name=".services.AudioRecordService" />
+        <service android:name=".services.VideoRecordService" />
+        <service android:name=".services.PowerButtonService" />
+        <service android:name=".services.PhoneCallService"/>
+        <service android:name=".services.XmppService"/>
+        <service android:name=".services.LocationService"/>
 
         <activity
                 android:name=".SosActivity"
                 android:screenOrientation="portrait"
-                android:launchMode="singleTask">
+                android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+                android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -98,15 +104,28 @@
         <receiver android:name=".widget.Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerTick"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerFinish"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerCancel"/>
-                <action android:name="ua.p2psafety.DelayedSosService.TimerChange"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerTick"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerFinish"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerCancel"/>
+                <action android:name="ua.p2psafety.services.DelayedSosService.TimerChange"/>
             </intent-filter>
 
             <meta-data
                     android:name="android.appwidget.provider"
                     android:resource="@xml/wprovider"/>
+        </receiver>
+
+        <receiver android:name=".listeners.BootCompletedReceiver" android:enabled="true" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".listeners.NetworkStateChangedReceiver" android:enabled="true" android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+                <action android:name="ua.p2psafety.action.SYNCHRONIZE"/>
+            </intent-filter>
         </receiver>
 
         <meta-data

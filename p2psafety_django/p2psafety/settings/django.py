@@ -24,7 +24,7 @@ ALLOWED_HOSTS = []
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kiev'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -45,12 +45,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'p2psafety',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'USER': 'vagrant',
+        'PASSWORD': 'vagrant',
         'HOST': '127.0.0.1',
         'PORT': '',
     }
 }
+
+#rabbitmq celery broker
+BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -89,10 +92,11 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
-    # TODO: wait for implementation on mobile apps 
+    # TODO: wait for implementation on mobile apps
     # 'allauth.socialaccount.providers.google',
     'bootstrap3',
     'tastypie',
+    'djcelery',
 )
 
 SITE_ID = 1

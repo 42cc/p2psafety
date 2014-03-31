@@ -56,9 +56,20 @@ class EventResource(ApiMethodsMixin, ModelResource):
         filtering = {
             'id': ALL,
             'status': ALL,
+            'supported': ALL_WITH_RELATIONS,
+            'supporters': ALL_WITH_RELATIONS,
         }
-        detail_allowed_methods = []
+        detail_allowed_methods = ['get', ]
         always_return_data = True
+
+    class SupportedEventResource(ModelResource):
+        class Meta:
+            queryset = Event.objects.all()
+            include_resource_uri = False
+            fields = ['id']
+            filtering = {
+                'id': ALL,
+            }
 
     user = fields.ForeignKey(UserResource, 'user', full=True, readonly=True)
     type = fields.CharField('get_type_display', readonly=True)
@@ -67,7 +78,8 @@ class EventResource(ApiMethodsMixin, ModelResource):
     latest_update = fields.ForeignKey('events.api.resources.EventUpdateResource',
                                       'latest_update',
                                       full=True, null=True, readonly=True)
-    supported = fields.ManyToManyField('events.api.resources.EventResource', 'supported', full=False, readonly=True)
+    supported = fields.ManyToManyField(SupportedEventResource, 'supported', full=True, readonly=True)
+    supporters = fields.ManyToManyField(SupportedEventResource, 'supporters', full=True, readonly=True)
 
     @api_method(r'/(?P<pk>\d+)/support', name='api_events_support')
     def support(self):
@@ -125,11 +137,17 @@ class EventUpdateResource(MultipartResource, ModelResource):
 
     location = GeoPointField('location', null=True)
     event = fields.ForeignKey(EventResource, 'event', readonly=True)
+    delay = fields.IntegerField(null=True)
 
     def hydrate(self, bundle):
         key = bundle.data.get('key')
         if key:
             event = get_object_or_404(Event, key=key)
             bundle.obj.event = event
+
+        delay = bundle.data.get('delay')
+        if delay:
+            #bind data to object. no db field here
+            bundle.obj.delay = delay
 
         return bundle

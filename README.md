@@ -35,3 +35,4 @@ RoadMap ( що буде втілено? )
 
 Перед початком ознайомтесь з [правилами розробки](https://github.com/42cc/p2psafety/wiki/How-to-contribute) та [Wiki](https://github.com/42cc/p2psafety/wiki)
 
+Для розробки ви можете використовувати Vagrant-образ віртуальної машини проекту, детальніше про це в [p2psafety_vagrant/README.md](p2psafety_vagrant/README.md)

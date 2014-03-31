@@ -18,13 +18,102 @@
 .event-heading{
     margin-bottom: 0;
 }
+.event-roles, .event-movement_types{
+    margin-left:0;
+    padding-left:0;
+    padding-bottom:0px;
+    margin-bottom:0px;
+    list-style:none;
+}
+.event-role, .event-movement_type{
+    display: inline-block;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.btn.type-support {
+    background-color: #5CB85C;
+    border-color: #4CAE4C;
+    color: #FFFFFF;
+}
+
+.btn.type-victim {
+    background-color: #D9534F;
+    border-color: #FF615D;
+    color: #FFFFFF;
+}
+/*
+    Animations
+*/
+.notify-supporters .ng-hide-add, .notify-supporters .ng-hide-remove {
+  -webkit-transition:all linear 0.5s;
+  -moz-transition:all linear 0.5s;
+  -o-transition:all linear 0.5s;
+  transition:all linear 0.5s;
+  display:block!important;
+}
+ 
+.notify-supporters .ng-hide-add.ng-hide-add-active,
+.notify-supporters .ng-hide-remove {
+  opacity:0;
+}
+ 
+.notify-supporters .ng-hide-add,
+.notify-supporters .ng-hide-remove.ng-hide-remove-active {
+  opacity:1;
+}
+.filter-panel.ng-hide-add, .filter-panel.ng-hide-remove {
+    -webkit-transition:all linear 0.1s;
+    -moz-transition:all linear 0.1s;
+    -o-transition:all linear 0.1s;
+    transition:all linear 0.1s;
+    display:block!important;
+    height:0px
+}
+ 
+.filter-panel.ng-hide-add.ng-hide-add-active,
+.filter-panel.ng-hide-remove {
+    opacity:0;
+    min-height:1px
+
+}
+ 
+.filter-panel.ng-hide-add,
+.filter-panel.ng-hide-remove.ng-hide-remove-active {
+    opacity:1;
+    min-height:70px
+}
+.btn-filter-panel{
+    margin-bottom:5px;
+}
+.filter-checkbox{
+    display:inline-block;
+    margin-right:10px;
+    padding-left:20px;
+    vertical-align:middle;
+    font-weight:400;
+    margin-bottom:0;
+    margin-top:0;
+    cursor:pointer;
+}
+.filter-checkbox input[type=checkbox]{
+    float:left;
+    margin-left:-20px;
+}
+.filter-control{
+    margin-bottom:5px;
+}
+.filter-control h6{
+    display:inline;
+}
+
 .legend {
-padding-left: 10px;
+    margin: 5px 0 15px 30px;
 }
 .button-add{
     margin-top: 10px;
 }
 
 .dispatcher-panel-buttons {
-  margin-left: 65px;
+  margin-left: 60px;
 }
