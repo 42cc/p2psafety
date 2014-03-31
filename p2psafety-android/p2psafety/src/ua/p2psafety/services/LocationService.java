@@ -77,7 +77,7 @@ public class LocationService extends Service implements
         mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                if (mEventManager.isEventActive() || Prefs.isPassiveSosStarted(LocationService.this))
+                if (mEventManager.isEventActive() || mEventManager.isPassiveSosStarted())
                 {
                     mLogs.info("LocationService. Checking if we need to send new location");
                     getCurrentLoc();
@@ -182,7 +182,7 @@ public class LocationService extends Service implements
         public void onLocationChanged(Location location) {
             mLocation = location;
 
-            if (mEventManager.isSosStarted() || Prefs.isPassiveSosStarted(LocationService.this))
+            if (mEventManager.isSosStarted() || mEventManager.isPassiveSosStarted())
                 mLogs.info("Is user authenticated on server:" +
                         Utils.isServerAuthenticated(LocationService.this) + "; New location from " +
                         mLocation.getProvider().toUpperCase() + ": " + mLocation.getLongitude()

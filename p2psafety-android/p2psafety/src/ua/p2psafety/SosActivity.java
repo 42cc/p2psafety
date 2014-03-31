@@ -126,7 +126,8 @@ public class SosActivity extends ActionBarActivity {
             showErrorDialog(result);
         }
 
-        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted() || Prefs.isPassiveSosStarted(this)) &&
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted() ||
+                mEventManager.isPassiveSosStarted()) &&
             !Utils.isServiceRunning(this, LocationService.class))
         {
             startService(new Intent(this, LocationService.class));
@@ -197,7 +198,8 @@ public class SosActivity extends ActionBarActivity {
         mUiHelper.onPause();
         unregisterReceiver(mBroadcastReceiver);
 
-        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted() || Prefs.isPassiveSosStarted(this))
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted() ||
+                mEventManager.isPassiveSosStarted())
             && Utils.isServiceRunning(this, LocationService.class))
         {
             stopService(new Intent(this, LocationService.class));
@@ -234,7 +236,8 @@ public class SosActivity extends ActionBarActivity {
     protected void onStop() {
         super.onStop();
 
-        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted() || Prefs.isPassiveSosStarted(this))
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted() ||
+                mEventManager.isPassiveSosStarted())
             && Utils.isServiceRunning(this, LocationService.class))
         {
             stopService(new Intent(this, LocationService.class));
@@ -246,7 +249,7 @@ public class SosActivity extends ActionBarActivity {
         super.onStart();
 
         if (!((mEventManager.isEventActive() || mEventManager.isSosStarted()
-                || Prefs.isPassiveSosStarted(this))) &&
+                || mEventManager.isPassiveSosStarted())) &&
             !Utils.isServiceRunning(this, LocationService.class))
         {
             startService(new Intent(this, LocationService.class));

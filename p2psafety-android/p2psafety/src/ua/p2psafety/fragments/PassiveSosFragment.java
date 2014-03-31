@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
@@ -23,19 +22,15 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.listeners.OnTouchContinuousListener;
-import ua.p2psafety.services.LocationService;
 import ua.p2psafety.services.PassiveSosService;
 import ua.p2psafety.services.XmppService;
 import ua.p2psafety.util.EventManager;
-import ua.p2psafety.util.NetworkManager;
 import ua.p2psafety.util.Utils;
 
 public class PassiveSosFragment extends Fragment {
@@ -86,7 +81,7 @@ public class PassiveSosFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 EventManager eventManager = EventManager.getInstance(mActivity);
-                if (Prefs.isPassiveSosStarted(mActivity)) {
+                if (eventManager.isPassiveSosStarted()) {
                     // stop timer
                     if (!Prefs.getUsePassword(mActivity)) {
                         stopPassiveSos();
@@ -139,7 +134,7 @@ public class PassiveSosFragment extends Fragment {
         {
             if (bundle.getBoolean(PassiveSosService.ASK_FOR_PASSWORD))
             {
-                mTimer = new PassiveSosTimer(10 * 1000, 1000);
+                mTimer = new PassiveSosTimer(30 * 1000, 1000); // waiting 30 sec for input password
                 mTimer.start();
                 mTimerOn = true;
                 askForPassword(false);
@@ -154,31 +149,9 @@ public class PassiveSosFragment extends Fragment {
         Prefs.setPassiveSosStarted(mActivity, true);
         XmppService.processing_event = false;
 
-        serverPassiveStartSos();
+        EventManager.getInstance(mActivity).serverPassiveStartSos();
 
         Toast.makeText(mActivity, "Passive SOS started", Toast.LENGTH_SHORT).show();
-    }
-
-    private void serverPassiveStartSos() {
-        Location location = LocationService.locationListener.getLastLocation(false);
-        SosActivity.mLogs.info("EventManager. StartSos. LocationResult");
-        Map data = new HashMap();
-        if (location != null) {
-            SosActivity.mLogs.info("EventManager. StartSos. Location is not null");
-            data.put("loc", location);
-        } else {
-            SosActivity.mLogs.info("EventManager. StartSos. Location is NULL");
-        }
-        data.put("text", Prefs.getMessage(mActivity));
-
-        NetworkManager.updateEvent(mActivity, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
-            @Override
-            public void deliver(Boolean aBoolean) {
-                // start sending location updates
-                SosActivity.mLogs.info("EventManager. StartSos. Event activated. Starting LocationService");
-                Utils.setLoading(mActivity, false);
-            }
-        });
     }
 
     private void stopPassiveSos() {
@@ -258,7 +231,7 @@ public class PassiveSosFragment extends Fragment {
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Prefs.putMessage(mActivity, mUserText.getText().toString());
+                                Prefs.putPassiveMessage(mActivity, mUserText.getText().toString());
                                 startPassiveSos();
                             }
                         })
