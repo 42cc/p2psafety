@@ -54,6 +54,7 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                 mLogs.info("NetworkStateChangedReceiver. We are starting");
                 mContext = context;
                 setLoading();
+                NetworkManager.init(context);
                 final EventManager eventManager = EventManager.getInstance(context);
                 try {
                     mLogs.info("NetworkStateChangedReceiver. execute getInfoAboutEvent()");
@@ -62,8 +63,6 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                         @Override
                         public void deliver(Event event) {
                             if (event != null) {
-                                NetworkManager.init(context);
-
                                 mLogs.info("NetworkStateChangedReceiver. getInfoAboutEvent() " +
                                         "returned good event");
 
