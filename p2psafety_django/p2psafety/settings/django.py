@@ -96,6 +96,7 @@ INSTALLED_APPS = (
     # 'allauth.socialaccount.providers.google',
     'bootstrap3',
     'tastypie',
+    'djcelery',
 )
 
 SITE_ID = 1
