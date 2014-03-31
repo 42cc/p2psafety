@@ -15,8 +15,8 @@ class CreateFreeDjangoAuthorization(DjangoAuthorization):
 
         # This piece allows to user to see updates of his events and related
         # events, e.g. supporter can see victim's updates
-        event_id = (bundle.request.GET.get('event') or
-            bundle.request.GET.get('event_id'))
+        event_id = any(map(bundle.request.GET.get, ['event', 'event_id',
+            'supporters', 'supporters__id', 'supported', 'supported__id']))
         if event_id:
             from events.models import Event
             try:
