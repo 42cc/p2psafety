@@ -269,17 +269,19 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
                         StableArrayAdapter adapter = new StableArrayAdapter(mActivity,
                                 android.R.layout.simple_list_item_1, comments);
                         mCommentsList.setAdapter(adapter);
+
+                        // get positions of other supporters
+                        NetworkManager.getSupportEventUpdates(mActivity, event_id,
+                                new NetworkManager.DeliverResultRunnable<List<Event>>() {
+                                    @Override
+                                    public void deliver(List<Event> events) {
+                                        super.deliver(events);
+                                        //TODO: adding supporter to map
+                                        String x = "";
+                                    }
+                                });
                     }
                 });
-
-        NetworkManager.getSupportEventUpdates(mActivity, event_id, new NetworkManager.DeliverResultRunnable<List<Event>>() {
-            @Override
-            public void deliver(List<Event> events) {
-                super.deliver(events);
-                //TODO: adding supporter to map
-                String x = "";
-            }
-        });
     }
 
     private void closeEvent() {

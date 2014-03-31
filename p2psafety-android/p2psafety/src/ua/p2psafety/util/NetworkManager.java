@@ -660,7 +660,7 @@ public class NetworkManager {
 
                     executeRunnable(context, postRunnable);
                 } catch (Exception e) {
-                    NetworkManager.LOGS.error("Can't get roles", e);
+                    NetworkManager.LOGS.error("Can't get supporterUpdates", e);
                     errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
                     postRunnable.setResult(null);
                     executeRunnable(context, postRunnable);
