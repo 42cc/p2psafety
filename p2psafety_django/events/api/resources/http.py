@@ -1,25 +1,20 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from django.conf import settings
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-from tastypie import http, fields
+from tastypie import fields
 from tastypie.authentication import MultiAuthentication, ApiKeyAuthentication, \
                                     SessionAuthentication
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
-from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.resources import ModelResource
 from tastypie.validation import Validation
-from schematics.models import Model as SchemaModel
-from schematics.types import IntType
 
 from ..fields import GeoPointField
 from ..authorization import CreateFreeDjangoAuthorization
 from ...models import Event, EventUpdate
 from core.api.mixins import ApiMethodsMixin
-from core.api.decorators import body_params, api_method
+from core.api.decorators import api_method
 from users.api.resources import UserResource
 
 
@@ -56,6 +51,8 @@ class EventResource(ApiMethodsMixin, ModelResource):
         filtering = {
             'id': ALL,
             'status': ALL,
+            'supported': ALL_WITH_RELATIONS,
+            'supporters': ALL_WITH_RELATIONS,
         }
         detail_allowed_methods = ['get', ]
         always_return_data = True
@@ -65,6 +62,9 @@ class EventResource(ApiMethodsMixin, ModelResource):
             queryset = Event.objects.all()
             include_resource_uri = False
             fields = ['id']
+            filtering = {
+                'id': ALL,
+            }
 
     user = fields.ForeignKey(UserResource, 'user', full=True, readonly=True)
     type = fields.CharField('get_type_display', readonly=True)
@@ -74,6 +74,7 @@ class EventResource(ApiMethodsMixin, ModelResource):
                                       'latest_update',
                                       full=True, null=True, readonly=True)
     supported = fields.ManyToManyField(SupportedEventResource, 'supported', full=True, readonly=True)
+    supporters = fields.ManyToManyField(SupportedEventResource, 'supporters', full=True, readonly=True)
 
     @api_method(r'/(?P<pk>\d+)/support', name='api_events_support')
     def support(self):

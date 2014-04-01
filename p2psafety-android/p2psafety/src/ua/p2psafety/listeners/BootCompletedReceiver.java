@@ -1,4 +1,4 @@
-package ua.p2psafety;
+package ua.p2psafety.listeners;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

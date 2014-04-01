@@ -10,7 +10,7 @@
 
 {% block scripts %}
   {{ block.super }}
-  <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&sensor=false&language=uk"></script>
+  <script src="//maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&sensor=false&language=uk"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-animate.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
@@ -88,7 +88,7 @@
               <div class="list-group">
                 <div class="list-group-item">
                   <p>Add event update</p>
-                  <input class="form-control input-sm" type="text" placeholder="Text" 
+                  <input class="form-control input-sm" type="text" placeholder="Text"
                          ng-model="fields.addEventUpdateText"
                          ng-keydown="ctrlEnter($event)"/>
                   <button class="btn btn-primary btn-sm button-add"
@@ -188,17 +188,17 @@
               </div>
             </div>
           </div>
-          <div class="selected-event panel panel-primary " 
+          <div class="selected-event panel panel-primary "
                ng-if="selectedEvent == null">
             <h4 class="panel-heading event-heading">Dispatcher panel</h4>
             <div class="panel-body">
               <div class="legend">
-                <span><img src='http://maps.google.com/mapfiles/ms/micons/red-dot.png'> - victim</span>
-                <span><img src='http://maps.google.com/mapfiles/ms/micons/green-dot.png'> - support</span>
+                <span><img src='//maps.google.com/mapfiles/ms/micons/red-dot.png'> - victim</span>
+                <span><img src='//maps.google.com/mapfiles/ms/micons/green-dot.png'> - support</span>
               </div>
               <button class="btn-filter-panel btn-block btn btn-xs"
                 ng-class="{false:'btn-default',true:'btn-success'}[showFilterPanel]"
-                ng-click="showFilterPanel= !showFilterPanel"> Filters <span class="caret"></span> 
+                ng-click="showFilterPanel= !showFilterPanel"> Filters <span class="caret"></span>
               </button>
               <div ng-show="showFilterPanel" class="filter-panel list-group">
                 <div ng-if="filters.roles" class="list-group-item">

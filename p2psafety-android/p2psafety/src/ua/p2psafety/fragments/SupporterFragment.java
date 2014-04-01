@@ -239,17 +239,17 @@ public class SupporterFragment extends Fragment {
     }
 
     private void closeEvent() {
+        Prefs.putSupporterMode(mActivity, false);
+        if (mEvent != null)
+            mEvent.setStatus(Event.STATUS_FINISHED);
+
         // TODO: network request goes here
         // stop all record services
         mActivity.stopService(new Intent(mActivity, AudioRecordService.class));
         mActivity.stopService(new Intent(mActivity, VideoRecordService.class));
 
-        if (mEvent != null)
-            mEvent.setStatus(Event.STATUS_FINISHED);
-
         EventManager.getInstance(mActivity).createNewEvent();
 
-        Prefs.putSupporterMode(mActivity, false);
         mActivity.onBackPressed();
     }
 

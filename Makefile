@@ -37,6 +37,10 @@ shell:
 test:
 	TESTING=1 $(TEST) --noinput $(TEST_OPTIONS)
 
+coverage:
+	TESTING=1 coverage run --source='.' p2psafety_django/manage.py test
+	coverage report -m
+
 testone:
 	$(TEST) $(filter-out $@,$(MAKECMDGOALS))
 
