@@ -1,25 +1,20 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from django.conf import settings
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-from tastypie import http, fields
+from tastypie import fields
 from tastypie.authentication import MultiAuthentication, ApiKeyAuthentication, \
                                     SessionAuthentication
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
-from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.resources import ModelResource
 from tastypie.validation import Validation
-from schematics.models import Model as SchemaModel
-from schematics.types import IntType
 
 from ..fields import GeoPointField
 from ..authorization import CreateFreeDjangoAuthorization
 from ...models import Event, EventUpdate
 from core.api.mixins import ApiMethodsMixin
-from core.api.decorators import body_params, api_method
+from core.api.decorators import api_method
 from users.api.resources import UserResource
 
 
