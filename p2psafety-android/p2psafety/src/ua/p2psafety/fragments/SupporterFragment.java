@@ -2,7 +2,6 @@ package ua.p2psafety.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Bundle;
@@ -21,6 +20,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.DateFormat;
@@ -68,7 +68,8 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
     Location mEventLocation;
 
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    private static final Calendar cal = Calendar.getInstance(Locale.getDefault());
+
+    private LatLngBounds.Builder mBuilder = new LatLngBounds.Builder();
 
     public SupporterFragment() {
         super();
@@ -177,9 +178,10 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
         mVictimNameText.setText(mVictimName);
 
         LatLng eventLatLng = new LatLng(mEventLocation.getLatitude(), mEventLocation.getLongitude());
+        mBuilder.include(eventLatLng);
         mMap.addMarker(new MarkerOptions()
                 .position(eventLatLng)
-                .title(mVictimName + ": " + dateFormat.format(cal.getTime()))
+                .title(mVictimName + ": " + dateFormat.format(Calendar.getInstance(Locale.getDefault()).getTime()))
                 .icon(BitmapDescriptorFactory.defaultMarker(
                         BitmapDescriptorFactory.HUE_YELLOW)));
 
@@ -228,18 +230,21 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
                         });
 
                         // add markers for victims path
-                        mMap.clear();
+                        //mMap.clear();
                         MarkerOptions latestPosition = null;
                         for (int i = 0; i < updates.size(); ++i) {
                             Event update = updates.get(i);
                             Log.i("SupporterFragment", "update id: " + update.getId());
-                            Location loc = update.getLocation();
+                            LatLng loc = update.getLocation();
                             if (loc != null) {
+                                mBuilder.include(loc);
                                 Log.i("SupporterFragment", "new loc on map: " + loc);
-                                LatLng latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
+                                LatLng latLng = new LatLng(loc.latitude, loc.longitude);
                                 MarkerOptions marker = new MarkerOptions();
                                 marker.position(latLng)
-                                      .title(mVictimName + ": " + dateFormat.format(cal.getTime()));
+                                      .title(mVictimName + ": "
+                                              + dateFormat.format(Calendar.getInstance(Locale
+                                              .getDefault()).getTime()));
 
                                 if (latestPosition == null)
                                     latestPosition = marker;
@@ -252,9 +257,20 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
                         if (latestPosition != null) {
                             latestPosition.icon(BitmapDescriptorFactory.defaultMarker(
                                     BitmapDescriptorFactory.HUE_YELLOW));
+                            mBuilder.include(latestPosition.getPosition());
                             mMap.addMarker(latestPosition);
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                                    latestPosition.getPosition(), 15.0f));
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 0),
+                                    new GoogleMap.CancelableCallback() {
+                                @Override
+                                public void onFinish() {
+                                    mMap.animateCamera(CameraUpdateFactory.zoomOut());
+                                }
+
+                                @Override
+                                public void onCancel() {
+                                    //ignore
+                                }
+                            });
                         }
 
                         List<String> comments = new ArrayList<String>();
@@ -269,17 +285,66 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
                         StableArrayAdapter adapter = new StableArrayAdapter(mActivity,
                                 android.R.layout.simple_list_item_1, comments);
                         mCommentsList.setAdapter(adapter);
+                    }
+                });
+        // get positions of other supporters
+        NetworkManager.getSupportEventUpdates(mActivity, event_id,
+                new NetworkManager.DeliverResultRunnable<List<Event>>() {
+                    @Override
+                    public void deliver(List<Event> events) {
+                        super.deliver(events);
+                        if (events == null || events.size() < 1)
+                            return;
 
-                        // get positions of other supporters
-                        NetworkManager.getSupportEventUpdates(mActivity, event_id,
-                                new NetworkManager.DeliverResultRunnable<List<Event>>() {
-                                    @Override
-                                    public void deliver(List<Event> events) {
-                                        super.deliver(events);
-                                        //TODO: adding supporter to map
-                                        String x = "";
-                                    }
-                                });
+                        // sort updates from newest to oldest
+                        Collections.sort(events, new Comparator<Event>() {
+                            @Override
+                            public int compare(Event a, Event b) {
+                                return Integer.valueOf(b.getId()) - Integer.valueOf(a.getId());
+                            }
+                        });
+
+                        // add markers for supporters path
+                        //mMap.clear();
+                        MarkerOptions latestPosition = null;
+                        for (int i = 0; i < events.size(); ++i) {
+                            Event update = events.get(i);
+                            Log.i("SupporterFragment", "update id: " + update.getId());
+                            LatLng loc = update.getLocation();
+                            if (loc != null) {
+                                mBuilder.include(loc);
+                                Log.i("SupporterFragment", "new loc on map: " + loc);
+                                LatLng latLng = new LatLng(loc.latitude, loc.longitude);
+                                MarkerOptions marker = new MarkerOptions();
+                                marker.position(latLng)
+                                        .title(update.getUser().getUsername() + ": "
+                                                + dateFormat.format(Calendar.getInstance(Locale.getDefault()).getTime()));
+
+                                if (latestPosition == null)
+                                    latestPosition = marker;
+                                else
+                                    mMap.addMarker(marker);
+                            }
+                        }
+                        // draw latest position after all others
+                        // so this marker is always on top
+                        if (latestPosition != null) {
+                            latestPosition.icon(BitmapDescriptorFactory.defaultMarker(
+                                    BitmapDescriptorFactory.HUE_CYAN));
+                            mBuilder.include(latestPosition.getPosition());
+                            mMap.addMarker(latestPosition);
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 0), new GoogleMap.CancelableCallback() {
+                                @Override
+                                public void onFinish() {
+                                    mMap.animateCamera(CameraUpdateFactory.zoomOut());
+                                }
+
+                                @Override
+                                public void onCancel() {
+                                    //ignore
+                                }
+                            });
+                        }
                     }
                 });
     }
