@@ -1,12 +1,10 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
 
 from allauth.socialaccount.providers.facebook.views import fb_complete_login
 from tastypie import fields, http
 from tastypie.authentication import Authentication, ApiKeyAuthentication, \
                                     SessionAuthentication, MultiAuthentication
-from tastypie.models import ApiKey
 from tastypie.resources import Resource, ModelResource
 from schematics.models import Model as SchemaModel
 from schematics.types import IntType, StringType
@@ -43,7 +41,7 @@ class UserResource(ApiMethodsMixin, ModelResource):
         def get(self, request, **kwargs):
             """
             Returns user's roles as list of ids.
-            """            
+            """
             if request.GET.has_key('id'):
                 try:
                     user = User.objects.get(id=request.GET['id'])
@@ -64,7 +62,7 @@ class UserResource(ApiMethodsMixin, ModelResource):
         def post(self, request, params=None, **kwargs):
             """
             Sets user's roles to given list of ids as ``ids`` param.
-            """            
+            """
             roles = Role.objects.filter(id__in=params.role_ids)
             request.user.roles.clear()
             request.user.roles.add(*roles)
@@ -95,7 +93,7 @@ class UserResource(ApiMethodsMixin, ModelResource):
             return self.create_response(request, objects)
 
         class PostParams(SchemaModel):
-            movement_type_ids = ListType(IntType(), required=True) 
+            movement_type_ids = ListType(IntType(), required=True)
 
         @body_params(PostParams)
         def post(self, request, params=None, **kwargs):
