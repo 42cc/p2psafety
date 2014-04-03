@@ -66,8 +66,8 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
 
     String mSupportUrl;
     Location mEventLocation;
-    private static MyLinkedHashMap mMarkersMap =
-            new MyLinkedHashMap();
+    private static MyLinkedHashMap mMarkersMap = new MyLinkedHashMap();
+    private String mEventId;
 
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
@@ -180,9 +180,10 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
         mVictimNameText.setText(mVictimName);
 
         LatLng eventLatLng = new LatLng(mEventLocation.getLatitude(), mEventLocation.getLongitude());
-        //get id of event
-        String[] splittedUrl = mSupportUrl.split("/");
-        mMarkersMap.put(splittedUrl[splittedUrl.length - 2], new MarkerOptions()
+        // getting event id from url
+        String str = mSupportUrl.replaceAll("[^0-9]+", " ");
+        mEventId = Arrays.asList(str.trim().split(" ")).get(1);
+        mMarkersMap.put(mEventId, new MarkerOptions()
                 .position(eventLatLng)
                 .title(mVictimName + ": " + dateFormat.format(Calendar.getInstance(Locale.getDefault()).getTime())), true);
         MapsInitializer.initialize(mActivity);
@@ -198,7 +199,7 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
         mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                updateMap(support_url);
+                updateMap();
             }
         }, 0, 60*1000, TimeUnit.MILLISECONDS); // update map every 60 sec
     }
@@ -207,93 +208,11 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
         mExecutor.shutdown();
     }
 
-    private void updateMap(String support_url) {
-        // getting event id from url
-        String str = support_url.replaceAll("[^0-9]+", " ");
-        final String event_id = Arrays.asList(str.trim().split(" ")).get(1);
-        Log.i("SupporterFragment", "Event id: " + event_id);
+    private void updateMap() {
+        Log.i("SupporterFragment", "Event id: " + mEventId);
 
-        NetworkManager.getEventUpdates(mActivity, event_id,
-                new NetworkManager.DeliverResultRunnable<List<Event>>() {
-                    @Override
-                    public void deliver(List<Event> updates) {
-                        if (!(updates == null || updates.size() < 1))
-                        {
-                            // sort updates from newest to oldest
-                            Collections.sort(updates, new Comparator<Event>() {
-                                @Override
-                                public int compare(Event a, Event b) {
-                                    return Integer.valueOf(b.getId()) - Integer.valueOf(a.getId());
-                                }
-                            });
-
-                            // add markers for victims path
-                            for (int i = 0; i < updates.size(); ++i) {
-                                Event update = updates.get(i);
-                                Log.i("SupporterFragment", "update id: " + update.getId());
-                                LatLng loc = update.getLocation();
-                                if (loc != null) {
-                                    Log.i("SupporterFragment", "new loc on map: " + loc);
-                                    LatLng latLng = new LatLng(loc.latitude, loc.longitude);
-                                    MarkerOptions marker = new MarkerOptions();
-                                    marker.position(latLng)
-                                          .title(mVictimName + ": "
-                                                  + dateFormat.format(Calendar.getInstance(Locale
-                                                  .getDefault()).getTime()));
-                                    mMarkersMap.put(event_id, marker, true);
-                                }
-                            }
-
-                            List<String> comments = new ArrayList<String>();
-                            // try to get latest event info
-                            for (Event update : updates) {
-                                Log.i("SupporterFragment", "update id: " + update.getId());
-                                String text = update.getText();
-                                if (text != null && !text.isEmpty()) {
-                                    comments.add(update.getText());
-                                }
-                            }
-                            StableArrayAdapter adapter = new StableArrayAdapter(mActivity,
-                                    android.R.layout.simple_list_item_1, comments);
-                            mCommentsList.setAdapter(adapter);
-                        }
-                        // get positions of other supporters
-                        NetworkManager.getSupportEventUpdates(mActivity, event_id,
-                                new NetworkManager.DeliverResultRunnable<List<Event>>() {
-                                    @Override
-                                    public void deliver(List<Event> events) {
-                                        super.deliver(events);
-                                        if (!(events == null || events.size() < 1))
-                                        {
-                                            // sort updates from newest to oldest
-                                            Collections.sort(events, new Comparator<Event>() {
-                                                @Override
-                                                public int compare(Event a, Event b) {
-                                                    return Integer.valueOf(b.getId()) - Integer.valueOf(a.getId());
-                                                }
-                                            });
-
-                                            // add markers for supporters path
-                                            for (int i = 0; i < events.size(); ++i) {
-                                                Event update = events.get(i);
-                                                Log.i("SupporterFragment", "update id: " + update.getId());
-                                                LatLng loc = update.getLocation();
-                                                if (loc != null) {
-                                                    Log.i("SupporterFragment", "new loc on map: " + loc);
-                                                    LatLng latLng = new LatLng(loc.latitude, loc.longitude);
-                                                    MarkerOptions marker = new MarkerOptions();
-                                                    marker.position(latLng)
-                                                            .title(update.getUser().getUsername() + ": "
-                                                                    + dateFormat.format(Calendar.getInstance(Locale.getDefault()).getTime()));
-                                                    mMarkersMap.put(update.getUser().getId(), marker, false);
-                                                }
-                                            }
-                                        }
-                                        drawMarkers();
-                                    }
-                                });
-                    }
-                });
+        NetworkManager.getEventUpdates(mActivity, mEventId,
+                new GetVictimMarkersAndComments());
     }
 
     private void drawMarkers() {
@@ -383,5 +302,88 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    private class GetVictimMarkersAndComments extends NetworkManager.DeliverResultRunnable<List<Event>> {
+        @Override
+        public void deliver(List<Event> updates) {
+            if (!(updates == null || updates.size() < 1))
+            {
+                // sort updates from newest to oldest
+                Collections.sort(updates, new Comparator<Event>() {
+                    @Override
+                    public int compare(Event a, Event b) {
+                        return Integer.valueOf(b.getId()) - Integer.valueOf(a.getId());
+                    }
+                });
+
+                // add markers for victims path
+                for (int i = 0; i < updates.size(); ++i) {
+                    Event update = updates.get(i);
+                    Log.i("SupporterFragment", "update id: " + update.getId());
+                    LatLng loc = update.getLocation();
+                    if (loc != null) {
+                        Log.i("SupporterFragment", "new loc on map: " + loc);
+                        LatLng latLng = new LatLng(loc.latitude, loc.longitude);
+                        MarkerOptions marker = new MarkerOptions();
+                        marker.position(latLng)
+                                .title(mVictimName + ": "
+                                        + dateFormat.format(Calendar.getInstance(Locale
+                                        .getDefault()).getTime()));
+                        mMarkersMap.put(mEventId, marker, true);
+                    }
+                }
+
+                List<String> comments = new ArrayList<String>();
+                // try to get latest event info
+                for (Event update : updates) {
+                    Log.i("SupporterFragment", "update id: " + update.getId());
+                    String text = update.getText();
+                    if (text != null && !text.isEmpty()) {
+                        comments.add(update.getText());
+                    }
+                }
+                StableArrayAdapter adapter = new StableArrayAdapter(mActivity,
+                        android.R.layout.simple_list_item_1, comments);
+                mCommentsList.setAdapter(adapter);
+            }
+            // get positions of other supporters
+            NetworkManager.getSupportEventUpdates(mActivity, mEventId,
+                    new GetSupportersMarkers());
+        }
+    }
+
+    private class GetSupportersMarkers extends NetworkManager.DeliverResultRunnable<List<Event>> {
+        @Override
+        public void deliver(List<Event> events) {
+            super.deliver(events);
+            if (!(events == null || events.size() < 1))
+            {
+                // sort updates from newest to oldest
+                Collections.sort(events, new Comparator<Event>() {
+                    @Override
+                    public int compare(Event a, Event b) {
+                        return Integer.valueOf(b.getId()) - Integer.valueOf(a.getId());
+                    }
+                });
+
+                // add markers for supporters path
+                for (int i = 0; i < events.size(); ++i) {
+                    Event update = events.get(i);
+                    Log.i("SupporterFragment", "update id: " + update.getId());
+                    LatLng loc = update.getLocation();
+                    if (loc != null) {
+                        Log.i("SupporterFragment", "new loc on map: " + loc);
+                        LatLng latLng = new LatLng(loc.latitude, loc.longitude);
+                        MarkerOptions marker = new MarkerOptions();
+                        marker.position(latLng)
+                                .title(update.getUser().getUsername() + ": "
+                                        + dateFormat.format(Calendar.getInstance(Locale.getDefault()).getTime()));
+                        mMarkersMap.put(update.getUser().getId(), marker, false);
+                    }
+                }
+            }
+            drawMarkers();
+        }
     }
 }
