@@ -143,36 +143,44 @@ public class AcceptEventFragment extends Fragment {
         Utils.setLoading(mActivity, true);
         NetworkManager.supportEvent(mActivity, mEventSupportUrl,
                 new NetworkManager.DeliverResultRunnable<Boolean>() {
-            @Override
-            public void deliver(final Boolean success) {
-                mActivity.runOnUiThread(new Runnable() {
                     @Override
-                    public void run() {
+                    public void onError(int errorCode) {
+                        super.onError(errorCode);
+
                         Utils.setLoading(mActivity, false);
-                        //mActivity.onBackPressed();
-                        if (true) { // TODO: find out what is supposed to be here
-                            try {
-                                EventManager.getInstance(mActivity).getEvent().setType(Event.TYPE_SUPPORT);
-                                EventManager.getInstance(mActivity).getEvent().setStatus(Event.STATUS_ACTIVE);
-                            } catch (Exception e) {
-                                // should never happen
-                            }
-                            XmppService.processing_event = false;
+                    }
 
-                            // open Supporter screen
+                    @Override
+                    public void deliver(final Boolean success) {
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Utils.setLoading(mActivity, false);
+                                //mActivity.onBackPressed();
+                                if (true) { // TODO: find out what is supposed to be here
+                                    try {
+                                        EventManager.getInstance(mActivity).getEvent().setType(Event.TYPE_SUPPORT);
+                                        EventManager.getInstance(mActivity).getEvent().setStatus(Event.STATUS_ACTIVE);
+                                    } catch (Exception e) {
+                                        // should never happen
+                                    }
+                                    XmppService.processing_event = false;
 
-                            Fragment fragment = new SupporterFragment();
-                            FragmentManager fm = getFragmentManager();
-                            if (!Utils.isFragmentAdded(fragment, fm))
-                            {
-                                fm.popBackStackImmediate();
-                                fm.beginTransaction()
-                                    .addToBackStack(fragment.getClass().getName())
-                                    .replace(R.id.content_frame, fragment).commit();
+                                    // open Supporter screen
+
+                                    Fragment fragment = new SupporterFragment();
+                                    FragmentManager fm = getFragmentManager();
+                                    if (!Utils.isFragmentAdded(fragment, fm))
+                                    {
+                                        fm.popBackStackImmediate();
+                                        fm.beginTransaction()
+                                            .addToBackStack(fragment.getClass().getName())
+                                            .replace(R.id.content_frame, fragment).commit();
+                                    }
+                                }
                             }
                         }
-                    }
-                });
+                );
             }
         });
 
