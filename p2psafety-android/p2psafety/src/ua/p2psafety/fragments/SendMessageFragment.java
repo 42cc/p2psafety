@@ -218,8 +218,6 @@ public class SendMessageFragment extends Fragment {
                                 Utils.setLoading(mActivity, false);
                             }
                         });
-
-                //NetworkManager.getEvents(mActivity, null);
            }
         }
     }

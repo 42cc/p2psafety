@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.json.Event;
 import ua.p2psafety.listeners.OnTouchContinuousListener;
 import ua.p2psafety.services.LocationService;
 import ua.p2psafety.services.PassiveSosService;
@@ -148,18 +149,17 @@ public class PassiveSosFragment extends Fragment {
     }
 
     private void startPassiveSos() {
-        Utils.setLoading(mActivity, true);
         mActivity.startService(new Intent(mActivity, PassiveSosService.class));
         onTimerStart();
         Prefs.setPassiveSosStarted(mActivity, true);
         XmppService.processing_event = false;
 
-        serverPassiveStartSos();
+        serverPassiveUpdate();
 
         Toast.makeText(mActivity, "Passive SOS started", Toast.LENGTH_SHORT).show();
     }
 
-    private void serverPassiveStartSos() {
+    private void serverPassiveUpdate() {
         Location location = LocationService.locationListener.getLastLocation(false);
         SosActivity.mLogs.info("EventManager. StartSos. LocationResult");
         Map data = new HashMap();
@@ -171,11 +171,11 @@ public class PassiveSosFragment extends Fragment {
         }
         data.put("text", Prefs.getMessage(mActivity));
 
+        Utils.setLoading(mActivity, true);
         NetworkManager.updateEvent(mActivity, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
             @Override
             public void deliver(Boolean aBoolean) {
-                // start sending location updates
-                SosActivity.mLogs.info("EventManager. StartSos. Event activated. Starting LocationService");
+                //SosActivity.mLogs.info("EventManager. StartSos. Event activated. Starting LocationService");
                 Utils.setLoading(mActivity, false);
             }
         });
@@ -185,7 +185,22 @@ public class PassiveSosFragment extends Fragment {
         mActivity.stopService(new Intent(mActivity, PassiveSosService.class));
         onTimerStop();
         Prefs.setPassiveSosStarted(mActivity, false);
-        Toast.makeText(mActivity, "Passive SOS stopped", Toast.LENGTH_SHORT).show();
+
+        Utils.setLoading(mActivity, true);
+        NetworkManager.createEvent(mActivity,
+                new NetworkManager.DeliverResultRunnable<Event>() {
+                    @Override
+                    public void deliver(Event event) {
+                        //sometimes event is null :\
+                        if (event != null)
+                        {
+                            SosActivity.mLogs.info("PassiveSosFragment.StopPassiveSos() " +
+                                    "event created: " + event.getId()); // TODO: make event.toString()
+                            EventManager.getInstance(mActivity).setEvent(event);
+                        }
+                        Utils.setLoading(mActivity, false);
+                    }
+                });
     }
 
     private void askForPassword(final boolean isStopSos) {
@@ -241,9 +256,9 @@ public class PassiveSosFragment extends Fragment {
         {
             stopTimer();
             if (isStopSos)
-            {
                 stopPassiveSos();
-            }
+            else
+                serverPassiveUpdate();
         }
     }
 
@@ -286,68 +301,6 @@ public class PassiveSosFragment extends Fragment {
             }
         });
     }
-
-//    // builds dialog with password prompt
-//    private void askPasswordAndStopTimer() {
-//        LayoutInflater li = LayoutInflater.from(mActivity);
-//        View promptsView = li.inflate(R.layout.password_dialog, null);
-//        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
-//        alertDialogBuilder.setView(promptsView);
-//
-//        final EditText userInput = (EditText) promptsView.findViewById(R.id.pd_password_edit);
-//
-//        alertDialogBuilder
-//                .setCancelable(false)
-//                .setPositiveButton(android.R.string.ok,
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int id) {
-//                                checkPassword(userInput.getText().toString());
-//                            }
-//                        })
-//                .setNegativeButton(android.R.string.cancel,
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int id) {
-//                                dialog.cancel();
-//                            }
-//                        });
-//
-//        final AlertDialog alertDialog = alertDialogBuilder.create();
-//        alertDialog.show();
-//        alertDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-//
-//        userInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-//                if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                    checkPassword(userInput.getText().toString());
-//                    alertDialog.dismiss();
-//                }
-//                return true;
-//            }
-//        });
-//    }
-//
-//    // stops timer or builds dialog with retry/cancel buttons
-//    private void checkPassword(String password) {
-//        if (password.equals(Prefs.getPassword(mActivity)))
-//        {
-//            mActivity.stopService(new Intent(mActivity, DelayedSosService.class));
-//            onTimerStop();
-//        }
-//        else{
-//            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-//            builder.setTitle(R.string.wrong_password);
-//            builder.setNegativeButton(android.R.string.cancel, null);
-//            builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    askPasswordAndStopTimer();
-//                }
-//            });
-//            builder.create().show();
-//        }
-//    }
-
 
     @Override
     public void onDestroy() {
