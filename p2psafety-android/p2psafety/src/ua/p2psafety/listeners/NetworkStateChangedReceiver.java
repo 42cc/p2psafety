@@ -54,6 +54,7 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                 mLogs.info("NetworkStateChangedReceiver. We are starting");
                 mContext = context;
                 setLoading();
+                NetworkManager.init(context);
                 final EventManager eventManager = EventManager.getInstance(context);
                 try {
                     mLogs.info("NetworkStateChangedReceiver. execute getInfoAboutEvent()");
@@ -62,8 +63,6 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                         @Override
                         public void deliver(Event event) {
                             if (event != null) {
-                                NetworkManager.init(context);
-
                                 mLogs.info("NetworkStateChangedReceiver. getInfoAboutEvent() " +
                                         "returned good event");
 
@@ -94,72 +93,92 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
                                         eventManager.serverStartSos(mUnsetLoading);
                                     }
                                 }
-                                else
+                                else if (eventManager.isSupportStarted())
                                 {
-                                    if (eventManager.isSupportStarted())
+                                    mLogs.info("NetworkStateChangedReceiver. Support started on device");
+                                    mLogs.info("NetworkStateChangedReceiver. Support status on server is "
+                                            + event.getStatus());
+                                    mLogs.info("NetworkStateChangedReceiver. Support type on server is "
+                                            + event.getType());
+                                    if (event.getStatus().equals(Event.STATUS_ACTIVE))
                                     {
-                                        mLogs.info("NetworkStateChangedReceiver. Support started on device");
-                                        mLogs.info("NetworkStateChangedReceiver. Support status on server is "
-                                                + event.getStatus());
-                                        mLogs.info("NetworkStateChangedReceiver. Support type on server is "
-                                                + event.getType());
-                                        if (event.getStatus().equals(Event.STATUS_ACTIVE))
+                                        if (event.getType().equals(Event.TYPE_SUPPORT))
                                         {
-                                            if (event.getType().equals(Event.TYPE_SUPPORT))
-                                            {
-                                                mLogs.info("NetworkStateChangedReceiver. Execute unsetLoading()");
-                                                unsetLoading();
-                                                //good enough
-                                            }
-                                            else if (event.getType().equals(Event.TYPE_VICTIM))
-                                            {
-                                                //can not be handle in real life, because we can not
-                                                //create situation, when on mobile device we turn on support
-                                                // mode without internet, but on server you are victim
-
-                                                //but let code remain
-                                                mLogs.info("NetworkStateChangedReceiver. Execute createnewEvent() and supportEvent()");
-                                                eventManager.createNewEvent(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        NetworkManager.supportEvent(context,
-                                                                XmppService.VICTIM_DATA.getSupporterUrl(),
-                                                                mUnsetLoadingOnDeliver);
-                                                    }
-                                                });
-                                            }
+                                            mLogs.info("NetworkStateChangedReceiver. Execute unsetLoading()");
+                                            unsetLoading();
+                                            //good enough
                                         }
-                                        else
+                                        else if (event.getType().equals(Event.TYPE_VICTIM))
                                         {
                                             //can not be handle in real life, because we can not
                                             //create situation, when on mobile device we turn on support
                                             // mode without internet, but on server you are victim
 
                                             //but let code remain
-                                            mLogs.info("NetworkStateChangedReceiver. Execute supportEvent()");
-                                            NetworkManager.supportEvent(context,
-                                                    XmppService.VICTIM_DATA.getSupporterUrl(),
-                                                    mUnsetLoadingOnDeliver);
+                                            mLogs.info("NetworkStateChangedReceiver. Execute createnewEvent() and supportEvent()");
+                                            eventManager.createNewEvent(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    NetworkManager.supportEvent(context,
+                                                            XmppService.VICTIM_DATA.getSupporterUrl(),
+                                                            mUnsetLoadingOnDeliver);
+                                                }
+                                            });
                                         }
                                     }
                                     else
                                     {
-                                        mLogs.info("NetworkStateChangedReceiver. Sos and support did not start");
-                                        mLogs.info("NetworkStateChangedReceiver. Support status on server is "
-                                                + event.getStatus());
-                                        mLogs.info("NetworkStateChangedReceiver. Support type on server is "
-                                                + event.getType());
-                                        if (event.getStatus().equals(Event.STATUS_ACTIVE))
-                                        {
-                                            mLogs.info("NetworkStateChangedReceiver. Execute createNewEvent()");
-                                            eventManager.createNewEvent(mUnsetLoading);
-                                        }
-                                        else
-                                        {
-                                            mLogs.info("NetworkStateChangedReceiver. Execute unsetLoading()");
-                                            unsetLoading();
-                                            //good enough
-                                        }
+                                        //can not be handle in real life, because we can not
+                                        //create situation, when on mobile device we turn on support
+                                        // mode without internet, but on server you are victim
+
+                                        //but let code remain
+                                        mLogs.info("NetworkStateChangedReceiver. Execute supportEvent()");
+                                        NetworkManager.supportEvent(context,
+                                                XmppService.VICTIM_DATA.getSupporterUrl(),
+                                                mUnsetLoadingOnDeliver);
+                                    }
+                                }
+                                else if (eventManager.isPassiveSosStarted())
+                                {
+                                    mLogs.info("NetworkStateChangedReceiver. Passive Sos started on device");
+                                    mLogs.info("NetworkStateChangedReceiver. Passive Sos status on server is "
+                                            + event.getStatus());
+                                    mLogs.info("NetworkStateChangedReceiver. Passive Sos type on server is "
+                                            + event.getType());
+                                    if (event.getStatus().equals(Event.STATUS_PASSIVE))
+                                    {
+                                        eventManager.serverPassiveStartSos(mUnsetLoading);
+                                    }
+                                    else
+                                    {
+                                        mLogs.info("NetworkStateChangedReceiver. Execute " +
+                                                "serverPassiveStartSos()");
+                                        eventManager.createNewEvent(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                eventManager.serverPassiveStartSos(mUnsetLoading);
+                                            }
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    mLogs.info("NetworkStateChangedReceiver. Sos and support did not start");
+                                    mLogs.info("NetworkStateChangedReceiver. Support status on server is "
+                                            + event.getStatus());
+                                    mLogs.info("NetworkStateChangedReceiver. Support type on server is "
+                                            + event.getType());
+                                    if (event.getStatus().equals(Event.STATUS_ACTIVE))
+                                    {
+                                        mLogs.info("NetworkStateChangedReceiver. Execute createNewEvent()");
+                                        eventManager.createNewEvent(mUnsetLoading);
+                                    }
+                                    else
+                                    {
+                                        mLogs.info("NetworkStateChangedReceiver. Execute unsetLoading()");
+                                        unsetLoading();
+                                        //good enough
                                     }
                                 }
                             }

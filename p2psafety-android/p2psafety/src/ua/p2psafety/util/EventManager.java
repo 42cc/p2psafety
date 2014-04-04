@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ua.p2psafety.Notifications;
+import ua.p2psafety.SosActivity;
 import ua.p2psafety.json.Event;
 import ua.p2psafety.services.AudioRecordService;
 import ua.p2psafety.services.LocationService;
@@ -51,10 +52,10 @@ public class EventManager {
 
     public void startSos() {
 
-        if (Prefs.isPassiveSosStarted(mContext))
+        if (isPassiveSosStarted())
         {
             mContext.stopService(new Intent(mContext, PassiveSosService.class));
-            Prefs.setPassiveSosStarted(mContext, false);
+            setPassiveSosStarted(false);
             Toast.makeText(mContext, "Passive SOS stopped", Toast.LENGTH_SHORT).show();
         }
 
@@ -142,6 +143,15 @@ public class EventManager {
         return Prefs.getSosStarted(mContext);
     }
 
+    public boolean isPassiveSosStarted(){
+        return Prefs.isPassiveSosStarted(mContext);
+    }
+
+    public void setPassiveSosStarted(boolean isStarted)
+    {
+        Prefs.setPassiveSosStarted(mContext, isStarted);
+    }
+
     public boolean isSupportStarted() {
         if (mEvent != null && mEvent.getType() == Event.TYPE_SUPPORT &&
             mEvent.getStatus() == Event.STATUS_ACTIVE)
@@ -204,6 +214,50 @@ public class EventManager {
             logs.info("EventManager. StartSos. We have event, activating it");
             serverActivateSos();
         }
+    }
+
+    public void serverPassiveStartSos() {
+        Location location = LocationService.locationListener.getLastLocation(false);
+        SosActivity.mLogs.info("EventManager. StartSos. LocationResult");
+        Map data = new HashMap();
+        if (location != null) {
+            SosActivity.mLogs.info("EventManager. StartSos. Location is not null");
+            data.put("loc", location);
+        } else {
+            SosActivity.mLogs.info("EventManager. StartSos. Location is NULL");
+        }
+        data.put("text", Prefs.getPassiveMessage(mContext));
+
+        NetworkManager.updateEvent(mContext, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
+            @Override
+            public void deliver(Boolean aBoolean) {
+                // start sending location updates
+                SosActivity.mLogs.info("EventManager. StartSos. Event activated. Starting LocationService");
+                Utils.setLoading(mContext, false);
+            }
+        });
+    }
+
+    public void serverPassiveStartSos(final Runnable moreOperations) {
+        Location location = LocationService.locationListener.getLastLocation(false);
+        SosActivity.mLogs.info("EventManager. StartSos. LocationResult");
+        Map data = new HashMap();
+        if (location != null) {
+            SosActivity.mLogs.info("EventManager. StartSos. Location is not null");
+            data.put("loc", location);
+        } else {
+            SosActivity.mLogs.info("EventManager. StartSos. Location is NULL");
+        }
+        data.put("text", Prefs.getPassiveMessage(mContext));
+
+        NetworkManager.updateEvent(mContext, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
+            @Override
+            public void deliver(Boolean aBoolean) {
+                // start sending location updates
+                SosActivity.mLogs.info("EventManager. StartSos. Event activated. Starting LocationService");
+                moreOperations.run();
+            }
+        });
     }
 
     public void serverStartSos(final Runnable moreOperations) {

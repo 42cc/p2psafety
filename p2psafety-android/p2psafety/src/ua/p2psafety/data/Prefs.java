@@ -13,6 +13,7 @@ import ua.p2psafety.json.User;
 public class Prefs {
     private static final String IS_LOC_KEY = "IS_LOC_KEY";
     private static final String MSG = "MSG_KEY";
+    private static final String PASSIVE_MSG = "PASSIVE_MSG_KEY";
     private static final String IS_FIRST_RUN = "FIRST_RUN_KEY";
 
     private static final String SOS_DELAY_KEY = "SOS_DELAY";
@@ -46,6 +47,10 @@ public class Prefs {
 
     public static void putMessage(Context context, String message) {
         getPrefs(context).edit().putString(MSG, message).commit();
+    }
+
+    public static void putPassiveMessage(Context context, String message) {
+        getPrefs(context).edit().putString(PASSIVE_MSG, message).commit();
     }
 
     public static void putSosDelay(Context context, long val) {
@@ -102,6 +107,10 @@ public class Prefs {
 
     public static String getMessage(Context context) {
         return getPrefs(context).getString(MSG, context.getString(R.string.sos_message));
+    }
+
+    public static String getPassiveMessage(Context context) {
+        return getPrefs(context).getString(PASSIVE_MSG, context.getString(R.string.sos_message));
     }
 
     public static boolean isFirstRun(Context context) {

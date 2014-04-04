@@ -191,7 +191,7 @@ public class XmppService extends Service {
                 public void handlePublishedItems(ItemPublishEvent items) {
                     EventManager eventManager = EventManager.getInstance(XmppService.this);
                     if (items.isDelayed() || eventManager.isSupportStarted()
-                            || eventManager.isSosStarted() || Prefs.isPassiveSosStarted(XmppService.this))
+                            || eventManager.isSosStarted() || eventManager.isPassiveSosStarted())
                     {
                         return; // old event or support started or sos started
                     }

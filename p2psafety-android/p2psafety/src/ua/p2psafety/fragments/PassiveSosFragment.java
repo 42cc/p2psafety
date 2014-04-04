@@ -87,7 +87,7 @@ public class PassiveSosFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 EventManager eventManager = EventManager.getInstance(mActivity);
-                if (Prefs.isPassiveSosStarted(mActivity)) {
+                if (eventManager.isPassiveSosStarted()) {
                     // stop timer
                     if (!Prefs.getUsePassword(mActivity)) {
                         stopPassiveSos();
@@ -140,7 +140,7 @@ public class PassiveSosFragment extends Fragment {
         {
             if (bundle.getBoolean(PassiveSosService.ASK_FOR_PASSWORD))
             {
-                mTimer = new PassiveSosTimer(10 * 1000, 1000);
+                mTimer = new PassiveSosTimer(30 * 1000, 1000); // waiting 30 sec for input password
                 mTimer.start();
                 mTimerOn = true;
                 askForPassword(false);
@@ -273,7 +273,7 @@ public class PassiveSosFragment extends Fragment {
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Prefs.putMessage(mActivity, mUserText.getText().toString());
+                                Prefs.putPassiveMessage(mActivity, mUserText.getText().toString());
                                 startPassiveSos();
                             }
                         })

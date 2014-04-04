@@ -1,0 +1,18 @@
+server {
+        listen   80;
+
+        server_name <%= @project %>;
+
+        location / {
+                uwsgi_pass unix:/tmp/<%= @project %>.sock;
+                include uwsgi_params;
+        }
+
+        location /static/ {
+        alias /home/vagrant/<%= @django_path %>/static_media/static/;
+        }
+
+        location /media/ {
+        alias /home/vagrant/<%= @django_path %>/static_media/;
+        }
+}

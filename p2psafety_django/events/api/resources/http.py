@@ -56,6 +56,8 @@ class EventResource(ApiMethodsMixin, ModelResource):
         filtering = {
             'id': ALL,
             'status': ALL,
+            'supported': ALL_WITH_RELATIONS,
+            'supporters': ALL_WITH_RELATIONS,
         }
         detail_allowed_methods = ['get', ]
         always_return_data = True
@@ -65,6 +67,9 @@ class EventResource(ApiMethodsMixin, ModelResource):
             queryset = Event.objects.all()
             include_resource_uri = False
             fields = ['id']
+            filtering = {
+                'id': ALL,
+            }
 
     user = fields.ForeignKey(UserResource, 'user', full=True, readonly=True)
     type = fields.CharField('get_type_display', readonly=True)
@@ -74,6 +79,7 @@ class EventResource(ApiMethodsMixin, ModelResource):
                                       'latest_update',
                                       full=True, null=True, readonly=True)
     supported = fields.ManyToManyField(SupportedEventResource, 'supported', full=True, readonly=True)
+    supporters = fields.ManyToManyField(SupportedEventResource, 'supporters', full=True, readonly=True)
 
     @api_method(r'/(?P<pk>\d+)/support', name='api_events_support')
     def support(self):
