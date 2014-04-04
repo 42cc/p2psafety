@@ -113,8 +113,8 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
 
     @Override
     public void onScrollChanged(ObservableScrollView sv, int x, int y, int oldx, int oldy) {
-        sv.setVisibility(View.GONE);
-        sv.setVisibility(View.VISIBLE);
+        mMapView.setVisibility(View.GONE);
+        mMapView.setVisibility(View.VISIBLE);
     }
 
     @Override
