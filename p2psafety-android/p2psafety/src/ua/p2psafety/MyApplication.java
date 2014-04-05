@@ -1,6 +1,7 @@
 package ua.p2psafety;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.bugsense.trace.BugSenseHandler;
 
@@ -46,6 +47,7 @@ public class MyApplication extends Application {
             @Override
             public void uncaughtException(Thread thread, Throwable ex) {
                 mLogs.error("UNCAUGHT EXCEPTION!!!", ex);
+                Log.e("UNCAUGHT EXCEPTION!!!", "uncaught", ex);
                 System.exit(0);
             }
         });
