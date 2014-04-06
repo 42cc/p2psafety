@@ -343,7 +343,7 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
                 hex string like 'AADDFF'.
    */
   var baseColorUrl = '//maps.google.com/mapfiles/ms/micons/%ARG-dot.png';
-  var baseHexUrl = '//chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|%ARG';
+  var baseHexUrl = 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|%ARG';
   var generator = function(arg) {
     var value = parseFloat(arg);
     if (isNaN(value)) {
