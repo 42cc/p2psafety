@@ -45,8 +45,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'p2psafety',
-        'USER': 'vagrant',
-        'PASSWORD': 'vagrant',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
         'HOST': '127.0.0.1',
         'PORT': '',
     }
@@ -96,6 +96,7 @@ INSTALLED_APPS = (
     # 'allauth.socialaccount.providers.google',
     'bootstrap3',
     'tastypie',
+    'djcelery',
 )
 
 SITE_ID = 1

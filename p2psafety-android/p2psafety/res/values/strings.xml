@@ -85,7 +85,7 @@
     <string name="bad_logs_files">Files with logs do not exist</string>
     <string name="logs_successfully_sent">Files with logs successfully sent</string>
     <string name="please_write_a_description_of_issue">Please write a description of issue</string>
-    <string name="email_for_logs">talk@mail.khavr.com</string>
+    <string name="email_for_logs">p2p_safety@googlegroups.com</string>
     <string name="victim_text">Victim: </string>
     <string name="upper_audio">Audio</string>
     <string name="upper_video">Video</string>

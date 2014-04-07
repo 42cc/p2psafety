@@ -206,6 +206,14 @@ public class SendMessageFragment extends Fragment {
                 Utils.setLoading(mActivity, true);
                 NetworkManager.createEvent(mActivity,
                         new NetworkManager.DeliverResultRunnable<Event>() {
+
+                            @Override
+                            public void onError(int errorCode) {
+                                super.onError(errorCode);
+
+                                Utils.setLoading(mActivity, false);
+                            }
+
                             @Override
                             public void deliver(Event event) {
                                 //sometimes event is null :\

@@ -79,6 +79,13 @@ public class SetRolesFragment extends Fragment {
                             EventManager.getInstance(mActivity).getEvent().getUser(),
                             mRoles, new NetworkManager.DeliverResultRunnable<Boolean>() {
                         @Override
+                        public void onError(int errorCode) {
+                            super.onError(errorCode);
+
+                            Utils.setLoading(mActivity, false);
+                        }
+
+                        @Override
                         public void deliver(Boolean success) {
                             Utils.setLoading(mActivity, false);
                             if (success)
@@ -107,6 +114,13 @@ public class SetRolesFragment extends Fragment {
         // get all possible roles
         NetworkManager.getRoles(mActivity, new NetworkManager.DeliverResultRunnable<List<Role>>() {
             @Override
+            public void onError(int errorCode) {
+                super.onError(errorCode);
+
+                Utils.setLoading(mActivity, false);
+            }
+
+            @Override
             public void deliver(final List<Role> all_roles) {
                 if (!isAdded() || all_roles == null) {
                     Utils.setLoading(mActivity, false);
@@ -124,6 +138,13 @@ public class SetRolesFragment extends Fragment {
                 // get user roles
                 NetworkManager.getUserRoles(mActivity,
                         new NetworkManager.DeliverResultRunnable<List<String>>() {
+                            @Override
+                            public void onError(int errorCode) {
+                                super.onError(errorCode);
+
+                                Utils.setLoading(mActivity, false);
+                            }
+
                             @Override
                             public void deliver(final List<String> user_roles) {
                                 Utils.setLoading(mActivity, false);

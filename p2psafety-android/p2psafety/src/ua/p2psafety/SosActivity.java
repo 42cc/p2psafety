@@ -57,20 +57,35 @@ public class SosActivity extends ActionBarActivity {
     public static Logs mLogs;
     private EventManager mEventManager;
     private boolean mStartedFromHistory = false;
+    private boolean mIsWantToUnsetLoading = false;
+    private boolean mIsUnsetCameEarlierThenSet = false;
 
     private IntentFilter mIntentFilter;
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public synchronized void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             mLogs.info("SosActivity. Got action from NetworkStateChangedReceiver: " + action);
             if (action.equals(ACTION_SET_LOADING))
             {
-                Utils.setLoading(SosActivity.this, true);
+                if (!mIsUnsetCameEarlierThenSet)
+                {
+                    Utils.setLoading(SosActivity.this, true);
+                    mIsWantToUnsetLoading = true;
+                }
             }
             else if (action.equals(ACTION_UNSET_LOADING))
             {
-                Utils.setLoading(SosActivity.this, false);
+                if (mIsWantToUnsetLoading)
+                {
+                    Utils.setLoading(SosActivity.this, false);
+                    mIsWantToUnsetLoading = false;
+                    mIsUnsetCameEarlierThenSet = false;
+                }
+                else
+                {
+                    mIsUnsetCameEarlierThenSet = true;
+                }
             }
         }
     };

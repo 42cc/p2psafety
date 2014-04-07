@@ -197,6 +197,13 @@ public class EventManager {
             NetworkManager.createEvent(mContext,
                     new NetworkManager.DeliverResultRunnable<Event>() {
                         @Override
+                        public void onError(int errorCode) {
+                            super.onError(errorCode);
+
+                            Utils.setLoading(mContext, false);
+                        }
+
+                        @Override
                         public void deliver(Event event) {
                             if (event != null) {
                                 logs.info("EventManager. StartSos. Event created: " +
@@ -288,9 +295,13 @@ public class EventManager {
     }
 
     private void serverActivateSos() {
+        LocationService.AWLocationListener listener = LocationService.locationListener;
+        if (listener == null)
+            return;
+
         mEvent.setStatus(Event.STATUS_ACTIVE);
 
-        Location location = LocationService.locationListener.getLastLocation(false);
+        Location location = listener.getLastLocation(false);
         logs.info("EventManager. StartSos. LocationResult");
         Map data = new HashMap();
         if (location != null) {
@@ -302,6 +313,13 @@ public class EventManager {
         data.put("text", Prefs.getMessage(mContext));
 
         NetworkManager.updateEvent(mContext, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
+            @Override
+            public void onError(int errorCode) {
+                super.onError(errorCode);
+
+                Utils.setLoading(mContext, false);
+            }
+
             @Override
             public void deliver(Boolean aBoolean) {
                 // start sending location updates
@@ -342,6 +360,13 @@ public class EventManager {
         NetworkManager.createEvent(mContext,
                 new NetworkManager.DeliverResultRunnable<Event>() {
                     @Override
+                    public void onError(int errorCode) {
+                        super.onError(errorCode);
+
+                        Utils.setLoading(mContext, false);
+                    }
+
+                    @Override
                     public void deliver(Event event) {
                         setEvent(event);
                         Utils.setLoading(mContext, false);
@@ -355,6 +380,13 @@ public class EventManager {
 
         NetworkManager.createEvent(mContext,
                 new NetworkManager.DeliverResultRunnable<Event>() {
+                    @Override
+                    public void onError(int errorCode) {
+                        super.onError(errorCode);
+
+                        Utils.setLoading(mContext, false);
+                    }
+
                     @Override
                     public void deliver(Event event) {
                         setEvent(event);
