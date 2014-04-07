@@ -24,6 +24,8 @@ public class Prefs {
     private static final String MEDIA_RECORD_TYPE = "MEDIA_RECORD_TYPE";
     private static final String MEDIA_RECORD_LENGTH = "MEDIA_RECORD_LENGTH";
 
+    private static final String IS_ACTIVE_TRUE = "IS_ACTIVE_TRUE";
+
     private static final String GMAIL_TOKEN = "GMAIL_TOKEN";
     private static final String API_KEY = "API_KEY";
     private static final String API_USERNAME = "API_USERNAME";
@@ -95,6 +97,14 @@ public class Prefs {
 
     public static void putSupporterMode(Context context, boolean val) {
         getPrefs(context).edit().putBoolean(IS_SUPPORTER_MODE, val).commit();
+    }
+
+    public static void putActiveTrue(Context context, boolean val) {
+        getPrefs(context).edit().putBoolean(IS_ACTIVE_TRUE, val).commit();
+    }
+
+    public static boolean isActiveTrue(Context context) {
+        return getPrefs(context).getBoolean(IS_ACTIVE_TRUE, false);
     }
 
     public static void putSupportUrl(Context context, String val) {

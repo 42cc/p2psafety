@@ -52,11 +52,12 @@ public class EventManager {
 
     public void startSos() {
 
-        if (isPassiveSosStarted())
+        if (isPassiveSosStarted() && !Prefs.isActiveTrue(mContext))
         {
             mContext.stopService(new Intent(mContext, PassiveSosService.class));
             setPassiveSosStarted(false);
             Toast.makeText(mContext, "Passive SOS stopped", Toast.LENGTH_SHORT).show();
+            Prefs.putActiveTrue(mContext, true);
         }
 
         logs.info("EventManager. StartSos()");

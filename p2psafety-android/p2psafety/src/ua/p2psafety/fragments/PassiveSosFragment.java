@@ -90,7 +90,7 @@ public class PassiveSosFragment extends Fragment {
                 if (eventManager.isPassiveSosStarted()) {
                     // stop timer
                     if (!Prefs.getUsePassword(mActivity)) {
-                        stopPassiveSos();
+                        stopPassiveSos(false);
                     }
                     else
                     {
@@ -169,7 +169,7 @@ public class PassiveSosFragment extends Fragment {
         } else {
             SosActivity.mLogs.info("EventManager. StartSos. Location is NULL");
         }
-        data.put("text", Prefs.getMessage(mActivity));
+        data.put("text", Prefs.getPassiveMessage(mActivity));
 
         Utils.setLoading(mActivity, true);
         NetworkManager.updateEvent(mActivity, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
@@ -181,26 +181,29 @@ public class PassiveSosFragment extends Fragment {
         });
     }
 
-    private void stopPassiveSos() {
+    private void stopPassiveSos(boolean isShouldBeStartedActiveSos) {
         mActivity.stopService(new Intent(mActivity, PassiveSosService.class));
         onTimerStop();
         Prefs.setPassiveSosStarted(mActivity, false);
 
-        Utils.setLoading(mActivity, true);
-        NetworkManager.createEvent(mActivity,
-                new NetworkManager.DeliverResultRunnable<Event>() {
-                    @Override
-                    public void deliver(Event event) {
-                        //sometimes event is null :\
-                        if (event != null)
-                        {
-                            SosActivity.mLogs.info("PassiveSosFragment.StopPassiveSos() " +
-                                    "event created: " + event.getId()); // TODO: make event.toString()
-                            EventManager.getInstance(mActivity).setEvent(event);
-                        }
-                        Utils.setLoading(mActivity, false);
-                    }
+        if (!isShouldBeStartedActiveSos)
+        {
+            Utils.setLoading(mActivity, true);
+            NetworkManager.createEvent(mActivity,
+                    new NetworkManager.DeliverResultRunnable<Event>() {
+                        @Override
+                        public void deliver(Event event) {
+                            //sometimes event is null :\
+                            if (event != null)
+                            {
+                                SosActivity.mLogs.info("PassiveSosFragment.StopPassiveSos() " +
+                                        "event created: " + event.getId()); // TODO: make event.toString()
+                                EventManager.getInstance(mActivity).setEvent(event);
+                            }
+                            Utils.setLoading(mActivity, false);
+                            }
                 });
+        }
     }
 
     private void askForPassword(final boolean isStopSos) {
@@ -256,7 +259,7 @@ public class PassiveSosFragment extends Fragment {
         {
             stopTimer();
             if (isStopSos)
-                stopPassiveSos();
+                stopPassiveSos(false);
             else
                 serverPassiveUpdate();
         }
@@ -354,7 +357,7 @@ public class PassiveSosFragment extends Fragment {
             String action = intent.getAction();
 
             if (action.equals(PassiveSosService.PASSIVE_SOS_PASSWORD)) {
-                mTimer = new PassiveSosTimer(55 * 1000, 1000);
+                mTimer = new PassiveSosTimer(30 * 1000, 1000);
                 mTimer.start();
                 mTimerOn = true;
                 askForPassword(false);
@@ -375,9 +378,10 @@ public class PassiveSosFragment extends Fragment {
 
         @Override
         public void onFinish() {
-            stopPassiveSos();
+            stopPassiveSos(true);
             if (mAlertDialog != null)
                 mAlertDialog.dismiss();
+            Prefs.putActiveTrue(mActivity, true);
             EventManager.getInstance(mActivity).startSos();
             mTimerOn = false;
         }

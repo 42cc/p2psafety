@@ -422,6 +422,11 @@ public class NetworkManager {
                         json.put("active", false);
                         json.put("delay", Prefs.getPassiveSosInterval(context));
                     }
+                    if (Prefs.isActiveTrue(context))
+                    {
+                        json.put("active", true);
+                        Prefs.putActiveTrue(context, false);
+                    }
                     try {
                         Location loc = (Location) data.get("loc");
                         JSONObject jsonLocation = new JSONObject();
