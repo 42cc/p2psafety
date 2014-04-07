@@ -36,10 +36,12 @@ import ua.p2psafety.services.LocationService;
 import ua.p2psafety.services.PassiveSosService;
 import ua.p2psafety.services.XmppService;
 import ua.p2psafety.util.EventManager;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.NetworkManager;
 import ua.p2psafety.util.Utils;
 
 public class PassiveSosFragment extends Fragment {
+    private static String TAG;
     TextView mTimerText;
     Button mTimerBtn;
     ImageButton mArrowUpBtn, mArrowDownBtn;
@@ -68,6 +70,10 @@ public class PassiveSosFragment extends Fragment {
         mTimerBtn = (Button) view.findViewById(R.id.timerBtn);
         mArrowUpBtn = (ImageButton) view.findViewById(R.id.arrowUpBtn);
         mArrowDownBtn = (ImageButton) view.findViewById(R.id.arrowDownBtn);
+
+        TAG = getClass().getName();
+        
+        SosActivity.mLogs.info(TAG + " onCreateView");
 
         return view;
     }
@@ -105,8 +111,16 @@ public class PassiveSosFragment extends Fragment {
                             .show();
                 }
                 else {
-                    // start timer
-                    askSosReason();
+                    if (Utils.isServerAuthenticated(mActivity))
+                    {
+                        // start timer
+                        askSosReason();
+                    }
+                    else
+                    {
+                        Toast.makeText(mActivity, R.string.please_authorize, Toast.LENGTH_SHORT)
+                                .show();
+                    }
                 }
             }
         });
@@ -117,7 +131,6 @@ public class PassiveSosFragment extends Fragment {
                 long sosDelay = Prefs.getPassiveSosInterval(mActivity);
                 sosDelay += 1 * 60 * 1000; // +1 min
                 sosDelay = Math.min(sosDelay, 120 * 60 * 1000); // max 120 min
-                //DelayedSosService.setSosDelay(mActivity, sosDelay);
                 Prefs.setPassiveSosInterval(mActivity, sosDelay);
                 showSosDelay(sosDelay);
             }
@@ -129,7 +142,6 @@ public class PassiveSosFragment extends Fragment {
                 long sosDelay = Prefs.getPassiveSosInterval(mActivity);
                 sosDelay -= 1 * 60 * 1000; // -1 min
                 sosDelay = Math.max(sosDelay, 1 * 60 * 1000); // min 1 min
-                //DelayedSosService.setSosDelay(mActivity, sosDelay);
                 Prefs.setPassiveSosInterval(mActivity, sosDelay);
                 showSosDelay(sosDelay);
             }
@@ -140,15 +152,15 @@ public class PassiveSosFragment extends Fragment {
         {
             if (bundle.getBoolean(PassiveSosService.ASK_FOR_PASSWORD))
             {
-                mTimer = new PassiveSosTimer(30 * 1000, 1000); // waiting 30 sec for input password
-                mTimer.start();
-                mTimerOn = true;
-                askForPassword(false);
+                startPasswordTimer();
             }
         }
+
+        SosActivity.mLogs.info(TAG + " onViewCreated");
     }
 
     private void startPassiveSos() {
+        SosActivity.mLogs.info(TAG + " startPassiveSos");
         mActivity.startService(new Intent(mActivity, PassiveSosService.class));
         onTimerStart();
         Prefs.setPassiveSosStarted(mActivity, true);
@@ -160,6 +172,7 @@ public class PassiveSosFragment extends Fragment {
     }
 
     private void serverPassiveUpdate() {
+        SosActivity.mLogs.info(TAG + " serverPassiveUpdate");
         Location location = LocationService.locationListener.getLastLocation(false);
         SosActivity.mLogs.info("EventManager. StartSos. LocationResult");
         Map data = new HashMap();
@@ -174,14 +187,22 @@ public class PassiveSosFragment extends Fragment {
         Utils.setLoading(mActivity, true);
         NetworkManager.updateEvent(mActivity, data, new NetworkManager.DeliverResultRunnable<Boolean>() {
             @Override
+            public void onError(int errorCode) {
+                super.onError(errorCode);
+
+                Utils.setLoading(mActivity, false);
+            }
+
+            @Override
             public void deliver(Boolean aBoolean) {
-                //SosActivity.mLogs.info("EventManager. StartSos. Event activated. Starting LocationService");
+                SosActivity.mLogs.info(TAG + " updateEvent with result: " + aBoolean);
                 Utils.setLoading(mActivity, false);
             }
         });
     }
 
     private void stopPassiveSos(boolean isShouldBeStartedActiveSos) {
+        SosActivity.mLogs.info(TAG + " stopPassiveSos");
         mActivity.stopService(new Intent(mActivity, PassiveSosService.class));
         onTimerStop();
         Prefs.setPassiveSosStarted(mActivity, false);
@@ -192,6 +213,13 @@ public class PassiveSosFragment extends Fragment {
             NetworkManager.createEvent(mActivity,
                     new NetworkManager.DeliverResultRunnable<Event>() {
                         @Override
+                        public void onError(int errorCode) {
+                            super.onError(errorCode);
+
+                            Utils.setLoading(mActivity, false);
+                        }
+
+                        @Override
                         public void deliver(Event event) {
                             //sometimes event is null :\
                             if (event != null)
@@ -201,12 +229,13 @@ public class PassiveSosFragment extends Fragment {
                                 EventManager.getInstance(mActivity).setEvent(event);
                             }
                             Utils.setLoading(mActivity, false);
-                            }
+                        }
                 });
         }
     }
 
     private void askForPassword(final boolean isStopSos) {
+        SosActivity.mLogs.info(TAG + " askForPassword");
         LayoutInflater li = LayoutInflater.from(mActivity);
         View promptsView = li.inflate(R.layout.password_dialog, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
@@ -242,6 +271,7 @@ public class PassiveSosFragment extends Fragment {
 
     // stops timer or builds dialog with retry/cancel buttons
     private void checkPassword(String password,final boolean isStopSos) {
+        SosActivity.mLogs.info(TAG + " checkPassword");
         String savedPassword = Prefs.getPassword(mActivity);
         if (!savedPassword.equals("") && !password.equals(savedPassword))
         {
@@ -266,6 +296,7 @@ public class PassiveSosFragment extends Fragment {
     }
 
     private void askSosReason() {
+        SosActivity.mLogs.info(TAG + " askSosReason");
         LayoutInflater li = LayoutInflater.from(mActivity);
         View promptsView = li.inflate(R.layout.sos_reason_dialog, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
@@ -308,6 +339,7 @@ public class PassiveSosFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        SosActivity.mLogs.info(TAG + " onDestroy");
 
         stopTimer();
 
@@ -315,6 +347,7 @@ public class PassiveSosFragment extends Fragment {
     }
 
     private void onTimerStart() {
+        SosActivity.mLogs.info(TAG + " onTimerStart");
         mArrowUpBtn.setEnabled(false);
         mArrowDownBtn.setEnabled(false);
         mArrowUpBtn.setImageDrawable(
@@ -325,6 +358,7 @@ public class PassiveSosFragment extends Fragment {
     }
 
     private void onTimerStop() {
+        SosActivity.mLogs.info(TAG + " onTimerStop");
         mArrowUpBtn.setEnabled(true);
         mArrowDownBtn.setEnabled(true);
         mArrowUpBtn.setImageDrawable(
@@ -335,6 +369,7 @@ public class PassiveSosFragment extends Fragment {
     }
 
     private void showSosDelay(long sosDelay) {
+        SosActivity.mLogs.info(TAG + " showSosDelay");
         String timerText = String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toSeconds(sosDelay) / 60,
                 TimeUnit.MILLISECONDS.toSeconds(sosDelay) % 60);
@@ -343,6 +378,7 @@ public class PassiveSosFragment extends Fragment {
 
     public static void stopTimer()
     {
+        SosActivity.mLogs.info(TAG + " stopTimer");
         if (mTimerOn)
         {
             mTimer.cancel();
@@ -357,13 +393,18 @@ public class PassiveSosFragment extends Fragment {
             String action = intent.getAction();
 
             if (action.equals(PassiveSosService.PASSIVE_SOS_PASSWORD)) {
-                mTimer = new PassiveSosTimer(30 * 1000, 1000);
-                mTimer.start();
-                mTimerOn = true;
-                askForPassword(false);
+                startPasswordTimer();
             }
         }
     };
+
+    private void startPasswordTimer() {
+        SosActivity.mLogs.info(TAG + " startPasswordTimer");
+        mTimer = new PassiveSosTimer(30 * 1000, 1000);
+        mTimer.start();
+        mTimerOn = true;
+        askForPassword(false);
+    }
 
     private class PassiveSosTimer extends CountDownTimer {
 

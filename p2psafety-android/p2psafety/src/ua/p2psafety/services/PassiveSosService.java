@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.fragments.PassiveSosFragment;
+import ua.p2psafety.util.Logs;
 import ua.p2psafety.util.Utils;
 
 /**
@@ -24,19 +25,21 @@ public class PassiveSosService extends Service {
     public static final String ASK_FOR_PASSWORD = "ASK_FOR_PASSWORD";
     public static final String PASSIVE_SOS_PASSWORD = "ua.p2psafety.services.PassiveSosService.PassiveSosPassword";
     private static long mPassiveSosInterval;
+    private Logs mLogs;
 
     private ScheduledExecutorService mExecutor;
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        mLogs = new Logs(this);
+        mLogs.info("PassiveSosService onStartCommand");
         mPassiveSosInterval = Prefs.getPassiveSosInterval(this);
 
         mExecutor = Executors.newScheduledThreadPool(1);
         mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                //Utils.startVibration(PassiveSosService.this);
                 Utils.playDefaultNotificationSound(PassiveSosService.this);
                 Utils.blinkLED(PassiveSosService.this);
                 openPassiveSosFragment();
@@ -47,6 +50,7 @@ public class PassiveSosService extends Service {
 
     @Override
     public void onDestroy() {
+        mLogs.info("PassiveSosService onDestroy");
         mExecutor.shutdown();
         super.onDestroy();
     }
@@ -57,6 +61,7 @@ public class PassiveSosService extends Service {
     }
 
     public void openPassiveSosFragment() {
+        mLogs.info("PassiveSosService openPassiveSosFragment");
         Intent i = new Intent(this, SosActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // fix for navigation bug
