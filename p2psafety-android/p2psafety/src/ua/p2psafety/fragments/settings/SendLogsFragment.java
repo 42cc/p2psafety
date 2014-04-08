@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import ua.p2psafety.R;
@@ -97,8 +98,10 @@ public class SendLogsFragment extends Fragment {
         protected Boolean doInBackground(Void... params) {
             String account = Utils.getEmail(mActivity);
             if (account != null) {
+                String currentTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm"))
+                        .format(System.currentTimeMillis());
                 GmailOAuth2Sender gmailOAuth2Sender = new GmailOAuth2Sender(mActivity);
-                gmailOAuth2Sender.sendMail("[p2psafety] Report an issue",
+                gmailOAuth2Sender.sendMail("[p2psafety]  " + currentTime + "  Report an issue.",
                         "Logs in attachments. Description of issue:\r\n" + message, account,
                         email, files);
                 return true;
