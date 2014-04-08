@@ -42,6 +42,7 @@ import ua.p2psafety.SosActivity;
 import ua.p2psafety.adapters.StableArrayAdapter;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.json.Event;
+import ua.p2psafety.json.User;
 import ua.p2psafety.services.AudioRecordService;
 import ua.p2psafety.services.VideoRecordService;
 import ua.p2psafety.services.XmppService;
@@ -83,7 +84,6 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
         mActivity = getActivity();
         ((SosActivity) mActivity).getSupportActionBar().setHomeButtonEnabled(false);
         ((SosActivity) mActivity).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        Typeface font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/RobotoCondensed-Bold.ttf");
 
         View view = inflater.inflate(R.layout.frag_supporter, container, false);
 
@@ -92,8 +92,6 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
         mCloseEventBtn = (Button) view.findViewById(R.id.btn_close_event);
         mCommentsList = (ListView) view.findViewById(R.id.lsv_comments);
         mVictimNameText = (TextView) view.findViewById(R.id.txt_victim_name);
-
-        mEvent = Prefs.getEvent(mActivity);
 
         ObservableScrollView observableScrollView = (ObservableScrollView) view.findViewById(R.id.scroll_view);
         observableScrollView.setScrollViewListener(this);
@@ -190,11 +188,9 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
 
         Log.i("SupporterFragment", "url: " + String.valueOf(mSupportUrl));
         Log.i("SupporterFragment", "location: " + String.valueOf(mEventLocation));
-
-        startAutoUpdates(mSupportUrl);
     }
 
-    public void startAutoUpdates(final String support_url) {
+    public void startAutoUpdates() {
         mExecutor = Executors.newScheduledThreadPool(1);
         mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -255,7 +251,8 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
         EventManager.getInstance(mActivity).createNewEvent();
 
         //clear static markers map on close event
-        mMarkersMap = new MyLinkedHashMap();
+        mMap.clear();
+        mMarkersMap.clear();
 
         mActivity.onBackPressed();
     }
@@ -278,9 +275,16 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
 
     @Override
     public void onResume() {
-        Prefs.putSupporterMode(mActivity, true);
         super.onResume();
+        // if event changed, clear outdated markers
+        if (mEvent == null || !mEvent.getId().equalsIgnoreCase(Prefs.getEvent(mActivity).getId())) {
+            mMap.clear();
+            mMarkersMap.clear();
+        }
+        mEvent = Prefs.getEvent(mActivity);
+        Prefs.putSupporterMode(mActivity, true);
         mMapView.onResume();
+        startAutoUpdates();
     }
 
     @Override
@@ -372,7 +376,10 @@ public class SupporterFragment extends Fragment implements ObservableScrollView.
                     Event update = events.get(i);
                     Log.i("SupporterFragment", "update id: " + update.getId());
                     LatLng loc = update.getLocation();
-                    if (loc != null) {
+                    if (loc != null &&
+                        !mEvent.getUser().getId() // don't show app user as supporter on map
+                              .equalsIgnoreCase(update.getUser().getId()))
+                    {
                         Log.i("SupporterFragment", "new loc on map: " + loc);
                         LatLng latLng = new LatLng(loc.latitude, loc.longitude);
                         MarkerOptions marker = new MarkerOptions();

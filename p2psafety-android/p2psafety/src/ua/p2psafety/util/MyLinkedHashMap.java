@@ -18,26 +18,23 @@ public class MyLinkedHashMap extends LinkedHashMap<String, List<MarkerOptions>> 
         if (list == null)
             list = new ArrayList<MarkerOptions>();
         if (!isVictim)
-        {
             value.icon(BitmapDescriptorFactory.defaultMarker(
                     BitmapDescriptorFactory.HUE_GREEN));
-        }
         boolean isInList = false;
         int i=0;
-        while (!isInList && i<list.size())
-        {
+        while (!isInList && i<list.size()) {
             LatLng posInList = list.get(i).getPosition();
             LatLng newPos = value.getPosition();
             if (posInList.latitude == newPos.latitude && posInList.longitude == newPos.longitude)
                 isInList = true;
             i++;
         }
-        if (!isInList)
-        {
-            for (MarkerOptions marker: list)
-            {
-                marker.alpha(0.5f);
-            }
+        if (!isInList) {
+            if (isVictim)
+                for (MarkerOptions marker: list)
+                    marker.alpha(0.5f);
+            else
+                list.clear();
             list.add(value);
         }
 
