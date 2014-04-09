@@ -161,7 +161,7 @@ class EventUpdate(models.Model):
         permissions = (
             ("view_eventupdate", "Can view event update"),
         )
-        ordering = ('-timestamp',)
+        ordering = ('timestamp',)
         get_latest_by = 'timestamp'
 
     user = models.ForeignKey(User, related_name='event_owner', blank=True, null=True)
