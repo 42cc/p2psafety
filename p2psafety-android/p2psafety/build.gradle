@@ -1,17 +1,21 @@
 buildscript {
     repositories {
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }    // testing utils
         mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.7.+'
+        classpath 'com.squareup.gradle:gradle-android-test-plugin:0.9.1-SNAPSHOT'
     }
 }
 apply plugin: 'android'
+apply plugin: 'android-test'
 
 repositories {
     maven {
         url "http://www.bugsense.com/gradle/"
     }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }    // testing utils
     mavenCentral()
 }
 
@@ -42,6 +46,15 @@ dependencies {
     compile 'commons-codec:commons-codec:1.9'
 
     compile fileTree(dir: '../libs', include: '*.jar')
+
+    // testing utils
+    testCompile 'junit:junit:4.7'
+    testCompile 'org.robolectric:robolectric:2.3-SNAPSHOT'
+    testCompile 'com.squareup:fest-android:1.0.+'
+
+    instrumentTestCompile 'junit:junit:4.7'
+    instrumentTestCompile 'org.robolectric:robolectric:2.3-SNAPSHOT'
+    instrumentTestCompile 'com.squareup:fest-android:1.0.+'
 }
 
 android {
