@@ -66,6 +66,17 @@ android {
         targetSdkVersion 19
     }
 
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/java']
+            resources.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+        instrumentTest.setRoot('src/test')
+    }
+
     signingConfigs {
         debug {
             storeFile file("../keys/debug.keystore")
@@ -95,18 +106,6 @@ android {
     productFlavors {
         defaultFlavor {
             proguardFile 'proguard-rules.txt'
-        }
-    }
-
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
         }
     }
 
