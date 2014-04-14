@@ -15,11 +15,13 @@ import ua.p2psafety.util.Utils;
 public class MyApplication extends Application {
 
     private static Logs mLogs;
+    protected boolean mIsTesting = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        BugSenseHandler.initAndStartSession(this, getString(R.string.bugsense_key));
+        if (!mIsTesting)
+            BugSenseHandler.initAndStartSession(this, getString(R.string.bugsense_key));
 
         if (Utils.isServerAuthenticated(this))
         {
@@ -37,7 +39,8 @@ public class MyApplication extends Application {
             }
             else
             {
-                BugSenseHandler.setUserIdentifier(Prefs.getApiUsername(this));
+                if (!mIsTesting)
+                    BugSenseHandler.setUserIdentifier(Prefs.getApiUsername(this));
             }
         }
 
