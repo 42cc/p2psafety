@@ -95,6 +95,15 @@ public class SosActivity extends ActionBarActivity {
         mLogs = new Logs(this);
         mLogs.info("\n\n\n==========================\n==============================");
         mLogs.info("SosActivity. onCreate()");
+
+        String appId = Prefs.getFbAppId(this);
+        if (appId == null)
+        {
+            appId = getString(R.string.app_id);
+        }
+        Session session = new Session.Builder(getBaseContext()).setApplicationId(appId).build();
+        Session.setActiveSession(session);
+
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
