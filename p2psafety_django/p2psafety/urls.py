@@ -7,6 +7,7 @@ from django.views.generic import TemplateView
 
 from tastypie.api import Api
 
+from core.api.resources import PublicResource
 from events.api.resources import EventResource, EventUpdateResource
 from users.api.resources import UserResource, RoleResource, AuthResource, \
                                 MovementTypeResource
@@ -14,15 +15,14 @@ from users.api.resources import UserResource, RoleResource, AuthResource, \
 
 admin.autodiscover()
 
-
 api_v1 = Api(api_name='v1')
+api_v1.register(PublicResource())
 api_v1.register(EventResource())
 api_v1.register(EventUpdateResource())
 api_v1.register(UserResource())
 api_v1.register(RoleResource())
 api_v1.register(MovementTypeResource())
 api_v1.register(AuthResource())
-
 
 urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name='site/index.html'), name='index'),
