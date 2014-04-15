@@ -41,6 +41,7 @@ import com.facebook.model.GraphUser;
 import java.io.File;
 import java.security.MessageDigest;
 
+import ua.p2psafety.MyApplication;
 import ua.p2psafety.R;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
@@ -270,6 +271,8 @@ public class Utils {
     }
 
     public static boolean isServiceRunning(Context context, Class service) {
+        if (((MyApplication)context.getApplicationContext()).isTesting())
+            return false;
         String service_name = service.getName();
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo running_service : manager.getRunningServices(Integer.MAX_VALUE)) {

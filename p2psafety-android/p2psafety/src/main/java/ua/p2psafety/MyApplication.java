@@ -55,4 +55,9 @@ public class MyApplication extends Application {
             }
         });
     }
+
+    public boolean isTesting()
+    {
+        return mIsTesting;
+    }
 }
