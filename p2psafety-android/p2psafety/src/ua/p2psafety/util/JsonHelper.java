@@ -1,17 +1,17 @@
 package ua.p2psafety.util;
 
-import android.location.Location;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import ua.p2psafety.json.Event;
-import ua.p2psafety.json.User;
 import ua.p2psafety.json.Role;
+import ua.p2psafety.json.User;
 
 public class JsonHelper {
     public static List<Event> jsonResponseToEvents(String json) {
@@ -57,12 +57,14 @@ public class JsonHelper {
             event.setText(String.valueOf(data.get("text")));
             // location
             Map loc_data = (Map) data.get("location");
-            Location loc = new Location("");
+            if (loc_data == null)
+            {
+                loc_data = (Map) data.get("latest_location");
+            }
             String lat = String.valueOf(loc_data.get("latitude"));
             String lon = String.valueOf(loc_data.get("longitude"));
             Log.i(TAG, "lat: " + lat + "  lon: " + lon);
-            loc.setLatitude(Double.valueOf(lat));
-            loc.setLongitude(Double.valueOf(lon));
+            LatLng loc = new LatLng(Double.valueOf(lat), Double.valueOf(lon));
             event.setLocation(loc);
 
             Log.i(TAG, "id: "       + event.getId());

@@ -120,7 +120,7 @@ class EventUpdateValidation(Validation):
 
 class EventUpdateResource(MultipartResource, ModelResource):
     class Meta:
-        queryset = EventUpdate.objects.order_by('-timestamp')
+        queryset = EventUpdate.objects.all()
         resource_name = 'eventupdates'
         list_allowed_methods = ['post', 'get']
         detail_allowed_methods = []

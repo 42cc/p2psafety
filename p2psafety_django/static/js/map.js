@@ -55,15 +55,12 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
       $scope.selectedEventsupported = {};
       window.location.hash = '';
     } else {
-      var params = {event__id: event.id};
-      $http.get(urls.eventupdates, {params: params}).success(function(data) {
-        event.isNew = false;
-        event.updates = data.objects;
-        window.location.hash = event.id;
+      event.isNew = false;
+      window.location.hash = event.id;
+      $scope.selectedEvent = event;
+      $scope.updateSingleEvent(event, function(event) {
         $scope.focus(event.latest_location);
         $scope.zoomIn();
-        $scope.selectedEvent = event;
-        ensurePath(event.updates);
         event.updates.path.setMap($scope.gmap);
       });
 
@@ -81,11 +78,8 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
   $scope.update = function(options, callback) {
     var params = {status: 'A'};
     $http.get(urls.events, {params: params}).success(function(data) {
-      var eventsAppeared = false, newEvents = {};
-      for (i in data.objects) {
-        var event = data.objects[i];
-        newEvents[event.id] = event;
-      }
+      var eventsAppeared = false;
+      var newEvents = _.object(_.pluck(data.objects, 'id'), data.objects);
       // Deleting old events
       for (oldEventId in $scope.events) {
         if (newEvents[oldEventId] == null) {
@@ -95,12 +89,8 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
       // Adding new events
       for (newEventId in newEvents) {
         if ($scope.events[newEventId] == null) {
-          var new_event =  newEvents[newEventId]
-            if (options.highightNew){
-              new_event.isNew = true
-            } else {
-              new_event.isNew = false
-            }
+          var new_event =  newEvents[newEventId];
+          new_event.isNew = (options.highightNew) ? true : false;
           $scope.events[newEventId] = new_event;
           eventsAppeared = true;
         }
@@ -119,11 +109,34 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
         }
         $scope.gmap.fitBounds(eventsBounds);
       }
-      if (eventsAppeared){
-          $scope.updateUserAttrs(newEvents);
-      }
-
+      if (eventsAppeared) $scope.updateUserAttrs(newEvents);
       if ('function' === typeof callback) callback();
+    });
+  };
+  $scope.updateSingleEvent = function(event, callback) {
+    var params = {event__id: event.id};
+    $http.get(urls.eventupdates, {params: params}).success(function(data) {
+      var newUpdates = data.objects;
+      _.each(newUpdates, function(update) {
+        update.timestamp = new Date(update.timestamp);
+      });
+
+      if (_.size(newUpdates) > _.size(event.updates)) {
+        var updatesChanged = false;
+        
+        if (event.updates == null) event.updates = [];
+        var existingUpdates = _.object(_.pluck(event.updates, 'id'), event.updates);
+        _.each(newUpdates, function(update) {
+          if (existingUpdates[update.id] == null) {
+            event.updates.push(update);
+            updatesChanged = true;
+          }
+        })
+        if (updatesChanged) ensurePath(event.updates);
+      }      
+      if (typeof callback !== 'undefined') {
+        callback(event);
+      };
     });
   };
   $scope.updateUserAttrs = function(events){
@@ -266,9 +279,13 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
   }, mapSettings.wakeup_interval * 60 * 1000);
 
   $interval(function() {
-    $scope.update({playSoundForNew:mapSettings.sound,
-      highightNew:mapSettings.highlight,
-      centerMap:false});
+    if ($scope.selectedEvent == null) {
+      $scope.update({playSoundForNew:mapSettings.sound,
+                     highightNew:mapSettings.highlight,
+                     centerMap:false});
+    } else {
+      $scope.updateSingleEvent($scope.selectedEvent);
+    }
   }, $scope.updatePerSeconds * 1000);
 
   $interval(function() {
@@ -296,6 +313,16 @@ mapApp.controller('EventListCtrl', function($scope, $http, $interval,
       });
       objList.path = new google.maps.Polyline(polylineOptions);
       objList.path.setPath(latlngList);
+    } else {
+      var currentPath = objList.path.getPath();
+      var newElements = _.size(objWithLocation) - _.size(currentPath);        
+      if (newElements > 0) {
+        var start = _.size(objWithLocation) - newElements;
+        _.each(objWithLocation.slice(start), function(obj) {
+          currentPath.push(new google.maps.LatLng(obj.location.latitude,
+                                                  obj.location.longitude));
+        })
+      }
     }
   };
 })

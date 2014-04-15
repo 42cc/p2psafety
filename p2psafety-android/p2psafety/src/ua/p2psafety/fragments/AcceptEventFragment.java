@@ -19,6 +19,11 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
 import ua.p2psafety.json.Event;
 import ua.p2psafety.util.EventManager;
 import ua.p2psafety.P2PMapView;
@@ -46,6 +51,8 @@ public class AcceptEventFragment extends Fragment {
     GoogleMap mMap;
 
     Logs mLogs;
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private static final Calendar cal = Calendar.getInstance(Locale.getDefault());
 
     public AcceptEventFragment() {
         super();
@@ -123,7 +130,7 @@ public class AcceptEventFragment extends Fragment {
         Log.i("AcceptEventFragment", "latLng: \n" + eventLatLng);
         mMap.addMarker(new MarkerOptions()
                 .position(eventLatLng)
-                .title(getString(R.string.victim_text).replace(": ", "")));
+                .title(mVictimName + ": " + dateFormat.format(cal.getTime())));
 
         MapsInitializer.initialize(mActivity);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 15.0f));
@@ -136,36 +143,44 @@ public class AcceptEventFragment extends Fragment {
         Utils.setLoading(mActivity, true);
         NetworkManager.supportEvent(mActivity, mEventSupportUrl,
                 new NetworkManager.DeliverResultRunnable<Boolean>() {
-            @Override
-            public void deliver(final Boolean success) {
-                mActivity.runOnUiThread(new Runnable() {
                     @Override
-                    public void run() {
+                    public void onError(int errorCode) {
+                        super.onError(errorCode);
+
                         Utils.setLoading(mActivity, false);
-                        //mActivity.onBackPressed();
-                        if (true) { // TODO: find out what is supposed to be here
-                            try {
-                                EventManager.getInstance(mActivity).getEvent().setType(Event.TYPE_SUPPORT);
-                                EventManager.getInstance(mActivity).getEvent().setStatus(Event.STATUS_ACTIVE);
-                            } catch (Exception e) {
-                                // should never happen
-                            }
-                            XmppService.processing_event = false;
+                    }
 
-                            // open Supporter screen
+                    @Override
+                    public void deliver(final Boolean success) {
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Utils.setLoading(mActivity, false);
+                                //mActivity.onBackPressed();
+                                if (true) { // TODO: find out what is supposed to be here
+                                    try {
+                                        EventManager.getInstance(mActivity).getEvent().setType(Event.TYPE_SUPPORT);
+                                        EventManager.getInstance(mActivity).getEvent().setStatus(Event.STATUS_ACTIVE);
+                                    } catch (Exception e) {
+                                        // should never happen
+                                    }
+                                    XmppService.processing_event = false;
 
-                            Fragment fragment = new SupporterFragment();
-                            FragmentManager fm = getFragmentManager();
-                            if (!Utils.isFragmentAdded(fragment, fm))
-                            {
-                                fm.popBackStackImmediate();
-                                fm.beginTransaction()
-                                    .addToBackStack(fragment.getClass().getName())
-                                    .replace(R.id.content_frame, fragment).commit();
+                                    // open Supporter screen
+
+                                    Fragment fragment = new SupporterFragment();
+                                    FragmentManager fm = getFragmentManager();
+                                    if (!Utils.isFragmentAdded(fragment, fm))
+                                    {
+                                        fm.popBackStackImmediate();
+                                        fm.beginTransaction()
+                                            .addToBackStack(fragment.getClass().getName())
+                                            .replace(R.id.content_frame, fragment).commit();
+                                    }
+                                }
                             }
                         }
-                    }
-                });
+                );
             }
         });
 

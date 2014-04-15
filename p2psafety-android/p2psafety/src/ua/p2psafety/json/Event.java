@@ -1,6 +1,6 @@
 package ua.p2psafety.json;
 
-import android.location.Location;
+import com.google.android.gms.maps.model.LatLng;
 
 public class Event {
     public static String STATUS_PASSIVE  = "P";
@@ -16,7 +16,7 @@ public class Event {
     String mStatus;
     String mType;
     User mUser;
-    Location mLocation;
+    LatLng mLocation;
     String mText;
 
     public Event() {}
@@ -45,7 +45,7 @@ public class Event {
         mUser = user;
     }
 
-    public void setLocation(Location loc) {
+    public void setLocation(LatLng loc) {
         mLocation = loc;
     }
 
@@ -77,7 +77,7 @@ public class Event {
         return mUser;
     }
 
-    public Location getLocation() {
+    public LatLng getLocation() {
         return mLocation;
     }
 
