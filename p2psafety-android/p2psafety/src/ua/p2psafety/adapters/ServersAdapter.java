@@ -1,6 +1,7 @@
 package ua.p2psafety.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +16,10 @@ import com.facebook.Session;
 import java.util.List;
 
 import ua.p2psafety.R;
+import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
+import ua.p2psafety.services.XmppService;
 import ua.p2psafety.util.NetworkManager;
 import ua.p2psafety.util.Utils;
 
@@ -178,6 +181,7 @@ public class ServersAdapter extends BaseAdapter {
                             {
                                 datasourse.setSelectedServer(null);
                                 notifyDataSetChanged();
+                                context.startService(new Intent(context, XmppService.class));
                                 Toast.makeText(context, "Server has no settings. " +
                                         "Please check the name of server or enter a new one",
                                         Toast.LENGTH_SHORT).show();
@@ -200,11 +204,13 @@ public class ServersAdapter extends BaseAdapter {
     }
 
     private void deleteServerSettings() {
+        SosActivity.mLogs.info("Deleting info about server");
         Prefs.putFbAppId(context, null);
         Prefs.putXmppEventsNotifNode(context, null);
         Prefs.putXmppPubsubServer(context, null);
         Prefs.putXmppServer(context, null);
         datasourse.setSelectedServer(null);
+        context.stopService(new Intent(context, XmppService.class));
     }
 
     private void saveSortedData() {

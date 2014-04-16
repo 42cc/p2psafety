@@ -105,6 +105,8 @@ public class NetworkManager {
         ServersDatasourse serversDatasourse = new ServersDatasourse(mContext);
         SERVER_URL = serversDatasourse.getSelectedServer();
 
+        LOGS.info("Selected server is: " + SERVER_URL);
+
         return SERVER_URL != null;
     }
 
@@ -127,57 +129,55 @@ public class NetworkManager {
                         throw new Exception();
                     }
                     //mock answer
-                    if (Prefs.getSelectedServer(context).equals("https://p2psafety.net"))
-                    {
-                        Prefs.putFbAppId(mContext, "784584141570570");
-                        Prefs.putXmppEventsNotifNode(mContext, "events");
-                        Prefs.putXmppPubsubServer(mContext, "pubsub.p2psafety.net");
-                        Prefs.putXmppServer(mContext, "p2psafety.net");
-                        postRunnable.setResult(true);
+//                    if (Prefs.getSelectedServer(context).equals("https://p2psafety.net"))
+//                    {
+//                        Prefs.putFbAppId(mContext, "784584141570570");
+//                        Prefs.putXmppEventsNotifNode(mContext, "events");
+//                        Prefs.putXmppPubsubServer(mContext, "pubsub.p2psafety.net");
+//                        Prefs.putXmppServer(mContext, "p2psafety.net");
+//                        postRunnable.setResult(true);
+//                    }
+
+                    HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
+                            .append("/api/v1/public/settings/?format=json").toString());
+
+                    addUserAgentHeader(context, httpGet);
+                    httpGet.setHeader("Accept", "application/json");
+                    httpGet.setHeader("Content-type", "application/json");
+
+                    Log.i(TAG, "request: " + httpGet.getRequestLine().toString());
+
+                    LOGS.info("EventManager. getSettings. Request: " + httpGet.getRequestLine().toString());
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpGet);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute post request", e);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
                     }
-                    else
-                    {
-                        HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
-                                .append("/api/v1/public/settings/?format=json").toString());
 
-                        addUserAgentHeader(context, httpGet);
-                        httpGet.setHeader("Accept", "application/json");
-                        httpGet.setHeader("Content-type", "application/json");
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
 
-                        Log.i(TAG, "request: " + httpGet.getRequestLine().toString());
+                    LOGS.info("EventManager. getSettings. ResponseCode: " + responseCode);
+                    LOGS.info("EventManager. getSettings. ResponseContent: " + responseContent);
 
-                        LOGS.info("EventManager. getSettings. Request: " + httpGet.getRequestLine().toString());
+                    if (responseCode == CODE_SUCCESS) {
+                        Map<String, Object> data = mapper.readValue(responseContent, Map.class);
+                        Prefs.putFbAppId(mContext, String.valueOf(data.get("fb_app_id")));
+                        Prefs.putXmppEventsNotifNode(mContext, String.valueOf(data.get("xmpp_events_notification_node")));
+                        Prefs.putXmppPubsubServer(mContext, String.valueOf(data.get("xmpp_pubsub_server")));
+                        Prefs.putXmppServer(mContext, String.valueOf(data.get("xmpp_server")));
 
-                        HttpResponse response = null;
-                        try {
-                            response = httpClient.execute(httpGet);
-                        } catch (Exception e) {
-                            NetworkManager.LOGS.error("Can't execute post request", e);
-                            errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
-                            throw new Exception();
-                        }
-
-                        int responseCode = response.getStatusLine().getStatusCode();
-                        String responseContent = EntityUtils.toString(response.getEntity());
-                        Log.i(TAG, "responseCode: " + responseCode);
-                        Log.i(TAG, "responseContent: " + responseContent);
-
-                        LOGS.info("EventManager. getSettings. ResponseCode: " + responseCode);
-                        LOGS.info("EventManager. getSettings. ResponseContent: " + responseContent);
-
-                        if (responseCode == CODE_SUCCESS) {
-                            Map<String, Object> data = mapper.readValue(responseContent, Map.class);
-                            Prefs.putFbAppId(mContext, String.valueOf(data.get("fb_app_id")));
-                            Prefs.putXmppEventsNotifNode(mContext, String.valueOf(data.get("xmpp_events_notification_node")));
-                            Prefs.putXmppPubsubServer(mContext, String.valueOf(data.get("xmpp_pubsub_server")));
-                            Prefs.putXmppServer(mContext, String.valueOf(data.get("xmpp_server")));
-
-                            LOGS.info("EventManager. getSettings. Success");
-                            postRunnable.setResult(true);
-                        } else {
-                            LOGS.info("EventManager. getSettings. Failure");
-                            postRunnable.setResult(false);
-                        }
+                        LOGS.info("EventManager. getSettings. Success");
+                        postRunnable.setResult(true);
+                    } else {
+                        LOGS.info("EventManager. getSettings. Failure");
+                        postRunnable.setResult(false);
                     }
                     executeRunnable(context, postRunnable);
                 } catch (Exception e) {

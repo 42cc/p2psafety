@@ -71,18 +71,14 @@ public class XmppService extends Service {
         logs = new Logs(this);
         logs.info("XmppService started");
 
-        HOST = Prefs.getXmppServer(this);
-
         connectToServer();
         return Service.START_STICKY;
     }
 
     private boolean isServerUrlNotNull()
     {
-        if (HOST == null)
-        {
-            HOST = Prefs.getXmppServer(this);
-        }
+        HOST = Prefs.getXmppServer(this);
+        logs.info("XMPP server is: " + HOST);
         return HOST != null;
     }
 
