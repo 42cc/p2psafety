@@ -137,7 +137,7 @@ public class ServersAdapter extends BaseAdapter {
             }
         });
 
-        CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBox);
+        final CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBox);
         if (items.get(position).equals(selectedServer))
         {
             checkBox.setChecked(true);
