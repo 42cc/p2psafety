@@ -164,9 +164,19 @@ public class SettingsFragment extends Fragment {
                     case 8:
                         mLogs.info("SettingsFragment. User chose Login/Logout");
                         if (Utils.isServerAuthenticated(mActivity))
+                        {
                             logout();
+                        }
                         else
+                        {
+                            if (Prefs.getSelectedServer(mActivity) == null)
+                            {
+                                Toast.makeText(mActivity, "Please first enter the server name",
+                                        Toast.LENGTH_SHORT).show();
+                                return;
+                            }
                             login(null);
+                        }
                         break;
                     case 9:
                         mfragment[0] = new SendLogsFragment();

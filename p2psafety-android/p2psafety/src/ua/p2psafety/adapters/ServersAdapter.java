@@ -7,8 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.Session;
 
@@ -94,6 +94,11 @@ public class ServersAdapter extends BaseAdapter {
         ibtn_del.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (Utils.isServerAuthenticated(context))
+                {
+                    Toast.makeText(context, "Please first logout", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (items.get(position).equals(selectedServer))
                 {
                     deleteServerSettings();
@@ -141,9 +146,16 @@ public class ServersAdapter extends BaseAdapter {
         {
             checkBox.setChecked(false);
         }
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            public void onClick(View v) {
+                final boolean isChecked = checkBox.isChecked();
+                if (Utils.isServerAuthenticated(context))
+                {
+                    checkBox.setChecked(!isChecked);
+                    Toast.makeText(context, "Please first logout", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (isChecked)
                 {
                     Utils.setLoading(context, true);
@@ -156,11 +168,19 @@ public class ServersAdapter extends BaseAdapter {
                         public void deliver(Boolean val) {
                             super.deliver(val);
                             Utils.setLoading(context, false);
-                            if (val) {
+                            if (val != null && val) {
                                 Session session = new Session.Builder(context
                                 ).setApplicationId(Prefs
                                         .getFbAppId(context)).build();
                                 Session.setActiveSession(session);
+                            }
+                            else
+                            {
+                                datasourse.setSelectedServer(null);
+                                notifyDataSetChanged();
+                                Toast.makeText(context, "Server has no settings. " +
+                                        "Please check the name of server or enter a new one",
+                                        Toast.LENGTH_SHORT).show();
                             }
                         }
 
