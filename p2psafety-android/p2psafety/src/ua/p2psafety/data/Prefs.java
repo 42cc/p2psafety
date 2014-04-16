@@ -38,6 +38,8 @@ public class Prefs {
     private static final String XMPP_PUBSUB_SERVER = "XMPP_PUBSUB_SERVER";
     private static final String XMPP_SERVER = "XMPP_SERVER";
 
+    private static final String SELECTED_SERVER = "SELECTED_SERVER";
+
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
     }
@@ -64,6 +66,14 @@ public class Prefs {
 
     public static void putMediaRecordType(Context context, int val) {
         getPrefs(context).edit().putInt(MEDIA_RECORD_TYPE, val).commit();
+    }
+
+    public static void putSelectedServer(Context context, String val) {
+        getPrefs(context).edit().putString(SELECTED_SERVER, val).commit();
+    }
+
+    public static String getSelectedServer(Context context) {
+        return getPrefs(context).getString(SELECTED_SERVER, null);
     }
 
     public static void putMediaRecordLength(Context context, long val) {

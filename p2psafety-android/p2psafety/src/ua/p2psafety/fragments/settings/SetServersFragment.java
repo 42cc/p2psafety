@@ -10,14 +10,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.facebook.Session;
-
 import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.adapters.ServersAdapter;
-import ua.p2psafety.data.Prefs;
-import ua.p2psafety.util.NetworkManager;
-import ua.p2psafety.util.Utils;
 
 public class SetServersFragment extends Fragment {
     public static final String TAG = "SetServersFragment";
@@ -35,29 +30,6 @@ public class SetServersFragment extends Fragment {
                         if (address.length() > 0)
                             mAdapter.addServer(address);
                         edt_addserver.setText("");
-                        Utils.setLoading(getActivity(), true);
-                        NetworkManager.getSettings(getActivity(), new NetworkManager
-                                .DeliverResultRunnable<Boolean>() {
-
-                            @Override
-                            public void deliver(Boolean val) {
-                                super.deliver(val);
-                                Utils.setLoading(getActivity(), false);
-                                if (val)
-                                {
-                                    Session session = new Session.Builder(getActivity()
-                                            .getBaseContext()).setApplicationId(Prefs
-                                            .getFbAppId(getActivity())).build();
-                                    Session.setActiveSession(session);
-                                }
-                            }
-
-                            @Override
-                            public void onError(int errorCode) {
-                                super.onError(errorCode);
-                                Utils.setLoading(getActivity(), false);
-                            }
-                        });
                     }
                     break;
             }
