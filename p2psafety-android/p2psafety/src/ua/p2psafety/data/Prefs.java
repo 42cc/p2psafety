@@ -33,6 +33,12 @@ public class Prefs {
     private static final String USER_IDENTIFIER = "USER_IDENTIFIER";
 
     private static final String IS_PROGRAM_RUNNING = "IS_PROGRAM_RUNNING";
+    private static final String FB_APP_ID = "FB_APP_ID";
+    private static final String XMPP_EVENTS_NOTIF_NODE = "XMPP_EVENTS_NOTIF_NODE";
+    private static final String XMPP_PUBSUB_SERVER = "XMPP_PUBSUB_SERVER";
+    private static final String XMPP_SERVER = "XMPP_SERVER";
+
+    private static final String SELECTED_SERVER = "SELECTED_SERVER";
 
     private static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences("MobileExchange", 0);
@@ -62,6 +68,14 @@ public class Prefs {
         getPrefs(context).edit().putInt(MEDIA_RECORD_TYPE, val).commit();
     }
 
+    public static void putSelectedServer(Context context, String val) {
+        getPrefs(context).edit().putString(SELECTED_SERVER, val).commit();
+    }
+
+    public static String getSelectedServer(Context context) {
+        return getPrefs(context).getString(SELECTED_SERVER, null);
+    }
+
     public static void putMediaRecordLength(Context context, long val) {
         getPrefs(context).edit().putLong(MEDIA_RECORD_LENGTH, val).commit();
     }
@@ -72,6 +86,38 @@ public class Prefs {
 
     public static void putUserIdentifier(Context context, String uid) {
         getPrefs(context).edit().putString(USER_IDENTIFIER, uid).commit();
+    }
+
+    public static void putFbAppId(Context context, String appId) {
+        getPrefs(context).edit().putString(FB_APP_ID, appId).commit();
+    }
+
+    public static String getFbAppId(Context context) {
+        return getPrefs(context).getString(FB_APP_ID, null);
+    }
+
+    public static void putXmppEventsNotifNode(Context context, String val) {
+        getPrefs(context).edit().putString(XMPP_EVENTS_NOTIF_NODE, val).commit();
+    }
+
+    public static String getXmppEventsNotifNode(Context context) {
+        return getPrefs(context).getString(XMPP_EVENTS_NOTIF_NODE, "events");
+    }
+
+    public static void putXmppPubsubServer(Context context, String val) {
+        getPrefs(context).edit().putString(XMPP_PUBSUB_SERVER, val).commit();
+    }
+
+    public static String getXmppPubsubServer(Context context) {
+        return getPrefs(context).getString(XMPP_PUBSUB_SERVER, null);
+    }
+
+    public static void putXmppServer(Context context, String val) {
+        getPrefs(context).edit().putString(XMPP_SERVER, val).commit();
+    }
+
+    public static String getXmppServer(Context context) {
+        return getPrefs(context).getString(XMPP_SERVER, null);
     }
 
     public static void putSosStarted(Context context, boolean val) {
