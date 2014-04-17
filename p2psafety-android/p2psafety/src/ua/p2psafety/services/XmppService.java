@@ -104,14 +104,15 @@ public class XmppService extends Service {
 
                         mConnection.connect();
                         mConnection.login(mUserLogin, mUserPassword);
+
+                        setMessageListener(mConnection);
+                        setPubsubListener(mConnection);
                     } catch (Exception e) {
                         Log.i(TAG, "Error during connection", e);
                         e.printStackTrace();
-                        return;
+                        //try again
+                        connectToServer();
                     }
-
-                    setMessageListener(mConnection);
-                    setPubsubListener(mConnection);
                     }
             });
         }
