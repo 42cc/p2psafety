@@ -55,20 +55,35 @@ public class SosActivity extends ActionBarActivity {
     public static Logs mLogs;
     private EventManager mEventManager;
     private boolean mStartedFromHistory = false;
+    private boolean mIsWantToUnsetLoading = false;
+    private boolean mIsUnsetCameEarlierThenSet = false;
 
     private IntentFilter mIntentFilter;
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public synchronized void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             mLogs.info("SosActivity. Got action from NetworkStateChangedReceiver: " + action);
             if (action.equals(ACTION_SET_LOADING))
             {
-                Utils.setLoading(SosActivity.this, true);
+                if (!mIsUnsetCameEarlierThenSet)
+                {
+                    Utils.setLoading(SosActivity.this, true);
+                    mIsWantToUnsetLoading = true;
+                }
             }
             else if (action.equals(ACTION_UNSET_LOADING))
             {
-                Utils.setLoading(SosActivity.this, false);
+                if (mIsWantToUnsetLoading)
+                {
+                    Utils.setLoading(SosActivity.this, false);
+                    mIsWantToUnsetLoading = false;
+                    mIsUnsetCameEarlierThenSet = false;
+                }
+                else
+                {
+                    mIsUnsetCameEarlierThenSet = true;
+                }
             }
         }
     };
@@ -80,6 +95,15 @@ public class SosActivity extends ActionBarActivity {
         mLogs = new Logs(this);
         mLogs.info("\n\n\n==========================\n==============================");
         mLogs.info("SosActivity. onCreate()");
+
+        String appId = Prefs.getFbAppId(this);
+        if (appId == null)
+        {
+            appId = getString(R.string.app_id);
+        }
+        Session session = new Session.Builder(getBaseContext()).setApplicationId(appId).build();
+        Session.setActiveSession(session);
+
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
@@ -271,7 +295,15 @@ public class SosActivity extends ActionBarActivity {
             Utils.errorDialog(activity, Utils.DIALOG_NO_CONNECTION);
             return;
         }
-        Session session = Session.getActiveSession();
+        String appId = Prefs.getFbAppId(this);
+        if (appId == null)
+        {
+            //get main app id, if appId is null
+            appId = getString(R.string.app_id);
+        }
+        Session session = new Session.Builder(getBaseContext()).setApplicationId(appId).build();
+        Session.setActiveSession(session);
+        session = Session.getActiveSession();
         if (session == null) {
             mLogs.info("SosActivity. No FB session. Opening a new one");
             Session.openActiveSession(activity, true, callback);

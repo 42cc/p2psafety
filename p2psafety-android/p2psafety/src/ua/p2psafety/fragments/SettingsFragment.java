@@ -121,18 +121,9 @@ public class SettingsFragment extends Fragment {
                         break;
                     case 3:
                         mLogs.info("SettingsFragment. User chose Servers settings");
-                        if (Prefs.getApiKey(mActivity) != null) {
-                            mLogs.info("SettingsFragment. We have ApiKey. Opening Servers screen");
-                            setFragment(new SetServersFragment());
-                        } else {
-                            mLogs.info("SettingsFragment. No ApiKey. Asking user to log in");
-                            login(new Runnable() {
-                                @Override
-                                public void run() {
-                                    setFragment(new SetServersFragment());
-                                }
-                            });
-                        }
+                        mfragment[0] = new SetServersFragment();
+                        fragmentTransaction.addToBackStack(SetServersFragment.TAG);
+                        fragmentTransaction.replace(R.id.content_frame, mfragment[0]).commit();
                         break;
                     case 4:
                         mLogs.info("SettingsFragment. User chose Password settings");
@@ -173,9 +164,19 @@ public class SettingsFragment extends Fragment {
                     case 8:
                         mLogs.info("SettingsFragment. User chose Login/Logout");
                         if (Utils.isServerAuthenticated(mActivity))
+                        {
                             logout();
+                        }
                         else
+                        {
+                            if (Prefs.getSelectedServer(mActivity) == null)
+                            {
+                                Toast.makeText(mActivity, "Please first enter the server name",
+                                        Toast.LENGTH_SHORT).show();
+                                return;
+                            }
                             login(null);
+                        }
                         break;
                     case 9:
                         mfragment[0] = new SendLogsFragment();

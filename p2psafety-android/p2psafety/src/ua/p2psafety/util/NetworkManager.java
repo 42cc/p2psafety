@@ -48,6 +48,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.data.ServersDatasourse;
 import ua.p2psafety.json.Event;
 import ua.p2psafety.json.Role;
 import ua.p2psafety.json.User;
@@ -58,8 +59,9 @@ public class NetworkManager {
     public static final int SITE = 0;
     public static final int FACEBOOK = 1;
 
-    private static final String SERVER_URL = "https://p2psafety.net";
+    private static String SERVER_URL;
     public static Logs LOGS;
+    private static Context mContext;
 
     private static final int CODE_SUCCESS = 201;
 
@@ -68,6 +70,8 @@ public class NetworkManager {
     private static ObjectMapper mapper = new ObjectMapper();
 
     public static void init(Context context) {
+        mContext = context;
+
         HttpParams httpParams = new BasicHttpParams();
         HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1);
         HttpConnectionParams.setConnectionTimeout(httpParams, 0);
@@ -96,6 +100,96 @@ public class NetworkManager {
             LOGS.close();
     }
 
+    private static boolean isServerUrlNotNull()
+    {
+        ServersDatasourse serversDatasourse = new ServersDatasourse(mContext);
+        SERVER_URL = serversDatasourse.getSelectedServer();
+
+        LOGS.info("Selected server is: " + SERVER_URL);
+
+        return SERVER_URL != null;
+    }
+
+    public static void getSettings(final Context context,
+                                   final DeliverResultRunnable<Boolean> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final String TAG = "getSettings";
+                int CODE_SUCCESS = 200;
+                LOGS.info("EventManager. getSettings.");
+                try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        LOGS.info("EventManager. getSettings. No network.");
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+                    if (!isServerUrlNotNull())
+                    {
+                        throw new Exception();
+                    }
+                    //mock answer
+//                    if (Prefs.getSelectedServer(context).equals("https://p2psafety.net"))
+//                    {
+//                        Prefs.putFbAppId(mContext, "784584141570570");
+//                        Prefs.putXmppEventsNotifNode(mContext, "events");
+//                        Prefs.putXmppPubsubServer(mContext, "pubsub.p2psafety.net");
+//                        Prefs.putXmppServer(mContext, "p2psafety.net");
+//                        postRunnable.setResult(true);
+//                    }
+
+                    HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
+                            .append("/api/v1/public/settings/?format=json").toString());
+
+                    addUserAgentHeader(context, httpGet);
+                    httpGet.setHeader("Accept", "application/json");
+                    httpGet.setHeader("Content-type", "application/json");
+
+                    Log.i(TAG, "request: " + httpGet.getRequestLine().toString());
+
+                    LOGS.info("EventManager. getSettings. Request: " + httpGet.getRequestLine().toString());
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpGet);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute post request", e);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity());
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    LOGS.info("EventManager. getSettings. ResponseCode: " + responseCode);
+                    LOGS.info("EventManager. getSettings. ResponseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        Map<String, Object> data = mapper.readValue(responseContent, Map.class);
+                        Prefs.putFbAppId(mContext, String.valueOf(data.get("fb_app_id")));
+                        Prefs.putXmppEventsNotifNode(mContext, String.valueOf(data.get("xmpp_events_notification_node")));
+                        Prefs.putXmppPubsubServer(mContext, String.valueOf(data.get("xmpp_pubsub_server")));
+                        Prefs.putXmppServer(mContext, String.valueOf(data.get("xmpp_server")));
+
+                        LOGS.info("EventManager. getSettings. Success");
+                        postRunnable.setResult(true);
+                    } else {
+                        LOGS.info("EventManager. getSettings. Failure");
+                        postRunnable.setResult(false);
+                    }
+                    executeRunnable(context, postRunnable);
+                } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't create event", e);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(null);
+                    executeRunnable(context, postRunnable);
+                }
+            }
+        });
+    }
+
     public static void createEvent(final Context context) {
         createEvent(context, new DeliverResultRunnable());
     }
@@ -113,7 +207,10 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
-
+                    if (!isServerUrlNotNull())
+                    {
+                        throw new Exception();
+                    }
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/events/").toString());
 
@@ -267,7 +364,14 @@ public class NetworkManager {
                     }
                     return;
                 }
-
+                if (!isServerUrlNotNull())
+                {
+                    if (postRunnable != null) {
+                        postRunnable.setResult(null);
+                        postRunnable.run();
+                    }
+                    return;
+                }
                 try {
                     HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/events/").append(id).append("/").toString());
@@ -334,7 +438,10 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
-
+                    if (!isServerUrlNotNull())
+                    {
+                        throw new Exception();
+                    }
                     Event event = EventManager.getInstance(context).getEvent();
 
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
@@ -401,6 +508,10 @@ public class NetworkManager {
                     if (!Utils.isNetworkConnected(context, LOGS)) {
                         LOGS.info("EventManager. UpdateEvent. No network");
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+                    if (!isServerUrlNotNull())
+                    {
                         throw new Exception();
                     }
 
@@ -496,6 +607,14 @@ public class NetworkManager {
                     }
                     return;
                 }
+                if (!isServerUrlNotNull())
+                {
+                    if (postRunnable != null) {
+                        postRunnable.setResult(false);
+                        postRunnable.run();
+                    }
+                    return;
+                }
 
                 try {
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
@@ -565,6 +684,8 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
 
                     StringBuilder url = new StringBuilder()
                             .append(SERVER_URL).append("/api/v1/")
@@ -611,6 +732,66 @@ public class NetworkManager {
         });
     }
 
+    public static void getSupportEventUpdates(final Context context, final String support_event_id,
+                                       final DeliverResultRunnable<List<Event>> postRunnable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final int CODE_SUCCESS = 200;
+                final String TAG = "getSupportEventUpdates";
+                try {
+                    if (!Utils.isNetworkConnected(context, LOGS)) {
+                        errorDialog(context, Utils.DIALOG_NO_CONNECTION);
+                        throw new Exception();
+                    }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
+
+                    StringBuilder url = new StringBuilder()
+                            .append(SERVER_URL).append("/api/v1/")
+                            .append("events?supported=").append(support_event_id);
+
+                    HttpGet httpGet = new HttpGet(url.toString());
+                    addAuthHeader(context, httpGet);
+                    addUserAgentHeader(context, httpGet);
+                    httpGet.setHeader("Accept", "application/json");
+                    httpGet.setHeader("Content-type", "application/json");
+
+                    Log.i(TAG, "request: " + httpGet.getRequestLine().toString());
+
+                    HttpResponse response = null;
+                    try {
+                        response = httpClient.execute(httpGet);
+                    } catch (Exception e) {
+                        NetworkManager.LOGS.error("Can't execute get request", e);
+                        errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                        throw new Exception();
+                    }
+
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    String responseContent = EntityUtils.toString(response.getEntity(), "UTF-8");
+                    Log.i(TAG, "responseCode: " + responseCode);
+                    Log.i(TAG, "responseContent: " + responseContent);
+
+                    if (responseCode == CODE_SUCCESS) {
+                        List<Event> result = JsonHelper.jsonResponseToEvents(responseContent);
+
+                        postRunnable.setResult(result);
+                    } else {
+                        postRunnable.setResult(null);
+                    }
+
+                    executeRunnable(context, postRunnable);
+                } catch (Exception e) {
+                    NetworkManager.LOGS.error("Can't get supporterUpdates", e);
+                    errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
+                    postRunnable.setResult(null);
+                    executeRunnable(context, postRunnable);
+                }
+            }
+        });
+    }
+
     public static void getEvent(final Context context, final String event_id,
                                 final DeliverResultRunnable<Event> postRunnable) {
         executor.execute(new Runnable() {
@@ -623,6 +804,8 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
 
                     StringBuilder url = new StringBuilder()
                             .append(SERVER_URL).append("/api/v1/")
@@ -683,6 +866,8 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
 
                     StringBuilder url = new StringBuilder()
                             .append(SERVER_URL).append("/api/v1/")
@@ -743,6 +928,8 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
 
                     HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/events/?format=json")
@@ -804,6 +991,8 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
 
                     StringBuilder url = new StringBuilder()
                             .append(SERVER_URL).append("/api/v1/")
@@ -862,6 +1051,8 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
 
                     StringBuilder url = new StringBuilder()
                             .append(SERVER_URL).append("/api/v1/")
@@ -920,6 +1111,8 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
 
                     StringBuilder url = new StringBuilder()
                             .append(SERVER_URL).append("/api/v1/users/roles/");
@@ -979,6 +1172,8 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
 
                     StringBuilder url = new StringBuilder()
                             .append(SERVER_URL).append("/api/v1/users/movement_types/");
@@ -1037,6 +1232,8 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
 
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/users/roles/").toString());
@@ -1106,6 +1303,8 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
 
                     HttpPost httpPost = new HttpPost(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/users/movement_types/").toString());
@@ -1197,6 +1396,8 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
+                    if (!isServerUrlNotNull())
+                        throw new Exception();
 
                     StringBuilder url = new StringBuilder(SERVER_URL)
                             .append("/api/v1/auth/login/");

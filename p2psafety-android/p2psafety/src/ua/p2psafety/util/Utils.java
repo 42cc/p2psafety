@@ -222,7 +222,14 @@ public class Utils {
     }
 
     public static boolean isFbAuthenticated(Context context) {
-        Session currentSession = Session.openActiveSessionFromCache(context);
+        String appId = Prefs.getFbAppId(context);
+        if (appId == null)
+        {
+            appId = context.getString(R.string.app_id);
+        }
+
+        Session currentSession = new Session.Builder(context).setApplicationId(appId).build();
+        Session.setActiveSession(currentSession);
 
         if (currentSession == null) {
             SharedPreferences sharedPref =

@@ -1,17 +1,27 @@
 package ua.p2psafety.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.facebook.Session;
 
 import java.util.List;
 
 import ua.p2psafety.R;
+import ua.p2psafety.SosActivity;
+import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
+import ua.p2psafety.services.XmppService;
+import ua.p2psafety.util.NetworkManager;
+import ua.p2psafety.util.Utils;
 
 /**
  * @author Taras Melon
@@ -34,14 +44,12 @@ public class ServersAdapter extends BaseAdapter {
         datasourse.addServer(address);
         items.add(address);
         notifyDataSetChanged();
-
     }
 
     public void removeServer(String address) {
         datasourse.removeServer(address);
         items.remove(address);
         notifyDataSetChanged();
-
     }
 
     @Override
@@ -74,11 +82,12 @@ public class ServersAdapter extends BaseAdapter {
     private View newView(ViewGroup parent) {
         View v;
         LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        v = inflater.inflate(R.layout.phone_list_item, parent, false);
+        v = inflater.inflate(R.layout.server_list_item, parent, false);
         return v;
     }
 
     private void bindView(View view, final int position) {
+        final String selectedServer = datasourse.getSelectedServer();
         final TextView txt_phone = (TextView) view.findViewById(R.id.txt_phone);
 
         txt_phone.setText(items.get(position));
@@ -88,6 +97,15 @@ public class ServersAdapter extends BaseAdapter {
         ibtn_del.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (Utils.isServerAuthenticated(context))
+                {
+                    Toast.makeText(context, "Please first logout", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (items.get(position).equals(selectedServer))
+                {
+                    deleteServerSettings();
+                }
                 removeServer(txt_phone.getText().toString());
             }
         });
@@ -121,6 +139,78 @@ public class ServersAdapter extends BaseAdapter {
                 }
             }
         });
+
+        final CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBox);
+        if (items.get(position).equals(selectedServer))
+        {
+            checkBox.setChecked(true);
+        }
+        else
+        {
+            checkBox.setChecked(false);
+        }
+        checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final boolean isChecked = checkBox.isChecked();
+                if (Utils.isServerAuthenticated(context))
+                {
+                    checkBox.setChecked(!isChecked);
+                    Toast.makeText(context, "Please first logout", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (isChecked)
+                {
+                    Utils.setLoading(context, true);
+                    datasourse.setSelectedServer(items.get(position));
+                    notifyDataSetChanged();
+                    NetworkManager.getSettings(context, new NetworkManager
+                            .DeliverResultRunnable<Boolean>() {
+
+                        @Override
+                        public void deliver(Boolean val) {
+                            super.deliver(val);
+                            Utils.setLoading(context, false);
+                            if (val != null && val) {
+                                Session session = new Session.Builder(context
+                                ).setApplicationId(Prefs
+                                        .getFbAppId(context)).build();
+                                Session.setActiveSession(session);
+                            }
+                            else
+                            {
+                                datasourse.setSelectedServer(null);
+                                notifyDataSetChanged();
+                                context.startService(new Intent(context, XmppService.class));
+                                Toast.makeText(context, "Server has no settings. " +
+                                        "Please check the name of server or enter a new one",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onError(int errorCode) {
+                            super.onError(errorCode);
+                            Utils.setLoading(context, false);
+                        }
+                    });
+                }
+                else
+                {
+                    deleteServerSettings();
+                }
+            }
+        });
+    }
+
+    private void deleteServerSettings() {
+        SosActivity.mLogs.info("Deleting info about server");
+        Prefs.putFbAppId(context, null);
+        Prefs.putXmppEventsNotifNode(context, null);
+        Prefs.putXmppPubsubServer(context, null);
+        Prefs.putXmppServer(context, null);
+        datasourse.setSelectedServer(null);
+        context.stopService(new Intent(context, XmppService.class));
     }
 
     private void saveSortedData() {
