@@ -99,7 +99,7 @@ public class ServersAdapter extends BaseAdapter {
             public void onClick(View v) {
                 if (Utils.isServerAuthenticated(context))
                 {
-                    Toast.makeText(context, "Please first logout", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.please_first_logout, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (items.get(position).equals(selectedServer))
@@ -156,7 +156,7 @@ public class ServersAdapter extends BaseAdapter {
                 if (Utils.isServerAuthenticated(context))
                 {
                     checkBox.setChecked(!isChecked);
-                    Toast.makeText(context, "Please first logout", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.please_first_logout, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (isChecked)
@@ -182,8 +182,7 @@ public class ServersAdapter extends BaseAdapter {
                                 datasourse.setSelectedServer(null);
                                 notifyDataSetChanged();
                                 context.startService(new Intent(context, XmppService.class));
-                                Toast.makeText(context, "Server has no settings. " +
-                                        "Please check the name of server or enter a new one",
+                                Toast.makeText(context, R.string.no_settings,
                                         Toast.LENGTH_SHORT).show();
                             }
                         }

@@ -109,6 +109,11 @@ public class SosActivity extends ActionBarActivity {
 
         mEventManager = EventManager.getInstance(this);
 
+        if (Prefs.getSelectedServer(this) == null && Utils.isServerAuthenticated(this))
+        {
+            Utils.logout(this);
+        }
+
         mLogs.info("SosActivity. onCreate. Initiating NetworkManager");
         NetworkManager.init(this);
         mLogs.info("SosActivity. onCreate. Starting PowerButtonService");

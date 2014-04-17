@@ -31,6 +31,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.bugsense.trace.BugSenseHandler;
 import com.facebook.Request;
@@ -44,6 +45,7 @@ import java.security.MessageDigest;
 import ua.p2psafety.R;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
+import ua.p2psafety.services.XmppService;
 
 /**
  * Created by Taras Melon on 10.01.14.
@@ -339,6 +341,21 @@ public class Utils {
                 }
             });
         } catch (Exception e) {}
+    }
+
+    public static void logout(Context context)
+    {
+        if (Session.getActiveSession() != null)
+            Session.getActiveSession().closeAndClearTokenInformation();
+        Session.setActiveSession(null);
+        EventManager.getInstance(context).setEvent(null);
+        Prefs.putApiKey(context, null);
+        Prefs.putApiUsername(context, null);
+
+        XmppService.processing_event = false;
+
+        Toast.makeText(context, R.string.logged_out, Toast.LENGTH_SHORT)
+                .show();
     }
 
     public static void getFbUserInfo(final Context context)

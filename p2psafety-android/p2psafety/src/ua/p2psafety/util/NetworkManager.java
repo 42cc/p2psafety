@@ -124,20 +124,9 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
-                    if (!isServerUrlNotNull())
-                    {
+                    if (!isServerUrlNotNull()) {
                         throw new Exception();
                     }
-                    //mock answer
-//                    if (Prefs.getSelectedServer(context).equals("https://p2psafety.net"))
-//                    {
-//                        Prefs.putFbAppId(mContext, "784584141570570");
-//                        Prefs.putXmppEventsNotifNode(mContext, "events");
-//                        Prefs.putXmppPubsubServer(mContext, "pubsub.p2psafety.net");
-//                        Prefs.putXmppServer(mContext, "p2psafety.net");
-//                        postRunnable.setResult(true);
-//                    }
-
                     HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/public/settings/?format=json").toString());
 
