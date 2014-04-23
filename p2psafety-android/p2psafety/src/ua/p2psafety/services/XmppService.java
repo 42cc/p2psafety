@@ -111,6 +111,7 @@ public class XmppService extends Service {
                         Log.i(TAG, "Error during connection", e);
                         e.printStackTrace();
                         //try again
+                        mConnection.disconnect();
                         connectToServer();
                     }
                     }
