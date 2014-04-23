@@ -87,4 +87,14 @@ public class ServersDatasourse {
             }
         return servers;
     }
+
+    public void setSelectedServer(String position)
+    {
+        Prefs.putSelectedServer(context, position);
+    }
+
+    public String getSelectedServer()
+    {
+        return Prefs.getSelectedServer(context);
+    }
 }

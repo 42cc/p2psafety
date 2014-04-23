@@ -40,12 +40,7 @@ import ua.p2psafety.util.Utils;
 
 public class XmppService extends Service {
     private static final String TAG = "XmppService";
-    private static final String HOST = "p2psafety.net";
-
-    public static final String SUPPORTER_URL_KEY = "SUPPORTER_URL";
-    public static final String LOCATION_KEY = "LOCATION";
-    public static final String LAST_COMMENT_KEY = "LAST_COMMENT";
-    public static final String VICTIM_NAME_KEY = "VICTIM_NAME";
+    private static String HOST;
 
     // while asking user to accept some event,
     // don't ask him about other events
@@ -80,36 +75,47 @@ public class XmppService extends Service {
         return Service.START_STICKY;
     }
 
+    private boolean isServerUrlNotNull()
+    {
+        HOST = Prefs.getXmppServer(this);
+        logs.info("XMPP server is: " + HOST);
+        return HOST != null;
+    }
+
     private void connectToServer() {
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                logs.info("Getting xmpp connection configuration");
-                mSmackAndroid = SmackAndroid.init(XmppService.this);
-                mConnection = getConfiguredConnection(HOST);
+        if (isServerUrlNotNull())
+        {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    logs.info("Getting xmpp connection configuration");
+                    mSmackAndroid = SmackAndroid.init(XmppService.this);
+                    mConnection = getConfiguredConnection(HOST);
 
-                try {
-                    mUserLogin = Prefs.getApiUsername(XmppService.this);
-                    mUserPassword = Prefs.getApiKey(XmppService.this);
-                    mUserJid = mUserLogin + "@" + HOST;
+                    try {
+                        mUserLogin = Prefs.getApiUsername(XmppService.this);
+                        mUserPassword = Prefs.getApiKey(XmppService.this);
+                        mUserJid = mUserLogin + "@" + HOST;
 
-                    logs.info("Connecting to xmpp server");
-                    Log.i("XmppService", "login: " + mUserLogin + " password: " + mUserPassword +
-                            " jid: " + mUserJid);
+                        logs.info("Connecting to xmpp server");
+                        Log.i("XmppService", "login: " + mUserLogin + " password: " + mUserPassword +
+                                " jid: " + mUserJid);
 
-                    mConnection.connect();
-                    mConnection.login(mUserLogin, mUserPassword);
-                } catch (Exception e) {
-                    Log.i(TAG, "Error during connection");
-                    e.printStackTrace();
-                    return;
-                }
+                        mConnection.connect();
+                        mConnection.login(mUserLogin, mUserPassword);
 
-                setMessageListener(mConnection);
-                setPubsubListener(mConnection);
-            }
-        });
+                        setMessageListener(mConnection);
+                        setPubsubListener(mConnection);
+                    } catch (Exception e) {
+                        Log.i(TAG, "Error during connection", e);
+                        e.printStackTrace();
+                        //try again
+                        connectToServer();
+                    }
+                    }
+            });
+        }
     }
 
     private XMPPConnection getConfiguredConnection(String host) {
@@ -185,7 +191,7 @@ public class XmppService extends Service {
 //            }
 
             logs.info("getting xmpp pubsub node");
-            mNode = pbManager.getNode("events");
+            mNode = pbManager.getNode(Prefs.getXmppEventsNotifNode(this));
             mNode.addItemEventListener(new ItemEventListener() {
                 @Override
                 public void handlePublishedItems(ItemPublishEvent items) {
