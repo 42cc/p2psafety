@@ -58,7 +58,7 @@ public class ServersAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public String getItem(int position) {
         return items.get(position);
     }
 
@@ -109,6 +109,12 @@ public class ServersAdapter extends BaseAdapter {
                 removeServer(txt_phone.getText().toString());
             }
         });
+
+        // don't allow delete default server
+        if (items.get(position).equals(ServersDatasourse.DEFAULT_SERVER))
+            ibtn_del.setVisibility(View.INVISIBLE);
+        else
+            ibtn_del.setVisibility(View.VISIBLE);
 
         View arrowUp = view.findViewById(R.id.arrowUpBtn);
         arrowUp.setOnClickListener(new View.OnClickListener() {
