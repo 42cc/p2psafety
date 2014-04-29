@@ -111,6 +111,7 @@ public class XmppService extends Service {
                         Log.i(TAG, "Error during connection", e);
                         e.printStackTrace();
                         //try again
+                        mConnection.disconnect();
                         connectToServer();
                     }
                     }
@@ -122,7 +123,7 @@ public class XmppService extends Service {
         XMPPConnection connection;
         try {
             AndroidConnectionConfiguration connConfig = new AndroidConnectionConfiguration(host);
-
+            connConfig.setDebuggerEnabled(true);
             // don't ask me what this code does, I don't know :)  (it is required though)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 connConfig.setTruststoreType("AndroidCAStore");
@@ -180,7 +181,7 @@ public class XmppService extends Service {
     // this is the listener for pubsub (global) messages
     private void setPubsubListener(Connection connection) {
         try {
-            PubSubManager pbManager = new PubSubManager(connection);
+            PubSubManager pbManager = new PubSubManager(connection, Prefs.getXmppPubsubServer(this));
 
             // TODO: delete after debug
 //            DiscoverItems nodes = pbManager.discoverNodes(null);
