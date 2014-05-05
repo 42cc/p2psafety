@@ -266,7 +266,8 @@ public class SettingsFragment extends Fragment {
 
     public void logout() {
         Utils.logout(mActivity);
-
+        Toast.makeText(mActivity, R.string.logged_out, Toast.LENGTH_SHORT)
+                .show();
         setupOptions();
     }
 

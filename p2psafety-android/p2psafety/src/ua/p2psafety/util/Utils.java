@@ -351,11 +351,7 @@ public class Utils {
         EventManager.getInstance(context).setEvent(null);
         Prefs.putApiKey(context, null);
         Prefs.putApiUsername(context, null);
-
         XmppService.processing_event = false;
-
-        Toast.makeText(context, R.string.logged_out, Toast.LENGTH_SHORT)
-                .show();
     }
 
     public static void getFbUserInfo(final Context context)

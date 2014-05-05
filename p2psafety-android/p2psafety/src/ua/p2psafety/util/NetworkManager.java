@@ -111,7 +111,7 @@ public class NetworkManager {
     }
 
     public static void getSettings(final Context context,
-                                   final DeliverResultRunnable<Boolean> postRunnable) {
+                                   final DeliverResultRunnable postRunnable) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -163,16 +163,16 @@ public class NetworkManager {
                         Prefs.putXmppServer(mContext, String.valueOf(data.get("xmpp_server")));
 
                         LOGS.info("EventManager. getSettings. Success");
-                        postRunnable.setResult(true);
+                        //postRunnable.setResult(null);
                     } else {
                         LOGS.info("EventManager. getSettings. Failure");
-                        postRunnable.setResult(false);
+                        postRunnable.setUnsuccessful(responseCode);
                     }
                     executeRunnable(context, postRunnable);
                 } catch (Exception e) {
-                    NetworkManager.LOGS.error("Can't create event", e);
+                    NetworkManager.LOGS.error("Can't get servers settings", e);
                     errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
-                    postRunnable.setResult(null);
+                    postRunnable.setUnsuccessful(0);
                     executeRunnable(context, postRunnable);
                 }
             }
