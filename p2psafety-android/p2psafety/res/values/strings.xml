@@ -120,6 +120,8 @@
     <string name="viction_name">Victim name</string>
     <string name="passive_sos">Passive SOS</string>
     <string name="sos_reason">SOS reason</string>
+    <string name="no_settings">Server has no settings. Please check the name of server or enter a new one</string>
+    <string name="please_first_logout">Please first logout</string>
     <string name="supporter_mode">You are in support mode</string>
     <string name="please_authorize">Please log in on server</string>
 

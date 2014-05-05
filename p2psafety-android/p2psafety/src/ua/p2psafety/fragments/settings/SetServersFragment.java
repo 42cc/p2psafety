@@ -27,7 +27,7 @@ public class SetServersFragment extends Fragment {
                     if (mAdapter != null) {
                         EditText edt_addserver = (EditText) vParent.findViewById(R.id.edt_addserver);
                         String address = edt_addserver.getText().toString();
-                        if (address.length() > 0)
+                        if (address.length() > 0 && !isDuplicate(address))
                             mAdapter.addServer(address);
                         edt_addserver.setText("");
                     }
@@ -38,6 +38,13 @@ public class SetServersFragment extends Fragment {
 
     public SetServersFragment() {
         super();
+    }
+
+    private boolean isDuplicate(String address) {
+        for (int i=0; i < mAdapter.getCount(); ++i)
+            if (mAdapter.getItem(i).equalsIgnoreCase(address))
+                return true;
+        return false;
     }
 
     @Override

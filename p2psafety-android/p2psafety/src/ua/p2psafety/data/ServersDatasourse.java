@@ -18,6 +18,8 @@ public class ServersDatasourse {
     private static Logs LOGS;
     private Context context;
 
+    public static String DEFAULT_SERVER = "https://p2psafety.net";
+
     public ServersDatasourse(Context context) {
         this.context = context;
 
@@ -85,6 +87,22 @@ public class ServersDatasourse {
                 e.printStackTrace();
                 LOGS.error("Can't get string from JSON array", e);
             }
+
+        // if servers list is empty, add default server address
+        if (servers.isEmpty()) {
+            addServer(DEFAULT_SERVER);
+            servers = getAllServers();
+        }
         return servers;
+    }
+
+    public void setSelectedServer(String position)
+    {
+        Prefs.putSelectedServer(context, position);
+    }
+
+    public String getSelectedServer()
+    {
+        return Prefs.getSelectedServer(context);
     }
 }

@@ -110,6 +110,8 @@
     <string name="viction_name">Имя жертвы</string>
     <string name="passive_sos">Пассивная тревога</string>
     <string name="sos_reason">Причина тревоги</string>
+    <string name="no_settings">На сервере нету настроек. Пожалуйста, проверьте название сервера либо введите новое</string>
+    <string name="please_first_logout">Пожалуйста, сначала выйдите из сервера</string>
     <string name="supporter_mode">Вы находитесь в режиме поддержки</string>
     <string name="please_authorize">Пожалуйста, войдите на сервер</string>
 

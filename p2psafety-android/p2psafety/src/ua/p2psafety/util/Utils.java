@@ -31,6 +31,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.bugsense.trace.BugSenseHandler;
 import com.facebook.Request;
@@ -44,6 +45,7 @@ import java.security.MessageDigest;
 import ua.p2psafety.R;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
+import ua.p2psafety.services.XmppService;
 
 /**
  * Created by Taras Melon on 10.01.14.
@@ -222,7 +224,14 @@ public class Utils {
     }
 
     public static boolean isFbAuthenticated(Context context) {
-        Session currentSession = Session.openActiveSessionFromCache(context);
+        String appId = Prefs.getFbAppId(context);
+        if (appId == null)
+        {
+            appId = context.getString(R.string.app_id);
+        }
+
+        Session currentSession = new Session.Builder(context).setApplicationId(appId).build();
+        Session.setActiveSession(currentSession);
 
         if (currentSession == null) {
             SharedPreferences sharedPref =
@@ -332,6 +341,17 @@ public class Utils {
                 }
             });
         } catch (Exception e) {}
+    }
+
+    public static void logout(Context context)
+    {
+        if (Session.getActiveSession() != null)
+            Session.getActiveSession().closeAndClearTokenInformation();
+        Session.setActiveSession(null);
+        EventManager.getInstance(context).setEvent(null);
+        Prefs.putApiKey(context, null);
+        Prefs.putApiUsername(context, null);
+        XmppService.processing_event = false;
     }
 
     public static void getFbUserInfo(final Context context)

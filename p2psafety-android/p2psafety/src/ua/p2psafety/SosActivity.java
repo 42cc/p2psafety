@@ -97,10 +97,24 @@ public class SosActivity extends ActionBarActivity {
         mLogs = new Logs(this);
         mLogs.info("\n\n\n==========================\n==============================");
         mLogs.info("SosActivity. onCreate()");
+
+        String appId = Prefs.getFbAppId(this);
+        if (appId == null)
+        {
+            appId = getString(R.string.app_id);
+        }
+        Session session = new Session.Builder(getBaseContext()).setApplicationId(appId).build();
+        Session.setActiveSession(session);
+
         mUiHelper = new UiLifecycleHelper(this, null);
         mUiHelper.onCreate(savedInstanceState);
 
         mEventManager = EventManager.getInstance(this);
+
+        if (Prefs.getSelectedServer(this) == null && Utils.isServerAuthenticated(this))
+        {
+            Utils.logout(this);
+        }
 
         mLogs.info("SosActivity. onCreate. Initiating NetworkManager");
         NetworkManager.init(this);
@@ -295,7 +309,15 @@ public class SosActivity extends ActionBarActivity {
             Utils.errorDialog(activity, Utils.DIALOG_NO_CONNECTION);
             return;
         }
-        Session session = Session.getActiveSession();
+        String appId = Prefs.getFbAppId(this);
+        if (appId == null)
+        {
+            //get main app id, if appId is null
+            appId = getString(R.string.app_id);
+        }
+        Session session = new Session.Builder(getBaseContext()).setApplicationId(appId).build();
+        Session.setActiveSession(session);
+        session = Session.getActiveSession();
         if (session == null) {
             mLogs.info("SosActivity. No FB session. Opening a new one");
             Session.openActiveSession(activity, true, callback);

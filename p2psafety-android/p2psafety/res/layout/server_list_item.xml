@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:gravity="center_vertical"
+        android:id="@+id/checkBox"/>
+
+    <TextView
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/txt_phone"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:minEms="9"
+            android:layout_weight="1"
+            android:gravity="center_vertical"/>
+    <View
+            android:layout_height="match_parent"
+            android:layout_width="1dp"
+            android:background="@color/DimGray"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:layout_gravity="center"
+            android:padding="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"/>
+
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/arrowUpBtn"
+        android:contentDescription="@null"
+        android:layout_gravity="center"
+        android:src="@drawable/arrow_up"
+        android:background="@color/White"
+        android:scaleType="fitXY"
+        android:padding="@dimen/st_padding" />
+
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/arrowDownBtn"
+        android:layout_gravity="center"
+        android:src="@drawable/arrow_down"
+        android:contentDescription="@null"
+        android:background="@color/White"
+        android:scaleType="fitXY"
+        android:padding="@dimen/st_padding" />
+
+    <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/ibtn_del"
+            android:contentDescription="@null"
+            android:layout_gravity="center"
+            android:src="@drawable/del_sel"
+            android:adjustViewBounds="false"
+        android:layout_marginRight="10dp"
+        android:scaleType="fitXY" />
+
+</LinearLayout>
