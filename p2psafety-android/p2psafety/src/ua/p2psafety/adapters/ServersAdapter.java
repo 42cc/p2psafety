@@ -19,7 +19,9 @@ import ua.p2psafety.R;
 import ua.p2psafety.SosActivity;
 import ua.p2psafety.data.Prefs;
 import ua.p2psafety.data.ServersDatasourse;
+import ua.p2psafety.services.DelayedSosService;
 import ua.p2psafety.services.XmppService;
+import ua.p2psafety.util.EventManager;
 import ua.p2psafety.util.NetworkManager;
 import ua.p2psafety.util.Utils;
 
@@ -158,16 +160,23 @@ public class ServersAdapter extends BaseAdapter {
         checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final boolean isChecked = checkBox.isChecked();
-                if (Utils.isServerAuthenticated(mContext))
+                // check if we can switch server now
+                EventManager eventManager = EventManager.getInstance(mContext);
+                if (eventManager.isSosStarted() || eventManager.isPassiveSosStarted() ||
+                    eventManager.isSupportStarted() || DelayedSosService.isTimerOn())
                 {
-                    //checkBox.setChecked(!isChecked);
-                    //Toast.makeText(mContext, R.string.please_first_logout, Toast.LENGTH_SHORT).show();
-                    //return;
+                    checkBox.setChecked(!checkBox.isChecked());
+                    // tell user we can't
+                    Toast.makeText(mContext, R.string.no_settings_while_sos, Toast.LENGTH_LONG)
+                         .show();
+                    return;
+                }
+                // logout if needed
+                if (Utils.isServerAuthenticated(mContext)){
                     Utils.logout(mContext);
                 }
-                if (isChecked)
-                {
+                // switch server
+                if (checkBox.isChecked()) {
                     Utils.setLoading(mContext, true);
                     datasourse.setSelectedServer(items.get(position));
                     notifyDataSetChanged();
@@ -196,8 +205,7 @@ public class ServersAdapter extends BaseAdapter {
                         }
                     });
                 }
-                else
-                {
+                else {
                     deleteServerSettings();
                 }
             }
