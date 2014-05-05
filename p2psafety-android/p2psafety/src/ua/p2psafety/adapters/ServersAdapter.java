@@ -31,13 +31,13 @@ public class ServersAdapter extends BaseAdapter {
     private ServersDatasourse datasourse;
     private Typeface font;
     private List<String> items;
-    private Context context;
+    private Context mContext;
 
-    public ServersAdapter(Context context) {
-        this.context = context;
-        this.datasourse = new ServersDatasourse(context);
+    public ServersAdapter(Context mContext) {
+        this.mContext = mContext;
+        this.datasourse = new ServersDatasourse(mContext);
         this.items = datasourse.getAllServers();
-        this.font = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoCondensed-Light.ttf");
+        this.font = Typeface.createFromAsset(mContext.getAssets(), "fonts/RobotoCondensed-Light.ttf");
     }
 
     public void addServer(String address) {
@@ -81,7 +81,7 @@ public class ServersAdapter extends BaseAdapter {
 
     private View newView(ViewGroup parent) {
         View v;
-        LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) this.mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         v = inflater.inflate(R.layout.server_list_item, parent, false);
         return v;
     }
@@ -97,9 +97,9 @@ public class ServersAdapter extends BaseAdapter {
         ibtn_del.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Utils.isServerAuthenticated(context))
+                if (Utils.isServerAuthenticated(mContext))
                 {
-                    Toast.makeText(context, R.string.please_first_logout, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, R.string.please_first_logout, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (items.get(position).equals(selectedServer))
@@ -159,44 +159,40 @@ public class ServersAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 final boolean isChecked = checkBox.isChecked();
-                if (Utils.isServerAuthenticated(context))
+                if (Utils.isServerAuthenticated(mContext))
                 {
-                    checkBox.setChecked(!isChecked);
-                    Toast.makeText(context, R.string.please_first_logout, Toast.LENGTH_SHORT).show();
-                    return;
+                    //checkBox.setChecked(!isChecked);
+                    //Toast.makeText(mContext, R.string.please_first_logout, Toast.LENGTH_SHORT).show();
+                    //return;
+                    Utils.logout(mContext);
                 }
                 if (isChecked)
                 {
-                    Utils.setLoading(context, true);
+                    Utils.setLoading(mContext, true);
                     datasourse.setSelectedServer(items.get(position));
                     notifyDataSetChanged();
-                    NetworkManager.getSettings(context, new NetworkManager
-                            .DeliverResultRunnable<Boolean>() {
+                    NetworkManager.getSettings(mContext, new NetworkManager
+                            .DeliverResultRunnable<Void>() {
 
                         @Override
-                        public void deliver(Boolean val) {
-                            super.deliver(val);
-                            Utils.setLoading(context, false);
-                            if (val != null && val) {
-                                Session session = new Session.Builder(context
-                                ).setApplicationId(Prefs
-                                        .getFbAppId(context)).build();
-                                Session.setActiveSession(session);
-                            }
-                            else
-                            {
-                                datasourse.setSelectedServer(null);
-                                notifyDataSetChanged();
-                                context.startService(new Intent(context, XmppService.class));
-                                Toast.makeText(context, R.string.no_settings,
-                                        Toast.LENGTH_SHORT).show();
-                            }
+                        public void deliver(Void result) {
+                            Utils.setLoading(mContext, false);
+                            Session session = new Session.Builder(mContext)
+                                    .setApplicationId(Prefs.getFbAppId(mContext))
+                                    .build();
+                            Session.setActiveSession(session);
                         }
 
                         @Override
                         public void onError(int errorCode) {
-                            super.onError(errorCode);
-                            Utils.setLoading(context, false);
+                            Utils.setLoading(mContext, false);
+                            datasourse.setSelectedServer(null);
+                            notifyDataSetChanged();
+                            if (errorCode != 0) { // server responded, but it is not settings
+                                mContext.startService(new Intent(mContext, XmppService.class));
+                                Toast.makeText(mContext, R.string.no_settings,
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                 }
@@ -210,12 +206,12 @@ public class ServersAdapter extends BaseAdapter {
 
     private void deleteServerSettings() {
         SosActivity.mLogs.info("Deleting info about server");
-        Prefs.putFbAppId(context, null);
-        Prefs.putXmppEventsNotifNode(context, null);
-        Prefs.putXmppPubsubServer(context, null);
-        Prefs.putXmppServer(context, null);
+        Prefs.putFbAppId(mContext, null);
+        Prefs.putXmppEventsNotifNode(mContext, null);
+        Prefs.putXmppPubsubServer(mContext, null);
+        Prefs.putXmppServer(mContext, null);
         datasourse.setSelectedServer(null);
-        context.stopService(new Intent(context, XmppService.class));
+        mContext.stopService(new Intent(mContext, XmppService.class));
     }
 
     private void saveSortedData() {
