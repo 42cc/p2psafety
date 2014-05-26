@@ -265,18 +265,9 @@ public class SettingsFragment extends Fragment {
     }
 
     public void logout() {
-        if (Session.getActiveSession() != null)
-            Session.getActiveSession().closeAndClearTokenInformation();
-        Session.setActiveSession(null);
-        EventManager.getInstance(mActivity).setEvent(null);
-        Prefs.putApiKey(mActivity, null);
-        Prefs.putApiUsername(mActivity, null);
-
-        XmppService.processing_event = false;
-
+        Utils.logout(mActivity);
         Toast.makeText(mActivity, R.string.logged_out, Toast.LENGTH_SHORT)
                 .show();
-
         setupOptions();
     }
 

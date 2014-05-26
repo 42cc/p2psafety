@@ -57,7 +57,8 @@ public class PasswordFragment extends Fragment {
         editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (EventManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()) {
+                if (EventManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()
+                        || Prefs.isPassiveSosStarted(mActivity)) {
                     Toast.makeText(getActivity(), R.string.no_settings_while_sos,
                             Toast.LENGTH_LONG).show();
                     editText.clearFocus();
@@ -81,7 +82,8 @@ public class PasswordFragment extends Fragment {
         usePasswordBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (EventManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()) {
+                if (EventManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()
+                        || Prefs.isPassiveSosStarted(mActivity)) {
                     Toast.makeText(getActivity(), R.string.no_settings_while_sos, Toast.LENGTH_LONG)
                          .show();
                     usePasswordBtn.setChecked(!isChecked); // reset changes
@@ -97,7 +99,8 @@ public class PasswordFragment extends Fragment {
         btn_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (EventManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()) {
+                if (EventManager.getInstance(mActivity).isSosStarted() || DelayedSosService.isTimerOn()
+                        || Prefs.isPassiveSosStarted(mActivity)) {
                     // tell user we can't
                     Toast.makeText(getActivity(), R.string.no_settings_while_sos, Toast.LENGTH_LONG)
                          .show();

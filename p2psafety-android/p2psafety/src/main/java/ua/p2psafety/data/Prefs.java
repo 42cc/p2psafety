@@ -13,6 +13,7 @@ import ua.p2psafety.json.User;
 public class Prefs {
     private static final String IS_LOC_KEY = "IS_LOC_KEY";
     private static final String MSG = "MSG_KEY";
+    private static final String PASSIVE_MSG = "PASSIVE_MSG_KEY";
     private static final String IS_FIRST_RUN = "FIRST_RUN_KEY";
 
     private static final String SOS_DELAY_KEY = "SOS_DELAY";
@@ -22,6 +23,8 @@ public class Prefs {
 
     private static final String MEDIA_RECORD_TYPE = "MEDIA_RECORD_TYPE";
     private static final String MEDIA_RECORD_LENGTH = "MEDIA_RECORD_LENGTH";
+
+    private static final String IS_ACTIVE_TRUE = "IS_ACTIVE_TRUE";
 
     private static final String GMAIL_TOKEN = "GMAIL_TOKEN";
     private static final String API_KEY = "API_KEY";
@@ -33,6 +36,8 @@ public class Prefs {
     private static final String USER_IDENTIFIER = "USER_IDENTIFIER";
 
     private static final String IS_PROGRAM_RUNNING = "IS_PROGRAM_RUNNING";
+    private static final String PASSIVE_SOS_INTERVAL = "PASSIVE_SOS_INTERVAL";
+    private static final String PASSIVE_SOS_STARTED = "PASSIVE_SOS_STARTED";
     private static final String FB_APP_ID = "FB_APP_ID";
     private static final String XMPP_EVENTS_NOTIF_NODE = "XMPP_EVENTS_NOTIF_NODE";
     private static final String XMPP_PUBSUB_SERVER = "XMPP_PUBSUB_SERVER";
@@ -50,6 +55,10 @@ public class Prefs {
 
     public static void putMessage(Context context, String message) {
         getPrefs(context).edit().putString(MSG, message).commit();
+    }
+
+    public static void putPassiveMessage(Context context, String message) {
+        getPrefs(context).edit().putString(PASSIVE_MSG, message).commit();
     }
 
     public static void putSosDelay(Context context, long val) {
@@ -136,6 +145,14 @@ public class Prefs {
         getPrefs(context).edit().putBoolean(IS_SUPPORTER_MODE, val).commit();
     }
 
+    public static void putActiveTrue(Context context, boolean val) {
+        getPrefs(context).edit().putBoolean(IS_ACTIVE_TRUE, val).commit();
+    }
+
+    public static boolean isActiveTrue(Context context) {
+        return getPrefs(context).getBoolean(IS_ACTIVE_TRUE, false);
+    }
+
     public static void putSupportUrl(Context context, String val) {
         getPrefs(context).edit().putString(SUPPORT_URL, val).commit();
     }
@@ -146,6 +163,10 @@ public class Prefs {
 
     public static String getMessage(Context context) {
         return getPrefs(context).getString(MSG, context.getString(R.string.sos_message));
+    }
+
+    public static String getPassiveMessage(Context context) {
+        return getPrefs(context).getString(PASSIVE_MSG, context.getString(R.string.sos_message));
     }
 
     public static boolean isFirstRun(Context context) {
@@ -307,5 +328,23 @@ public class Prefs {
     public static void setProgramRunning(boolean val, Context context)
     {
         getPrefs(context).edit().putBoolean(IS_PROGRAM_RUNNING, val).commit();
+    }
+
+    public static long getPassiveSosInterval(Context context) {
+        return getPrefs(context).getLong(PASSIVE_SOS_INTERVAL, 2 * 60 * 1000);
+    }
+
+    public static void setPassiveSosInterval(Context context, long val)
+    {
+        getPrefs(context).edit().putLong(PASSIVE_SOS_INTERVAL, val).commit();
+    }
+
+    public static boolean isPassiveSosStarted(Context context) {
+        return getPrefs(context).getBoolean(PASSIVE_SOS_STARTED, false);
+    }
+
+    public static void setPassiveSosStarted(Context context, boolean val)
+    {
+        getPrefs(context).edit().putBoolean(PASSIVE_SOS_STARTED, val).commit();
     }
 }

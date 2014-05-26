@@ -69,7 +69,7 @@ public class SetMediaFragment extends Fragment {
         mSaveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (EventManager.getInstance(mActivity).isSosStarted()) {
+                if (EventManager.getInstance(mActivity).isSosStarted() || Prefs.isPassiveSosStarted(mActivity)) {
                     Toast.makeText(mActivity,
                             getString(R.string.no_settings_while_sos), Toast.LENGTH_LONG)
                          .show();

@@ -101,5 +101,9 @@
     <string name="servers">Адреси серверів</string>
     <string name="roles">Хочу допомогти</string>
     <string name="logout">Вихід (Logout)</string>
+    <string name="supporter_mode">Ви знаходитесь в режимі підтримки</string>
+    <string name="please_authorize">Будь ласка, увійдіть на сервер</string>
+    <string name="no_settings">На сервері немає налаштувань. Будь ласка, перевірте назву сервера або введіть нову</string>
+    <string name="please_first_logout">Будь ласка, спочатку вийдіть з сервера</string>
 
 </resources>

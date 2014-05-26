@@ -30,9 +30,11 @@ import java.util.List;
 
 import ua.p2psafety.adapters.StableArrayAdapter;
 import ua.p2psafety.data.Prefs;
+import ua.p2psafety.fragments.PassiveSosFragment;
 import ua.p2psafety.fragments.SendMessageFragment;
 import ua.p2psafety.json.Event;
 import ua.p2psafety.services.LocationService;
+import ua.p2psafety.services.PassiveSosService;
 import ua.p2psafety.services.PowerButtonService;
 import ua.p2psafety.services.XmppService;
 import ua.p2psafety.util.EventManager;
@@ -109,6 +111,11 @@ public class SosActivity extends ActionBarActivity {
 
         mEventManager = EventManager.getInstance(this);
 
+        if (Prefs.getSelectedServer(this) == null && Utils.isServerAuthenticated(this))
+        {
+            Utils.logout(this);
+        }
+
         mLogs.info("SosActivity. onCreate. Initiating NetworkManager");
         NetworkManager.init(this);
         mLogs.info("SosActivity. onCreate. Starting PowerButtonService");
@@ -120,7 +127,6 @@ public class SosActivity extends ActionBarActivity {
             startService(new Intent(this, XmppService.class));
         }
         Prefs.setProgramRunning(true, this);
-
         mIntentFilter = new IntentFilter(ACTION_SET_LOADING);
         mIntentFilter.addAction(ACTION_UNSET_LOADING);
     }
@@ -149,7 +155,8 @@ public class SosActivity extends ActionBarActivity {
             showErrorDialog(result);
         }
 
-        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted()) &&
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted() ||
+                mEventManager.isPassiveSosStarted()) &&
             !Utils.isServiceRunning(this, LocationService.class))
         {
             startService(new Intent(this, LocationService.class));
@@ -180,6 +187,10 @@ public class SosActivity extends ActionBarActivity {
             {
                 fragmentManager.beginTransaction().addToBackStack(fragment.getClass().getName())
                         .replace(R.id.content_frame, fragment).commit();
+            }
+            else if (fragmentClass.equals(PassiveSosFragment.class.getName()))
+            {
+                sendBroadcast(new Intent(PassiveSosService.PASSIVE_SOS_PASSWORD));
             }
 
             setIntent(new Intent(this, SosActivity.class));
@@ -216,7 +227,8 @@ public class SosActivity extends ActionBarActivity {
         mUiHelper.onPause();
         unregisterReceiver(mBroadcastReceiver);
 
-        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted())
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted() ||
+                mEventManager.isPassiveSosStarted())
             && Utils.isServiceRunning(this, LocationService.class))
         {
             stopService(new Intent(this, LocationService.class));
@@ -253,7 +265,8 @@ public class SosActivity extends ActionBarActivity {
     protected void onStop() {
         super.onStop();
 
-        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted())
+        if (!(mEventManager.isEventActive() || mEventManager.isSosStarted() ||
+                mEventManager.isPassiveSosStarted())
             && Utils.isServiceRunning(this, LocationService.class))
         {
             stopService(new Intent(this, LocationService.class));
@@ -264,7 +277,8 @@ public class SosActivity extends ActionBarActivity {
     protected void onStart() {
         super.onStart();
 
-        if (!((mEventManager.isEventActive() || mEventManager.isSosStarted())) &&
+        if (!((mEventManager.isEventActive() || mEventManager.isSosStarted()
+                || mEventManager.isPassiveSosStarted())) &&
             !Utils.isServiceRunning(this, LocationService.class))
         {
             startService(new Intent(this, LocationService.class));

@@ -111,7 +111,7 @@ public class NetworkManager {
     }
 
     public static void getSettings(final Context context,
-                                   final DeliverResultRunnable<Boolean> postRunnable) {
+                                   final DeliverResultRunnable postRunnable) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -124,20 +124,9 @@ public class NetworkManager {
                         errorDialog(context, Utils.DIALOG_NO_CONNECTION);
                         throw new Exception();
                     }
-                    if (!isServerUrlNotNull())
-                    {
+                    if (!isServerUrlNotNull()) {
                         throw new Exception();
                     }
-                    //mock answer
-//                    if (Prefs.getSelectedServer(context).equals("https://p2psafety.net"))
-//                    {
-//                        Prefs.putFbAppId(mContext, "784584141570570");
-//                        Prefs.putXmppEventsNotifNode(mContext, "events");
-//                        Prefs.putXmppPubsubServer(mContext, "pubsub.p2psafety.net");
-//                        Prefs.putXmppServer(mContext, "p2psafety.net");
-//                        postRunnable.setResult(true);
-//                    }
-
                     HttpGet httpGet = new HttpGet(new StringBuilder().append(SERVER_URL)
                             .append("/api/v1/public/settings/?format=json").toString());
 
@@ -174,16 +163,16 @@ public class NetworkManager {
                         Prefs.putXmppServer(mContext, String.valueOf(data.get("xmpp_server")));
 
                         LOGS.info("EventManager. getSettings. Success");
-                        postRunnable.setResult(true);
+                        //postRunnable.setResult(null);
                     } else {
                         LOGS.info("EventManager. getSettings. Failure");
-                        postRunnable.setResult(false);
+                        postRunnable.setUnsuccessful(responseCode);
                     }
                     executeRunnable(context, postRunnable);
                 } catch (Exception e) {
-                    NetworkManager.LOGS.error("Can't create event", e);
+                    NetworkManager.LOGS.error("Can't get servers settings", e);
                     errorDialog(context, Utils.DIALOG_NETWORK_ERROR);
-                    postRunnable.setResult(null);
+                    postRunnable.setUnsuccessful(0);
                     executeRunnable(context, postRunnable);
                 }
             }
@@ -528,6 +517,16 @@ public class NetworkManager {
                     JSONObject json = new JSONObject();
                     json.put("key", event.getKey());
                     json.put("text", data.get("text"));
+                    if (Prefs.isPassiveSosStarted(context))
+                    {
+                        json.put("active", false);
+                        json.put("delay", Prefs.getPassiveSosInterval(context));
+                    }
+                    if (Prefs.isActiveTrue(context))
+                    {
+                        json.put("active", true);
+                        Prefs.putActiveTrue(context, false);
+                    }
                     try {
                         Location loc = (Location) data.get("loc");
                         JSONObject jsonLocation = new JSONObject();
