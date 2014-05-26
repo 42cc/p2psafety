@@ -29,10 +29,7 @@ public class SosActivityTest {
         Intent intent = new Intent();
         intent.putExtra("testing", true);
         activity = Robolectric.buildActivity(SosActivity.class).withIntent(intent).create()
-                .visible().get();
-        activity.onPostCreate(null);
-        activity.onStart();
-        activity.onResume();
+                .postCreate(null).start().resume().visible().get();
 
         fragmentManager = activity.getSupportFragmentManager();
 
@@ -46,8 +43,7 @@ public class SosActivityTest {
     }
 
     @Test
-    public void assertion()
-    {
+    public void assertion() {
         assertTrue(true);
     }
 
