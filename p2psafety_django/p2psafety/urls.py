@@ -24,6 +24,7 @@ api_v1.register(RoleResource())
 api_v1.register(MovementTypeResource())
 api_v1.register(AuthResource())
 
+
 urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name='site/index.html'), name='index'),
     url(r'^', include('events.urls', namespace='events')),
