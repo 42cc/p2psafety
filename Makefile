@@ -35,7 +35,8 @@ shell:
 	$(MANAGE) shell
 
 test:
-	TESTING=1 $(TEST) --noinput $(TEST_OPTIONS)
+	TESTING=1 $(TEST) --noinput $(TEST_OPTIONS) && \
+	cd p2psafety-android/p2psafety && make all
 
 coverage:
 	TESTING=1 coverage run --source='.' p2psafety_django/manage.py test
