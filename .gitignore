@@ -42,7 +42,7 @@ nosetests.xml
 lint.xml
 project.properties
 
-local.properties
+#local.properties
 ant.properties
 build.xml
 proguard-project.txt
