@@ -8,6 +8,7 @@ buildscript {
         classpath 'com.squareup.gradle:gradle-android-test-plugin:0.9.1-SNAPSHOT'
     }
 }
+
 apply plugin: 'android'
 apply plugin: 'android-test'
 
