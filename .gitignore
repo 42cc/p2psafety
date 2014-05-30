@@ -91,3 +91,6 @@ p2psafety_django/docs/build/
 
 .env/
 *.log
+
+local.properties
+p2psafety-android/local.properties
