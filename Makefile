@@ -35,7 +35,7 @@ shell:
 	$(MANAGE) shell
 
 test:
-	TESTING=1 $(TEST) --noinput $(TEST_OPTIONS) && \
+	#TESTING=1 $(TEST) --noinput $(TEST_OPTIONS) && \
 	cd p2psafety-android/p2psafety && make all
 
 coverage:
