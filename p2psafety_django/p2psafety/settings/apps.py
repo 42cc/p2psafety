@@ -39,6 +39,7 @@ SRID = {
     'default': 4326,  # WGS84, stored in database
     'projected': 900913,  # for Spatialite distance calculation
 }
+
 POSTGIS_TEMPLATE = 'template_postgis'
 
 GOOGLE_API_KEY = NotImplemented
